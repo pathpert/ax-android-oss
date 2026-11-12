@@ -72,6 +72,13 @@ data class CheckoutUIState(
 
 data class PaymentSheetPresenterState(val setupClientId: String = "")
 
+@Deprecated(
+    message = "Legacy monolithic ViewModel replaced by CrowdfundCheckoutFeatureViewModel",
+    replaceWith = ReplaceWith(
+        "CrowdfundCheckoutFeatureViewModel",
+        "com.kickstarter.features.checkout.viewmodel.CrowdfundCheckoutFeatureViewModel"
+    )
+)
 class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? = null) : ViewModel() {
     val analytics = requireNotNull(environment.analytics())
     val apolloClient = requireNotNull(environment.apolloClientV2())

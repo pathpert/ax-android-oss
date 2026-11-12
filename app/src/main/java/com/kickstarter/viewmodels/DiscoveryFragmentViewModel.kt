@@ -44,6 +44,13 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import kotlinx.coroutines.rx2.asObservable
 
+@Deprecated(
+    message = "Legacy monolithic ViewModel replaced by DiscoveryFeatureViewModel",
+    replaceWith = ReplaceWith(
+        "DiscoveryFeatureViewModel",
+        "com.kickstarter.features.discovery.viewmodel.DiscoveryFeatureViewModel"
+    )
+)
 interface DiscoveryFragmentViewModel {
     interface Inputs :
         DiscoveryProjectCardAdapter.Delegate,

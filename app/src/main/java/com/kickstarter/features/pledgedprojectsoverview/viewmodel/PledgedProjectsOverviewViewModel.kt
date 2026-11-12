@@ -7,28 +7,26 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import com.kickstarter.R
+import com.kickstarter.ax.errors.DomainResult
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.features.pledgedprojectsoverview.data.ApolloPledgedProjectsRepository
 import com.kickstarter.features.pledgedprojectsoverview.data.PPOCard
+import com.kickstarter.features.pledgedprojectsoverview.data.PPO_PAGE_LIMIT
 import com.kickstarter.features.pledgedprojectsoverview.data.PledgeTierType
-import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsOverviewQueryData
+import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsPagingSource
+import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsRepository
 import com.kickstarter.features.pledgedprojectsoverview.data.isTier1Type
 import com.kickstarter.features.pledgedprojectsoverview.data.isTier2Type
 import com.kickstarter.features.pledgedprojectsoverview.extensions.isTier2Type
 import com.kickstarter.features.pledgedprojectsoverview.ui.PPOCardViewType
-import com.kickstarter.libs.AnalyticEvents
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.featureflag.FlagKey
 import com.kickstarter.libs.utils.extensions.isFalse
-import com.kickstarter.libs.utils.extensions.isTrue
 import com.kickstarter.models.Project
-import com.kickstarter.services.ApolloClientTypeV2
-import com.kickstarter.services.apiresponses.commentresponse.PageInfoEnvelope
-import com.kickstarter.services.mutations.CreateOrUpdateBackingAddressData
-import com.kickstarter.services.mutations.UpdateBackerCompletedData
 import com.kickstarter.ui.compose.designsystem.KSSnackbarTypes
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -40,68 +38,27 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 
-private val PAGE_LIMIT = 10
-class PledgedProjectsPagingSource(
-    private val apolloClient: ApolloClientTypeV2,
-    private val analyticEvents: AnalyticEvents,
-    private val limit: Int = PAGE_LIMIT,
-    private val tierTypes: List<PledgeTierType>,
-
-) : PagingSource<String, PPOCard>() {
-    override fun getRefreshKey(state: PagingState<String, PPOCard>): String {
-        return "" // - Default first page is empty string when paginating with graphQL
-    }
-
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, PPOCard> {
-        return try {
-            var ppoCardsList = emptyList<PPOCard>()
-            var nextPageEnvelope: PageInfoEnvelope? = null
-            var inputData = PledgedProjectsOverviewQueryData(limit, params.key ?: "", tierTypes = tierTypes)
-            var result: LoadResult<String, PPOCard> = LoadResult.Error(Throwable())
-
-            apolloClient.getPledgedProjectsOverviewPledges(
-                inputData = inputData
-            )
-                .asFlow()
-                .catch {
-                    result = LoadResult.Error(it)
-                }
-                .collect { envelope ->
-                    analyticEvents.trackPledgedProjectsOverviewPageViewed(envelope.pledges() ?: emptyList(), envelope.totalCount() ?: 0)
-                    ppoCardsList = envelope.pledges() ?: emptyList()
-                    nextPageEnvelope = if (envelope.pageInfoEnvelope?.hasNextPage == true) envelope.pageInfoEnvelope else null
-                    result = LoadResult.Page(
-                        data = ppoCardsList,
-                        prevKey = null,
-                        nextKey = nextPageEnvelope?.endCursor
-                    )
-                }
-            return result
-        } catch (e: Exception) {
-            LoadResult.Error(e)
-        }
-    }
-}
-
 data class PledgedProjectsOverviewUIState(
     val isLoading: Boolean = false,
     val isErrored: Boolean = false,
     val totalAlerts: Int? = null,
+    val problem: ProblemDetails? = null
 )
 
 class PledgedProjectsOverviewViewModel(
     environment: Environment,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val repository: PledgedProjectsRepository = ApolloPledgedProjectsRepository(
+        requireNotNull(environment.apolloClientV2())
+    )
 ) : ViewModel() {
 
     private val mutablePpoCards = MutableStateFlow<PagingData<PPOCard>>(PagingData.empty())
@@ -125,7 +82,7 @@ class PledgedProjectsOverviewViewModel(
     private var pagingSource = PledgedProjectsPagingSource(
         apolloClient = apolloClient,
         analyticEvents = analyticEvents,
-        limit = PAGE_LIMIT,
+        limit = PPO_PAGE_LIMIT,
         tierTypes = getAllowedTierTypes()
     )
 
@@ -143,7 +100,7 @@ class PledgedProjectsOverviewViewModel(
             .asSharedFlow()
             .shareIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(),
+                started = SharingStarted.WhileSubscribed()
             )
 
     init {
@@ -162,9 +119,9 @@ class PledgedProjectsOverviewViewModel(
             try {
                 Pager(
                     PagingConfig(
-                        pageSize = PAGE_LIMIT,
+                        pageSize = PPO_PAGE_LIMIT,
                         prefetchDistance = 3,
-                        enablePlaceholders = true,
+                        enablePlaceholders = true
                     )
                 ) {
                     pagingSource
@@ -178,75 +135,78 @@ class PledgedProjectsOverviewViewModel(
                     }
                     .onStart {
                         emitCurrentState(isLoading = true)
-                    }.catch {
-                        emitCurrentState(isErrored = true)
+                    }.catch { throwable ->
+                        emitCurrentState(
+                            isErrored = true,
+                            problem = ProblemDetailsMapper.fromThrowable(
+                                throwable = throwable,
+                                operation = "load pledged projects overview"
+                            )
+                        )
                     }
                     .collectLatest { pagingData ->
                         mutablePpoCards.value = pagingData
                         emitCurrentState()
                     }
             } catch (e: Exception) {
-                emitCurrentState(isErrored = true)
+                emitCurrentState(
+                    isErrored = true,
+                    problem = ProblemDetailsMapper.fromThrowable(
+                        throwable = e,
+                        operation = "load pledged projects overview"
+                    )
+                )
             }
         }
     }
 
     fun confirmAddress(addressID: String, backingID: String) {
-        val input = CreateOrUpdateBackingAddressData(backingID = backingID, addressID = addressID)
-        viewModelScope
-            .launch(ioDispatcher) {
-                apolloClient
-                    .createOrUpdateBackingAddress(input)
-                    .asFlow()
-                    .onStart {
-                        emitCurrentState(isLoading = true)
-                    }.map {
-                        if (it.isTrue()) {
-                            showHeadsUpSnackbar(R.string.Address_confirmed_need_to_change_your_address_before_it_locks)
-                            getPledgedProjects()
-                        } else {
-                            showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
-                        }
-                    }.catch {
-                        showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
-                    }.onCompletion {
-                        emitCurrentState()
-                    }.collect()
+        viewModelScope.launch(ioDispatcher) {
+            emitCurrentState(isLoading = true)
+            when (val result = repository.confirmAddress(addressID, backingID)) {
+                is DomainResult.Success -> {
+                    showHeadsUpSnackbar(R.string.Address_confirmed_need_to_change_your_address_before_it_locks)
+                    getPledgedProjects()
+                }
+                is DomainResult.Failure -> {
+                    showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
+                    emitCurrentState(problem = result.problem)
+                }
             }
+        }
     }
 
     fun onRewardRecievedChanged(backingID: String, checked: Boolean) {
-        val input = UpdateBackerCompletedData(backingID = backingID, backerCompleted = checked)
-        viewModelScope
-            .launch(ioDispatcher) {
-                apolloClient
-                    .updateBackerCompleted(input)
-                    .asFlow()
-                    .catch {
-                        showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
-                    }
-                    .onCompletion {
-                        emitCurrentState()
-                    }.collect()
+        viewModelScope.launch(ioDispatcher) {
+            when (val result = repository.updateRewardReceived(backingID, checked)) {
+                is DomainResult.Success -> emitCurrentState()
+                is DomainResult.Failure -> {
+                    showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
+                    emitCurrentState(problem = result.problem)
+                }
             }
+        }
     }
 
     fun onMessageCreatorClicked(projectName: String, projectId: String, creatorID: String, ppoCards: List<PPOCard?>, totalAlerts: Int) {
         viewModelScope.launch(ioDispatcher) {
-            analyticEvents.trackPPOMessageCreatorCTAClicked(projectID = projectId, ppoCards = ppoCards, totalCount = totalAlerts, creatorID = creatorID)
-            apolloClient.getProject(
-                slug = projectName,
+            analyticEvents.trackPPOMessageCreatorCTAClicked(
+                projectID = projectId,
+                ppoCards = ppoCards,
+                totalCount = totalAlerts,
+                creatorID = creatorID
             )
-                .asFlow()
-                .onStart {
-                    emitCurrentState(isLoading = true)
-                }.map { project ->
-                    mutableProjectFlow.emit(project)
-                }.catch {
-                    showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
-                }.onCompletion {
+            emitCurrentState(isLoading = true)
+            when (val result = repository.fetchProjectBySlug(projectName)) {
+                is DomainResult.Success -> {
+                    mutableProjectFlow.emit(result.value)
                     emitCurrentState()
-                }.collect()
+                }
+                is DomainResult.Failure -> {
+                    showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
+                    emitCurrentState(problem = result.problem)
+                }
+            }
         }
     }
 
@@ -258,12 +218,17 @@ class PledgedProjectsOverviewViewModel(
         emitCurrentState(isLoading = isLoading)
     }
 
-    private suspend fun emitCurrentState(isLoading: Boolean = false, isErrored: Boolean = false) {
+    private suspend fun emitCurrentState(
+        isLoading: Boolean = false,
+        isErrored: Boolean = false,
+        problem: ProblemDetails? = null
+    ) {
         mutablePPOUIState.emit(
             PledgedProjectsOverviewUIState(
                 isLoading = isLoading,
                 isErrored = isErrored,
-                totalAlerts = totalAlerts
+                totalAlerts = totalAlerts,
+                problem = problem
             )
         )
     }
@@ -296,11 +261,15 @@ class PledgedProjectsOverviewViewModel(
 
     class Factory(
         private val environment: Environment,
-        private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    ) :
-        ViewModelProvider.Factory {
+        private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return PledgedProjectsOverviewViewModel(environment, ioDispatcher) as T
+            require(modelClass.isAssignableFrom(PledgedProjectsOverviewViewModel::class.java)) {
+                "Unsupported ViewModel class: ${modelClass.name}"
+            }
+            val vm = PledgedProjectsOverviewViewModel(environment, ioDispatcher)
+            return modelClass.cast(vm)
+                ?: throw IllegalStateException("Failed to cast ${vm::class.java.name} to ${modelClass.name}")
         }
     }
 }

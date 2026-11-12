@@ -1,4 +1,4 @@
-package com.kickstarter.features.projecstory.ui
+package com.kickstarter.features.projectstory.ui
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -29,8 +29,6 @@ import coil.request.ErrorResult
 import coil.request.SuccessResult
 import coil.test.FakeImageLoaderEngine
 import com.kickstarter.KSRobolectricTestCase
-import com.kickstarter.features.projectstory.ui.ProjectStoryCaptionedImage
-import com.kickstarter.features.projectstory.ui.ProjectStoryCaptionedImageTestTag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher

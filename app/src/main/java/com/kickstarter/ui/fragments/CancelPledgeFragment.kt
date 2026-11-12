@@ -2,27 +2,26 @@ package com.kickstarter.ui.fragments
 
 import android.os.Bundle
 import android.text.SpannableString
-import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
-import com.kickstarter.KSApplication
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.kickstarter.R
 import com.kickstarter.databinding.FragmentCancelPledgeBinding
-import com.kickstarter.libs.rx.transformers.Transformers.observeForUIV2
+import com.kickstarter.features.cancelpledge.data.CancelPledgeEvent
+import com.kickstarter.features.cancelpledge.viewmodel.CancelPledgeFeatureViewModel
 import com.kickstarter.libs.utils.ViewUtils
-import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.getEnvironment
 import com.kickstarter.models.Project
 import com.kickstarter.ui.ArgumentsKey
 import com.kickstarter.ui.extensions.snackbar
 import com.kickstarter.ui.extensions.text
-import com.kickstarter.viewmodels.CancelPledgeViewModel.CancelPledgeViewModel
-import com.kickstarter.viewmodels.CancelPledgeViewModel.Factory
-import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.launch
 
 class CancelPledgeFragment : Fragment() {
 
@@ -32,95 +31,97 @@ class CancelPledgeFragment : Fragment() {
 
     private var binding: FragmentCancelPledgeBinding? = null
 
-    private lateinit var viewModelFactory: Factory
-    private val viewModel: CancelPledgeViewModel by viewModels {
+    private lateinit var viewModelFactory: CancelPledgeFeatureViewModel.Factory
+    private val viewModel: CancelPledgeFeatureViewModel by viewModels {
         viewModelFactory
     }
-    private val disposables = CompositeDisposable()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentCancelPledgeBinding.inflate(inflater, container, false)
         return binding?.root
     }
 
-    override fun onDestroy() {
-        disposables.clear()
-        super.onDestroy()
+    override fun onDestroyView() {
+        binding = null
+        super.onDestroyView()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        this.context?.getEnvironment()?.let { env ->
-            viewModelFactory = Factory(env, bundle = arguments)
-        }
+        val env = this.context?.getEnvironment()
+        viewModelFactory = CancelPledgeFeatureViewModel.Factory(env, bundle = arguments)
 
-        this.viewModel.outputs.pledgeAmountAndProjectName()
-            .compose(observeForUIV2())
-            .subscribe { setPromptText(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showServerError()
-            .compose(observeForUIV2())
-            .subscribe { binding?.cancelPledgeRoot?.let { view -> snackbar(view, getString(R.string.Something_went_wrong_please_try_again)).show() } }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showCancelError()
-            .compose(observeForUIV2())
-            .subscribe { binding?.cancelPledgeRoot?.let { view -> snackbar(view, it).show() } }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.dismiss()
-            .compose(observeForUIV2())
-            .subscribe { dismiss() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.success()
-            .compose(observeForUIV2())
-            .subscribe { (context as CancelPledgeDelegate?)?.pledgeSuccessfullyCancelled() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.progressBarIsVisible()
-            .compose(observeForUIV2())
-            .subscribe { binding?.progressBar?.let { view -> ViewUtils.setGone(view, !it) } }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.cancelButtonIsVisible()
-            .compose(observeForUIV2())
-            .subscribe { binding?.yesCancelPledgeButton?.let { view -> ViewUtils.setGone(view, !it) } }
-            .addToDisposable(disposables)
-
-        binding?.yesCancelPledgeButton?.setOnClickListener {
-            binding?.cancellationNote?.text()?.let { text ->
-                this.viewModel.inputs.confirmCancellationClicked(
-                    text
-                )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { state ->
+                        if (state.isReady) {
+                            setPromptText(state.formattedPledgeAmount, state.projectName)
+                        }
+                        binding?.progressBar?.let { progressView ->
+                            ViewUtils.setGone(progressView, !state.isSubmitting)
+                        }
+                        binding?.yesCancelPledgeButton?.let { button ->
+                            ViewUtils.setGone(button, !state.isCancelButtonVisible)
+                            button.isEnabled = !state.isSubmitting
+                        }
+                        state.problem?.let { problem ->
+                            binding?.cancelPledgeRoot?.let { root ->
+                                snackbar(root, "${problem.detail} ${problem.suggestedAction}").show()
+                            }
+                            viewModel.clearProblem()
+                        }
+                    }
+                }
+                launch {
+                    viewModel.events.collect { event ->
+                        when (event) {
+                            CancelPledgeEvent.Dismiss -> dismiss()
+                            CancelPledgeEvent.Succeeded -> {
+                                (context as? CancelPledgeDelegate)?.pledgeSuccessfullyCancelled()
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        binding?.noCancelPledgeButton ?.setOnClickListener {
-            this.viewModel.inputs.goBackButtonClicked()
+        binding?.yesCancelPledgeButton?.setOnClickListener {
+            val note = binding?.cancellationNote?.text().orEmpty()
+            viewModel.confirmCancellationClicked(note)
+        }
+
+        binding?.noCancelPledgeButton?.setOnClickListener {
+            viewModel.goBackButtonClicked()
         }
     }
 
     private fun dismiss() {
-        parentFragmentManager?.popBackStack(CancelPledgeFragment::class.java.simpleName, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        parentFragmentManager.popBackStack(
+            CancelPledgeFragment::class.java.simpleName,
+            FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
     }
 
-    private fun setPromptText(amountAndProjectName: Pair<String, String>) {
-        val ksString = requireNotNull((activity?.applicationContext as? KSApplication)?.component()?.environment()?.ksString())
-        val amount = amountAndProjectName.first
-        val name = amountAndProjectName.second
+    private fun setPromptText(amount: String, projectName: String) {
+        val ksString = context?.getEnvironment()?.ksString() ?: return
         val formattedString = ksString.format(
             getString(R.string.Are_you_sure_you_wish_to_cancel_your_amount_pledge_to_project_name),
-            "amount", amount, "project_name", name
+            "amount",
+            amount,
+            "project_name",
+            projectName
         )
 
         val spannableString = SpannableString(formattedString)
-
         ViewUtils.addBoldSpan(spannableString, amount)
-        ViewUtils.addBoldSpan(spannableString, name)
+        ViewUtils.addBoldSpan(spannableString, projectName)
 
         binding?.cancelPrompt?.text = spannableString
     }

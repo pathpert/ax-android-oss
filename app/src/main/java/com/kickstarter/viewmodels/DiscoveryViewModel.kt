@@ -41,6 +41,13 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic ViewModel replaced by DiscoveryFeatureViewModel",
+    replaceWith = ReplaceWith(
+        "DiscoveryFeatureViewModel",
+        "com.kickstarter.features.discovery.viewmodel.DiscoveryFeatureViewModel"
+    )
+)
 interface DiscoveryViewModel {
     interface Inputs : DiscoveryDrawerAdapter.Delegate, DiscoveryPagerAdapter.Delegate {
 

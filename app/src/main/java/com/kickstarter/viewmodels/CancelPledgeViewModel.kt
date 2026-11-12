@@ -21,6 +21,14 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.math.RoundingMode
 
+@Deprecated(
+    message = "Replaced by com.kickstarter.features.cancelpledge.viewmodel.CancelPledgeFeatureViewModel " +
+        "with validated contracts, ProblemDetails error mapping, and IdempotencyGuard.",
+    replaceWith = ReplaceWith(
+        "CancelPledgeFeatureViewModel",
+        "com.kickstarter.features.cancelpledge.viewmodel.CancelPledgeFeatureViewModel"
+    )
+)
 interface CancelPledgeViewModel {
     interface Inputs {
         /** Call when user clicks the confirmation button. */

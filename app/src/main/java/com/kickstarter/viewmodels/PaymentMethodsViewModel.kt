@@ -72,6 +72,14 @@ interface Outputs {
     fun isPaymentSheetGooglePayEnabled(): Boolean
 }
 
+@Deprecated(
+    message = "Replaced by com.kickstarter.features.paymentmethods.viewmodel.PaymentMethodsFeatureViewModel " +
+        "with strictly-typed PaymentMethodCard, IdempotencyGuard, and RFC 9457 ProblemDetails.",
+    replaceWith = ReplaceWith(
+        "PaymentMethodsFeatureViewModel",
+        "com.kickstarter.features.paymentmethods.viewmodel.PaymentMethodsFeatureViewModel"
+    )
+)
 class PaymentMethodsViewModel(environment: Environment) : ViewModel(), PaymentMethodsAdapter.Delegate, Inputs, Outputs {
 
     private val confirmDeleteCardClicked = PublishSubject.create<Unit>()

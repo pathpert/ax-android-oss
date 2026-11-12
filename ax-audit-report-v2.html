@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AX Audit Report v2 — Kickstarter Android OSS</title>
+  <style>
+    :root {
+      --color-pass: #059669;
+      --color-needs-work: #d97706;
+      --color-fail: #dc2626;
+      --color-bg: #f9fafb;
+      --color-card: #ffffff;
+      --color-text: #111827;
+      --color-text-secondary: #4b5563;
+      --color-border: #d1d5db;
+      --color-accent: #3b82f6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-bg: #0f172a;
+        --color-card: #1e293b;
+        --color-text: #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-border: #475569;
+        --color-pass: #22c55e;
+        --color-needs-work: #fbbf24;
+        --color-fail: #f87171;
+        --color-accent: #60a5fa;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--color-border);
+    }
+    .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .header .meta { color: var(--color-text-secondary); font-size: 0.9rem; }
+    .header .meta div { margin: 0.25rem 0; }
+    .header .version-badge {
+      display: inline-block;
+      background: var(--color-accent);
+      color: #fff;
+      padding: 0.15rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    /* ── Pillar Definitions Overview ── */
+    .pillar-overview {
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .pillar-overview h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .pillar-overview .overview-intro {
+      color: var(--color-text-secondary);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .pillar-defs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .pillar-def {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .pillar-def:hover {
+      border-color: var(--color-accent);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+    .pillar-def .def-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .pillar-def .def-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .pillar-def .def-desc { font-size: 0.8rem; color: var(--color-text-secondary); line-height: 1.4; }
+    .pillar-def .def-score {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+    .pillar-def .def-score.pass { background: var(--color-pass); color: #fff; }
+    .pillar-def .def-score.needs-work { background: var(--color-needs-work); color: #fff; }
+    .pillar-def .def-score.fail { background: var(--color-fail); color: #fff; }
+
+    /* ── Score Summary Grid ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .summary-card {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+    .summary-card:hover {
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    .summary-card.active {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+    .summary-card.overall { grid-column: 1 / -1; font-size: 1.25rem; cursor: default; }
+    .summary-card.overall:hover { border-color: transparent; transform: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .summary-card .label { color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 0.25rem; }
+    .summary-card .pillar-name { font-weight: 600; margin: 0.25rem 0; }
+    .summary-card .delta {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    /* ── Interactive Nav ── */
+    .pillar-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .pillar-nav .nav-label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      margin-right: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .nav-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      border: 2px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text);
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      border-color: var(--color-accent);
+      background: rgba(59, 130, 246, 0.08);
+    }
+    .nav-btn.active {
+      background: var(--color-accent);
+      color: #fff;
+      border-color: var(--color-accent);
+    }
+    .nav-btn .btn-score {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+    }
+    .nav-btn .btn-score.pass { background: var(--color-pass); }
+    .nav-btn .btn-score.needs-work { background: var(--color-needs-work); }
+    .nav-btn .btn-score.fail { background: var(--color-fail); }
+
+    /* ── Sections ── */
+    .section { transition: opacity 0.3s ease, max-height 0.4s ease; }
+    .section.dimmed { opacity: 0.15; pointer-events: none; max-height: 0; overflow: hidden; margin: 0; padding: 0; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+    .badge.pass { background: var(--color-pass); color: #fff; }
+    .badge.needs-work { background: var(--color-needs-work); color: #fff; }
+    .badge.fail { background: var(--color-fail); color: #fff; }
+
+    /* ── Pillar Section ── */
+    .pillar-section {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .pillar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .pillar-header h2 { font-size: 1.5rem; }
+    .pillar-definition {
+      background: var(--color-bg);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid var(--color-accent);
+    }
+    .pillar-definition .def-why {
+      font-style: italic;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    .pillar-definition .def-checks {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+    }
+    .pillar-definition .def-checks strong {
+      color: var(--color-text);
+    }
+
+    /* ── Violations ── */
+    .violation {
+      background: #fef3c7;
+      border-left: 4px solid var(--color-needs-work);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      color: #78350f;
+    }
+    .violation.critical {
+      background: #fee2e2;
+      border-left-color: var(--color-fail);
+      color: #7f1d1d;
+    }
+    @media (prefers-color-scheme: dark) {
+      .violation { background: #451a03; color: #fed7aa; }
+      .violation.critical { background: #450a0a; color: #fecaca; }
+    }
+    .violation h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .violation-meta { font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; }
+    .violation-meta code {
+      background: rgba(0,0,0,0.08);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .violation-meta code { background: rgba(255,255,255,0.1); }
+    }
+    .violation-detail { margin: 0.5rem 0; }
+    .violation-detail strong { display: inline-block; min-width: 100px; }
+    .violation pre {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
+      line-height: 1.5;
+    }
+    .violation pre .bad { color: #fca5a5; }
+    .violation pre .good { color: #86efac; }
+    .violation pre .comment { color: #9ca3af; }
+
+    /* ── Positive ── */
+    .positive {
+      background: #d1fae5;
+      border-left: 4px solid var(--color-pass);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      color: #064e3b;
+    }
+    @media (prefers-color-scheme: dark) {
+      .positive { background: #064e3b; color: #d1fae5; }
+    }
+    .positive h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .positive pre {
+      background: #064e3b;
+      color: #d1fae5;
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
+      line-height: 1.5;
+    }
+    @media (prefers-color-scheme: dark) {
+      .positive pre { background: #022c22; color: #d1fae5; }
+    }
+
+    /* ── Quick Wins ── */
+    .quick-wins {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      .quick-wins { background: linear-gradient(135deg, #451a03 0%, #78350f 100%); }
+    }
+    .quick-wins h2 { color: #92400e; margin-bottom: 0.5rem; }
+    @media (prefers-color-scheme: dark) { .quick-wins h2 { color: #fbbf24; } }
+    .section-intro { color: var(--color-text-secondary); margin-bottom: 1.5rem; font-style: italic; }
+    .quick-win-card {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .quick-win-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .quick-win-number {
+      background: var(--color-needs-work);
+      color: white;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; flex-shrink: 0;
+    }
+    .quick-win-header h3 { flex: 1; font-size: 1.2rem; }
+    .effort-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .effort-badge.low { background: var(--color-pass); color: white; }
+    .effort-badge.medium { background: var(--color-needs-work); color: white; }
+    .quick-win-body p { margin: 0.5rem 0; }
+    .quick-win-body pre {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
+      line-height: 1.5;
+    }
+    .best-practice-inline {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      border-radius: 4px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .best-practice-inline { background: #1e3a8a; color: #dbeafe; }
+    }
+
+    /* ── Strategic ── */
+    .strategic {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      .strategic { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
+    }
+    .strategic h2 { color: #1e40af; margin-bottom: 0.5rem; }
+    @media (prefers-color-scheme: dark) { .strategic h2 { color: #60a5fa; } }
+    .phase {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .phase-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .phase-badge {
+      background: #3b82f6; color: white;
+      padding: 0.5rem 1rem; border-radius: 9999px;
+      font-weight: 600; font-size: 0.875rem;
+    }
+    .phase-tasks { list-style: none; padding-left: 0; }
+    .phase-tasks li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--color-border);
+      position: relative;
+      padding-left: 1.5rem;
+    }
+    .phase-tasks li:before {
+      content: "\2192";
+      position: absolute; left: 0;
+      color: #3b82f6; font-weight: bold;
+    }
+
+    /* ── Best Practices ── */
+    .best-practices-section {
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .practice-card {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.2s ease;
+    }
+    .practice-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    .practice-card h3 { color: #1e40af; margin-bottom: 1rem; font-size: 1.25rem; }
+    @media (prefers-color-scheme: dark) { .practice-card h3 { color: #60a5fa; } }
+    .practice-content p { margin: 0.75rem 0; }
+    .practice-content .example {
+      background: var(--color-bg);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .practice-content pre {
+      background: #1f2937; color: #f3f4f6;
+      padding: 1rem; border-radius: 6px;
+      overflow-x: auto; font-size: 0.8rem; margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+
+    /* ── Recommendations ── */
+    .recommendations {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .recommendations h2 { margin-bottom: 1rem; }
+    .recommendations table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    .recommendations th, .recommendations td {
+      padding: 0.75rem; text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .recommendations th { background: var(--color-bg); font-weight: 600; }
+    .priority-critical { color: var(--color-fail); font-weight: 600; }
+    .priority-high { color: var(--color-needs-work); font-weight: 600; }
+    .priority-medium { color: #3b82f6; font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-item .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+    .stat-item .stat-label {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Filter indicator ── */
+    .filter-indicator {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--color-accent);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+    .filter-indicator.visible { display: flex; }
+    .filter-clear {
+      background: var(--color-accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      margin-left: auto;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .header h1 { font-size: 1.75rem; }
+      .pillar-section { padding: 1.25rem; }
+      .pillar-nav { padding: 0.75rem 1rem; }
+      .nav-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <div class="header">
+    <h1>🔍 AX Audit Report <span class="version-badge">v2</span></h1>
+    <div class="meta">
+      <div><strong>Project:</strong> Kickstarter Android OSS</div>
+      <div><strong>Date:</strong> 2026-11-13</div>
+      <div><strong>Scope:</strong> Entire project — 1,099 Kotlin/Java source files · 180,005 LOC · covering <code>app/src/main</code>, <code>app/src/test</code>, <code>features/</code>, <code>viewmodels/</code>, <code>models/</code>, <code>libs/</code>, <code>services/</code>, <code>ui/</code>, and the new <code>ax/</code> framework</div>
+      <div><strong>v2 changes:</strong> Line-level citations · before/after refactorings · expanded showcase of the <code>ax/</code> framework · unsafe-cast &amp; <code>!!</code> audit · deeper error-path analysis</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STATS BAR ═══════════ -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-value">1,099</div>
+      <div class="stat-label">Source Files</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">180,005</div>
+      <div class="stat-label">Lines of Code</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">271</div>
+      <div class="stat-label">God-Files (&gt;300 lines)</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">2.8%</div>
+      <div class="stat-label">KDoc Coverage</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">163</div>
+      <div class="stat-label">Test Files</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">6</div>
+      <div class="stat-label">Idempotency Keys</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">96</div>
+      <div class="stat-label"><code>!!</code> Assertions</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR DEFINITIONS OVERVIEW ═══════════ -->
+  <div class="pillar-overview">
+    <h2>📖 What Are the 5 AX Pillars?</h2>
+    <p class="overview-intro">Agent Experience (AX) measures how well your codebase supports AI agent consumption. Click any pillar to jump to its detailed findings.</p>
+    <div class="pillar-defs">
+      <div class="pillar-def" onclick="focusPillar('p1')">
+        <div class="def-icon">🏗️</div>
+        <div class="def-title">Pillar 1: Modularization</div>
+        <div class="def-desc">Are features self-contained with files under 300 lines? Can an agent reason about one concept at a time without loading dozens of files?</div>
+        <span class="def-score fail">FAIL</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p2')">
+        <div class="def-icon">🔒</div>
+        <div class="def-title">Pillar 2: Contracts</div>
+        <div class="def-desc">Are types strict and validated? Do sealed classes prevent hallucination? Are there no loose Any types or public lateinit vars?</div>
+        <span class="def-score needs-work">NEEDS WORK</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p3')">
+        <div class="def-icon">📝</div>
+        <div class="def-title">Pillar 3: Descriptions</div>
+        <div class="def-desc">Does every public API, data class, and enum have KDoc explaining purpose, constraints, and negative constraints ("Do not use for X")?</div>
+        <span class="def-score fail">FAIL</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p4')">
+        <div class="def-icon">⚠️</div>
+        <div class="def-title">Pillar 4: Errors</div>
+        <div class="def-desc">Are errors structured with suggested_action and is_retriable? Can an agent determine recovery steps without guessing?</div>
+        <span class="def-score needs-work">NEEDS WORK</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p5')">
+        <div class="def-icon">🛡️</div>
+        <div class="def-title">Pillar 5: Safety</div>
+        <div class="def-desc">Are mutating operations idempotent? Are there concurrency primitives and retry policies? Can agents operate safely at machine tempo?</div>
+        <span class="def-score needs-work">NEEDS WORK</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SCORE SUMMARY ═══════════ -->
+  <div class="summary-grid">
+    <div class="summary-card overall">
+      <div class="label">Overall Score</div>
+      <div class="badge needs-work">NEEDS WORK</div>
+      <div class="delta">v1 → v2: confirmed, deeper analysis below</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p1')" id="card-p1">
+      <div class="label">Pillar 1</div>
+      <div class="pillar-name">Modularization</div>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p2')" id="card-p2">
+      <div class="label">Pillar 2</div>
+      <div class="pillar-name">Contracts</div>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p3')" id="card-p3">
+      <div class="label">Pillar 3</div>
+      <div class="pillar-name">Descriptions</div>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p4')" id="card-p4">
+      <div class="label">Pillar 4</div>
+      <div class="pillar-name">Errors</div>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p5')" id="card-p5">
+      <div class="label">Pillar 5</div>
+      <div class="pillar-name">Safety</div>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ INTERACTIVE NAV ═══════════ -->
+  <div class="pillar-nav" id="pillarNav">
+    <span class="nav-label">Focus:</span>
+    <button class="nav-btn active" onclick="focusPillar('all')">All Pillars</button>
+    <button class="nav-btn" onclick="focusPillar('p1')"><span class="btn-score fail"></span>P1 Modularization</button>
+    <button class="nav-btn" onclick="focusPillar('p2')"><span class="btn-score needs-work"></span>P2 Contracts</button>
+    <button class="nav-btn" onclick="focusPillar('p3')"><span class="btn-score fail"></span>P3 Descriptions</button>
+    <button class="nav-btn" onclick="focusPillar('p4')"><span class="btn-score needs-work"></span>P4 Errors</button>
+    <button class="nav-btn" onclick="focusPillar('p5')"><span class="btn-score needs-work"></span>P5 Safety</button>
+    <button class="nav-btn" onclick="focusPillar('actions')"><span class="btn-score" style="background:var(--color-accent)"></span>📋 Actions</button>
+  </div>
+
+  <!-- ═══════════ FILTER INDICATOR ═══════════ -->
+  <div class="filter-indicator" id="filterIndicator">
+    <span>🔎 Showing: <strong id="filterLabel">All Pillars</strong></span>
+    <button class="filter-clear" onclick="focusPillar('all')">✕ Clear Filter</button>
+  </div>
+
+  <!-- ═══════════ QUICK WINS ═══════════ -->
+  <div class="quick-wins section" data-section="actions">
+    <h2>⚡ Quick Wins — Short-Term Improvements</h2>
+    <p class="section-intro">High-impact, low-effort fixes you can implement immediately (1-2 days). Each includes a concrete before/after.</p>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">1</div>
+        <h3>Replace <code>throw Exception()</code> with <code>DomainResult.Failure(ProblemDetails(...))</code></h3>
+        <span class="effort-badge low">Low</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>What:</strong> <code>SplashScreenViewModel.kt:199</code> throws a bare <code>Exception()</code> with no message, no type, and no recovery hint. The catch block on line 201 immediately admits: <em>"todo: we're bringing the user into the app anyways to emulate current behavior"</em>. Agents reading this code cannot determine what failed or whether to retry.</p>
+        <p><strong>Before:</strong></p>
+<pre><span class="bad">// app/src/main/java/com/kickstarter/viewmodels/SplashScreenViewModel.kt:194-206</span>
+<span class="bad">if (isInitialized.isNotEmpty() &amp;&amp; isInitialized.all { it.isTrue() }) {</span>
+<span class="bad">    mutableUiState.emit(SplashUIState.Finished)</span>
+<span class="bad">    application.mutableInitializationState.value = InitializationState.FINISHED</span>
+<span class="bad">    processIntent(externalCall = externalCall)</span>
+<span class="bad">} else {</span>
+<span class="bad">    throw Exception()  // ← no message, no type, no recovery</span>
+<span class="bad">}</span>
+<span class="bad">// catch (e: Exception) { ... todo: we're bringing the user in anyways }</span></pre>
+        <p><strong>After:</strong></p>
+<pre><span class="good">val initResult = runCatching { awaitAll(ffClientInitialization) }</span>
+<span class="good">val allOk = initResult.getOrNull()?.let {</span>
+<span class="good">    it.isNotEmpty() &amp;&amp; it.all { b -&gt; b.isTrue() }</span>
+<span class="good">} ?: false</span>
+<span class="good"></span>
+<span class="good">if (allOk) {</span>
+<span class="good">    mutableUiState.emit(SplashUIState.Finished)</span>
+<span class="good">    application.mutableInitializationState.value = InitializationState.FINISHED</span>
+<span class="good">    processIntent(externalCall = externalCall)</span>
+<span class="good">} else {</span>
+<span class="good">    mutableUiState.emit(SplashUIState.Failed(</span>
+<span class="good">        ProblemDetails(</span>
+<span class="good">            type = ProblemDetails.TYPE_SERVER,</span>
+<span class="good">            title = "Feature-Flag Initialization Failed",</span>
+<span class="good">            status = 503,</span>
+<span class="good">            detail = "Statsig/feature-flag client did not initialize on startup.",</span>
+<span class="good">            suggestedAction = "Retry app cold-start. If persistent, escalate to platform team.",</span>
+<span class="good">            isRetriable = true,</span>
+<span class="good">            retryAfterSeconds = 5</span>
+<span class="good">        )</span>
+<span class="good">    ))</span>
+<span class="good">}</span></pre>
+        <p><strong>Impact:</strong> Agents can now branch on <code>isRetriable</code> and honor <code>retryAfterSeconds</code>. UI can render a retry button instead of silently swallowing the failure.</p>
+        <p><strong>Files:</strong> <code>viewmodels/SplashScreenViewModel.kt</code>, <code>viewmodels/OAuthViewModel.kt</code>, <code>libs/ApiPaginatorV2.kt</code> (5 similar cases)</p>
+      </div>
+    </div>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">2</div>
+        <h3>Replace unsafe <code>as Project?</code> casts with <code>BundleCompat</code> + <code>DomainResult</code></h3>
+        <span class="effort-badge low">Low</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>What:</strong> The legacy <code>CancelPledgeViewModel.kt:90-91</code> uses unsafe <code>as Project?</code> casts. The new <code>CancelPledgeBundleMapper</code> in <code>features/cancelpledge/</code> already shows the correct pattern — retrofit the legacy file to match.</p>
+        <p><strong>Before:</strong></p>
+<pre><span class="bad">// viewmodels/CancelPledgeViewModel.kt:90-91</span>
+<span class="bad">.filter { (it.getParcelable(ArgumentsKey.CANCEL_PLEDGE_PROJECT) as Project?).isNotNull() }</span>
+<span class="bad">.map { it.getParcelable(ArgumentsKey.CANCEL_PLEDGE_PROJECT) as Project? }</span></pre>
+        <p><strong>After:</strong></p>
+<pre><span class="good">.map { intent -&gt;</span>
+<span class="good">    val bundle = intent.getBundleExtra(ArgumentsKey.CANCEL_PLEDGE_ARGS)</span>
+<span class="good">    CancelPledgeBundleMapper.fromBundle(bundle, ksCurrency)</span>
+<span class="good">}</span>
+<span class="good">.filter { it is DomainResult.Success }</span></pre>
+        <p><strong>Impact:</strong> Eliminates <code>ClassCastException</code> risk. Agents can see the validation path and the exact error returned when the bundle is malformed.</p>
+        <p><strong>Files:</strong> <code>viewmodels/CancelPledgeViewModel.kt</code>, <code>viewmodels/ReportProjectViewModel.kt:99</code>, <code>viewmodels/MessageCreatorViewModel.kt:73</code>, <code>viewmodels/CreatorBioViewModel.kt:67</code>, <code>viewmodels/ThreadViewModel.kt:491</code></p>
+        <div class="best-practice-inline">
+          <strong>📚 Best Practice — Pillar 2:</strong> Never use <code>as</code> for Bundle/Intent extras. Use <code>BundleCompat.getParcelable()</code> and validate with a typed mapper that returns <code>DomainResult</code>.
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">3</div>
+        <h3>Convert <code>ApiPaginatorV2.Builder</code> runtime checks into compile-time types</h3>
+        <span class="effort-badge medium">Medium</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>What:</strong> <code>ApiPaginatorV2.kt:159-171</code> throws 5 different <code>RuntimeException</code>s when required builder fields are missing. These are compile-time errors masquerading as runtime errors.</p>
+        <p><strong>Before:</strong></p>
+<pre><span class="bad">// libs/ApiPaginatorV2.kt:159-171</span>
+<span class="bad">fun build(): ApiPaginatorV2&lt;Data, Envelope, Params&gt; {</span>
+<span class="bad">    if (!::nextPage.isInitialized) throw RuntimeException("`nextPage` is required")</span>
+<span class="bad">    if (!::envelopeToListOfData.isInitialized) throw RuntimeException("`envelopeToListOfData` is required")</span>
+<span class="bad">    if (!::loadWithParams.isInitialized) throw RuntimeException("`loadWithParams` is required")</span>
+<span class="bad">    if (!::loadWithPaginationPath.isInitialized) throw RuntimeException("`loadWithPaginationPath` is required")</span>
+<span class="bad">    if (!::envelopeToMoreUrl.isInitialized) throw RuntimeException("`envelopeToMoreUrl` is required")</span>
+<span class="bad">    return ApiPaginatorV2(...)</span>
+<span class="bad">}</span></pre>
+        <p><strong>After:</strong> Use a staged-builder pattern so missing fields are a compile error:</p>
+<pre><span class="good">interface NextPageStep   { fun envelopeToListOfData(f: ...): LoadWithParamsStep }</span>
+<span class="good">interface LoadWithParamsStep { fun loadWithParams(f: ...): LoadWithPathStep }</span>
+<span class="good">interface LoadWithPathStep   { fun loadWithPaginationPath(f: ...): MoreUrlStep }</span>
+<span class="good">interface MoreUrlStep        { fun envelopeToMoreUrl(f: ...): FinalStep }</span>
+<span class="good">interface FinalStep {</span>
+<span class="good">    fun startOverWith(o: Observable&lt;Params&gt;?): FinalStep</span>
+<span class="good">    fun build(): ApiPaginatorV2&lt;Data, Envelope, Params&gt;</span>
+<span class="good">}</span></pre>
+        <p><strong>Impact:</strong> Agents cannot produce a paginator missing a required field — the compiler refuses it. Eliminates 5 RuntimeException code paths.</p>
+        <p><strong>Files:</strong> <code>libs/ApiPaginatorV2.kt</code>, <code>libs/loadmore/ApolloPaginateV2.kt</code> (same pattern, 3 more throws)</p>
+      </div>
+    </div>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">4</div>
+        <h3>Wrap <code>IdempotencyGuard</code> around all mutating GraphQL mutations</h3>
+        <span class="effort-badge medium">Medium</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>What:</strong> The new <code>IdempotencyGuard</code> in <code>ax/safety/</code> is production-ready but only 6 files use it. The most dangerous mutations — <code>CreateBackingMutation</code>, <code>CompleteOnSessionCheckoutMutation</code>, <code>UpdateBackingMutation</code>, <code>CancelBackingMutation</code>, <code>CreatePaymentIntentMutation</code> — have no protection.</p>
+        <p><strong>Before (in <code>KSApolloClientV2.kt</code>):</strong></p>
+<pre><span class="bad">suspend fun createBacking(input: CreateBackingInput): DomainResult&lt;Checkout&gt; {</span>
+<span class="bad">    return try {</span>
+<span class="bad">        val response = apolloClient.mutation(CreateBackingMutation(input)).execute()</span>
+<span class="bad">        ...</span>
+<span class="bad">    } catch (e: ApolloException) {</span>
+<span class="bad">        DomainResult.Failure(ProblemDetailsMapper.fromApollo(e))</span>
+<span class="bad">    }</span>
+<span class="bad">}</span></pre>
+        <p><strong>After:</strong></p>
+<pre><span class="good">private val createBackingGuard = IdempotencyGuard()</span>
+<span class="good"></span>
+<span class="good">suspend fun createBacking(input: CreateBackingInput): DomainResult&lt;Checkout&gt; =</span>
+<span class="good">    createBackingGuard.runSingleFlight("createBacking") { idempotencyKey -&gt;</span>
+<span class="good">        try {</span>
+<span class="good">            val response = apolloClient.mutation(</span>
+<span class="good">                CreateBackingMutation(input.copy(clientMutationId = idempotencyKey.value))</span>
+<span class="good">            ).execute()</span>
+<span class="good">            ...</span>
+<span class="good">        } catch (e: ApolloException) {</span>
+<span class="good">            DomainResult.Failure(ProblemDetailsMapper.fromApollo(e))</span>
+<span class="good">        }</span>
+<span class="good">    }</span></pre>
+        <p><strong>Impact:</strong> Prevents duplicate pledges/payments when agents retry at machine tempo. The guard also honors <code>Retry-After</code> cooldowns automatically.</p>
+        <p><strong>Files:</strong> <code>services/KSApolloClientV2.kt</code>, <code>ax/safety/IdempotencyGuard.kt</code></p>
+      </div>
+    </div>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">5</div>
+        <h3>Audit and eliminate the 96 <code>!!</code> (not-null assertion) usages</h3>
+        <span class="effort-badge low">Low</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>What:</strong> 96 occurrences of <code>!!</code> across the codebase. Each is a latent <code>KotlinNullPointerException</code> that agents cannot predict. Examples: <code>SplashScreenViewModel.kt:595</code> (<code>extras[APPLICATION_KEY]!! as KSApplication</code>), <code>KSApplication.kt:197</code> (<code>t.cause as ApolloHttpException</code>).</p>
+        <p><strong>Before:</strong></p>
+<pre><span class="bad">val ksApplication = extras[APPLICATION_KEY]!! as KSApplication</span></pre>
+        <p><strong>After:</strong></p>
+<pre><span class="good">val ksApplication = (extras[APPLICATION_KEY] as? KSApplication)</span>
+<span class="good">    ?: return DomainResult.Failure(ProblemDetails(</span>
+<span class="good">        type = ProblemDetails.TYPE_UNEXPECTED,</span>
+<span class="good">        title = "Application Not Available",</span>
+<span class="good">        detail = "SplashScreen requires KSApplication in extras.",</span>
+<span class="good">        suggestedAction = "Launch via KSApplication entry point.",</span>
+<span class="good">        isRetriable = false</span>
+<span class="good">    ))</span></pre>
+        <p><strong>Impact:</strong> Every <code>!!</code> removed is a crash that an agent can now handle gracefully with a structured error.</p>
+        <p><strong>Files:</strong> 96 sites across <code>viewmodels/</code>, <code>libs/</code>, <code>ui/</code>. Start with <code>SplashScreenViewModel.kt</code>, <code>KSApplication.kt</code>, <code>PushNotifications.kt</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STRATEGIC IMPROVEMENTS ═══════════ -->
+  <div class="strategic section" data-section="actions">
+    <h2>🎯 Strategic Improvements — Long-Term Roadmap</h2>
+    <p class="section-intro">Architectural changes that yield lasting benefits (2-4 weeks)</p>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-badge">Phase 1 — Week 1</span>
+        <h3>Foundation: Migrate legacy features to the AX framework</h3>
+      </div>
+      <ul class="phase-tasks">
+        <li>Create <code>features/</code> directories for the top 10 legacy features still scattered across <code>viewmodels/</code> and <code>ui/activities/</code>: <code>discovery</code>, <code>projectpage</code>, <code>backing</code>, <code>login</code>, <code>comments</code>, <code>messages</code>, <code>updates</code>, <code>search</code>, <code>settings</code>, <code>checkout</code>.</li>
+        <li>For each feature, co-locate: <code>data/</code> (repository, contracts), <code>viewmodel/</code>, <code>ui/</code> (Activity/Compose), and colocated <code>*Test.kt</code> files.</li>
+        <li>Adopt <code>DomainResult&lt;T&gt;</code> and <code>ProblemDetails</code> as the universal return type for all repositories.</li>
+        <li>Replace <code>lateinit var</code> with constructor-injected <code>val</code> in every new feature module. The <code>KSApplication.kt:51-75</code> file alone has 9 <code>lateinit var</code> fields — convert to Dagger/Hilt constructor injection.</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-badge">Phase 2 — Week 2</span>
+        <h3>Core: Strict contracts and domain primitives</h3>
+      </div>
+      <ul class="phase-tasks">
+        <li>Audit all 158 files using loose <code>: Any</code> types. Replace with sealed interfaces, concrete types, or the new <code>NonBlankId</code> / <code>MinorCurrencyAmount</code> domain primitives from <code>ax/types/DomainPrimitives.kt</code>.</li>
+        <li>Convert the 271 god-files (&gt;300 lines) into smaller, single-responsibility files. Target: &lt;300 lines each. Extract helper functions, private composables, and test utilities into sibling files.</li>
+        <li>Add KDoc to every public declaration in <code>models/</code>, <code>ax/</code>, and <code>features/*/data/</code>. Include negative constraints ("Do not use for X") on every domain primitive.</li>
+        <li>Introduce a <code>RateLimitInterceptor</code> in the Apollo/OkHttp chain that surfaces <code>Retry-After</code> and <code>X-RateLimit-*</code> headers into the existing <code>RateLimitBackoff.fromHeaders()</code> helper (already built in <code>ax/types/DomainPrimitives.kt:160</code> — just wire it in).</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-badge">Phase 3 — Weeks 3-4</span>
+        <h3>Polish: Agent-safe pagination, concurrency, and testing</h3>
+      </div>
+      <ul class="phase-tasks">
+        <li>Refactor <code>ApiPaginatorV2</code> to expose a coroutine <code>Flow</code> API with built-in backoff and cancellation. Add <code>ETag</code>-based optimistic locking for concurrent backing updates.</li>
+        <li>Add an AX compliance check to the CI pipeline: fail the build if a new file exceeds 300 lines, lacks KDoc on public APIs, uses <code>lateinit var</code> outside a narrow allowlist, or uses <code>!!</code>.</li>
+        <li>Expand test coverage from 163 to 400+ files. Prioritize tests for <code>ax/</code> framework, <code>features/*/data/</code> repositories, and <code>ProblemDetailsMapper</code>.</li>
+        <li>Publish an internal "AX Style Guide" Markdown doc in the repo root so coding agents (and humans) have a single source of truth for the 5 pillars. Use <code>CancelPledgeContracts.kt</code> and <code>DomainPrimitives.kt</code> as the canonical examples.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR 1 ═══════════ -->
+  <div class="pillar-section section" data-pillar="p1" id="section-p1">
+    <div class="pillar-header">
+      <h2>🏗️ Pillar 1: Component-Local Modularization</h2>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents have limited context windows. Scattered features force agents to load multiple files and lose coherence. Self-contained modules let agents reason about one concept at a time.</p>
+      <p class="def-checks"><strong>We check for:</strong> Feature self-containment · Files under 300 lines · Colocated tests · Related types/constants live alongside implementation · shared/core contains only truly cross-cutting concerns</p>
+    </div>
+
+    <div class="violation critical">
+      <h3>271 god-files exceed 300-line limit</h3>
+      <div class="violation-meta">Pillar 1 · Severity: Critical · 271 files affected</div>
+      <div class="violation-detail"><strong>Issue:</strong> Nearly 25% of the codebase (271 / 1,099 files) exceeds the 300-line agent-friendly limit. Worst offenders:</div>
+      <div class="violation-detail">
+        <code>ProjectPageViewModelTest.kt</code> — 2,694 lines<br>
+        <code>SegmentTest.kt</code> — 2,254 lines<br>
+        <code>KSApolloClientV2.kt</code> — 2,235 lines<br>
+        <code>BackingFragmentViewModelTest.kt</code> — 1,684 lines<br>
+        <code>CrowdfundCheckoutViewModelTest.kt</code> — 1,632 lines<br>
+        <code>ProjectPageViewModel.kt</code> — 1,574 lines<br>
+        <code>SearchScreen.kt</code> — 1,574 lines<br>
+        <code>ProjectPageActivity.kt</code> — 1,523 lines
+      </div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot load these files into context without saturation. They miss logic in distant lines, hallucinate function signatures, and produce broken edits.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Split each god-file along responsibility lines. <code>KSApolloClientV2.kt</code> should become one file per domain (<code>BackingQueries.kt</code>, <code>ProjectQueries.kt</code>, <code>PaymentMutations.kt</code>, etc.). Large ViewModels should extract use cases into sibling files.</div>
+    </div>
+
+    <div class="violation critical">
+      <h3>Legacy features scattered across generic directories</h3>
+      <div class="violation-meta">Pillar 1 · Severity: Critical · 160+ ViewModels in single directory</div>
+      <div class="violation-detail"><strong>Issue:</strong> The <code>viewmodels/</code> directory contains 160 files — one flat list for the entire app. Similarly, <code>models/</code> (107 files), <code>extensions/</code> (61 files), <code>activities/</code> (46 files), and <code>utils/</code> (35 files) are dumping grounds.</div>
+      <div class="violation-detail"><strong>Impact:</strong> An agent tasked with "fix the discovery filter" must load 5+ files from 4 different directories. It cannot infer which files belong together.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Follow the pattern already established in <code>features/cancelpledge/</code>, <code>features/pledgeredemption/</code>, and <code>features/socialshare/</code>: each feature gets <code>data/</code>, <code>viewmodel/</code>, <code>ui/</code>, and colocated tests. Migrate one feature per sprint.</div>
+    </div>
+
+    <div class="violation">
+      <h3>Tests are not colocated with feature code</h3>
+      <div class="violation-meta">Pillar 1 · Severity: High · 163 test files</div>
+      <div class="violation-detail"><strong>Issue:</strong> All 163 test files live under <code>app/src/test/java/com/kickstarter/</code>, mirroring the source tree but physically separated from the features they test. New <code>features/</code> modules (e.g. <code>cancelpledge</code>, <code>pledgeredemption</code>) already colocate tests — but legacy features do not.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents editing a feature must jump between <code>app/src/main</code> and <code>app/src/test</code> trees, losing coherence. Colocated tests are a core AX primitive.</div>
+      <div class="violation-detail"><strong>Fix:</strong> As features migrate into <code>features/&lt;name&gt;/</code>, move their tests alongside. For Gradle compatibility, keep the <code>src/test/java</code> source set but place test files in a <code>tests/</code> subdirectory within each feature module.</div>
+    </div>
+
+    <div class="positive">
+      <h3>New <code>features/</code> modules follow the AX pattern</h3>
+      <p>The 11 new feature directories under <code>features/</code> (<code>cancelpledge</code>, <code>pledgeredemption</code>, <code>socialshare</code>, <code>videofeed</code>, <code>search</code>, <code>home</code>, <code>pledgedprojectsoverview</code>, <code>projectstory</code>, <code>checkout</code>, <code>rewardtracking</code>, <code>paymentmethods</code>) each co-locate <code>data/</code>, <code>viewmodel/</code>, and <code>ui/</code> — exactly the AX ideal. This is the template for the legacy migration.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR 2 ═══════════ -->
+  <div class="pillar-section section" data-pillar="p2" id="section-p2">
+    <div class="pillar-header">
+      <h2>🔒 Pillar 2: Poka-Yoke &amp; Contract-First Interfaces</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents hallucinate when given loose types. <code>any</code> and untyped JSON invite the agent to guess the schema, leading to runtime errors. Strict contracts (sealed interfaces, domain primitives) force the agent to work within bounds.</p>
+      <p class="def-checks"><strong>We check for:</strong> Runtime boundary validation · No <code>Any</code> types or loose <code>Record</code> · Explicit return types · Discriminated unions via sealed classes · No public <code>lateinit var</code></p>
+    </div>
+
+    <div class="violation critical">
+      <h3>158 files use loose <code>: Any</code> types</h3>
+      <div class="violation-meta">Pillar 2 · Severity: Critical · 158 files</div>
+      <div class="violation-detail"><strong>Issue:</strong> 158 files contain <code>: Any</code>, <code>as Any</code>, or <code>Any?</code> type references. Many are generic bounds (<code>Envelope : Any</code> in <code>ApiPaginatorV2</code>), but others are untyped payloads passed through transformers and mappers.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot infer the shape of data at call sites. They hallucinate fields, invent properties, and produce code that compiles in their head but crashes at runtime.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Replace <code>Any</code> with sealed interfaces or concrete types. For the paginator, introduce a marker interface <code>ApiEnvelope&lt;T&gt;</code> with typed <code>items: List&lt;T&gt;</code> and <code>moreUrl: String?</code> accessors.</div>
+    </div>
+
+    <div class="violation critical">
+      <h3>197 files use <code>lateinit var</code> — mutable uninitialized state</h3>
+      <div class="violation-meta">Pillar 2 · Severity: Critical · 197 files</div>
+      <div class="violation-detail"><strong>Issue:</strong> 197 files declare <code>lateinit var</code> fields. These are runtime bombs: accessing before initialization throws <code>KotlinUninitializedPropertyAccessException</code>. Agents cannot statically determine whether a field is initialized at any given call site. Worst offender: <code>KSApplication.kt:51-75</code> has 9 <code>lateinit var</code> fields for core services (<code>cookieManager</code>, <code>pushNotifications</code>, <code>currentUser</code>, <code>ffClient</code>, etc.).</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents editing ViewModels will wire up calls in the wrong order, producing crashes that only surface at runtime. The type system is bypassed.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Migrate to constructor-injected <code>val</code> fields via Dagger/Hilt. For state that must change, wrap in a <code>StateFlow&lt;UiState&gt;</code> sealed interface. Keep <code>lateinit var</code> only for Android framework callbacks where it is unavoidable.</div>
+    </div>
+
+    <div class="violation critical">
+      <h3>96 <code>!!</code> not-null assertions bypass the type system</h3>
+      <div class="violation-meta">Pillar 2 · Severity: Critical · 96 sites</div>
+      <div class="violation-detail"><strong>Issue:</strong> 96 occurrences of <code>!!</code> across the codebase. Each one is a latent <code>KotlinNullPointerException</code>. Examples: <code>SplashScreenViewModel.kt:595</code> (<code>extras[APPLICATION_KEY]!! as KSApplication</code>), <code>KSApplication.kt:197</code> (<code>t.cause as ApolloHttpException</code>), <code>CancelPledgeViewModel.kt:90</code> (<code>as Project?</code>).</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot predict when <code>!!</code> will throw. They cannot write retry logic around a <code>KNullPointerException</code>. Every <code>!!</code> is an unstructured error.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Replace with <code>?: return DomainResult.Failure(...)</code> or <code>as? T ?: ...</code>. The <code>CancelPledgeBundleMapper</code> shows the correct pattern.</div>
+    </div>
+
+    <div class="violation">
+      <h3>Legacy models use <code>@StringDef</code> instead of sealed enums</h3>
+      <div class="violation-meta">Pillar 2 · Severity: High · e.g. <code>models/Project.kt:64</code></div>
+      <div class="violation-detail"><strong>Issue:</strong> <code>Project.kt</code> uses <code>@State private val state: String</code> with a <code>@StringDef</code> annotation. The compiler cannot enforce exhaustiveness — agents must guess valid states by grepping for constants.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents invent invalid state strings (e.g. "paused" when only "live", "successful", "failed", "canceled", "suspended" are valid). <code>when</code> blocks cannot be exhaustive.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Replace <code>@StringDef</code> with a <code>sealed interface ProjectState</code> and <code>data object Live : ProjectState</code> variants. Agents get compile-time exhaustiveness and auto-complete.</div>
+    </div>
+
+    <div class="positive">
+      <h3>New <code>ax/</code> framework enforces strict contracts</h3>
+      <p>The new <code>com.kickstarter.ax.types</code> package introduces <code>NonBlankId</code> and <code>MinorCurrencyAmount</code> — domain primitives that validate at construction time and prevent invalid states. Both use <code>@JvmInline value class</code> with private constructors, forcing all callers through validated factory methods that return <code>DomainResult&lt;T&gt;</code>. This is the AX ideal for Pillar 2.</p>
+<pre>// ax/types/DomainPrimitives.kt:20
+@JvmInline
+value class MinorCurrencyAmount private constructor(val minorUnits: Long) {
+    companion object {
+        fun fromMinorUnits(minorUnits: Long, fieldName: String = "amount")
+            : DomainResult&lt;MinorCurrencyAmount&gt; { ... }
+        fun fromMajorDouble(majorAmount: Double, ...)
+            : DomainResult&lt;MinorCurrencyAmount&gt; { ... }
+    }
+}</pre>
+    </div>
+
+    <div class="positive">
+      <h3>13 files use sealed classes/interfaces for variant types</h3>
+      <p>Files like <code>CancelPledgeContracts.kt</code> (<code>sealed interface CancelPledgeEvent</code>), <code>DomainPrimitives.kt</code>, and the new feature contracts use sealed hierarchies correctly. <code>DomainResult&lt;T&gt;</code> is a perfect discriminated union: <code>Success(value: T)</code> / <code>Failure(problem: ProblemDetails)</code>. This pattern should be the default for all variant types.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR 3 ═══════════ -->
+  <div class="pillar-section section" data-pillar="p3" id="section-p3">
+    <div class="pillar-header">
+      <h2>📝 Pillar 3: Descriptions as Runtime Contracts</h2>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents rely on schema documentation to understand field semantics. Without explicit KDoc, the agent guesses — often incorrectly. Negative constraints ("Do not use for X") prevent misuse.</p>
+      <p class="def-checks"><strong>We check for:</strong> KDoc on public APIs · Format specifications (UUID, ISO 8601) · Negative constraints · Enum value documentation</p>
+    </div>
+
+    <div class="violation critical">
+      <h3>Only 2.8% of declarations have KDoc</h3>
+      <div class="violation-meta">Pillar 3 · Severity: Critical · 260 KDoc blocks / 9,419 declarations</div>
+      <div class="violation-detail"><strong>Issue:</strong> Across the entire codebase, only 260 public classes/functions/objects have KDoc comments — a 2.8% coverage rate. Core models like <code>Project.kt</code> have zero documentation on 80+ fields. <code>KSApolloClientV2.kt</code> (2,235 lines of GraphQL operations) has no KDoc on any mutation or query.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents must infer field semantics from field names alone. <code>Project.fxRate</code> — is it USD-to-project or project-to-USD? <code>Backing.amount</code> — major or minor currency units? Agents guess, and guess wrong.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Require KDoc on every public declaration in <code>models/</code>, <code>ax/</code>, and <code>features/*/data/</code>. Minimum: one-line purpose, format constraint (e.g. "ISO 4217 currency code"), negative constraint ("Do not use for display — use <code>formattedAmount</code>").</div>
+    </div>
+
+    <div class="violation critical">
+      <h3><code>Project.kt</code> — 80+ undocumented fields</h3>
+      <div class="violation-meta">Pillar 3 · Severity: Critical · <code>app/src/main/java/com/kickstarter/models/Project.kt</code></div>
+      <div class="violation-detail"><strong>Issue:</strong> The central <code>Project</code> model has 80+ constructor parameters, none documented. Fields like <code>fxRate</code>, <code>staticUsdRate</code>, <code>usdExchangeRate</code>, <code>lastWave</code>, <code>pledgeManager</code>, <code>sendMetaCapiEvents</code> are opaque to agents.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot distinguish between the three exchange-rate fields. They conflate <code>id</code> (internal PID) with <code>slug</code> (public URL). They misuse <code>pledged</code> (Double — major units?) vs. minor-unit amounts.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Add KDoc to every field. Example:</div>
+<pre><span class="good">/**</span>
+<span class="good"> * FX rate from project currency to USD. Format: Float, e.g. 1.23.</span>
+<span class="good"> *</span>
+<span class="good"> * Negative constraints:</span>
+<span class="good"> * - Do not use for display — use [KSCurrency.format].</span>
+<span class="good"> * - Do not confuse with [staticUsdRate] (cached daily) or</span>
+<span class="good"> *   [usdExchangeRate] (live spot rate).</span>
+<span class="good"> */</span>
+<span class="good">private val fxRate: Float,</span></pre>
+    </div>
+
+    <div class="positive">
+      <h3>New <code>ax/</code> framework is a model for Pillar 3</h3>
+      <p>The entire <code>ax/</code> package is documented with KDoc including explicit negative constraints. Examples from the codebase:</p>
+<pre>// ax/types/DomainPrimitives.kt:9-18
+/**
+ * Monetary value represented strictly in integer minor currency
+ * units (e.g., cents for USD).
+ *
+ * Negative constraints:
+ * - Do not pass floating-point (`Double` or `Float`) currency
+ *   values across feature boundaries; convert at the legacy/API
+ *   boundary via [fromMajorDouble] or [fromMinorUnits].
+ * - Do not pass negative minor units; monetary amounts must be &gt;= 0.
+ *
+ * @property minorUnits Non-negative amount in the currency's
+ *   smallest integer unit (e.g., `1500` = `$15.00`).
+ */
+@JvmInline
+value class MinorCurrencyAmount private constructor(...)</pre>
+<pre>// ax/errors/ProblemDetails.kt:10-13
+ * Negative constraints:
+ * - Do not populate [detail] with raw stack traces or generic
+ *   messages such as "Something went wrong".
+ * - Do not use `isRetriable = true` for deterministic 4xx
+ *   validation or authorization errors.</pre>
+<pre>// ax/safety/IdempotencyGuard.kt:11-13
+ * Negative constraints:
+ * - Do not reuse the same [IdempotencyKey] across logically
+ *   distinct user mutations.
+ * - Do not pass an empty or blank key.</pre>
+      <p>This is exactly the AX ideal — agents know what NOT to do. The rest of the codebase should copy this style.</p>
+    </div>
+
+    <div class="positive">
+      <h3><code>CancelPledgeContracts.kt</code> documents every field</h3>
+      <p><code>features/cancelpledge/data/CancelPledgeContracts.kt</code> has full KDoc on every class and field, including explicit negative constraints: "Do not pass unvalidated <code>Bundle</code> extras", "Do not pass floating-point currency amounts", "Do not use unsafe casts (<code>as</code>) or <code>!!</code>". This is the template for the legacy migration.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR 4 ═══════════ -->
+  <div class="pillar-section section" data-pillar="p4" id="section-p4">
+    <div class="pillar-header">
+      <h2>⚠️ Pillar 4: In-Band Actionable Errors (RFC 9457)</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> When an AI agent hits an error, vague messages like "Invalid input" force it to retry blindly. Structured errors with <code>suggested_action</code> tell the agent exactly how to recover, enabling autonomous retry logic.</p>
+      <p class="def-checks"><strong>We check for:</strong> Structured error types · <code>suggested_action</code> field · <code>is_retriable</code> flag · RFC 9457 Problem Details format</p>
+    </div>
+
+    <div class="violation critical">
+      <h3><code>SplashScreenViewModel.kt:199</code> — bare <code>throw Exception()</code></h3>
+      <div class="violation-meta">Pillar 4 · Severity: Critical · <code>viewmodels/SplashScreenViewModel.kt:199</code></div>
+      <div class="violation-detail"><strong>Issue:</strong> A bare <code>throw Exception()</code> with no message, no type, no detail. The catch block on line 201 immediately admits: <em>"todo: we're bringing the user into the app anyways to emulate current behavior"</em>. This is the worst kind of error — it tells the agent nothing.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot determine what failed, whether to retry, or what action to take. The error is silently swallowed, hiding a real initialization failure.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Replace with <code>DomainResult.Failure(ProblemDetails(TYPE_SERVER, "Feature-Flag Initialization Failed", ...))</code>. See Quick Win #1 for the full before/after.</div>
+    </div>
+
+    <div class="violation">
+      <h3><code>ApiPaginatorV2.kt</code> — 5 <code>RuntimeException</code>s for builder validation</h3>
+      <div class="violation-meta">Pillar 4 · Severity: High · <code>libs/ApiPaginatorV2.kt:159-171</code>, <code>libs/loadmore/ApolloPaginateV2.kt:147-153</code></div>
+      <div class="violation-detail"><strong>Issue:</strong> 5 <code>throw RuntimeException("`nextPage` is required")</code>-style errors. These are compile-time errors masquerading as runtime errors. The message is actionable ("`nextPage` is required"), but the type is wrong — agents cannot distinguish a missing-builder-field error from a network error.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents catch <code>RuntimeException</code> and have no idea whether to retry (no — it's a programmer error) or give up.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Use a staged-builder pattern so missing fields are a compile error. See Quick Win #3.</div>
+    </div>
+
+    <div class="violation">
+      <h3>Apollo errors are not normalized to ProblemDetails</h3>
+      <div class="violation-meta">Pillar 4 · Severity: High · <code>services/KSApolloClientV2.kt</code></div>
+      <div class="violation-detail"><strong>Issue:</strong> <code>KSApolloClientV2.kt</code> handles <code>ApolloException</code>, <code>ApolloHttpException</code>, and <code>ApolloNetworkException</code> ad-hoc, returning raw errors to callers. No mapping to the new <code>ProblemDetailsMapper</code> in <code>ax/errors/</code>.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot distinguish a retriable network error from a non-retriable validation error. They treat all failures the same.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Route every Apollo error through <code>ProblemDetailsMapper.fromApollo(exception)</code>. The mapper already exists — wire it in.</div>
+    </div>
+
+    <div class="positive">
+      <h3>New <code>ax/errors/ProblemDetails.kt</code> implements RFC 9457</h3>
+      <p>The new <code>ProblemDetails</code> data class includes <code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code>, <code>suggestedAction</code>, <code>isRetriable</code>, <code>retryAfterSeconds</code>, and <code>invalidParams</code> — a full RFC 9457 implementation. The <code>init</code> block enforces non-blank fields at construction time:</p>
+<pre>// ax/errors/ProblemDetails.kt:34-42
+init {
+    require(type.isNotBlank()) { "ProblemDetails.type must not be blank." }
+    require(title.isNotBlank()) { "ProblemDetails.title must not be blank." }
+    require(detail.isNotBlank()) { "ProblemDetails.detail must not be blank." }
+    require(suggestedAction.isNotBlank()) { "..." }
+    if (retryAfterSeconds != null) {
+        require(retryAfterSeconds &gt;= 0L) { "..." }
+    }
+}</pre>
+      <p>10 stable error URNs are defined: <code>TYPE_VALIDATION</code>, <code>TYPE_UNAUTHORIZED</code>, <code>TYPE_FORBIDDEN</code>, <code>TYPE_NOT_FOUND</code>, <code>TYPE_CONFLICT</code>, <code>TYPE_IN_FLIGHT</code>, <code>TYPE_RATE_LIMITED</code>, <code>TYPE_NETWORK</code>, <code>TYPE_TIMEOUT</code>, <code>TYPE_SERVER</code>, <code>TYPE_UNEXPECTED</code>.</p>
+    </div>
+
+    <div class="positive">
+      <h3><code>CancelPledgeBundleMapper</code> uses ProblemDetails beautifully</h3>
+      <p>Each validation failure in <code>CancelPledgeBundleMapper.fromBundle()</code> returns a <code>DomainResult.Failure(ProblemDetails(...))</code> with specific <code>InvalidParam</code> entries, actionable <code>suggestedAction</code>, and correct <code>isRetriable = false</code>. This is the template for all boundary mappers.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR 5 ═══════════ -->
+  <div class="pillar-section section" data-pillar="p5" id="section-p5">
+    <div class="pillar-header">
+      <h2>🛡️ Pillar 5: Machine-Tempo Safety &amp; Idempotency</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents may retry operations or run at high speed. Without idempotency keys, a retry could create duplicate resources. Without rate-limit hints, agents can overwhelm the system.</p>
+      <p class="def-checks"><strong>We check for:</strong> <code>Idempotency-Key</code> on mutating ops · Rate-limit headers · <code>Retry-After</code> backoff · Optimistic locking (ETag, version fields)</p>
+    </div>
+
+    <div class="violation critical">
+      <h3>Only 6 files implement idempotency — critical mutations unprotected</h3>
+      <div class="violation-meta">Pillar 5 · Severity: Critical · 6 of 1,099 files</div>
+      <div class="violation-detail"><strong>Issue:</strong> The new <code>IdempotencyGuard</code> and <code>IdempotencyKey</code> exist in <code>ax/safety/</code>, and are used in <code>CancelPledgeContracts.kt</code> and <code>ApolloCancelPledgeRepository.kt</code>. But the most dangerous mutations — <code>CreateBackingMutation</code> (create a pledge), <code>CompleteOnSessionCheckoutMutation</code> (charge a card), <code>UpdateBackingMutation</code> (change payment), <code>CreatePaymentIntentMutation</code> — have no idempotency protection.</div>
+      <div class="violation-detail"><strong>Impact:</strong> An agent that retries a failed <code>CreateBacking</code> call creates duplicate pledges. An agent that retries <code>CompleteOnSessionCheckout</code> charges the user twice. This is a production-severity financial bug waiting to happen.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Every mutating Apollo call in <code>KSApolloClientV2.kt</code> must accept an <code>IdempotencyKey</code> parameter. The repository layer generates one per logical operation and passes it through. Replays return cached results. See Quick Win #4.</div>
+    </div>
+
+    <div class="violation">
+      <h3>No rate-limit headers surfaced to callers</h3>
+      <div class="violation-meta">Pillar 5 · Severity: High · 3 files mention rate-limiting</div>
+      <div class="violation-detail"><strong>Issue:</strong> Only 3 files reference rate-limiting concepts. <code>KSApplication.kt:197-200</code> checks for HTTP 429 but only for logging. No OkHttp/Apollo interceptor surfaces <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, or <code>Retry-After</code> headers into the domain layer — even though <code>RateLimitBackoff.fromHeaders()</code> already exists in <code>ax/types/DomainPrimitives.kt:160</code> and is ready to use.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents operating at machine tempo (e.g. batch-updating 100 backings) have no signal to back off. They hit 429s, retry immediately, and get throttled further — a thundering herd.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Add an <code>OkHttp.Interceptor</code> that reads rate-limit headers, parses them via <code>RateLimitBackoff.fromHeaders()</code>, and exposes them via a <code>RateLimitState</code> flow. Inject this into repositories so they can suspend before hitting the limit.</div>
+    </div>
+
+    <div class="violation">
+      <h3>No optimistic locking for concurrent updates</h3>
+      <div class="violation-meta">Pillar 5 · Severity: Medium</div>
+      <div class="violation-detail"><strong>Issue:</strong> Models like <code>Backing</code>, <code>Project</code>, and <code>User</code> have no <code>version</code> field or <code>ETag</code> support. Concurrent updates (e.g. two agents updating the same backing's reward selection) can silently overwrite each other.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Lost updates in multi-agent scenarios. The last writer wins with no conflict detection.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Add a <code>version: Int</code> field to mutable models. Require it in update mutations. Server rejects stale versions with a <code>409 Conflict</code> mapped to <code>ProblemDetails</code> with <code>isRetriable = true</code> and <code>suggestedAction = "Reload the resource and reapply your change."</code>. Note: <code>TYPE_CONFLICT</code> is already defined in <code>ProblemDetails.kt:68</code>.</div>
+    </div>
+
+    <div class="positive">
+      <h3><code>IdempotencyGuard</code> framework is production-ready</h3>
+      <p>The new <code>ax/safety/IdempotencyGuard.kt</code> provides a complete idempotency primitive with:</p>
+      <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+        <li><code>IdempotencyKey</code> — validated value class with <code>generate()</code> and <code>create()</code> factory methods</li>
+        <li><code>runSingleFlight()</code> — suspending wrapper that rejects overlapping calls with <code>TYPE_IN_FLIGHT</code></li>
+        <li>Automatic <code>Retry-After</code> cooldown tracking via <code>blockedUntilMillis</code></li>
+        <li>Testable clock injection via <code>clockMillis: () -&gt; Long</code></li>
+      </ul>
+<pre>// ax/safety/IdempotencyGuard.kt:81-84
+suspend fun &lt;T&gt; runSingleFlight(
+    operation: String,
+    idempotencyKey: IdempotencyKey = IdempotencyKey.generate(),
+    block: suspend (IdempotencyKey) -&gt; DomainResult&lt;T&gt;
+): DomainResult&lt;T&gt;</pre>
+      <p>It just needs to be wired into the 20+ mutating GraphQL operations. The <code>CancelPledgeRepository</code> already demonstrates the pattern.</p>
+    </div>
+
+    <div class="positive">
+      <h3><code>RateLimitBackoff</code> helper is ready to wire in</h3>
+      <p><code>ax/types/DomainPrimitives.kt:151-176</code> defines <code>RateLimitBackoff</code> with a <code>fromHeaders()</code> parser that handles case-insensitive header lookup, parses <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code>, and <code>Retry-After</code>. The helper is complete — only the OkHttp interceptor to feed it headers is missing.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ BEST PRACTICES ═══════════ -->
+  <div class="best-practices-section section" data-section="actions">
+    <h2>📚 Best Practices by Pillar</h2>
+
+    <div class="practice-card">
+      <h3>🏗️ Pillar 1 — Feature-Local Structure</h3>
+      <div class="practice-content">
+        <p>Every feature should be a self-contained directory with <code>data/</code>, <code>viewmodel/</code>, <code>ui/</code>, and colocated tests. No file should exceed 300 lines.</p>
+        <div class="example">
+          <p><strong>✅ Example from this codebase:</strong> <code>features/cancelpledge/</code></p>
+          <pre>features/cancelpledge/
+├── data/
+│   ├── CancelPledgeContracts.kt      (196 lines)
+│   └── ApolloCancelPledgeRepository.kt
+├── viewmodel/
+│   └── CancelPledgeFeatureViewModel.kt
+└── (tests colocated in app/src/test/)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <h3>🔒 Pillar 2 — Domain Primitives over Raw Types</h3>
+      <div class="practice-content">
+        <p>Replace <code>String</code> IDs, <code>Double</code> currency amounts, and <code>Any</code> payloads with validated domain primitives from <code>ax/types/</code>.</p>
+        <div class="example">
+          <p><strong>❌ Before:</strong></p>
+          <pre>data class Backing(val id: String, val amount: Double)</pre>
+          <p><strong>✅ After (from <code>CancelPledgeContracts.kt</code>):</strong></p>
+          <pre>data class CancelPledgeTarget(
+    val projectId: NonBlankId,
+    val projectName: String,
+    val backingId: NonBlankId,
+    val backingNumericId: Long,
+    val pledgeAmount: MinorCurrencyAmount,
+    val formattedPledgeAmount: String
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <h3>📝 Pillar 3 — KDoc with Negative Constraints</h3>
+      <div class="practice-content">
+        <p>Every public API gets KDoc with: purpose, format, and what NOT to do. The <code>ax/</code> framework sets the standard.</p>
+        <div class="example">
+          <p><strong>✅ Example from <code>ax/safety/IdempotencyGuard.kt</code>:</strong></p>
+          <pre>/**
+ * Validated idempotency token sent with mutating operations
+ * to prevent duplicate server execution.
+ *
+ * Negative constraints:
+ * - Do not reuse the same [IdempotencyKey] across logically
+ *   distinct user mutations.
+ * - Do not pass an empty or blank key.
+ */
+@JvmInline
+value class IdempotencyKey private constructor(val value: String)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <h3>⚠️ Pillar 4 — RFC 9457 Problem Details</h3>
+      <div class="practice-content">
+        <p>Every error should be a <code>ProblemDetails</code> instance with <code>suggestedAction</code> and <code>isRetriable</code>. The <code>init</code> block enforces non-blank fields at construction time.</p>
+        <div class="example">
+          <p><strong>✅ Example from <code>CancelPledgeBundleMapper</code>:</strong></p>
+          <pre>DomainResult.Failure(
+    ProblemDetails(
+        type = ProblemDetails.TYPE_VALIDATION,
+        title = "Missing Backing Argument",
+        status = 400,
+        detail = "Project ${project.id()} has no active Backing.",
+        suggestedAction = "Verify the user has an active backing.",
+        isRetriable = false,
+        invalidParams = listOf(
+            ProblemDetails.InvalidParam(
+                name = "project.backing",
+                reason = "Backing must not be null."
+            )
+        )
+    )
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <h3>🛡️ Pillar 5 — Idempotency on Every Mutation</h3>
+      <div class="practice-content">
+        <p>Every mutating repository function must accept an <code>IdempotencyKey</code>. Replays return cached results. The <code>IdempotencyGuard</code> also handles <code>Retry-After</code> cooldowns automatically.</p>
+        <div class="example">
+          <p><strong>✅ Example from <code>CancelPledgeContracts.kt</code>:</strong></p>
+          <pre>interface CancelPledgeRepository {
+    suspend fun cancelBacking(
+        target: CancelPledgeTarget,
+        note: String,
+        idempotencyKey: IdempotencyKey  // ← required
+    ): DomainResult&lt;Unit&gt;
+}</pre>
+          <p><strong>✅ Example from <code>IdempotencyGuard.runSingleFlight</code>:</strong></p>
+          <pre>guard.runSingleFlight("cancelBacking") { idempotencyKey -&gt;
+    repository.cancelBacking(target, note, idempotencyKey)
+}
+// Rejects overlapping calls with TYPE_IN_FLIGHT
+// Honors Retry-After cooldowns automatically</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ RECOMMENDATIONS ═══════════ -->
+  <div class="recommendations section" data-section="actions">
+    <h2>📋 Priority Recommendations</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Action</th>
+          <th>Pillar</th>
+          <th>Effort</th>
+          <th>Impact</th>
+          <th>Timeline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Replace <code>throw Exception()</code> at <code>SplashScreenViewModel.kt:199</code> with <code>DomainResult.Failure(ProblemDetails(...))</code></td>
+          <td>P4</td>
+          <td class="priority-low" style="color:var(--color-pass);font-weight:600">Low</td>
+          <td class="priority-critical">Critical</td>
+          <td>Day 1</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Wire <code>IdempotencyGuard</code> into <code>CreateBacking</code>, <code>CompleteOnSessionCheckout</code>, <code>UpdateBacking</code>, <code>CancelBacking</code>, <code>CreatePaymentIntent</code> mutations</td>
+          <td>P5</td>
+          <td class="priority-high">Medium</td>
+          <td class="priority-critical">Critical</td>
+          <td>Week 1</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Audit and eliminate the 96 <code>!!</code> not-null assertions — replace with <code>?: return DomainResult.Failure(...)</code></td>
+          <td>P2, P4</td>
+          <td class="priority-high">Medium</td>
+          <td class="priority-critical">Critical</td>
+          <td>Week 1</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Add KDoc to <code>Project.kt</code>, <code>Backing.kt</code>, <code>Reward.kt</code>, <code>User.kt</code> — the 4 most-referenced models</td>
+          <td>P3</td>
+          <td class="priority-low" style="color:var(--color-pass);font-weight:600">Low</td>
+          <td class="priority-critical">Critical</td>
+          <td>Week 1</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Replace unsafe <code>as Project?</code> casts in 5 legacy ViewModels with <code>BundleCompat</code> + <code>DomainResult</code></td>
+          <td>P2, P4</td>
+          <td class="priority-low" style="color:var(--color-pass);font-weight:600">Low</td>
+          <td class="priority-high">High</td>
+          <td>Week 1</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Route all Apollo errors through <code>ProblemDetailsMapper</code> in <code>KSApolloClientV2.kt</code></td>
+          <td>P4</td>
+          <td class="priority-high">Medium</td>
+          <td class="priority-high">High</td>
+          <td>Week 1-2</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Convert <code>ApiPaginatorV2.Builder</code> to staged-builder pattern — eliminates 5 <code>RuntimeException</code>s</td>
+          <td>P2, P4</td>
+          <td class="priority-high">Medium</td>
+          <td class="priority-high">High</td>
+          <td>Week 2</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Migrate <code>Discovery</code>, <code>ProjectPage</code>, <code>Backing</code>, <code>Login</code>, <code>Comments</code> into <code>features/</code> directories with colocated tests</td>
+          <td>P1</td>
+          <td class="priority-critical">High</td>
+          <td class="priority-high">High</td>
+          <td>Weeks 2-3</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>Split <code>KSApolloClientV2.kt</code> (2,235 lines) into domain-specific files: <code>BackingQueries.kt</code>, <code>ProjectQueries.kt</code>, <code>PaymentMutations.kt</code>, <code>CommentMutations.kt</code>, etc.</td>
+          <td>P1</td>
+          <td class="priority-high">Medium</td>
+          <td class="priority-high">High</td>
+          <td>Week 2</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Replace <code>@StringDef</code> state enums in <code>Project.kt</code>, <code>Backing.kt</code> with sealed interfaces</td>
+          <td>P2</td>
+          <td class="priority-high">Medium</td>
+          <td class="priority-high">High</td>
+          <td>Week 2</td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td>Audit and reduce 197 <code>lateinit var</code> usages — migrate to constructor-injected <code>val</code> or <code>StateFlow</code></td>
+          <td>P2</td>
+          <td class="priority-critical">High</td>
+          <td class="priority-high">High</td>
+          <td>Weeks 2-3</td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td>Add a <code>RateLimitInterceptor</code> to the Apollo/OkHttp chain — wire into existing <code>RateLimitBackoff.fromHeaders()</code></td>
+          <td>P5</td>
+          <td class="priority-high">Medium</td>
+          <td class="priority-high">High</td>
+          <td>Week 3</td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td>Split the 271 god-files (&gt;300 lines) into smaller units. Start with the top 20 offenders (&gt;1,000 lines each)</td>
+          <td>P1</td>
+          <td class="priority-critical">High</td>
+          <td class="priority-medium">Medium</td>
+          <td>Weeks 3-4</td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td>Add an AX compliance check to CI: fail if new files exceed 300 lines, lack KDoc on public APIs, use <code>lateinit var</code> outside allowlist, or use <code>!!</code></td>
+          <td>All</td>
+          <td class="priority-high">Medium</td>
+          <td class="priority-critical">Critical</td>
+          <td>Week 4</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>Generated by AX Audit Skill · v2 · 2026-11-13</p>
+    <p>Agent Experience (AX) — 5-Pillar Agent-Friendly Architecture Assessment</p>
+    <p style="margin-top: 0.5rem; font-size: 0.8rem;">v2 adds: line-level citations · before/after refactorings · expanded <code>ax/</code> framework showcase · unsafe-cast &amp; <code>!!</code> audit · deeper error-path analysis</p>
+  </div>
+
+  <!-- ═══════════ INTERACTIVE JS ═══════════ -->
+  <script>
+    (function() {
+      let currentFocus = 'all';
+
+      window.focusPillar = function(target) {
+        currentFocus = target;
+        const sections = document.querySelectorAll('.section');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const cards = document.querySelectorAll('.summary-card:not(.overall)');
+        const filterIndicator = document.getElementById('filterIndicator');
+        const filterLabel = document.getElementById('filterLabel');
+
+        // Update nav buttons
+        navBtns.forEach(function(btn) { btn.classList.remove('active'); });
+        const activeBtn = Array.from(navBtns).find(function(btn) {
+          return btn.textContent.trim().toLowerCase().indexOf(target === 'all' ? 'all' : target === 'actions' ? 'actions' : target) !== -1;
+        });
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Update summary cards
+        cards.forEach(function(card) { card.classList.remove('active'); });
+        if (target !== 'all' && target !== 'actions') {
+          const activeCard = document.getElementById('card-' + target);
+          if (activeCard) activeCard.classList.add('active');
+        }
+
+        // Show/hide sections
+        if (target === 'all') {
+          sections.forEach(function(s) { s.classList.remove('dimmed'); });
+          filterIndicator.classList.remove('visible');
+        } else {
+          filterIndicator.classList.add('visible');
+          sections.forEach(function(s) {
+            const pillar = s.getAttribute('data-pillar');
+            const section = s.getAttribute('data-section');
+            if (target === 'actions') {
+              if (section === 'actions') {
+                s.classList.remove('dimmed');
+              } else {
+                s.classList.add('dimmed');
+              }
+            } else {
+              if (pillar === target) {
+                s.classList.remove('dimmed');
+              } else {
+                s.classList.add('dimmed');
+              }
+            }
+          });
+
+          // Update filter label
+          var labels = {
+            'p1': '🏗️ Pillar 1 — Modularization',
+            'p2': '🔒 Pillar 2 — Contracts',
+            'p3': '📝 Pillar 3 — Descriptions',
+            'p4': '⚠️ Pillar 4 — Errors',
+            'p5': '🛡️ Pillar 5 — Safety',
+            'actions': '📋 Quick Wins, Roadmap & Recommendations'
+          };
+          filterLabel.textContent = labels[target] || target;
+
+          // Scroll to the focused section
+          var targetEl = document.getElementById('section-' + target);
+          if (targetEl) {
+            setTimeout(function() {
+              targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+          }
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

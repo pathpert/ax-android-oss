@@ -1,8 +1,6 @@
-package com.kickstarter.features.projecstory
+package com.kickstarter.features.projectstory
 
 import com.kickstarter.KSRobolectricTestCase
-import com.kickstarter.features.projectstory.ProjectStoryUiState
-import com.kickstarter.features.projectstory.ProjectStoryViewModel
 import com.kickstarter.features.projectstory.data.RichTextComponent
 import com.kickstarter.features.projectstory.data.StoriedProject
 import com.kickstarter.libs.Environment

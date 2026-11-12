@@ -1,4 +1,4 @@
-package com.kickstarter.features.projecstory.ui
+package com.kickstarter.features.projectstory.ui
 
 import android.content.Context
 import android.graphics.Color
@@ -26,8 +26,6 @@ import coil.request.SuccessResult
 import coil.test.FakeImageLoaderEngine
 import com.kickstarter.KSRobolectricTestCase
 import com.kickstarter.features.projectstory.data.RichTextItem
-import com.kickstarter.features.projectstory.ui.ProjectStoryCaptionedImageTestTag
-import com.kickstarter.features.projectstory.ui.RichTextItemPhotoComponent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
