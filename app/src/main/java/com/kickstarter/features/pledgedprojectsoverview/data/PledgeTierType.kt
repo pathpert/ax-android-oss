@@ -1,5 +1,15 @@
 package com.kickstarter.features.pledgedprojectsoverview.data
 
+/**
+ * Enumerates the prioritization tiers for backer actions in the Pledged Projects Overview.
+ *
+ * - Tier 1: Urgent actionable alerts requiring immediate user intervention (failed payment, survey open, address locking).
+ * - Tier 2: Informational post-campaign progression states (pledge collected, reward received, address confirmed).
+ *
+ * ### Negative Constraints:
+ * - Do not pass arbitrary strings to [tierType]; adhere strictly to GraphQL schema enum values.
+ * - Do not treat Tier 2 states as blocking user mutations.
+ */
 enum class PledgeTierType(val tierType: String) {
     FAILED_PAYMENT("Tier1PaymentFailed"),
     ADDRESS_LOCK("Tier1AddressLockingSoon"),

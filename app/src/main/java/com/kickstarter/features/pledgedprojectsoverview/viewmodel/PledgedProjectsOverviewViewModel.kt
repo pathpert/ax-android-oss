@@ -167,6 +167,7 @@ class PledgedProjectsOverviewViewModel(
                 is DomainResult.Success -> {
                     showHeadsUpSnackbar(R.string.Address_confirmed_need_to_change_your_address_before_it_locks)
                     getPledgedProjects()
+                    emitCurrentState()
                 }
                 is DomainResult.Failure -> {
                     showErrorSnackbar(R.string.Something_went_wrong_please_try_again)

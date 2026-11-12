@@ -3,6 +3,7 @@ package com.kickstarter.features.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.features.search.data.SearchUIState
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.RefTag
 import com.kickstarter.libs.featureflag.StatsigGateKey
@@ -29,13 +30,6 @@ import timber.log.Timber
 import kotlin.Pair
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.text.isNotBlank
-
-data class SearchUIState(
-    val isLoading: Boolean = false,
-    val popularProjectsList: List<Project> = emptyList(),
-    val searchList: List<Project> = emptyList(),
-    val hasMore: Boolean = true // flag to load more items to the lists
-)
 
 @OptIn(FlowPreview::class)
 class SearchAndFilterViewModel(

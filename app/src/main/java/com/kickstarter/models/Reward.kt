@@ -6,6 +6,13 @@ import com.kickstarter.libs.utils.extensions.isZero
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
+/**
+ * Immutable domain model representing a project reward tier or add-on item.
+ *
+ * Negative constraints:
+ * - Do not pass floating-point [minimum] or [pledgeAmount] across modern feature boundaries; convert to [com.kickstarter.ax.types.MinorCurrencyAmount].
+ * - Do not use [isAvailable] without verifying [remaining] quantity and [endsAt] expiration.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class Reward private constructor(
@@ -63,7 +70,17 @@ class Reward private constructor(
     override fun id() = this.id
     fun image() = this.image
     fun limit() = this.limit
+
+    /**
+     * Minimum pledge amount required for this reward in project native currency.
+     * Negative constraint: Do not pass directly across modern AX boundaries; convert to MinorCurrencyAmount.
+     */
     fun minimum() = this.minimum
+
+    /**
+     * Current total pledge amount associated with this selected reward.
+     * Negative constraint: Do not pass directly across modern AX boundaries; convert to MinorCurrencyAmount.
+     */
     fun pledgeAmount() = this.pledgeAmount
     fun latePledgeAmount() = this.latePledgeAmount
     fun estimatedDeliveryOn() = this.estimatedDeliveryOn

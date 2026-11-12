@@ -134,4 +134,3 @@ class DiscoveryFeatureViewModel(
         _uiState.update { it.copy(problem = null) }
     }
 }
-

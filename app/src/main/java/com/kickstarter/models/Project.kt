@@ -9,6 +9,16 @@ import com.kickstarter.libs.utils.extensions.isNonZero
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
+/**
+ * Immutable domain model representing a Kickstarter crowdfunding project.
+ *
+ * Negative constraints:
+ * - Do not pass raw floating-point [goal] or [pledged] currency values directly across modern feature boundaries;
+ *   convert to [com.kickstarter.ax.types.MinorCurrencyAmount] at the boundary.
+ * - Do not confuse the integer [id] (Kickstarter database PID) with GraphQL Relay global IDs.
+ * - Do not confuse FX rate variants: [fxRate] is the project-to-USD conversion rate, [staticUsdRate] is the cached
+ *   daily rate, and [usdExchangeRate] is the spot market rate.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class Project private constructor(
@@ -100,10 +110,29 @@ class Project private constructor(
     fun displayPrelaunch() = this.displayPrelaunch
     fun featuredAt() = this.featuredAt
     fun friends() = this.friends ?: emptyList()
+
+    /**
+     * FX exchange rate from project currency to USD.
+     * Negative constraints:
+     * - Do not use for user-facing currency display; use `KSCurrency.format`.
+     * - Do not confuse with [staticUsdRate] or [usdExchangeRate].
+     */
     fun fxRate() = this.fxRate
+
     fun deadline() = this.deadline
+
+    /**
+     * Funding goal in major units of the project's native currency.
+     * Negative constraint: Do not pass directly across modern AX feature boundaries; convert to MinorCurrencyAmount.
+     */
     fun goal() = this.goal
+
+    /**
+     * Persistent database identifier (PID) of the project.
+     * Negative constraint: Do not confuse with GraphQL global Relay IDs.
+     */
     override fun id() = this.id
+
     fun isBacking() = this.isBacking
     fun isPledgeOverTimeAllowed() = this.isPledgeOverTimeAllowed
     fun isStarred() = this.isStarred
@@ -114,7 +143,13 @@ class Project private constructor(
     fun name() = this.name
     fun percentFunded() = this.percentFunded
     fun permissions() = this.permissions
+
+    /**
+     * Total pledged amount in major units of the project's native currency.
+     * Negative constraint: Do not pass directly across modern AX feature boundaries; convert to MinorCurrencyAmount.
+     */
     fun pledged() = this.pledged
+
     fun pledgeManager() = this.pledgeManager
     fun photo() = this.photo
     fun prelaunchActivated() = this.prelaunchActivated
@@ -130,7 +165,15 @@ class Project private constructor(
     fun pledgeOverTimeMinimumExplanation() = this.pledgeOverTimeMinimumExplanation
     fun state() = this.state
     fun stateChangedAt() = this.stateChangedAt
+
+    /**
+     * Cached static USD exchange rate refreshed on a daily schedule.
+     */
     fun staticUsdRate() = this.staticUsdRate
+
+    /**
+     * Live spot USD exchange rate.
+     */
     fun usdExchangeRate() = this.usdExchangeRate
     fun unreadMessagesCount() = this.unreadMessagesCount ?: 0
     fun unseenActivityCount() = this.unseenActivityCount ?: 0

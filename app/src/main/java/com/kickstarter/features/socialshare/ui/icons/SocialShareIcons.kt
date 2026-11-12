@@ -37,9 +37,7 @@ import androidx.compose.ui.unit.dp
 
 val Vector91: ImageVector
     get() {
-        if (_Vector91 != null) {
-            return _Vector91!!
-        }
+        _Vector91?.let { return it }
         _Vector91 = ImageVector.Builder(
             name = "Vector91",
             defaultWidth = 393.dp,
@@ -60,7 +58,7 @@ val Vector91: ImageVector
             }
         }.build()
 
-        return _Vector91!!
+        return checkNotNull(_Vector91) { "_Vector91 must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -75,7 +73,7 @@ private fun Vector91Preview() {
 
 val SocialShareMore: ImageVector
     get() {
-        if (_SocialShareMore != null) return _SocialShareMore!!
+        _SocialShareMore?.let { return it }
         _SocialShareMore = ImageVector.Builder(
             name = "SocialShareMore",
             defaultWidth = 24.dp, defaultHeight = 24.dp,
@@ -109,7 +107,7 @@ val SocialShareMore: ImageVector
                 close()
             }
         }.build()
-        return _SocialShareMore!!
+        return checkNotNull(_SocialShareMore) { "_SocialShareMore must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -117,9 +115,7 @@ private var _SocialShareMore: ImageVector? = null
 
 val SocialShareInstagram: ImageVector
     get() {
-        if (_SocialShareInstagram != null) {
-            return _SocialShareInstagram!!
-        }
+        _SocialShareInstagram?.let { return it }
         _SocialShareInstagram = ImageVector.Builder(
             name = "SocialShareInstagram",
             defaultWidth = 24.dp,
@@ -223,7 +219,7 @@ val SocialShareInstagram: ImageVector
             }
         }.build()
 
-        return _SocialShareInstagram!!
+        return checkNotNull(_SocialShareInstagram) { "_SocialShareInstagram must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -231,9 +227,7 @@ private var _SocialShareInstagram: ImageVector? = null
 
 val SocialShareFacebook: ImageVector
     get() {
-        if (_SocialShareFacebook != null) {
-            return _SocialShareFacebook!!
-        }
+        _SocialShareFacebook?.let { return it }
         _SocialShareFacebook = ImageVector.Builder(
             name = "ocialShareFacebook",
             defaultWidth = 24.dp,
@@ -308,7 +302,7 @@ val SocialShareFacebook: ImageVector
             }
         }.build()
 
-        return _SocialShareFacebook!!
+        return checkNotNull(_SocialShareFacebook) { "_SocialShareFacebook must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -316,9 +310,7 @@ private var _SocialShareFacebook: ImageVector? = null
 
 val SocialShareWhatsApp: ImageVector
     get() {
-        if (_SocialShareWhatsApp != null) {
-            return _SocialShareWhatsApp!!
-        }
+        _SocialShareWhatsApp?.let { return it }
         _SocialShareWhatsApp = ImageVector.Builder(
             name = "SocialShareWhatsApp",
             defaultWidth = 24.dp,
@@ -384,7 +376,7 @@ val SocialShareWhatsApp: ImageVector
             }
         }.build()
 
-        return _SocialShareWhatsApp!!
+        return checkNotNull(_SocialShareWhatsApp) { "_SocialShareWhatsApp must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -392,9 +384,7 @@ private var _SocialShareWhatsApp: ImageVector? = null
 
 val SocialShareX: ImageVector
     get() {
-        if (_SocialShareX != null) {
-            return _SocialShareX!!
-        }
+        _SocialShareX?.let { return it }
         _SocialShareX = ImageVector.Builder(
             name = "SocialShareX",
             defaultWidth = 24.dp,
@@ -442,7 +432,7 @@ val SocialShareX: ImageVector
             }
         }.build()
 
-        return _SocialShareX!!
+        return checkNotNull(_SocialShareX) { "_SocialShareX must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -450,9 +440,7 @@ private var _SocialShareX: ImageVector? = null
 
 val SocialShareEmail: ImageVector
     get() {
-        if (_SocialShareEmail != null) {
-            return _SocialShareEmail!!
-        }
+        _SocialShareEmail?.let { return it }
         _SocialShareEmail = ImageVector.Builder(
             name = "SocialShareEmail",
             defaultWidth = 20.dp,
@@ -489,7 +477,7 @@ val SocialShareEmail: ImageVector
             }
         }.build()
 
-        return _SocialShareEmail!!
+        return checkNotNull(_SocialShareEmail) { "_SocialShareEmail must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -497,9 +485,7 @@ private var _SocialShareEmail: ImageVector? = null
 
 val SocialShareMessage: ImageVector
     get() {
-        if (_SocialShareMessage != null) {
-            return _SocialShareMessage!!
-        }
+        _SocialShareMessage?.let { return it }
         _SocialShareMessage = ImageVector.Builder(
             name = "SocialShareMessage",
             defaultWidth = 27.dp,
@@ -568,7 +554,7 @@ val SocialShareMessage: ImageVector
             }
         }.build()
 
-        return _SocialShareMessage!!
+        return checkNotNull(_SocialShareMessage) { "_SocialShareMessage must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -576,9 +562,7 @@ private var _SocialShareMessage: ImageVector? = null
 
 val SocialShareCopyLink: ImageVector
     get() {
-        if (_SocialShareCopyLink != null) {
-            return _SocialShareCopyLink!!
-        }
+        _SocialShareCopyLink?.let { return it }
         _SocialShareCopyLink = ImageVector.Builder(
             name = "Link",
             defaultWidth = 24.dp,
@@ -636,7 +620,7 @@ val SocialShareCopyLink: ImageVector
             }
         }.build()
 
-        return _SocialShareCopyLink!!
+        return checkNotNull(_SocialShareCopyLink) { "_SocialShareCopyLink must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -644,9 +628,7 @@ private var _SocialShareCopyLink: ImageVector? = null
 
 val KSLogo: ImageVector
     get() {
-        if (_KSLogo != null) {
-            return _KSLogo!!
-        }
+        _KSLogo?.let { return it }
         _KSLogo = ImageVector.Builder(
             name = "KSLogo",
             defaultWidth = 252.dp,
@@ -800,7 +782,7 @@ val KSLogo: ImageVector
             }
         }.build()
 
-        return _KSLogo!!
+        return checkNotNull(_KSLogo) { "_KSLogo must not be null" }
     }
 
 @Suppress("ObjectPropertyName")

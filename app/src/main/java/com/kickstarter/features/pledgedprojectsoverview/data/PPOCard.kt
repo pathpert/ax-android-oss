@@ -6,6 +6,17 @@ import com.kickstarter.models.Reward
 import com.kickstarter.type.CurrencyCode
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Domain entity representing a project summary card within the Pledged Projects Overview screen.
+ *
+ * Encapsulates the backing status, project metadata, required user actions (surveys, addresses),
+ * and presentation styling ([viewType]).
+ *
+ * ### Negative Constraints:
+ * - Do not pass floating point amounts directly; format as localized currency strings.
+ * - Do not instantiate directly; use [builder] or [toBuilder] to construct immutable instances.
+ * - Do not pass raw unvalidated URLs into [backingDetailsUrl] or [webviewUrl].
+ */
 @Parcelize
 class PPOCard private constructor(
     val deliveryAddress: DeliveryAddress?,
@@ -85,7 +96,7 @@ class PPOCard private constructor(
         fun backingId(backingId: String?) = apply { this.backingId = backingId }
         fun clientSecret(clientSecret: String?) = apply { this.clientSecret = clientSecret }
         fun backerCompleted(backerCompleted: Boolean?) = apply { this.backerCompleted = backerCompleted }
-        fun creatorID(creatorName: String?) = apply { this.creatorID = creatorID }
+        fun creatorID(creatorID: String?) = apply { this.creatorID = creatorID }
         fun surveyID(surveyID: String?) = apply { this.surveyID = surveyID }
         fun creatorName(creatorName: String?) = apply { this.creatorName = creatorName }
         fun currencyCode(currencyCode: CurrencyCode?) = apply { this.currencyCode = currencyCode }
@@ -114,7 +125,7 @@ class PPOCard private constructor(
             currencyCode = currencyCode,
             currencySymbol = currencySymbol,
             flags = flags,
-            imageContentDescription = imageUrl,
+            imageContentDescription = imageContentDescription,
             imageUrl = imageUrl,
             projectId = projectId,
             projectName = projectName,

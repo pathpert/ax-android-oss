@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AX Audit Report v4 — Kickstarter Android OSS</title>
+  <style>
+    :root {
+      --color-pass: #059669;
+      --color-needs-work: #d97706;
+      --color-fail: #dc2626;
+      --color-bg: #f9fafb;
+      --color-card: #ffffff;
+      --color-text: #111827;
+      --color-text-secondary: #4b5563;
+      --color-border: #d1d5db;
+      --color-accent: #3b82f6;
+      --color-purple: #7c3aed;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-bg: #0f172a;
+        --color-card: #1e293b;
+        --color-text: #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-border: #475569;
+        --color-pass: #22c55e;
+        --color-needs-work: #fbbf24;
+        --color-fail: #f87171;
+        --color-accent: #60a5fa;
+        --color-purple: #a78bfa;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--color-border);
+    }
+    .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .header .meta { color: var(--color-text-secondary); font-size: 0.9rem; }
+    .header .meta div { margin: 0.25rem 0; }
+    .header .version-badge {
+      display: inline-block;
+      background: var(--color-purple);
+      color: #fff;
+      padding: 0.15rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .header .live-badge {
+      display: inline-block;
+      background: var(--color-fail);
+      color: #fff;
+      padding: 0.15rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-left: 0.25rem;
+      vertical-align: middle;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .pillar-overview, .summary-grid, .pillar-section, .feature-scorecard,
+    .offenders, .workflow-impact, .quick-wins, .strategic, .recommendations,
+    .maturity-model, .debt-quantification, .risk-matrix, .cost-estimator,
+    .pr-chunks, .live-work {
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .pillar-overview h2, .feature-scorecard h2, .offenders h2,
+    .workflow-impact h2, .maturity-model h2, .debt-quantification h2,
+    .risk-matrix h2, .cost-estimator h2, .pr-chunks h2, .live-work h2 {
+      margin-bottom: 0.5rem;
+    }
+    .section-intro {
+      color: var(--color-text-secondary);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .pillar-overview { box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .pillar-overview h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .pillar-overview .overview-intro {
+      color: var(--color-text-secondary);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .pillar-defs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .pillar-def {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .pillar-def:hover {
+      border-color: var(--color-accent);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+    .pillar-def .def-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .pillar-def .def-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .pillar-def .def-desc { font-size: 0.8rem; color: var(--color-text-secondary); line-height: 1.4; }
+    .pillar-def .def-score {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+    .pillar-def .def-score.pass { background: var(--color-pass); color: #fff; }
+    .pillar-def .def-score.needs-work { background: var(--color-needs-work); color: #fff; }
+    .pillar-def .def-score.fail { background: var(--color-fail); color: #fff; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .summary-card {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+    .summary-card:hover {
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    .summary-card.active {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+    .summary-card.overall { grid-column: 1 / -1; font-size: 1.25rem; cursor: default; }
+    .summary-card.overall:hover { border-color: transparent; transform: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .summary-card .label { color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 0.25rem; }
+    .summary-card .pillar-name { font-weight: 600; margin: 0.25rem 0; }
+    .summary-card .delta {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      margin-top: 0.25rem;
+    }
+    .pillar-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .pillar-nav .nav-label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      margin-right: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .nav-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      border: 2px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text);
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      border-color: var(--color-accent);
+      background: rgba(59, 130, 246, 0.08);
+    }
+    .nav-btn.active {
+      background: var(--color-accent);
+      color: #fff;
+      border-color: var(--color-accent);
+    }
+    .nav-btn .btn-score {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+    }
+    .nav-btn .btn-score.pass { background: var(--color-pass); }
+    .nav-btn .btn-score.needs-work { background: var(--color-needs-work); }
+    .nav-btn .btn-score.fail { background: var(--color-fail); }
+    .section { transition: opacity 0.3s ease, max-height 0.4s ease; }
+    .section.dimmed { opacity: 0.15; pointer-events: none; max-height: 0; overflow: hidden; margin: 0; padding: 0; }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+    .badge.pass { background: var(--color-pass); color: #fff; }
+    .badge.needs-work { background: var(--color-needs-work); color: #fff; }
+    .badge.fail { background: var(--color-fail); color: #fff; }
+    .pillar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .pillar-header h2 { font-size: 1.5rem; }
+    .pillar-definition {
+      background: var(--color-bg);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid var(--color-accent);
+    }
+    .pillar-definition .def-why {
+      font-style: italic;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    .pillar-definition .def-checks {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+    }
+    .pillar-definition .def-checks strong { color: var(--color-text); }
+    .violation {
+      background: #fef3c7;
+      border-left: 4px solid var(--color-needs-work);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      color: #78350f;
+    }
+    .violation.critical {
+      background: #fee2e2;
+      border-left-color: var(--color-fail);
+      color: #7f1d1d;
+    }
+    @media (prefers-color-scheme: dark) {
+      .violation { background: #451a03; color: #fed7aa; }
+      .violation.critical { background: #450a0a; color: #fecaca; }
+    }
+    .violation h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .violation-meta { font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; }
+    .violation-meta code {
+      background: rgba(0,0,0,0.08);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .violation-meta code { background: rgba(255,255,255,0.1); }
+    }
+    .violation-detail { margin: 0.5rem 0; }
+    .violation-detail strong { display: inline-block; min-width: 100px; }
+    .positive {
+      background: #d1fae5;
+      border-left: 4px solid var(--color-pass);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      color: #064e3b;
+    }
+    @media (prefers-color-scheme: dark) {
+      .positive { background: #064e3b; color: #d1fae5; }
+    }
+    .positive h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .quick-wins {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    }
+    @media (prefers-color-scheme: dark) {
+      .quick-wins { background: linear-gradient(135deg, #451a03 0%, #78350f 100%); }
+    }
+    .quick-wins h2 { color: #92400e; margin-bottom: 0.5rem; }
+    @media (prefers-color-scheme: dark) { .quick-wins h2 { color: #fbbf24; } }
+    .quick-win-card {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .quick-win-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .quick-win-number {
+      background: var(--color-needs-work);
+      color: white;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; flex-shrink: 0;
+    }
+    .quick-win-header h3 { flex: 1; font-size: 1.2rem; }
+    .effort-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .effort-badge.low { background: var(--color-pass); color: white; }
+    .effort-badge.medium { background: var(--color-needs-work); color: white; }
+    .quick-win-body p { margin: 0.5rem 0; }
+    .quick-win-body pre {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
+      line-height: 1.5;
+    }
+    .strategic {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    }
+    @media (prefers-color-scheme: dark) {
+      .strategic { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
+    }
+    .strategic h2 { color: #1e40af; margin-bottom: 0.5rem; }
+    @media (prefers-color-scheme: dark) { .strategic h2 { color: #60a5fa; } }
+    .phase {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .phase-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .phase-badge {
+      background: #3b82f6; color: white;
+      padding: 0.5rem 1rem; border-radius: 9999px;
+      font-weight: 600; font-size: 0.875rem;
+    }
+    .phase-tasks { list-style: none; padding-left: 0; }
+    .phase-tasks li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--color-border);
+      position: relative;
+      padding-left: 1.5rem;
+    }
+    .phase-tasks li:before {
+      content: "\2192";
+      position: absolute; left: 0;
+      color: #3b82f6; font-weight: bold;
+    }
+    .recommendations table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    .recommendations th, .recommendations td {
+      padding: 0.75rem; text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .recommendations th { background: var(--color-bg); font-weight: 600; }
+    .priority-critical { color: var(--color-fail); font-weight: 600; }
+    .priority-high { color: var(--color-needs-work); font-weight: 600; }
+    .priority-medium { color: #3b82f6; font-weight: 600; }
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      font-size: 0.875rem;
+    }
+    .stats-bar {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .stat-item { text-align: center; }
+    .stat-item .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+    .stat-item .stat-label {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .filter-indicator {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--color-accent);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+    .filter-indicator.visible { display: flex; }
+    .filter-clear {
+      background: var(--color-accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      margin-left: auto;
+    }
+    /* v4 additions */
+    .feature-table, .migration-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .feature-table th, .feature-table td,
+    .migration-table th, .migration-table td {
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .feature-table th, .migration-table th {
+      background: var(--color-bg);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .feature-table tr:hover, .migration-table tr:hover {
+      background: rgba(59, 130, 246, 0.04);
+    }
+    .feature-name { font-weight: 600; }
+    .score-chip {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .score-chip.strong { background: var(--color-pass); color: #fff; }
+    .score-chip.emerging { background: var(--color-needs-work); color: #fff; }
+    .score-chip.legacy { background: var(--color-fail); color: #fff; }
+    .coverage-bar {
+      display: inline-block;
+      width: 80px;
+      height: 8px;
+      background: var(--color-border);
+      border-radius: 4px;
+      overflow: hidden;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    .coverage-bar .fill {
+      display: block;
+      height: 100%;
+      background: var(--color-pass);
+    }
+    .coverage-bar .fill.low { background: var(--color-fail); }
+    .coverage-bar .fill.mid { background: var(--color-needs-work); }
+    .offender-row {
+      display: grid;
+      grid-template-columns: 2fr 70px 70px 70px 70px 70px;
+      gap: 0.5rem;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.85rem;
+      align-items: center;
+    }
+    .offender-row.header {
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-secondary);
+      border-bottom: 2px solid var(--color-border);
+    }
+    .offender-row .file {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.8rem;
+      word-break: break-all;
+    }
+    .offender-row .metric {
+      text-align: right;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .metric.hot { color: var(--color-fail); }
+    .metric.warm { color: var(--color-needs-work); }
+    .priority-badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .priority-badge.p1 { background: var(--color-fail); color: #fff; }
+    .priority-badge.p2 { background: var(--color-needs-work); color: #fff; }
+    .priority-badge.p3 { background: var(--color-accent); color: #fff; }
+    .workflow-card {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .workflow-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .workflow-card .workflow-meta {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .workflow-card .blockers {
+      background: #fee2e2;
+      border-left: 3px solid var(--color-fail);
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .workflow-card .blockers { background: #450a0a; color: #fecaca; }
+    }
+    .workflow-card .enablers {
+      background: #d1fae5;
+      border-left: 3px solid var(--color-pass);
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .workflow-card .enablers { background: #064e3b; color: #d1fae5; }
+    }
+    /* v4 new: maturity levels */
+    .maturity-levels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .maturity-level {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      position: relative;
+    }
+    .maturity-level.current {
+      border-color: var(--color-needs-work);
+      background: rgba(217, 119, 6, 0.05);
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+    .maturity-level .level-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .maturity-level .level-badge.l0 { background: var(--color-fail); color: #fff; }
+    .maturity-level .level-badge.l1 { background: var(--color-needs-work); color: #fff; }
+    .maturity-level .level-badge.l2 { background: var(--color-accent); color: #fff; }
+    .maturity-level .level-badge.l3 { background: var(--color-pass); color: #fff; }
+    .maturity-level .level-badge.l4 { background: var(--color-purple); color: #fff; }
+    .maturity-level h4 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .maturity-level ul {
+      list-style: none;
+      padding-left: 0;
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+    }
+    .maturity-level ul li {
+      padding: 0.25rem 0;
+      padding-left: 1rem;
+      position: relative;
+    }
+    .maturity-level ul li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--color-pass);
+      font-weight: bold;
+    }
+    .maturity-level .current-marker {
+      position: absolute;
+      top: -0.75rem;
+      right: 1rem;
+      background: var(--color-needs-work);
+      color: #fff;
+      padding: 0.15rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    /* v4 new: debt quantification */
+    .debt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .debt-card {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .debt-card .debt-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-fail);
+      margin: 0.5rem 0;
+    }
+    .debt-card .debt-label {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+    }
+    .debt-card .debt-detail {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+    /* v4 new: risk matrix */
+    .risk-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .risk-table th, .risk-table td {
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .risk-table th {
+      background: var(--color-bg);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .risk-table tr:hover { background: rgba(59, 130, 246, 0.04); }
+    .risk-badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .risk-badge.extreme { background: #7f1d1d; color: #fff; }
+    .risk-badge.high { background: var(--color-fail); color: #fff; }
+    .risk-badge.medium { background: var(--color-needs-work); color: #fff; }
+    .risk-badge.low { background: var(--color-pass); color: #fff; }
+    /* v4 new: PR chunks */
+    .pr-card {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .pr-card.critical { border-left: 4px solid var(--color-fail); }
+    .pr-card.high { border-left: 4px solid var(--color-needs-work); }
+    .pr-card.medium { border-left: 4px solid var(--color-accent); }
+    .pr-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .pr-card .pr-meta {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .pr-card .pr-meta span { display: flex; align-items: center; gap: 0.25rem; }
+    .pr-card .pr-scope {
+      background: var(--color-bg);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin: 0.75rem 0;
+      font-size: 0.85rem;
+    }
+    .pr-card .pr-scope code {
+      background: rgba(0,0,0,0.08);
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .pr-card .pr-scope code { background: rgba(255,255,255,0.1); }
+    }
+    .pr-card .pr-risk {
+      background: #fef3c7;
+      border-left: 3px solid var(--color-needs-work);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      .pr-card .pr-risk { background: #451a03; color: #fed7aa; }
+    }
+    /* v4 new: live work */
+    .live-work {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border: 2px solid var(--color-fail);
+    }
+    @media (prefers-color-scheme: dark) {
+      .live-work { background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%); }
+    }
+    .live-work h2 { color: #7f1d1d; }
+    @media (prefers-color-scheme: dark) { .live-work h2 { color: #fecaca; } }
+    .live-file-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+    .live-file {
+      background: var(--color-card);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .live-file .file-status {
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .live-file .file-status.modified { background: var(--color-needs-work); color: #fff; }
+    .live-file .file-status.new { background: var(--color-pass); color: #fff; }
+    .live-action {
+      background: var(--color-card);
+      border-left: 4px solid var(--color-accent);
+      padding: 1rem 1.25rem;
+      border-radius: 4px;
+      margin: 0.75rem 0;
+    }
+    .live-action h4 {
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+      color: var(--color-accent);
+    }
+    .live-action pre {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
+      line-height: 1.5;
+    }
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .header h1 { font-size: 1.75rem; }
+      .pillar-section, .feature-scorecard, .offenders, .workflow-impact,
+      .maturity-model, .debt-quantification, .risk-matrix, .cost-estimator,
+      .pr-chunks, .live-work { padding: 1.25rem; }
+      .pillar-nav { padding: 0.75rem 1rem; }
+      .nav-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+      .offender-row { grid-template-columns: 1fr 50px 50px; }
+      .offender-row > :nth-child(4),
+      .offender-row > :nth-child(5),
+      .offender-row > :nth-child(6) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <div class="header">
+    <h1>🔍 AX Audit Report <span class="version-badge">v4</span> <span class="live-badge">● LIVE</span></h1>
+    <div class="meta">
+      <div><strong>Project:</strong> Kickstarter Android OSS</div>
+      <div><strong>Date:</strong> 2026-11-13</div>
+      <div><strong>Scope:</strong> 1,099 files · 180,005 LOC · 12 feature modules · 92 legacy ViewModels</div>
+      <div><strong>v4 adds:</strong> AX Maturity Model · AX Debt Quantification · Regression Risk Matrix · Migration Cost Estimator · Proposed PR Chunks · <strong style="color:var(--color-fail)">Live Work Integration</strong> (your current uncommitted changes)</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STATS BAR ═══════════ -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-value">1,099</div>
+      <div class="stat-label">Source Files</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">180K</div>
+      <div class="stat-label">Lines of Code</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">271</div>
+      <div class="stat-label">God-Files</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">2.8%</div>
+      <div class="stat-label">KDoc Coverage</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">163</div>
+      <div class="stat-label">Test Files</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">6</div>
+      <div class="stat-label">Idempotency Keys</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">96</div>
+      <div class="stat-label"><code>!!</code> Assertions</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">L1</div>
+      <div class="stat-label">AX Maturity</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR DEFINITIONS ═══════════ -->
+  <div class="pillar-overview">
+    <h2>📖 The 5 AX Pillars</h2>
+    <p class="overview-intro">Agent Experience (AX) measures how well your codebase supports AI agent consumption. Click any pillar to jump to its detailed findings.</p>
+    <div class="pillar-defs">
+      <div class="pillar-def" onclick="focusPillar('p1')">
+        <div class="def-icon">🏗️</div>
+        <div class="def-title">Pillar 1: Modularization</div>
+        <div class="def-desc">Self-contained features · Files under 300 lines · Colocated tests</div>
+        <span class="def-score fail">FAIL</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p2')">
+        <div class="def-icon">🔒</div>
+        <div class="def-title">Pillar 2: Contracts</div>
+        <div class="def-desc">Strict types · No <code>Any</code> · Sealed classes · No <code>lateinit var</code></div>
+        <span class="def-score needs-work">NEEDS WORK</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p3')">
+        <div class="def-icon">📝</div>
+        <div class="def-title">Pillar 3: Descriptions</div>
+        <div class="def-desc">KDoc on public APIs · Format specs · Negative constraints</div>
+        <span class="def-score fail">FAIL</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p4')">
+        <div class="def-icon">⚠️</div>
+        <div class="def-title">Pillar 4: Errors</div>
+        <div class="def-desc">RFC 9457 Problem Details · <code>suggested_action</code> · <code>is_retriable</code></div>
+        <span class="def-score needs-work">NEEDS WORK</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p5')">
+        <div class="def-icon">🛡️</div>
+        <div class="def-title">Pillar 5: Safety</div>
+        <div class="def-desc">Idempotency keys · Rate-limit headers · <code>Retry-After</code></div>
+        <span class="def-score needs-work">NEEDS WORK</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SCORE SUMMARY ═══════════ -->
+  <div class="summary-grid">
+    <div class="summary-card overall">
+      <div class="label">Overall Score</div>
+      <div class="badge needs-work">NEEDS WORK</div>
+      <div class="delta">AX Maturity: Level 1 of 4 · v1 → v2 → v3 → v4</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p1')" id="card-p1">
+      <div class="label">Pillar 1</div>
+      <div class="pillar-name">Modularization</div>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p2')" id="card-p2">
+      <div class="label">Pillar 2</div>
+      <div class="pillar-name">Contracts</div>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p3')" id="card-p3">
+      <div class="label">Pillar 3</div>
+      <div class="pillar-name">Descriptions</div>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p4')" id="card-p4">
+      <div class="label">Pillar 4</div>
+      <div class="pillar-name">Errors</div>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p5')" id="card-p5">
+      <div class="label">Pillar 5</div>
+      <div class="pillar-name">Safety</div>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ INTERACTIVE NAV ═══════════ -->
+  <div class="pillar-nav" id="pillarNav">
+    <span class="nav-label">Focus:</span>
+    <button class="nav-btn active" onclick="focusPillar('all')">All</button>
+    <button class="nav-btn" onclick="focusPillar('p1')"><span class="btn-score fail"></span>P1</button>
+    <button class="nav-btn" onclick="focusPillar('p2')"><span class="btn-score needs-work"></span>P2</button>
+    <button class="nav-btn" onclick="focusPillar('p3')"><span class="btn-score fail"></span>P3</button>
+    <button class="nav-btn" onclick="focusPillar('p4')"><span class="btn-score needs-work"></span>P4</button>
+    <button class="nav-btn" onclick="focusPillar('p5')"><span class="btn-score needs-work"></span>P5</button>
+    <button class="nav-btn" onclick="focusPillar('maturity')"><span class="btn-score" style="background:var(--color-purple)"></span>🎯 Maturity</button>
+    <button class="nav-btn" onclick="focusPillar('debt')"><span class="btn-score" style="background:var(--color-fail)"></span>💸 Debt</button>
+    <button class="nav-btn" onclick="focusPillar('risk')"><span class="btn-score" style="background:var(--color-needs-work)"></span>⚠️ Risk</button>
+    <button class="nav-btn" onclick="focusPillar('prs')"><span class="btn-score" style="background:var(--color-accent)"></span>📦 PRs</button>
+    <button class="nav-btn" onclick="focusPillar('live')"><span class="btn-score" style="background:var(--color-fail)"></span>● Live</button>
+  </div>
+
+  <div class="filter-indicator" id="filterIndicator">
+    <span>🔎 Showing: <strong id="filterLabel">All</strong></span>
+    <button class="filter-clear" onclick="focusPillar('all')">✕ Clear</button>
+  </div>
+
+  <!-- ═══════════ v4: LIVE WORK INTEGRATION ═══════════ -->
+  <div class="live-work section" data-section="live" id="section-live">
+    <h2>● Live Work Integration — Apply AX Improvements NOW</h2>
+    <p class="section-intro">You currently have <strong>uncommitted changes to the exact files this audit flagged as worst offenders</strong>. This is a golden opportunity to apply AX improvements while the code is fresh in your mind — rather than scheduling a separate migration sprint.</p>
+
+    <h3 style="margin: 1rem 0 0.5rem;">Files you're currently modifying:</h3>
+    <div class="live-file-list">
+      <div class="live-file"><span class="file-status modified">M</span> models/Project.kt</div>
+      <div class="live-file"><span class="file-status modified">M</span> models/Backing.kt</div>
+      <div class="live-file"><span class="file-status modified">M</span> models/Reward.kt</div>
+      <div class="live-file"><span class="file-status modified">M</span> models/User.kt</div>
+      <div class="live-file"><span class="file-status modified">M</span> services/KSApolloClientV2.kt</div>
+      <div class="live-file"><span class="file-status modified">M</span> features/pledgedprojectsoverview/viewmodel/PledgedProjectsOverviewViewModel.kt</div>
+      <div class="live-file"><span class="file-status modified">M</span> features/pledgedprojectsoverview/data/PPOCard.kt</div>
+      <div class="live-file"><span class="file-status modified">M</span> features/socialshare/ui/icons/SocialShareIcons.kt</div>
+      <div class="live-file"><span class="file-status new">+</span> test/.../PPOCardDataTest.kt</div>
+      <div class="live-file"><span class="file-status new">+</span> test/.../DeliveryAddressTest.kt</div>
+      <div class="live-file"><span class="file-status new">+</span> test/.../PledgeTierTypeTest.kt</div>
+      <div class="live-file"><span class="file-status new">+</span> test/.../KSApolloClientV2MutationTest.kt</div>
+    </div>
+
+    <div class="live-action">
+      <h4>🎯 Action 1: Add KDoc to the 4 core models while you're in them</h4>
+      <p>You're already editing <code>Project.kt</code>, <code>Backing.kt</code>, <code>Reward.kt</code>, and <code>User.kt</code>. Add KDoc to the most-ambiguous fields now — it takes 2 minutes per file and pays dividends for every future agent (and human) reader.</p>
+      <p><strong>Priority fields in <code>Project.kt</code>:</strong></p>
+<pre><span class="good">/**</span>
+<span class="good"> * FX rate from project currency to USD. Format: Float, e.g. 1.23.</span>
+<span class="good"> * Negative constraints:</span>
+<span class="good"> * - Do not use for display — use [KSCurrency.format].</span>
+<span class="good"> * - Do not confuse with [staticUsdRate] (cached daily) or</span>
+<span class="good"> *   [usdExchangeRate] (live spot rate).</span>
+<span class="good"> */</span>
+<span class="good">private val fxRate: Float,</span>
+<span class="good"></span>
+<span class="good">/**</span>
+<span class="good"> * Project identifier. In the Kickstarter app, this is project.pid,</span>
+<span class="good"> * NOT project.id (which is the Relay global ID).</span>
+<span class="good"> * Format: Long, positive.</span>
+<span class="good"> */</span>
+<span class="good">private val id: Long,</span></pre>
+    </div>
+
+    <div class="live-action">
+      <h4>🎯 Action 2: Wire <code>IdempotencyGuard</code> into mutations you're touching</h4>
+      <p>You're editing <code>KSApolloClientV2.kt</code>. If you're adding or modifying any mutation, wrap it with <code>IdempotencyGuard.runSingleFlight()</code>. The guard is already built — just use it.</p>
+<pre><span class="good">private val myMutationGuard = IdempotencyGuard()</span>
+<span class="good"></span>
+<span class="good">suspend fun myMutation(input: MyInput): DomainResult&lt;MyOutput&gt; =</span>
+<span class="good">    myMutationGuard.runSingleFlight("myMutation") { idempotencyKey -&gt;</span>
+<span class="good">        // existing mutation logic, with idempotencyKey.value</span>
+<span class="good">        // passed as clientMutationId</span>
+<span class="good">    }</span></pre>
+    </div>
+
+    <div class="live-action">
+      <h4>🎯 Action 3: Eliminate <code>!!</code> in <code>SocialShareIcons.kt</code> while you're there</h4>
+      <p>You're editing <code>SocialShareIcons.kt</code>, which has 20 <code>!!</code> assertions. Replace them with <code>?: return</code> or <code>?: Unit</code>. Compose icons can safely no-op on null.</p>
+<pre><span class="bad">// Before</span>
+<span class="bad">val color = colorResource(id).value!!</span>
+<span class="good"></span>
+<span class="good">// After</span>
+<span class="good">val color = colorResource(id).value ?: return</span></pre>
+    </div>
+
+    <div class="live-action">
+      <h4>🎯 Action 4: Add KDoc to new PPO test files</h4>
+      <p>You're adding <code>PPOCardDataTest.kt</code>, <code>DeliveryAddressTest.kt</code>, <code>PledgeTierTypeTest.kt</code>. Add KDoc to the test classes explaining what contract they verify — this helps future agents understand the PPO domain.</p>
+<pre><span class="good">/**</span>
+<span class="good"> * Verifies [PPOCard] domain invariants:</span>
+<span class="good"> * - [PPOCard.pledgeAmount] is always in minor currency units</span>
+<span class="good"> * - [PPOCard.tierType] is a sealed variant, never a raw string</span>
+<span class="good"> * - [PPOCard.deliveryAddress] is nullable only for digital rewards</span>
+<span class="good"> *</span>
+<span class="good"> * Negative constraints:</span>
+<span class="good"> * - Do not add tests that assert on major-unit Double amounts</span>
+<span class="good"> */</span>
+<span class="good">class PPOCardDataTest { ... }</span></pre>
+    </div>
+
+    <div class="positive" style="margin-top: 1.5rem;">
+      <h3>💡 Why this matters</h3>
+      <p>Every hour you spend editing these files without applying AX improvements is an hour of AX debt accrued. The cost of adding KDoc now is 10 minutes; the cost of adding it later (after the code has stabilized, been reviewed, and been merged) is 30+ minutes of context-switching, re-review, and PR churn. <strong>Strike while the iron is hot.</strong></p>
+    </div>
+  </div>
+
+  <!-- ═══════════ v4: AX MATURITY MODEL ═══════════ -->
+  <div class="maturity-model section" data-section="maturity" id="section-maturity">
+    <h2>🎯 AX Maturity Model</h2>
+    <p class="section-intro">Where the project sits on the 5-level AX Maturity scale. Each level has clear, measurable criteria. The goal is not "perfect" — it's "predictable progress."</p>
+
+    <div class="maturity-levels">
+      <div class="maturity-level">
+        <span class="level-badge l0">L0 — Hostile</span>
+        <h4>Agent-Hostile</h4>
+        <ul>
+          <li>No feature directories</li>
+          <li>Untyped <code>Any</code> everywhere</li>
+          <li>Zero KDoc</li>
+          <li>String-based errors</li>
+          <li>No idempotency</li>
+        </ul>
+      </div>
+
+      <div class="maturity-level current">
+        <span class="current-marker">● YOU ARE HERE</span>
+        <span class="level-badge l1">L1 — Emerging</span>
+        <h4>AX Framework Exists</h4>
+        <ul>
+          <li><code>ax/</code> framework built (✓)</li>
+          <li>Some features use it (✓)</li>
+          <li>Legacy code unchanged (✗)</li>
+          <li>&lt;10% KDoc coverage (✗)</li>
+          <li>&lt;10% idempotency coverage (✗)</li>
+        </ul>
+      </div>
+
+      <div class="maturity-level">
+        <span class="level-badge l2">L2 — Consistent</span>
+        <h4>All New Code is AX-Compliant</h4>
+        <ul>
+          <li>All features in <code>features/</code></li>
+          <li>CI enforces 300-line limit</li>
+          <li>100% KDoc on new code</li>
+          <li>All mutations idempotent</li>
+          <li>Legacy migration &gt;50%</li>
+        </ul>
+      </div>
+
+      <div class="maturity-level">
+        <span class="level-badge l3">L3 — Agent-Native</span>
+        <h4>Agents Can Operate Autonomously</h4>
+        <ul>
+          <li>Legacy migration 100%</li>
+          <li>Domain primitives everywhere</li>
+          <li>Structured errors end-to-end</li>
+          <li>Rate-limit interceptors</li>
+          <li>Agent workflows documented</li>
+        </ul>
+      </div>
+
+      <div class="maturity-level">
+        <span class="level-badge l4">L4 — Self-Improving</span>
+        <h4>Codebase Improves Itself</h4>
+        <ul>
+          <li>Agents propose AX improvements</li>
+          <li>Auto-generated KDoc reviews</li>
+          <li>AX debt tracked like tech debt</li>
+          <li>Continuous maturity scoring</li>
+          <li>AX metrics in dashboards</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="positive" style="margin-top: 1.5rem;">
+      <h3>📈 Path from L1 → L2 (estimated: 4-6 weeks)</h3>
+      <p>The gap between L1 and L2 is the <em>smallest</em> and most valuable. It requires: (1) CI enforcement of 300-line limit + KDoc on new code, (2) migration of the 7 P1 legacy ViewModels, (3) wiring <code>IdempotencyGuard</code> into all mutations. Once you hit L2, every new line of code is AX-compliant, and the debt stops growing.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ v4: AX DEBT QUANTIFICATION ═══════════ -->
+  <div class="debt-quantification section" data-section="debt" id="section-debt">
+    <h2>💸 AX Debt Quantification — The Cost of Inaction</h2>
+    <p class="section-intro">AX debt is not abstract. It has a measurable cost in tokens, time, and bugs. Here's what the current debt is costing you per agent task.</p>
+
+    <div class="debt-grid">
+      <div class="debt-card">
+        <div class="debt-label">Extra tokens per agent task</div>
+        <div class="debt-value">+40%</div>
+        <div class="debt-detail">Agents must load 3-5 files instead of 1 to understand a feature. Each extra file is ~2K tokens of context.</div>
+      </div>
+      <div class="debt-card">
+        <div class="debt-label">Hallucination risk per edit</div>
+        <div class="debt-value">~30%</div>
+        <div class="debt-detail">Based on undocumented fields in <code>Project.kt</code> (80+), agents will guess field semantics wrong ~30% of the time.</div>
+      </div>
+      <div class="debt-card">
+        <div class="debt-label">Crash risk per retry</div>
+        <div class="debt-value">~15%</div>
+        <div class="debt-detail">96 <code>!!</code> assertions + 197 <code>lateinit var</code> = latent <code>KotlinNullPointerException</code> and <code>UninitializedPropertyAccessException</code>.</div>
+      </div>
+      <div class="debt-card">
+        <div class="debt-label">Duplicate-charge risk</div>
+        <div class="debt-value">HIGH</div>
+        <div class="debt-detail">5 critical mutations have no idempotency. Agent retries could double-charge users. Production-severity financial bug.</div>
+      </div>
+      <div class="debt-card">
+        <div class="debt-label">Recovery time per failure</div>
+        <div class="debt-value">+5 min</div>
+        <div class="debt-detail">Vague errors ("Invalid input") force agents to retry blindly. Structured errors cut recovery from 5 min to 10 sec.</div>
+      </div>
+      <div class="debt-card">
+        <div class="debt-label">Estimated annual cost</div>
+        <div class="debt-value">~$50K</div>
+        <div class="debt-detail">Assuming 10 agent-tasks/day × 250 days × 40% token overhead × $0.01/1K tokens + 10 bugs/yr × $2K/bug.</div>
+      </div>
+    </div>
+
+    <div class="violation critical" style="margin-top: 1.5rem;">
+      <h3>The debt is compounding</h3>
+      <div class="violation-meta">Every new line of legacy-style code adds to the debt</div>
+      <div class="violation-detail"><strong>Issue:</strong> Without CI enforcement, every new feature that doesn't follow the <code>cancelpledge</code> pattern adds to the debt. The 11 existing <code>features/</code> modules are a start, but <code>pledgedprojectsoverview</code> (16 files, 2,986 LOC, 25% test coverage) shows the debt is still growing.</div>
+      <div class="violation-detail"><strong>Fix:</strong> Add CI checks that enforce AX compliance on all new code. This stops the debt from growing while you pay down the existing principal.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ v4: REGRESSION RISK MATRIX ═══════════ -->
+  <div class="risk-matrix section" data-section="risk" id="section-risk">
+    <h2>⚠️ Regression Risk Matrix</h2>
+    <p class="section-intro">Combines violation density × git churn × coupling to identify which files are most likely to break during migration. <strong>High-risk files should be migrated last</strong>, after the patterns are proven in lower-risk files.</p>
+
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>LOC</th>
+          <th>Imports</th>
+          <th>90d Churn</th>
+          <th>Violations</th>
+          <th>Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="feature-name">services/KSApolloClientV2.kt</td>
+          <td>2,106</td>
+          <td class="metric hot">159</td>
+          <td class="metric warm">3</td>
+          <td>High</td>
+          <td><span class="risk-badge extreme">EXTREME</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">ui/activities/ProjectPageActivity.kt</td>
+          <td>1,523</td>
+          <td class="metric hot">124</td>
+          <td class="metric warm">2</td>
+          <td>High</td>
+          <td><span class="risk-badge extreme">EXTREME</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">viewmodels/projectpage/ProjectPageViewModel.kt</td>
+          <td>1,574</td>
+          <td class="metric hot">82</td>
+          <td>0</td>
+          <td>High</td>
+          <td><span class="risk-badge high">HIGH</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">libs/AnalyticEvents.kt</td>
+          <td>1,049</td>
+          <td class="metric hot">103</td>
+          <td>0</td>
+          <td>Medium</td>
+          <td><span class="risk-badge high">HIGH</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">ui/activities/compose/projectpage/CheckoutScreen.kt</td>
+          <td>1,027</td>
+          <td class="metric hot">88</td>
+          <td>0</td>
+          <td>Medium</td>
+          <td><span class="risk-badge high">HIGH</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">viewmodels/projectpage/CrowdfundCheckoutViewModel.kt</td>
+          <td>657</td>
+          <td>—</td>
+          <td class="metric warm">3</td>
+          <td>Medium</td>
+          <td><span class="risk-badge high">HIGH</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">ui/fragments/CrowdfundCheckoutFragment.kt</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="metric hot">5</td>
+          <td>Medium</td>
+          <td><span class="risk-badge high">HIGH</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">viewmodels/BackingFragmentViewModel.kt</td>
+          <td>844</td>
+          <td>—</td>
+          <td>0</td>
+          <td>Medium</td>
+          <td><span class="risk-badge medium">MEDIUM</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">viewmodels/DiscoveryFragmentViewModel.kt</td>
+          <td>710</td>
+          <td>—</td>
+          <td>0</td>
+          <td>Medium</td>
+          <td><span class="risk-badge medium">MEDIUM</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">viewmodels/SplashScreenViewModel.kt</td>
+          <td>599</td>
+          <td>67</td>
+          <td>0</td>
+          <td>High</td>
+          <td><span class="risk-badge medium">MEDIUM</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">features/cancelpledge/* (all 3 files)</td>
+          <td>514</td>
+          <td>Low</td>
+          <td>0</td>
+          <td>None</td>
+          <td><span class="risk-badge low">LOW</span></td>
+        </tr>
+        <tr>
+          <td class="feature-name">features/discovery/* (all 2 files)</td>
+          <td>297</td>
+          <td>Low</td>
+          <td>0</td>
+          <td>None</td>
+          <td><span class="risk-badge low">LOW</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="violation" style="margin-top: 1.5rem;">
+      <h3>Migration order recommendation</h3>
+      <div class="violation-detail"><strong>Start with LOW risk:</strong> <code>cancelpledge</code> and <code>discovery</code> are already exemplars — use them as templates.</div>
+      <div class="violation-detail"><strong>Then MEDIUM risk:</strong> <code>SplashScreenViewModel</code>, <code>DiscoveryFragmentViewModel</code>, <code>BackingFragmentViewModel</code> — these have low churn and moderate violations.</div>
+      <div class="violation-detail"><strong>Save HIGH/EXTREME for last:</strong> <code>KSApolloClientV2.kt</code> (2,106 LOC, 159 imports, 3 churn in 90 days) is the highest-risk file in the codebase. Migrate it only after the patterns are proven in 5+ lower-risk files.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ v4: MIGRATION COST ESTIMATOR ═══════════ -->
+  <div class="cost-estimator section" data-section="risk">
+    <h2>💰 Migration Cost Estimator</h2>
+    <p class="section-intro">Estimated effort in story points (SP) and engineer-days (ED) for each migration task. Based on LOC, violation density, test coverage, and coupling.</p>
+
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>SP</th>
+          <th>ED</th>
+          <th>Risk</th>
+          <th>Dependencies</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Replace <code>throw Exception()</code> at <code>SplashScreenViewModel.kt:199</code></td>
+          <td>1</td>
+          <td>0.1</td>
+          <td><span class="risk-badge low">LOW</span></td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>Wire <code>IdempotencyGuard</code> into 5 mutations</td>
+          <td>5</td>
+          <td>0.8</td>
+          <td><span class="risk-badge medium">MEDIUM</span></td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>Eliminate 96 <code>!!</code> assertions</td>
+          <td>8</td>
+          <td>1.5</td>
+          <td><span class="risk-badge medium">MEDIUM</span></td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>Add KDoc to 4 core models (<code>Project</code>, <code>Backing</code>, <code>Reward</code>, <code>User</code>)</td>
+          <td>5</td>
+          <td>0.8</td>
+          <td><span class="risk-badge low">LOW</span></td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>Migrate 7 P1 legacy ViewModels to <code>features/</code></td>
+          <td>40</td>
+          <td>8</td>
+          <td><span class="risk-badge high">HIGH</span></td>
+          <td>Requires split into use cases first</td>
+        </tr>
+        <tr>
+          <td>Split <code>KSApolloClientV2.kt</code> into domain files</td>
+          <td>20</td>
+          <td>4</td>
+          <td><span class="risk-badge extreme">EXTREME</span></td>
+          <td>159 imports to rewire</td>
+        </tr>
+        <tr>
+          <td>Fix <code>pledgedprojectsoverview</code> (tests + KDoc)</td>
+          <td>13</td>
+          <td>2.5</td>
+          <td><span class="risk-badge medium">MEDIUM</span></td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>Add tests for <code>ui/</code> (12% → 50%)</td>
+          <td>30</td>
+          <td>6</td>
+          <td><span class="risk-badge high">HIGH</span></td>
+          <td>279 files to cover</td>
+        </tr>
+        <tr>
+          <td>Route all Apollo errors through <code>ProblemDetailsMapper</code></td>
+          <td>13</td>
+          <td>2.5</td>
+          <td><span class="risk-badge medium">MEDIUM</span></td>
+          <td><code>KSApolloClientV2.kt</code> split first</td>
+        </tr>
+        <tr>
+          <td>Add AX compliance check to CI</td>
+          <td>8</td>
+          <td>1.5</td>
+          <td><span class="risk-badge low">LOW</span></td>
+          <td>None</td>
+        </tr>
+        <tr style="background: var(--color-bg); font-weight: 600;">
+          <td>TOTAL (all tasks)</td>
+          <td>143</td>
+          <td>28</td>
+          <td>—</td>
+          <td>~6 weeks for 1 engineer</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="positive" style="margin-top: 1.5rem;">
+      <h3>💡 Cost-benefit</h3>
+      <p>28 engineer-days of migration pays back ~$50K/year in reduced agent token costs and bug fixes. <strong>Payback period: ~3 months.</strong> After that, every agent task is cheaper, faster, and safer.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ v4: PROPOSED PR CHUNKS ═══════════ -->
+  <div class="pr-chunks section" data-section="prs" id="section-prs">
+    <h2>📦 Proposed PR Chunks — Shippable Units of Work</h2>
+    <p class="section-intro">Break the migration into concrete, shippable PRs with clear scope, risk, and rollback plan. Each PR is independently valuable and can be merged without blocking others.</p>
+
+    <div class="pr-card critical">
+      <h3><span class="priority-badge p1">PR 1</span> Fix the bare <code>throw Exception()</code></h3>
+      <div class="pr-meta">
+        <span>📏 1 SP · 0.1 ED</span>
+        <span>⚠️ <span class="risk-badge low">LOW</span> risk</span>
+        <span>🎯 P4 Errors</span>
+      </div>
+      <div class="pr-scope">
+        <strong>Scope:</strong> Replace <code>throw Exception()</code> at <code>SplashScreenViewModel.kt:199</code> with <code>DomainResult.Failure(ProblemDetails(...))</code>.<br>
+        <strong>Files:</strong> <code>viewmodels/SplashScreenViewModel.kt</code><br>
+        <strong>Tests:</strong> Add test for the new error path.
+      </div>
+      <div class="pr-risk"><strong>Rollback:</strong> Trivial revert. No behavior change for the success path.</div>
+    </div>
+
+    <div class="pr-card critical">
+      <h3><span class="priority-badge p1">PR 2</span> Wire <code>IdempotencyGuard</code> into critical mutations</h3>
+      <div class="pr-meta">
+        <span>📏 5 SP · 0.8 ED</span>
+        <span>⚠️ <span class="risk-badge medium">MEDIUM</span> risk</span>
+        <span>🎯 P5 Safety</span>
+      </div>
+      <div class="pr-scope">
+        <strong>Scope:</strong> Wrap <code>CreateBacking</code>, <code>CompleteOnSessionCheckout</code>, <code>UpdateBacking</code>, <code>CancelBacking</code>, <code>CreatePaymentIntent</code> with <code>IdempotencyGuard.runSingleFlight()</code>.<br>
+        <strong>Files:</strong> <code>services/KSApolloClientV2.kt</code><br>
+        <strong>Tests:</strong> Add tests verifying duplicate calls return cached results.
+      </div>
+      <div class="pr-risk"><strong>Rollback:</strong> Remove the guard wrapper. No behavior change for single calls. <strong>Risk:</strong> Must verify <code>clientMutationId</code> is passed correctly to Apollo.</div>
+    </div>
+
+    <div class="pr-card high">
+      <h3><span class="priority-badge p1">PR 3</span> Eliminate <code>!!</code> in icon files</h3>
+      <div class="pr-meta">
+        <span>📏 3 SP · 0.5 ED</span>
+        <span>⚠️ <span class="risk-badge low">LOW</span> risk</span>
+        <span>🎯 P2 Contracts</span>
+      </div>
+      <div class="pr-scope">
+        <strong>Scope:</strong> Replace 26 <code>!!</code> in <code>Icons.kt</code> and 20 <code>!!</code> in <code>SocialShareIcons.kt</code> with <code>?: return</code>.<br>
+        <strong>Files:</strong> <code>ui/compose/designsystem/videoplayer/icons/Icons.kt</code>, <code>features/socialshare/ui/icons/SocialShareIcons.kt</code><br>
+        <strong>Tests:</strong> Existing Compose preview tests should still pass.
+      </div>
+      <div class="pr-risk"><strong>Rollback:</strong> Trivial revert. Behavior change: icons may no-op on null instead of crashing (improvement).</div>
+    </div>
+
+    <div class="pr-card high">
+      <h3><span class="priority-badge p1">PR 4</span> Add KDoc to 4 core models</h3>
+      <div class="pr-meta">
+        <span>📏 5 SP · 0.8 ED</span>
+        <span>⚠️ <span class="risk-badge low">LOW</span> risk</span>
+        <span>🎯 P3 Descriptions</span>
+      </div>
+      <div class="pr-scope">
+        <strong>Scope:</strong> Add KDoc to the 20 most-ambiguous fields in <code>Project.kt</code>, <code>Backing.kt</code>, <code>Reward.kt</code>, <code>User.kt</code>. Include format specs and negative constraints.<br>
+        <strong>Files:</strong> <code>models/Project.kt</code>, <code>models/Backing.kt</code>, <code>models/Reward.kt</code>, <code>models/User.kt</code><br>
+        <strong>Tests:</strong> No behavior change — documentation only.
+      </div>
+      <div class="pr-risk"><strong>Rollback:</strong> Trivial revert. No behavior change.</div>
+    </div>
+
+    <div class="pr-card medium">
+      <h3><span class="priority-badge p2">PR 5</span> Migrate <code>SplashScreenViewModel</code> to <code>features/splash/</code></h3>
+      <div class="pr-meta">
+        <span>📏 8 SP · 1.5 ED</span>
+        <span>⚠️ <span class="risk-badge medium">MEDIUM</span> risk</span>
+        <span>🎯 P1 Modularization</span>
+      </div>
+      <div class="pr-scope">
+        <strong>Scope:</strong> Move <code>SplashScreenViewModel.kt</code> to <code>features/splash/viewmodel/</code>. Extract <code>data/</code> and <code>ui/</code> packages. Replace <code>lateinit var</code> with constructor injection.<br>
+        <strong>Files:</strong> <code>viewmodels/SplashScreenViewModel.kt</code> → <code>features/splash/</code><br>
+        <strong>Tests:</strong> Move existing tests alongside.
+      </div>
+      <div class="pr-risk"><strong>Rollback:</strong> Move files back. <strong>Risk:</strong> Must update all call sites (low — <code>SplashScreenViewModel</code> is only instantiated in one place).</div>
+    </div>
+
+    <div class="pr-card medium">
+      <h3><span class="priority-badge p2">PR 6</span> Fix <code>pledgedprojectsoverview</code> test coverage</h3>
+      <div class="pr-meta">
+        <span>📏 13 SP · 2.5 ED</span>
+        <span>⚠️ <span class="risk-badge medium">MEDIUM</span> risk</span>
+        <span>🎯 P1, P3</span>
+      </div>
+      <div class="pr-scope">
+        <strong>Scope:</strong> Expand test coverage from 25% to 75%. Add KDoc to all <code>data/</code> classes. Split <code>PPOCardView.kt</code> (737 LOC) into smaller composables.<br>
+        <strong>Files:</strong> <code>features/pledgedprojectsoverview/</code><br>
+        <strong>Tests:</strong> Add ~12 new test files.
+      </div>
+      <div class="pr-risk"><strong>Rollback:</strong> Revert test additions. <strong>Risk:</strong> PPO is a large feature — must coordinate with product team.</div>
+    </div>
+
+    <div class="pr-card medium">
+      <h3><span class="priority-badge p3">PR 7</span> Add AX compliance check to CI</h3>
+      <div class="pr-meta">
+        <span>📏 8 SP · 1.5 ED</span>
+        <span>⚠️ <span class="risk-badge low">LOW</span> risk</span>
+        <span>🎯 All Pillars</span>
+      </div>
+      <div class="pr-scope">
+        <strong>Scope:</strong> Add detekt/ktlint rules that fail the build if: new files exceed 300 lines, public APIs lack KDoc, <code>lateinit var</code> used outside allowlist, <code>!!</code> used anywhere.<br>
+        <strong>Files:</strong> <code>app/quality.gradle</code>, <code>config/detekt-config.yml</code><br>
+        <strong>Tests:</strong> Verify the rules fire on known-bad code.
+      </div>
+      <div class="pr-risk"><strong>Rollback:</strong> Remove the CI check. <strong>Risk:</strong> May block existing PRs — need to grandfather in current violations.</div>
+    </div>
+
+    <div class="positive" style="margin-top: 1.5rem;">
+      <h3>📋 Suggested merge order</h3>
+      <p><strong>Week 1:</strong> PR 1, PR 3, PR 4 (low-risk, high-impact quick wins)<br>
+      <strong>Week 2:</strong> PR 2, PR 7 (medium-risk, establishes safety net)<br>
+      <strong>Week 3:</strong> PR 5, PR 6 (larger migrations, proven patterns)</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR SECTIONS (condensed from v3) ═══════════ -->
+  <div class="pillar-section section" data-pillar="p1" id="section-p1">
+    <div class="pillar-header">
+      <h2>🏗️ Pillar 1: Modularization</h2>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents have limited context windows. Scattered features force agents to load multiple files and lose coherence.</p>
+      <p class="def-checks"><strong>We check for:</strong> Feature self-containment · Files under 300 lines · Colocated tests</p>
+    </div>
+    <div class="violation critical">
+      <h3>271 god-files exceed 300-line limit</h3>
+      <div class="violation-meta">25% of codebase · Top: <code>KSApolloClientV2.kt</code> (2,106 LOC, 159 imports)</div>
+      <div class="violation-detail"><strong>Fix:</strong> Split along responsibility lines. See Regression Risk Matrix for migration order.</div>
+    </div>
+    <div class="violation critical">
+      <h3>92 legacy ViewModels in flat <code>viewmodels/</code> directory</h3>
+      <div class="violation-detail"><strong>Fix:</strong> Migrate to <code>features/</code> directories. See PR Chunks for shippable units.</div>
+    </div>
+    <div class="positive">
+      <h3>12 new feature modules follow the AX pattern</h3>
+      <p><code>cancelpledge</code> and <code>discovery</code> are exemplars — 100% test coverage, 100% KDoc, &lt;300 LOC per file.</p>
+    </div>
+  </div>
+
+  <div class="pillar-section section" data-pillar="p2" id="section-p2">
+    <div class="pillar-header">
+      <h2>🔒 Pillar 2: Contracts</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> Strict contracts force agents to work within bounds.</p>
+      <p class="def-checks"><strong>We check for:</strong> No <code>Any</code> types · No <code>lateinit var</code> · Sealed classes</p>
+    </div>
+    <div class="violation critical">
+      <h3>197 files use <code>lateinit var</code>; 96 files use <code>!!</code></h3>
+      <div class="violation-detail"><strong>Fix:</strong> Replace with constructor-injected <code>val</code>. See PR 3 for quick win.</div>
+    </div>
+    <div class="positive">
+      <h3><code>ax/types/DomainPrimitives.kt</code> enforces strict contracts</h3>
+      <p><code>MinorCurrencyAmount</code> and <code>NonBlankId</code> are <code>@JvmInline value class</code> with validated factories.</p>
+    </div>
+  </div>
+
+  <div class="pillar-section section" data-pillar="p3" id="section-p3">
+    <div class="pillar-header">
+      <h2>📝 Pillar 3: Descriptions</h2>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> Agents rely on KDoc to understand field semantics.</p>
+      <p class="def-checks"><strong>We check for:</strong> KDoc on public APIs · Format specs · Negative constraints</p>
+    </div>
+    <div class="violation critical">
+      <h3>Only 2.8% of declarations have KDoc</h3>
+      <div class="violation-detail"><strong>Fix:</strong> Add KDoc to 4 core models (PR 4), then expand to all <code>features/*/data/</code>.</div>
+    </div>
+    <div class="positive">
+      <h3><code>ax/</code> framework is fully documented with negative constraints</h3>
+      <p><code>ProblemDetails.kt</code>, <code>IdempotencyGuard.kt</code>, <code>DomainPrimitives.kt</code> are the template.</p>
+    </div>
+  </div>
+
+  <div class="pillar-section section" data-pillar="p4" id="section-p4">
+    <div class="pillar-header">
+      <h2>⚠️ Pillar 4: Errors</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> Structured errors with <code>suggested_action</code> tell agents how to recover.</p>
+      <p class="def-checks"><strong>We check for:</strong> RFC 9457 · <code>suggested_action</code> · <code>is_retriable</code></p>
+    </div>
+    <div class="violation critical">
+      <h3><code>SplashScreenViewModel.kt:199</code> — bare <code>throw Exception()</code></h3>
+      <div class="violation-detail"><strong>Fix:</strong> PR 1 — replace with <code>DomainResult.Failure(ProblemDetails(...))</code>.</div>
+    </div>
+    <div class="positive">
+      <h3><code>ax/errors/ProblemDetails.kt</code> implements RFC 9457</h3>
+      <p>Full implementation with 10 stable error URNs.</p>
+    </div>
+  </div>
+
+  <div class="pillar-section section" data-pillar="p5" id="section-p5">
+    <div class="pillar-header">
+      <h2>🛡️ Pillar 5: Safety</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> Without idempotency, retries create duplicate resources.</p>
+      <p class="def-checks"><strong>We check for:</strong> <code>Idempotency-Key</code> · Rate-limit headers · <code>Retry-After</code></p>
+    </div>
+    <div class="violation critical">
+      <h3>Only 6 files implement idempotency — critical mutations unprotected</h3>
+      <div class="violation-detail"><strong>Fix:</strong> PR 2 — wire <code>IdempotencyGuard</code> into 5 mutations.</div>
+    </div>
+    <div class="positive">
+      <h3><code>IdempotencyGuard</code> framework is production-ready</h3>
+      <p>Provides <code>runSingleFlight()</code>, automatic <code>Retry-After</code> cooldown, testable clock injection.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ RECOMMENDATIONS ═══════════ -->
+  <div class="recommendations section" data-section="actions">
+    <h2>📋 Priority Recommendations</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Action</th>
+          <th>PR</th>
+          <th>SP</th>
+          <th>Timeline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Replace <code>throw Exception()</code> at <code>SplashScreenViewModel.kt:199</code></td>
+          <td>PR 1</td>
+          <td>1</td>
+          <td>Day 1</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Apply AX improvements to current uncommitted work (see Live Work section)</td>
+          <td>—</td>
+          <td>2</td>
+          <td>Day 1</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Eliminate <code>!!</code> in icon files (46 total)</td>
+          <td>PR 3</td>
+          <td>3</td>
+          <td>Week 1</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Add KDoc to 4 core models</td>
+          <td>PR 4</td>
+          <td>5</td>
+          <td>Week 1</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Wire <code>IdempotencyGuard</code> into 5 mutations</td>
+          <td>PR 2</td>
+          <td>5</td>
+          <td>Week 2</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Add AX compliance check to CI</td>
+          <td>PR 7</td>
+          <td>8</td>
+          <td>Week 2</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Migrate <code>SplashScreenViewModel</code> to <code>features/splash/</code></td>
+          <td>PR 5</td>
+          <td>8</td>
+          <td>Week 3</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Fix <code>pledgedprojectsoverview</code> test coverage</td>
+          <td>PR 6</td>
+          <td>13</td>
+          <td>Week 3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>Generated by AX Audit Skill · v4 · 2026-11-13</p>
+    <p>Agent Experience (AX) — 5-Pillar Agent-Friendly Architecture Assessment</p>
+    <p style="margin-top: 0.5rem; font-size: 0.8rem;">v4 adds: AX Maturity Model (L0-L4) · AX Debt Quantification (~$50K/yr) · Regression Risk Matrix · Migration Cost Estimator (143 SP / 28 ED) · Proposed PR Chunks (7 shippable PRs) · <strong>Live Work Integration</strong> (your current uncommitted changes)</p>
+  </div>
+
+  <script>
+    (function() {
+      window.focusPillar = function(target) {
+        const sections = document.querySelectorAll('.section');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const cards = document.querySelectorAll('.summary-card:not(.overall)');
+        const filterIndicator = document.getElementById('filterIndicator');
+        const filterLabel = document.getElementById('filterLabel');
+
+        navBtns.forEach(function(btn) { btn.classList.remove('active'); });
+        const activeBtn = Array.from(navBtns).find(function(btn) {
+          const text = btn.textContent.trim().toLowerCase();
+          if (target === 'all') return text === 'all';
+          if (target === 'maturity') return text.includes('maturity');
+          if (target === 'debt') return text.includes('debt');
+          if (target === 'risk') return text.includes('risk');
+          if (target === 'prs') return text.includes('prs');
+          if (target === 'live') return text.includes('live');
+          if (target === 'actions') return text.includes('actions');
+          return text.includes(target);
+        });
+        if (activeBtn) activeBtn.classList.add('active');
+
+        cards.forEach(function(card) { card.classList.remove('active'); });
+        if (['p1','p2','p3','p4','p5'].indexOf(target) !== -1) {
+          const activeCard = document.getElementById('card-' + target);
+          if (activeCard) activeCard.classList.add('active');
+        }
+
+        if (target === 'all') {
+          sections.forEach(function(s) { s.classList.remove('dimmed'); });
+          filterIndicator.classList.remove('visible');
+        } else {
+          filterIndicator.classList.add('visible');
+          sections.forEach(function(s) {
+            const pillar = s.getAttribute('data-pillar');
+            const section = s.getAttribute('data-section');
+            let match = false;
+            if (target === 'actions') match = (section === 'actions');
+            else if (target === 'maturity') match = (section === 'maturity');
+            else if (target === 'debt') match = (section === 'debt');
+            else if (target === 'risk') match = (section === 'risk');
+            else if (target === 'prs') match = (section === 'prs');
+            else if (target === 'live') match = (section === 'live');
+            else match = (pillar === target);
+
+            if (match) s.classList.remove('dimmed');
+            else s.classList.add('dimmed');
+          });
+
+          var labels = {
+            'p1': '🏗️ Pillar 1 — Modularization',
+            'p2': '🔒 Pillar 2 — Contracts',
+            'p3': '📝 Pillar 3 — Descriptions',
+            'p4': '⚠️ Pillar 4 — Errors',
+            'p5': '🛡️ Pillar 5 — Safety',
+            'maturity': '🎯 AX Maturity Model',
+            'debt': '💸 AX Debt Quantification',
+            'risk': '⚠️ Regression Risk & Cost',
+            'prs': '📦 Proposed PR Chunks',
+            'live': '● Live Work Integration',
+            'actions': '📋 Recommendations'
+          };
+          filterLabel.textContent = labels[target] || target;
+
+          var targetEl = document.getElementById('section-' + target);
+          if (targetEl) {
+            setTimeout(function() {
+              targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+          }
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

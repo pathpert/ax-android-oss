@@ -3,6 +3,16 @@ package com.kickstarter.features.pledgedprojectsoverview.data
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Immutable domain representation of a backer's reward delivery address in Pledged Projects Overview.
+ *
+ * Used for displaying and managing physical fulfillment destinations for backed projects.
+ *
+ * ### Negative Constraints:
+ * - Do not pass unvalidated or raw unescaped input to third-party shipping APIs.
+ * - Do not construct with blank country code when international fulfillment requires ISO alpha-2 codes.
+ * - Do not mutate fields directly; use [toBuilder] or [builder] to derive new instances.
+ */
 @Parcelize
 class DeliveryAddress private constructor(
     val addressID: String?,
@@ -104,6 +114,10 @@ class DeliveryAddress private constructor(
         phoneNumber (optional)
      */
     fun getFormattedAddress(): String {
-        return "${recipientName ?: ""}\n${addressLine1 ?: ""}\n" + if (!addressLine2.isNullOrEmpty()) "${addressLine2}\n" else "" + "${city ?: ""}, ${region ?: ""} ${postalCode ?: ""}\n" + if (!countryCode.isNullOrEmpty()) "${countryCode}\n" else "" + if (!phoneNumber.isNullOrEmpty()) "$phoneNumber" else ""
+        val line2 = if (!addressLine2.isNullOrEmpty()) "${addressLine2}\n" else ""
+        val cityRegionPostal = "${city ?: ""}, ${region ?: ""} ${postalCode ?: ""}\n"
+        val country = if (!countryCode.isNullOrEmpty()) "${countryCode}\n" else ""
+        val phone = if (!phoneNumber.isNullOrEmpty()) "$phoneNumber" else ""
+        return "${recipientName ?: ""}\n${addressLine1 ?: ""}\n$line2$cityRegionPostal$country$phone"
     }
 }

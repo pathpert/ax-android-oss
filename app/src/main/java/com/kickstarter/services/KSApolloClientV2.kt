@@ -63,6 +63,9 @@ import com.kickstarter.UserPrivacyQuery
 import com.kickstarter.ValidateCheckoutQuery
 import com.kickstarter.VideoFeedQuery
 import com.kickstarter.WatchProjectMutation
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.features.checkout.data.AddOnsEnvelope
 import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsOverviewEnvelope
 import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsOverviewQueryData
@@ -154,6 +157,7 @@ import kotlinx.coroutines.rx2.asObservable
 import timber.log.Timber
 import java.net.SocketTimeoutException
 import java.nio.charset.Charset
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
 private const val PAGE_SIZE = APOLLO_PAGE_SIZE
@@ -161,6 +165,13 @@ private const val REPLIES_PAGE_SIZE = APOLLO_REPLIES_PAGE_SIZE
 
 class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClientTypeV2 {
     private val disposables = CompositeDisposable()
+
+    // Machine-tempo idempotency single-flight guards for mutating operations
+    private val createBackingGuard = AtomicBoolean(false)
+    private val updateBackingGuard = AtomicBoolean(false)
+    private val cancelBackingGuard = AtomicBoolean(false)
+    private val createPaymentIntentGuard = AtomicBoolean(false)
+    private val completeCheckoutGuard = AtomicBoolean(false)
 
     override fun cleanDisposables() {
         disposables.clear()
@@ -827,6 +838,20 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
 
     override fun updateBacking(updateBackingData: UpdateBackingData): Observable<Checkout> {
         return Observable.defer {
+            if (!updateBackingGuard.compareAndSet(false, true)) {
+                return@defer Observable.error<Checkout>(
+                    ProblemException(
+                        ProblemDetails(
+                            type = ProblemDetails.TYPE_IN_FLIGHT,
+                            title = "Mutation Already In Flight",
+                            status = 409,
+                            detail = "An operation to update backing is already in progress.",
+                            suggestedAction = "Wait for active mutation to finish before updating backing again.",
+                            isRetriable = false
+                        )
+                    )
+                )
+            }
             val mutation = UpdateBackingMutation(
                 backingId = encodeRelayId(updateBackingData.backing),
                 amount = if (updateBackingData.amount.isNotNull()) Optional.present(updateBackingData.amount) else Optional.absent(),
@@ -843,11 +868,16 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
                 .mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "update backing")))
                 }
+                .doFinally { updateBackingGuard.set(false) }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            response.errors?.first()?.message,
+                            "update backing"
+                        )
+                        ps.onError(ProblemException(problem))
                     } else {
                         val checkoutPayload = response.data?.updateBacking?.checkout
                         val backing = Checkout.Backing.builder()
@@ -873,6 +903,20 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
 
     override fun createBacking(createBackingData: CreateBackingData): Observable<Checkout> {
         return Observable.defer {
+            if (!createBackingGuard.compareAndSet(false, true)) {
+                return@defer Observable.error<Checkout>(
+                    ProblemException(
+                        ProblemDetails(
+                            type = ProblemDetails.TYPE_IN_FLIGHT,
+                            title = "Mutation Already In Flight",
+                            status = 409,
+                            detail = "An operation to create backing is already in progress.",
+                            suggestedAction = "Wait for active mutation to finish before creating backing again.",
+                            isRetriable = false
+                        )
+                    )
+                )
+            }
             val ps = PublishSubject.create<Checkout>()
             val mutation = CreateBackingMutation(
                 projectId = encodeRelayId(createBackingData.project),
@@ -893,11 +937,16 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
             this.service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create backing")))
                 }
+                .doFinally { createBackingGuard.set(false) }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            response.errors?.first()?.message,
+                            "create backing"
+                        )
+                        ps.onError(ProblemException(problem))
                     } else {
 
                         val checkoutPayload = response.data?.createBacking?.checkout
@@ -1050,6 +1099,20 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
 
     override fun cancelBacking(backing: Backing, note: String): Observable<Any> {
         return Observable.defer {
+            if (!cancelBackingGuard.compareAndSet(false, true)) {
+                return@defer Observable.error<Any>(
+                    ProblemException(
+                        ProblemDetails(
+                            type = ProblemDetails.TYPE_IN_FLIGHT,
+                            title = "Mutation Already In Flight",
+                            status = 409,
+                            detail = "An operation to cancel backing is already in progress.",
+                            suggestedAction = "Wait for active cancellation to finish before retrying.",
+                            isRetriable = false
+                        )
+                    )
+                )
+            }
             val ps = PublishSubject.create<Any>()
             val mutation = CancelBackingMutation(
                 backingId = encodeRelayId(backing),
@@ -1059,11 +1122,16 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
                 mutation
             ).rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "cancel backing")))
                 }
+                .doFinally { cancelBackingGuard.set(false) }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onNext(Exception(response.errors?.first()?.message ?: ""))
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            response.errors?.first()?.message,
+                            "cancel backing"
+                        )
+                        ps.onError(ProblemException(problem))
                     } else {
                         val state = response.data?.cancelBacking?.backing?.status
                         val success = state == BackingState.canceled
@@ -1564,6 +1632,20 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
 
     override fun createPaymentIntent(createPaymentIntentInput: CreatePaymentIntentInput): Observable<String> {
         return Observable.defer {
+            if (!createPaymentIntentGuard.compareAndSet(false, true)) {
+                return@defer Observable.error<String>(
+                    ProblemException(
+                        ProblemDetails(
+                            type = ProblemDetails.TYPE_IN_FLIGHT,
+                            title = "Mutation Already In Flight",
+                            status = 409,
+                            detail = "An operation to create payment intent is already in progress.",
+                            suggestedAction = "Wait for active payment intent creation to finish before retrying.",
+                            isRetriable = false
+                        )
+                    )
+                )
+            }
             val ps = PublishSubject.create<String>()
 
             val checkoutId = createPaymentIntentInput.checkoutId
@@ -1579,15 +1661,30 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
                 mutation
             ).rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create payment intent")))
                 }
+                .doFinally { createPaymentIntentGuard.set(false) }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            response.errors?.first()?.message,
+                            "create payment intent"
+                        )
+                        ps.onError(ProblemException(problem))
                     } else {
                         response.data?.createPaymentIntent?.clientSecret?.let {
                             ps.onNext(it)
-                        } ?: ps.onError(Exception("Client Secret was Null"))
+                        } ?: run {
+                            val problem = ProblemDetails(
+                                type = ProblemDetails.TYPE_UNEXPECTED,
+                                title = "Missing Payment Client Secret",
+                                status = 502,
+                                detail = "Server returned null client secret for payment intent.",
+                                suggestedAction = "Retry generating payment intent.",
+                                isRetriable = true
+                            )
+                            ps.onError(ProblemException(problem))
+                        }
                     }
                     ps.onComplete()
                 }.addToDisposable(disposables)
@@ -1638,6 +1735,20 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
         paymentSourceReusable: Boolean
     ): Observable<Pair<String, Boolean>> {
         return Observable.defer {
+            if (!completeCheckoutGuard.compareAndSet(false, true)) {
+                return@defer Observable.error<Pair<String, Boolean>>(
+                    ProblemException(
+                        ProblemDetails(
+                            type = ProblemDetails.TYPE_IN_FLIGHT,
+                            title = "Mutation Already In Flight",
+                            status = 409,
+                            detail = "An operation to complete checkout is already in progress.",
+                            suggestedAction = "Wait for active on-session checkout completion before retrying.",
+                            isRetriable = false
+                        )
+                    )
+                )
+            }
             val ps = PublishSubject.create<Pair<String, Boolean>>()
 
             val mutation = CompleteOnSessionCheckoutMutation(
@@ -1650,17 +1761,32 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
                 mutation
             ).rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "complete checkout")))
                 }
+                .doFinally { completeCheckoutGuard.set(false) }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            response.errors?.first()?.message,
+                            "complete checkout"
+                        )
+                        ps.onError(ProblemException(problem))
                     } else {
                         response.data?.completeOnSessionCheckout?.checkout?.id?.let { checkoutId ->
                             response.data?.completeOnSessionCheckout?.checkout?.backing?.requiresAction?.let { requiresAction ->
                                 ps.onNext(Pair(checkoutId, requiresAction))
                             }
-                        } ?: ps.onError(Exception("Checkout ID was null"))
+                        } ?: run {
+                            val problem = ProblemDetails(
+                                type = ProblemDetails.TYPE_UNEXPECTED,
+                                title = "Missing Checkout ID",
+                                status = 502,
+                                detail = "Server returned null checkout ID on checkout completion.",
+                                suggestedAction = "Reload checkout state and retry.",
+                                isRetriable = true
+                            )
+                            ps.onError(ProblemException(problem))
+                        }
                     }
                     ps.onComplete()
                 }.addToDisposable(disposables)

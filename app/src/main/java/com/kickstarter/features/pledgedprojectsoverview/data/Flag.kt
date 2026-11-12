@@ -3,6 +3,16 @@ package com.kickstarter.features.pledgedprojectsoverview.data
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Represents an actionable or informational flag banner attached to a PPO project card.
+ *
+ * Provides visual cues (warning, action required, reminder) to backers regarding pending surveys,
+ * address confirmation deadlines, or payment failure alerts.
+ *
+ * ### Negative Constraints:
+ * - Do not pass unlocalized raw backend error strings directly into [message]; map to localized UI strings.
+ * - Do not use for non-PPO banner messaging; use core alert/banner components instead.
+ */
 @Parcelize
 class Flag private constructor(
     val icon: String?,

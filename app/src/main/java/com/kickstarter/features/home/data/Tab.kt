@@ -47,7 +47,7 @@ sealed class Tab(
 
 val home: ImageVector
     get() {
-        if (_home != null) return _home!!
+        _home?.let { return it }
 
         _home = ImageVector.Builder(
             name = "home",
@@ -128,14 +128,14 @@ val home: ImageVector
             }
         }.build()
 
-        return _home!!
+        return checkNotNull(_home) { "home ImageVector not initialized" }
     }
 
 private var _home: ImageVector? = null
 
 val human: ImageVector
     get() {
-        if (_human != null) return _human!!
+        _human?.let { return it }
 
         _human = ImageVector.Builder(
             name = "human",
@@ -178,14 +178,14 @@ val human: ImageVector
             }
         }.build()
 
-        return _human!!
+        return checkNotNull(_human) { "human ImageVector not initialized" }
     }
 
 private var _human: ImageVector? = null
 
 val search: ImageVector
     get() {
-        if (_search != null) return _search!!
+        _search?.let { return it }
 
         _search = ImageVector.Builder(
             name = "search",
@@ -217,7 +217,7 @@ val search: ImageVector
             }
         }.build()
 
-        return _search!!
+        return checkNotNull(_search) { "search ImageVector not initialized" }
     }
 
 private var _search: ImageVector? = null

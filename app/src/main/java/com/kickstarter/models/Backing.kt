@@ -6,6 +6,14 @@ import com.google.firebase.remoteconfig.internal.ConfigFetchHandler
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
+/**
+ * Immutable domain model representing a backer's pledge/backing of a project.
+ *
+ * Negative constraints:
+ * - Do not pass floating-point [amount] or [bonusAmount] across modern feature boundaries; convert to [com.kickstarter.ax.types.MinorCurrencyAmount].
+ * - Do not assume [cancelable] is true without verifying campaign state and deadline.
+ * - Guard mutating actions on backings with [com.kickstarter.ax.safety.IdempotencyGuard].
+ */
 @Parcelize
 @androidx.annotation.Keep
 class Backing private constructor(
@@ -41,6 +49,10 @@ class Backing private constructor(
     private val isPostCampaign: Boolean,
     private val order: Order?,
 ) : Parcelable, Relay {
+    /**
+     * Total pledged backing amount in project native currency major units.
+     * Negative constraint: Do not pass directly across modern AX boundaries; convert to MinorCurrencyAmount.
+     */
     fun amount() = this.amount
     fun backer() = this.backer
     fun backerNote() = this.backerNote
@@ -49,10 +61,20 @@ class Backing private constructor(
     fun backerUrl() = this.backerUrl
     fun backerCompletedAt() = this.backerCompletedAt
     fun backingDetailsPageRoute() = this.backingDetailsPageRoute
+
+    /**
+     * Whether the backing can be cancelled by the backer at the current time.
+     */
     fun cancelable() = this.cancelable
+
     fun completedAt() = this.completedAt
     fun completedByBacker() = this.completedByBacker
+
+    /**
+     * Database identifier (PID) of the backing.
+     */
     override fun id() = this.id
+
     fun incremental() = this.incremental
     fun location() = this.location
     fun locationId() = this.locationId

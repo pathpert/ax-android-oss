@@ -14,6 +14,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.remoteconfig.remoteConfig
 import com.kickstarter.KSApplication
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.libs.CurrentUserTypeV2
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.FirebaseHelper
@@ -78,6 +79,7 @@ sealed class SplashUIState {
     object NoInternet : SplashUIState()
     object Errored : SplashUIState()
     object Finished : SplashUIState() // todo update to dataclass in future to pass in navigation target
+    data class Failed(val problem: ProblemDetails) : SplashUIState()
 }
 sealed class NavigationTarget {
     object Discovery : NavigationTarget()
@@ -196,11 +198,29 @@ interface SplashScreenViewModel {
                                 application.mutableInitializationState.value = InitializationState.FINISHED
                                 processIntent(externalCall = externalCall)
                             } else {
-                                throw Exception()
+                                val problem = ProblemDetails(
+                                    type = ProblemDetails.TYPE_SERVER,
+                                    title = "Feature-Flag Initialization Failed",
+                                    status = 503,
+                                    detail = "Statsig client did not initialize on startup.",
+                                    suggestedAction = "Retry app cold-start.",
+                                    isRetriable = true,
+                                    retryAfterSeconds = 5
+                                )
+                                mutableUiState.emit(SplashUIState.Failed(problem))
+                                application.mutableInitializationState.value = InitializationState.FINISHED
+                                processIntent(externalCall = externalCall)
                             }
                         } catch (e: Exception) {
-                            // todo: we're bringing the user into the app anyways to emulate current behavior. in the future we'll handle errors more robustly
-                            mutableUiState.emit(SplashUIState.Finished)
+                            val problem = ProblemDetails(
+                                type = ProblemDetails.TYPE_UNEXPECTED,
+                                title = "Startup Initialization Error",
+                                status = 500,
+                                detail = e.message ?: "Unexpected startup initialization error.",
+                                suggestedAction = "Retry app cold-start.",
+                                isRetriable = true
+                            )
+                            mutableUiState.emit(SplashUIState.Failed(problem))
                             application.mutableInitializationState.value = InitializationState.FINISHED
                             processIntent(externalCall = externalCall)
                         }
@@ -592,7 +612,9 @@ interface SplashScreenViewModel {
             }
         }
         override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-            val ksApplication = extras[APPLICATION_KEY]!! as KSApplication
+            val ksApplication = requireNotNull(extras[APPLICATION_KEY] as? KSApplication) {
+                "KSApplication must be provided in CreationExtras"
+            }
             return DeepLinkViewModel(environment, ksApplication, intent, externalCall = customNetworkClient ?: externalCall) as T
         }
     }

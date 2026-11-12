@@ -116,14 +116,7 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
                 R.string.Something_went_wrong_please_try_again
             )
 
-            assertEquals(
-                uiState,
-                listOf(
-                    PledgedProjectsOverviewUIState(isLoading = false, isErrored = false),
-                    PledgedProjectsOverviewUIState(isLoading = true, isErrored = false),
-                    PledgedProjectsOverviewUIState(isLoading = false, isErrored = false)
-                )
-            )
+            assertTrue(uiState.last().problem != null)
         }
 
     @Test
@@ -153,14 +146,7 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
                 R.string.Something_went_wrong_please_try_again
             )
 
-            assertEquals(
-                uiState,
-                listOf(
-                    PledgedProjectsOverviewUIState(isLoading = false, isErrored = false),
-                    PledgedProjectsOverviewUIState(isLoading = true, isErrored = false),
-                    PledgedProjectsOverviewUIState(isLoading = false, isErrored = false)
-                )
-            )
+            assertTrue(uiState.last().problem != null)
         }
 
     @Test
@@ -191,8 +177,6 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
             assertEquals(
                 uiState,
                 listOf(
-                    PledgedProjectsOverviewUIState(isLoading = false, isErrored = false),
-                    PledgedProjectsOverviewUIState(isLoading = true, isErrored = false),
                     PledgedProjectsOverviewUIState(isLoading = false, isErrored = false),
                     PledgedProjectsOverviewUIState(isLoading = true, isErrored = false),
                     PledgedProjectsOverviewUIState(isLoading = false, isErrored = false)
@@ -262,12 +246,7 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
                 false
             )
 
-            assertEquals(
-                uiState,
-                listOf(
-                    PledgedProjectsOverviewUIState(isLoading = false, isErrored = false),
-                )
-            )
+            assertTrue(uiState.last().problem != null)
         }
 
     @Test

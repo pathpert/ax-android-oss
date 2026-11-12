@@ -5,6 +5,13 @@ import android.os.Parcelable
 import com.kickstarter.R
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Immutable domain model representing a registered Kickstarter user or creator.
+ *
+ * Negative constraints:
+ * - Do not assume [email] is present for anonymous or public user cards.
+ * - Do not confuse the integer [id] with GraphQL Relay global IDs.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class User private constructor(
@@ -76,13 +83,30 @@ class User private constructor(
     fun filmNewsletter() = this.filmNewsletter
     fun gamesNewsletter() = this.gamesNewsletter
     fun happeningNewsletter() = this.happeningNewsletter
+    /**
+     * Database identifier (PID) of the user.
+     * Negative constraint: Do not confuse with GraphQL Relay global IDs.
+     */
     override fun id() = this.id
+
+    /**
+     * Whether the user has staff/admin privileges.
+     */
     fun isAdmin() = this.isAdmin
     fun hasPassword() = this.hasPassword
 
     fun isEmailVerified() = this.isEmailVerified
+
+    /**
+     * Whether the user has launched at least one active or historical campaign.
+     */
     fun isCreator() = this.isCreator
     fun isDeliverable() = this.isDeliverable
+
+    /**
+     * Verified primary email address of the authenticated user.
+     * Negative constraint: May be null for unauthenticated public profile queries.
+     */
     fun email() = this.email
     fun chosenCurrency() = this.chosenCurrency
     fun inventNewsletter() = this.inventNewsletter

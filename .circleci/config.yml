@@ -59,6 +59,9 @@ jobs:
       - run:
          name: KTLint
          command: ./gradlew ktlint
+      - run:
+         name: AX Compliance Check
+         command: ./gradlew axComplianceCheck
 
       - run:
           name: Lint External Release

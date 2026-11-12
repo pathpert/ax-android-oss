@@ -113,9 +113,7 @@ private fun VolumeUpPreview() {
 
 val Play: ImageVector
     get() {
-        if (_Play != null) {
-            return _Play!!
-        }
+        _Play?.let { return it }
         _Play = ImageVector.Builder(
             name = "Play",
             defaultWidth = 65.dp,
@@ -138,7 +136,7 @@ val Play: ImageVector
             }
         }.build()
 
-        return _Play!!
+        return checkNotNull(_Play) { "_Play must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -146,9 +144,7 @@ private var _Play: ImageVector? = null
 
 val Rewind: ImageVector
     get() {
-        if (_Rewind != null) {
-            return _Rewind!!
-        }
+        _Rewind?.let { return it }
         _Rewind = ImageVector.Builder(
             name = "Rewind",
             defaultWidth = 38.dp,
@@ -228,7 +224,7 @@ val Rewind: ImageVector
             }
         }.build()
 
-        return _Rewind!!
+        return checkNotNull(_Rewind) { "_Rewind must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -236,9 +232,7 @@ private var _Rewind: ImageVector? = null
 
 val Forward: ImageVector
     get() {
-        if (_Forward != null) {
-            return _Forward!!
-        }
+        _Forward?.let { return it }
         _Forward = ImageVector.Builder(
             name = "Forward",
             defaultWidth = 38.dp,
@@ -318,7 +312,7 @@ val Forward: ImageVector
             }
         }.build()
 
-        return _Forward!!
+        return checkNotNull(_Forward) { "_Forward must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -326,9 +320,7 @@ private var _Forward: ImageVector? = null
 
 val Bookmark: ImageVector
     get() {
-        if (_Bookmark != null) {
-            return _Bookmark!!
-        }
+        _Bookmark?.let { return it }
         _Bookmark = ImageVector.Builder(
             name = "Bookmark",
             defaultWidth = 28.dp,
@@ -363,7 +355,7 @@ val Bookmark: ImageVector
             }
         }.build()
 
-        return _Bookmark!!
+        return checkNotNull(_Bookmark) { "_Bookmark must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -371,9 +363,7 @@ private var _Bookmark: ImageVector? = null
 
 val BookmarkFilled: ImageVector
     get() {
-        if (_BookmarkFilled != null) {
-            return _BookmarkFilled!!
-        }
+        _BookmarkFilled?.let { return it }
         _BookmarkFilled = ImageVector.Builder(
             name = "BookmarkFilled",
             defaultWidth = 28.dp,
@@ -397,7 +387,7 @@ val BookmarkFilled: ImageVector
             }
         }.build()
 
-        return _BookmarkFilled!!
+        return checkNotNull(_BookmarkFilled) { "_BookmarkFilled must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -405,9 +395,7 @@ private var _BookmarkFilled: ImageVector? = null
 
 val Check: ImageVector
     get() {
-        if (_Check != null) {
-            return _Check!!
-        }
+        _Check?.let { return it }
         _Check = ImageVector.Builder(
             name = "Check",
             defaultWidth = 28.dp,
@@ -434,7 +422,7 @@ val Check: ImageVector
             }
         }.build()
 
-        return _Check!!
+        return checkNotNull(_Check) { "_Check must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -442,9 +430,7 @@ private var _Check: ImageVector? = null
 
 val Ellipsis: ImageVector
     get() {
-        if (_Ellipsis != null) {
-            return _Ellipsis!!
-        }
+        _Ellipsis?.let { return it }
         _Ellipsis = ImageVector.Builder(
             name = "Ellipsis",
             defaultWidth = 28.dp,
@@ -474,7 +460,7 @@ val Ellipsis: ImageVector
             }
         }.build()
 
-        return _Ellipsis!!
+        return checkNotNull(_Ellipsis) { "_Ellipsis must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -482,9 +468,7 @@ private var _Ellipsis: ImageVector? = null
 
 val Share: ImageVector
     get() {
-        if (_Share != null) {
-            return _Share!!
-        }
+        _Share?.let { return it }
         _Share = ImageVector.Builder(
             name = "Share",
             defaultWidth = 28.dp,
@@ -518,7 +502,7 @@ val Share: ImageVector
             }
         }.build()
 
-        return _Share!!
+        return checkNotNull(_Share) { "_Share must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -526,9 +510,7 @@ private var _Share: ImageVector? = null
 
 val Close: ImageVector
     get() {
-        if (_Close != null) {
-            return _Close!!
-        }
+        _Close?.let { return it }
         _Close = ImageVector.Builder(
             name = "Close",
             defaultWidth = 45.dp,
@@ -558,7 +540,7 @@ val Close: ImageVector
             }
         }.build()
 
-        return _Close!!
+        return checkNotNull(_Close) { "_Close must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -566,9 +548,7 @@ private var _Close: ImageVector? = null
 
 val Expand: ImageVector
     get() {
-        if (_Expand != null) {
-            return _Expand!!
-        }
+        _Expand?.let { return it }
         _Expand = ImageVector.Builder(
             name = "Expand",
             defaultWidth = 24.dp,
@@ -617,7 +597,7 @@ val Expand: ImageVector
             }
         }.build()
 
-        return _Expand!!
+        return checkNotNull(_Expand) { "_Expand must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -625,9 +605,7 @@ private var _Expand: ImageVector? = null
 
 val Collapse: ImageVector
     get() {
-        if (_Collapse != null) {
-            return _Collapse!!
-        }
+        _Collapse?.let { return it }
         _Collapse = ImageVector.Builder(
             name = "Collapse",
             defaultWidth = 24.dp,
@@ -679,7 +657,7 @@ val Collapse: ImageVector
             }
         }.build()
 
-        return _Collapse!!
+        return checkNotNull(_Collapse) { "_Collapse must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -687,9 +665,7 @@ private var _Collapse: ImageVector? = null
 
 val Mute: ImageVector
     get() {
-        if (_Mute != null) {
-            return _Mute!!
-        }
+        _Mute?.let { return it }
         _Mute = ImageVector.Builder(
             name = "Mute",
             defaultWidth = 24.dp,
@@ -746,7 +722,7 @@ val Mute: ImageVector
             }
         }.build()
 
-        return _Mute!!
+        return checkNotNull(_Mute) { "_Mute must not be null" }
     }
 
 @Suppress("ObjectPropertyName")
@@ -754,9 +730,7 @@ private var _Mute: ImageVector? = null
 
 val VolumeUp: ImageVector
     get() {
-        if (_VolumeUp != null) {
-            return _VolumeUp!!
-        }
+        _VolumeUp?.let { return it }
         _VolumeUp = ImageVector.Builder(
             name = "VolumeUp",
             defaultWidth = 24.dp,
@@ -867,7 +841,7 @@ val VolumeUp: ImageVector
             }
         }.build()
 
-        return _VolumeUp!!
+        return checkNotNull(_VolumeUp) { "_VolumeUp must not be null" }
     }
 
 @Suppress("ObjectPropertyName")

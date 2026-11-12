@@ -4,6 +4,13 @@ import android.os.Parcelable
 import com.kickstarter.services.apiresponses.commentresponse.PageInfoEnvelope
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Paginated API envelope encapsulating the list of PPO cards and cursor pagination metadata.
+ *
+ * ### Negative Constraints:
+ * - Do not pass negative integers to [totalCount].
+ * - Do not treat [ppoCards] as a mutable list.
+ */
 @Parcelize
 class PledgedProjectsOverviewEnvelope private constructor(
     val ppoCards: List<PPOCard>?,

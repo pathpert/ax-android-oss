@@ -73,4 +73,3 @@ fun getFundingInfoString(
             .toInt() + "% " + stringResource(id = R.string.discovery_baseball_card_stats_funded)
     }
 }
-
