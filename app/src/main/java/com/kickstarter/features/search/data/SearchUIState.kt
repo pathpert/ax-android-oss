@@ -1,5 +1,6 @@
 package com.kickstarter.features.search.data
 
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.models.Project
 
 /**
@@ -15,5 +16,6 @@ data class SearchUIState(
     val isLoading: Boolean = false,
     val popularProjectsList: List<Project> = emptyList(),
     val searchList: List<Project> = emptyList(),
-    val hasMore: Boolean = true
+    val hasMore: Boolean = true,
+    val problem: ProblemDetails? = null
 )

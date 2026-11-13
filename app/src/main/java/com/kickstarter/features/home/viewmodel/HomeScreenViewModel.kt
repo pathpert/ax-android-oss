@@ -3,6 +3,7 @@ package com.kickstarter.features.home.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.libs.Environment
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
@@ -17,9 +18,16 @@ import kotlinx.coroutines.plus
 import kotlinx.coroutines.rx2.asFlow
 import kotlin.coroutines.EmptyCoroutineContext
 
+/**
+ * Immutable UI state for the Home screen and floating bottom navigation.
+ *
+ * Negative constraints:
+ * - Do not pass blank avatar URLs when [isLoggedInUser] is true.
+ */
 data class HomeScreenUIState(
     val isLoggedInUser: Boolean = false,
-    val userAvatarUrl: String = ""
+    val userAvatarUrl: String = "",
+    val problem: ProblemDetails? = null
 )
 
 @OptIn(FlowPreview::class)
@@ -49,11 +57,19 @@ class HomeScreenViewModel(
             currentUserFlow
                 .asFlow()
                 .collectLatest { userOpt ->
-                    userOpt.getValue()?.let {
+                    val user = userOpt.getValue()
+                    if (user != null) {
                         _homeUIState.emit(
                             HomeScreenUIState(
                                 isLoggedInUser = true,
-                                userAvatarUrl = it.avatar().medium()
+                                userAvatarUrl = user.avatar().medium().orEmpty()
+                            )
+                        )
+                    } else {
+                        _homeUIState.emit(
+                            HomeScreenUIState(
+                                isLoggedInUser = false,
+                                userAvatarUrl = ""
                             )
                         )
                     }

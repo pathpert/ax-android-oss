@@ -3,6 +3,8 @@ package com.kickstarter.features.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.features.search.data.SearchUIState
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.RefTag
@@ -203,8 +205,11 @@ class SearchAndFilterViewModel(
         val searchEnvelopeResult = apolloClient.getSearchProjects(params, nextPage)
 
         if (searchEnvelopeResult.isFailure) {
-            // - errorAction.invoke(searchEnvelopeResult.exceptionOrNull()?.message) to return API level message
-            errorAction.invoke(null)
+            val ex = searchEnvelopeResult.exceptionOrNull()
+            val problem = ProblemDetailsMapper.fromThrowable(ex ?: RuntimeException("Search failed"))
+            emitCurrentState(isLoading = false, problem = problem)
+            errorAction.invoke(problem.detail)
+            return
         }
 
         if (searchEnvelopeResult.isSuccess) {
@@ -237,13 +242,14 @@ class SearchAndFilterViewModel(
         }
     }
 
-    private suspend fun emitCurrentState(isLoading: Boolean = false, hasMore: Boolean = true) {
+    private suspend fun emitCurrentState(isLoading: Boolean = false, hasMore: Boolean = true, problem: ProblemDetails? = null) {
         _searchUIState.emit(
             SearchUIState(
                 isLoading = isLoading,
                 popularProjectsList = popularProjectsList.toList(),
                 searchList = projectsList.toList(),
-                hasMore = hasMore
+                hasMore = hasMore,
+                problem = problem
             )
         )
     }

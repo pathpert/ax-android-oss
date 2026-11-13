@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.PlaybackException
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.features.videofeed.data.VideoFeedItem
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName
@@ -22,7 +24,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 data class VideoFeedUIState(
     val items: List<VideoFeedItem> = emptyList(),
     val isLoading: Boolean = false,
-    val hasMore: Boolean = true
+    val hasMore: Boolean = true,
+    val problem: ProblemDetails? = null
 )
 
 class VideoFeedViewModel(
@@ -69,8 +72,11 @@ class VideoFeedViewModel(
                 val result = apolloClient.getVideoFeed(first = 10, cursor = nextPage)
 
                 if (result.isFailure) {
-                    Timber.e(result.exceptionOrNull())
-                    errorAction.invoke(null)
+                    val ex = result.exceptionOrNull()
+                    Timber.e(ex)
+                    val problem = ProblemDetailsMapper.fromThrowable(ex ?: RuntimeException("Failed to load video feed"))
+                    _videoFeedUIState.emit(_videoFeedUIState.value.copy(isLoading = false, problem = problem))
+                    errorAction.invoke(problem.detail)
                     return@launch
                 }
 

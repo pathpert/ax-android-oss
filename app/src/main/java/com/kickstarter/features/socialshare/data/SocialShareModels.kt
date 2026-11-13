@@ -2,14 +2,23 @@ package com.kickstarter.features.socialshare.data
 
 import android.graphics.Bitmap
 import android.net.Uri
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.types.NonBlankId
 import com.kickstarter.libs.RefTag
 import com.kickstarter.libs.utils.EventContextValues.SharePlatformContextType
 
+/**
+ * Snapshot of the project information used across every social sharing action.
+ *
+ * Negative constraints:
+ * - Do not pass blank [projectName] or [projectUrl].
+ */
 data class SocialShareData(
     val projectName: String,
     val projectUrl: String,
     val imageUrl: String,
-    val creatorName: String
+    val creatorName: String,
+    val projectId: NonBlankId? = null
 )
 
 enum class SocialSharePlatform(val targetPackage: String?) {
@@ -59,22 +68,17 @@ fun SocialSharePlatform.analyticsContextType(): String = when (this) {
     SocialSharePlatform.MORE -> SharePlatformContextType.MORE.contextName
 }
 
+/**
+ * Immutable UI State for Social Share bottom sheet.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ */
 data class SocialShareUIState(
     val availablePlatforms: List<SocialSharePlatform> = emptyList(),
-    /**
-     * The downloaded hero image, fed into [com.kickstarter.features.socialshare.ui.components.SocialShareProjectCard]
-     * so it renders deterministically before the card is captured. Null until the retrieve step completes.
-     */
     val heroBitmap: Bitmap? = null,
-    /**
-     * `content://` URI of the captured, branded share card (PNG). This — not the raw hero image — is
-     * the asset attached to image-bearing intents. Null until the card has been captured and cached.
-     */
     val shareImageUri: Uri? = null,
-    /**
-     * True from the moment the hero image starts downloading until the captured card has been cached.
-     * While true, platforms that [SocialSharePlatform.requiresImage] are gated in the ViewModel.
-     */
     val isGeneratingImage: Boolean = false,
-    val copiedToClipboard: Boolean = false
+    val copiedToClipboard: Boolean = false,
+    val problem: ProblemDetails? = null
 )

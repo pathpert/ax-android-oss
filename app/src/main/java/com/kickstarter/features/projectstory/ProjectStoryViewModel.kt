@@ -4,6 +4,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.features.projectstory.data.StoriedProject
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.featureflag.StatsigGateKey
@@ -17,10 +19,17 @@ import kotlinx.coroutines.plus
 import timber.log.Timber
 import kotlin.coroutines.EmptyCoroutineContext
 
+/**
+ * UI State for the modern Project Story feature.
+ *
+ * Negative constraints:
+ * - Do not pass unhandled errors without an actionable RFC 9457 [problem].
+ */
 data class ProjectStoryUiState(
     val isLoading: Boolean = false,
     val error: Throwable? = null,
     val storiedProject: StoriedProject? = null,
+    val problem: ProblemDetails? = null,
 )
 
 private object StatsigGateException : Exception()
@@ -57,7 +66,14 @@ class ProjectStoryViewModel(
 
     fun fetchProject() {
         if (!statsigClient.isReady.value || !statsigClient.checkGate(StatsigGateKey.ANDROID_PRELAUNCH_PROJECT_STORY.key)) {
-            _projectStoryUiState.value = ProjectStoryUiState(isLoading = false, error = StatsigGateException)
+            val gateProblem = ProblemDetails(
+                type = "urn:kickstarter:error:feature-gate-disabled",
+                title = "Project Story Disabled",
+                detail = "The project story feature gate is not enabled for the current configuration.",
+                suggestedAction = "Enable ANDROID_PRELAUNCH_PROJECT_STORY gate in Statsig.",
+                isRetriable = false
+            )
+            _projectStoryUiState.value = ProjectStoryUiState(isLoading = false, error = StatsigGateException, problem = gateProblem)
             return
         }
 
@@ -80,14 +96,17 @@ class ProjectStoryViewModel(
                     _projectStoryUiState.value = ProjectStoryUiState(
                         isLoading = false,
                         error = null,
+                        problem = null,
                         storiedProject = it
                     )
                     Timber.d("storiedProject: ${projectStoryUiState.value.storiedProject}")
                 }
                 .onFailure {
+                    val problem = ProblemDetailsMapper.fromThrowable(it)
                     _projectStoryUiState.value = ProjectStoryUiState(
                         isLoading = false,
                         error = it,
+                        problem = problem,
                         storiedProject = null
                     )
                 }
