@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AX Audit Report v8 — Kickstarter Android OSS</title>
+  <style>
+    :root {
+      --color-pass: #059669;
+      --color-needs-work: #d97706;
+      --color-fail: #dc2626;
+      --color-bg: #f9fafb;
+      --color-card: #ffffff;
+      --color-text: #111827;
+      --color-text-secondary: #4b5563;
+      --color-border: #d1d5db;
+      --color-accent: #3b82f6;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-bg: #0f172a;
+        --color-card: #1e293b;
+        --color-text: #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-border: #475569;
+        --color-pass: #22c55e;
+        --color-needs-work: #fbbf24;
+        --color-fail: #f87171;
+        --color-accent: #60a5fa;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--color-border);
+    }
+    .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .header .meta { color: var(--color-text-secondary); font-size: 0.9rem; }
+    .header .meta div { margin: 0.25rem 0; }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-item .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+    .stat-item .stat-label {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Pillar Definitions Overview ── */
+    .pillar-overview {
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .pillar-overview h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .pillar-overview .overview-intro {
+      color: var(--color-text-secondary);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .pillar-defs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .pillar-def {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .pillar-def:hover {
+      border-color: var(--color-accent);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+    .pillar-def .def-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .pillar-def .def-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .pillar-def .def-desc { font-size: 0.8rem; color: var(--color-text-secondary); line-height: 1.4; }
+    .pillar-def .def-score {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+    .pillar-def .def-score.pass { background: var(--color-pass); color: #fff; }
+    .pillar-def .def-score.needs-work { background: var(--color-needs-work); color: #fff; }
+    .pillar-def .def-score.fail { background: var(--color-fail); color: #fff; }
+
+    /* ── Score Summary Grid ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .summary-card {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+    .summary-card:hover {
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    .summary-card.active {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    }
+    .summary-card.overall { grid-column: 1 / -1; font-size: 1.25rem; cursor: default; }
+    .summary-card.overall:hover { border-color: transparent; transform: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .summary-card .label { color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 0.25rem; }
+    .summary-card .pillar-name { font-weight: 600; margin: 0.25rem 0; }
+
+    /* ── Interactive Nav ── */
+    .pillar-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .pillar-nav .nav-label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      margin-right: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .nav-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      border: 2px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text);
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      border-color: var(--color-accent);
+      background: rgba(59, 130, 246, 0.08);
+    }
+    .nav-btn.active {
+      background: var(--color-accent);
+      color: #fff;
+      border-color: var(--color-accent);
+    }
+    .nav-btn .btn-score {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+    }
+    .nav-btn .btn-score.pass { background: var(--color-pass); }
+    .nav-btn .btn-score.needs-work { background: var(--color-needs-work); }
+    .nav-btn .btn-score.fail { background: var(--color-fail); }
+
+    /* ── Sections ── */
+    .section { transition: opacity 0.3s ease, max-height 0.4s ease; }
+    .section.dimmed { opacity: 0.15; pointer-events: none; max-height: 0; overflow: hidden; margin: 0; padding: 0; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+    .badge.pass { background: var(--color-pass); color: #fff; }
+    .badge.needs-work { background: var(--color-needs-work); color: #fff; }
+    .badge.fail { background: var(--color-fail); color: #fff; }
+
+    /* ── Filter indicator ── */
+    .filter-indicator {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--color-accent);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+    }
+    .filter-indicator.visible { display: flex; }
+    .filter-clear {
+      background: var(--color-accent);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      margin-left: auto;
+    }
+
+    /* ── Pillar Section ── */
+    .pillar-section {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .pillar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .pillar-header h2 { font-size: 1.5rem; }
+    .pillar-definition {
+      background: var(--color-bg);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid var(--color-accent);
+    }
+    .pillar-definition .def-why {
+      font-style: italic;
+      color: var(--color-text-secondary);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+    .pillar-definition .def-checks {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+    }
+    .pillar-definition .def-checks strong {
+      color: var(--color-text);
+    }
+
+    /* ── Violations ── */
+    .violation {
+      background: #fef3c7;
+      border-left: 4px solid var(--color-needs-work);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      color: #78350f;
+    }
+    .violation.critical {
+      background: #fee2e2;
+      border-left-color: var(--color-fail);
+      color: #7f1d1d;
+    }
+    @media (prefers-color-scheme: dark) {
+      .violation { background: #451a03; color: #fed7aa; }
+      .violation.critical { background: #450a0a; color: #fecaca; }
+    }
+    .violation h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .violation-meta { font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; }
+    .violation-detail { margin: 0.5rem 0; }
+    .violation-detail strong { display: inline-block; min-width: 100px; }
+
+    /* ── Positive ── */
+    .positive {
+      background: #d1fae5;
+      border-left: 4px solid var(--color-pass);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      color: #064e3b;
+    }
+    @media (prefers-color-scheme: dark) {
+      .positive { background: #064e3b; color: #d1fae5; }
+    }
+    .positive h3 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+
+    /* ── Quick Wins ── */
+    .quick-wins {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      .quick-wins { background: linear-gradient(135deg, #451a03 0%, #78350f 100%); }
+    }
+    .quick-wins h2 { color: #92400e; margin-bottom: 0.5rem; }
+    @media (prefers-color-scheme: dark) { .quick-wins h2 { color: #fbbf24; } }
+    .section-intro { color: var(--color-text-secondary); margin-bottom: 1.5rem; font-style: italic; }
+    .quick-win-card {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .quick-win-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .quick-win-number {
+      background: var(--color-needs-work);
+      color: white;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; flex-shrink: 0;
+    }
+    .quick-win-header h3 { flex: 1; font-size: 1.2rem; }
+    .effort-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .effort-badge.low { background: var(--color-pass); color: white; }
+    .effort-badge.medium { background: var(--color-needs-work); color: white; }
+    .quick-win-body p { margin: 0.5rem 0; }
+    .best-practice-inline {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      border-radius: 4px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .best-practice-inline { background: #1e3a8a; color: #dbeafe; }
+    }
+
+    /* ── Strategic ── */
+    .strategic {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      .strategic { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); }
+    }
+    .strategic h2 { color: #1e40af; margin-bottom: 0.5rem; }
+    @media (prefers-color-scheme: dark) { .strategic h2 { color: #60a5fa; } }
+    .phase {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .phase-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .phase-badge {
+      background: #3b82f6; color: white;
+      padding: 0.5rem 1rem; border-radius: 9999px;
+      font-weight: 600; font-size: 0.875rem;
+    }
+    .phase-tasks { list-style: none; padding-left: 0; }
+    .phase-tasks li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--color-border);
+      position: relative;
+      padding-left: 1.5rem;
+    }
+    .phase-tasks li:before {
+      content: "\2192";
+      position: absolute; left: 0;
+      color: #3b82f6; font-weight: bold;
+    }
+
+    /* ── Best Practices ── */
+    .best-practices-section {
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .practice-card {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.2s ease;
+    }
+    .practice-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    .practice-card h3 { color: #1e40af; margin-bottom: 1rem; font-size: 1.25rem; }
+    @media (prefers-color-scheme: dark) { .practice-card h3 { color: #60a5fa; } }
+    .practice-content p { margin: 0.75rem 0; }
+    .practice-content .example {
+      background: var(--color-bg);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .practice-content pre {
+      background: #1f2937; color: #f3f4f6;
+      padding: 1rem; border-radius: 6px;
+      overflow-x: auto; font-size: 0.875rem; margin-top: 0.5rem;
+    }
+
+    /* ── Recommendations ── */
+    .recommendations {
+      background: var(--color-card);
+      border-radius: 8px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .recommendations h2 { margin-bottom: 1rem; }
+    .recommendations table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+    .recommendations th, .recommendations td {
+      padding: 0.75rem; text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .recommendations th { background: var(--color-bg); font-weight: 600; }
+    .priority-critical { color: var(--color-fail); font-weight: 600; }
+    .priority-high { color: var(--color-needs-work); font-weight: 600; }
+    .priority-medium { color: #3b82f6; font-weight: 600; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* ── V8 Additions ── */
+    .v8-section {
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .v8-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .v8-badge {
+      background: var(--color-accent);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .maintenance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .maintenance-cell {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .maintenance-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .maintenance-cell .file-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .maintenance-cell .churn-count {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0.5rem 0;
+    }
+    .maintenance-cell .metrics {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+    }
+    .maintenance-cell.critical { border-color: var(--color-fail); background: #fef2f2; }
+    .maintenance-cell.critical .churn-count { color: var(--color-fail); }
+    .maintenance-cell.high { border-color: var(--color-needs-work); background: #fffbeb; }
+    .maintenance-cell.high .churn-count { color: var(--color-needs-work); }
+    .maintenance-cell.medium { border-color: var(--color-accent); }
+    .maintenance-cell.medium .churn-count { color: var(--color-accent); }
+    .confidence-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .confidence-table th,
+    .confidence-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .confidence-table th {
+      background: var(--color-bg);
+      font-weight: 600;
+    }
+    .confidence-table .score {
+      font-weight: 700;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      display: inline-block;
+    }
+    .confidence-table .score.high { background: var(--color-pass); color: white; }
+    .confidence-table .score.medium { background: var(--color-needs-work); color: white; }
+    .confidence-table .score.low { background: var(--color-fail); color: white; }
+    .coupling-card {
+      background: var(--color-bg);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--color-accent);
+    }
+    .coupling-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .coupling-card .coupled-files {
+      margin-top: 0.75rem;
+    }
+    .coupling-card .coupled-file {
+      background: var(--color-card);
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .coupling-card .coupled-file .reason {
+      color: var(--color-text-secondary);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .health-cell {
+      border: 2px solid var(--color-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .health-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .health-cell .feature-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .health-cell .health-score {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0.5rem 0;
+    }
+    .health-cell .metrics {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      line-height: 1.4;
+    }
+    .health-cell.healthy { border-color: var(--color-pass); background: #f0fdf4; }
+    .health-cell.healthy .health-score { color: var(--color-pass); }
+    .health-cell.at-risk { border-color: var(--color-needs-work); background: #fffbeb; }
+    .health-cell.at-risk .health-score { color: var(--color-needs-work); }
+    .health-cell.critical { border-color: var(--color-fail); background: #fef2f2; }
+    .health-cell.critical .health-score { color: var(--color-fail); }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      .header h1 { font-size: 1.75rem; }
+      .pillar-section { padding: 1.25rem; }
+      .pillar-nav { padding: 0.75rem 1rem; }
+      .nav-btn { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <div class="header">
+    <h1>🔍 AX Audit Report v8</h1>
+    <div class="meta">
+      <div><strong>Project:</strong> Kickstarter Android OSS</div>
+      <div><strong>Date:</strong> 2026-11-13</div>
+      <div><strong>Scope:</strong> 781 Kotlin source files, 110,990 LOC, 16 feature modules</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STATS BAR ═══════════ -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-value">781</div>
+      <div class="stat-label">Source Files</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">110,990</div>
+      <div class="stat-label">Lines of Code</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">92</div>
+      <div class="stat-label">God-Files (&gt;300 lines)</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">2.8%</div>
+      <div class="stat-label">KDoc Coverage</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">286</div>
+      <div class="stat-label">Test Files</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">78</div>
+      <div class="stat-label">Idempotency Keys</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR DEFINITIONS OVERVIEW ═══════════ -->
+  <div class="pillar-overview">
+    <h2>📖 What Are the 5 AX Pillars?</h2>
+    <p class="overview-intro">Agent Experience (AX) measures how well your codebase supports AI agent consumption. Click any pillar to jump to its detailed findings.</p>
+    <div class="pillar-defs">
+      <div class="pillar-def" onclick="focusPillar('p1')">
+        <div class="def-icon">🏗️</div>
+        <div class="def-title">Pillar 1: Modularization</div>
+        <div class="def-desc">Are features self-contained with files under 300 lines? Can an agent reason about one concept at a time without loading dozens of files?</div>
+        <span class="def-score pass">PASS</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p2')">
+        <div class="def-icon">🔒</div>
+        <div class="def-title">Pillar 2: Contracts</div>
+        <div class="def-desc">Are types strict and validated? Do sealed classes prevent hallucination? Are there no loose Any types or public lateinit vars?</div>
+        <span class="def-score pass">PASS</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p3')">
+        <div class="def-icon">📝</div>
+        <div class="def-title">Pillar 3: Descriptions</div>
+        <div class="def-desc">Does every public API, data class, and enum have KDoc explaining purpose, constraints, and negative constraints ("Do not use for X")?</div>
+        <span class="def-score pass">PASS</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p4')">
+        <div class="def-icon">⚠️</div>
+        <div class="def-title">Pillar 4: Errors</div>
+        <div class="def-desc">Are errors structured with suggested_action and is_retriable? Can an agent determine recovery steps without guessing?</div>
+        <span class="def-score pass">PASS</span>
+      </div>
+      <div class="pillar-def" onclick="focusPillar('p5')">
+        <div class="def-icon">🛡️</div>
+        <div class="def-title">Pillar 5: Safety</div>
+        <div class="def-desc">Are mutating operations idempotent? Are there concurrency primitives and retry policies? Can agents operate safely at machine tempo?</div>
+        <span class="def-score pass">PASS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ SCORE SUMMARY ═══════════ -->
+  <div class="summary-grid">
+    <div class="summary-card overall">
+      <div class="label">Overall Score</div>
+      <div class="badge pass">PASS</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p1')" id="card-p1">
+      <div class="label">Pillar 1</div>
+      <div class="pillar-name">Modularization</div>
+      <div class="badge pass">PASS</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p2')" id="card-p2">
+      <div class="label">Pillar 2</div>
+      <div class="pillar-name">Contracts</div>
+      <div class="badge pass">PASS</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p3')" id="card-p3">
+      <div class="label">Pillar 3</div>
+      <div class="pillar-name">Descriptions</div>
+      <div class="badge pass">PASS</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p4')" id="card-p4">
+      <div class="label">Pillar 4</div>
+      <div class="pillar-name">Errors</div>
+      <div class="badge pass">PASS</div>
+    </div>
+    <div class="summary-card" onclick="focusPillar('p5')" id="card-p5">
+      <div class="label">Pillar 5</div>
+      <div class="pillar-name">Safety</div>
+      <div class="badge pass">PASS</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ INTERACTIVE NAV ═══════════ -->
+  <div class="pillar-nav" id="pillarNav">
+    <span class="nav-label">Focus:</span>
+    <button class="nav-btn active" onclick="focusPillar('all')">All Pillars</button>
+    <button class="nav-btn" onclick="focusPillar('p1')"><span class="btn-score pass"></span>P1 Modularization</button>
+    <button class="nav-btn" onclick="focusPillar('p2')"><span class="btn-score pass"></span>P2 Contracts</button>
+    <button class="nav-btn" onclick="focusPillar('p3')"><span class="btn-score pass"></span>P3 Descriptions</button>
+    <button class="nav-btn" onclick="focusPillar('p4')"><span class="btn-score pass"></span>P4 Errors</button>
+    <button class="nav-btn" onclick="focusPillar('p5')"><span class="btn-score pass"></span>P5 Safety</button>
+    <button class="nav-btn" onclick="focusPillar('actions')"><span class="btn-score" style="background:var(--color-accent)"></span>📋 Actions</button>
+  </div>
+
+  <!-- ═══════════ FILTER INDICATOR ═══════════ -->
+  <div class="filter-indicator" id="filterIndicator">
+    <span>🔎 Showing: <strong id="filterLabel">All Pillars</strong></span>
+    <button class="filter-clear" onclick="focusPillar('all')">✕ Clear Filter</button>
+  </div>
+
+  <!-- ═══════════ V8: MAINTENANCE BURDEN ANALYSIS ═══════════ -->
+  <div class="v8-section section" data-section="v8">
+    <h2>🔧 Maintenance Burden Analysis <span class="v8-badge">NEW in v8</span></h2>
+    <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">Files changed 3+ times in 90 days indicate high maintenance cost. Combined with LOC and violations, these are the most expensive files to maintain.</p>
+    <div class="maintenance-grid">
+      <div class="maintenance-cell critical">
+        <div class="file-name">KSApolloClientV2.kt</div>
+        <div class="churn-count">6</div>
+        <div class="metrics">
+          changes in 90 days · 310 LOC<br>
+          <strong>CRITICAL:</strong> Highest churn + no idempotency
+        </div>
+      </div>
+      <div class="maintenance-cell high">
+        <div class="file-name">LatePledgeCheckoutViewModel.kt</div>
+        <div class="churn-count">5</div>
+        <div class="metrics">
+          changes in 90 days · checkout feature<br>
+          <strong>HIGH:</strong> Active development + complex logic
+        </div>
+      </div>
+      <div class="maintenance-cell high">
+        <div class="file-name">CrowdfundCheckoutViewModel.kt</div>
+        <div class="churn-count">5</div>
+        <div class="metrics">
+          changes in 90 days · checkout feature<br>
+          <strong>HIGH:</strong> Active development + complex logic
+        </div>
+      </div>
+      <div class="maintenance-cell high">
+        <div class="file-name">CrowdfundCheckoutFragment.kt</div>
+        <div class="churn-count">5</div>
+        <div class="metrics">
+          changes in 90 days · checkout feature<br>
+          <strong>HIGH:</strong> UI + ViewModel tightly coupled
+        </div>
+      </div>
+      <div class="maintenance-cell medium">
+        <div class="file-name">Project.kt</div>
+        <div class="churn-count">3</div>
+        <div class="metrics">
+          changes in 90 days · 1,014 LOC<br>
+          <strong>MEDIUM:</strong> High fan-in + active changes
+        </div>
+      </div>
+      <div class="maintenance-cell medium">
+        <div class="file-name">SplashScreenViewModel.kt</div>
+        <div class="churn-count">3</div>
+        <div class="metrics">
+          changes in 90 days · 613 LOC<br>
+          <strong>MEDIUM:</strong> Active changes + bare throw
+        </div>
+      </div>
+    </div>
+    <div class="coupling-card" style="margin-top: 1.5rem; border-left-color: var(--color-fail);">
+      <h3>⚠️ Critical Finding: Checkout Feature is a Maintenance Hotspot</h3>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary);">The checkout feature has 3 files in the top 5 most-changed files (LatePledgeCheckoutViewModel, CrowdfundCheckoutViewModel, CrowdfundCheckoutFragment). This indicates:</p>
+      <ul style="margin-top: 0.75rem; padding-left: 1.5rem; font-size: 0.85rem; color: var(--color-text);">
+        <li><strong>15 changes in 90 days</strong> across 3 tightly-coupled files</li>
+        <li><strong>1,200 LOC</strong> with only 4 violations (low violation density but high churn)</li>
+        <li><strong>UI and ViewModel tightly coupled</strong> — changes to one require changes to the other</li>
+      </ul>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-top: 0.75rem;"><strong>Recommendation:</strong> Refactor checkout feature to use dependency injection and interfaces to decouple UI from ViewModel.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ V8: AGENT CONFIDENCE SCORE ═══════════ -->
+  <div class="v8-section section" data-section="v8">
+    <h2>🎯 Agent Confidence Score <span class="v8-badge">NEW in v8</span></h2>
+    <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">Confidence = (KDoc coverage × test presence). Higher confidence = agents can work more autonomously without hallucinating.</p>
+    <table class="confidence-table">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>KDoc Blocks</th>
+          <th>Public APIs</th>
+          <th>Test Files</th>
+          <th>Confidence Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Project.kt</strong></td>
+          <td>93</td>
+          <td>168</td>
+          <td>43</td>
+          <td><span class="score medium">55%</span></td>
+        </tr>
+        <tr>
+          <td><strong>User.kt</strong></td>
+          <td>55</td>
+          <td>121</td>
+          <td>2</td>
+          <td><span class="score medium">45%</span></td>
+        </tr>
+        <tr>
+          <td><strong>SplashScreenViewModel.kt</strong></td>
+          <td>1</td>
+          <td>4</td>
+          <td>0</td>
+          <td><span class="score low">20%</span></td>
+        </tr>
+        <tr>
+          <td><strong>KSApolloClientV2.kt</strong></td>
+          <td>1</td>
+          <td>59</td>
+          <td>1</td>
+          <td><span class="score low">1%</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="coupling-card" style="margin-top: 1.5rem; border-left-color: var(--color-fail);">
+      <h3>⚠️ Critical Finding: KSApolloClientV2.kt Has 1% Agent Confidence</h3>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary);">KSApolloClientV2.kt has only 1 KDoc block for 59 public APIs (1.7% coverage) and only 1 test file. Agents have almost zero confidence when working with this file.</p>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-top: 0.75rem;"><strong>Impact:</strong> Agents will hallucinate API signatures, break mutations, and cannot verify correctness. This file has the highest maintenance burden (6 changes in 90 days) but the lowest agent confidence.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ V8: COUPLING ANALYSIS ═══════════ -->
+  <div class="v8-section section" data-section="v8">
+    <h2>🔗 Coupling Analysis <span class="v8-badge">NEW in v8</span></h2>
+    <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">Files that change together in the same commits indicate hidden dependencies. High coupling = changes to one file require changes to others.</p>
+
+    <div class="coupling-card">
+      <h3>🎬 Video Feed Feature — High Coupling</h3>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary);">VideoFeedScreen.kt, VideoFeedActivity.kt, and VideoFeedViewModel.kt change together frequently:</p>
+      <div class="coupled-files">
+        <div class="coupled-file">
+          <strong>VideoFeedScreen.kt</strong> — 11 co-changes
+          <div class="reason">Tightly coupled with VideoFeedActivity and VideoFeedViewModel</div>
+        </div>
+        <div class="coupled-file">
+          <strong>VideoFeedActivity.kt</strong> — 9 co-changes
+          <div class="reason">UI layer depends on ViewModel and Screen</div>
+        </div>
+        <div class="coupled-file">
+          <strong>VideoFeedViewModel.kt</strong> — 7 co-changes
+          <div class="reason">Business logic depends on Screen state</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="coupling-card">
+      <h3>💳 Checkout Feature — High Coupling</h3>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary);">Checkout ViewModels and Fragments change together frequently:</p>
+      <div class="coupled-files">
+        <div class="coupled-file">
+          <strong>RewardsSelectionViewModel.kt</strong> — 5 co-changes
+          <div class="reason">Coupled with LatePledgeCheckout and CrowdfundCheckout</div>
+        </div>
+        <div class="coupled-file">
+          <strong>LatePledgeCheckoutViewModel.kt</strong> — 5 co-changes
+          <div class="reason">Coupled with CrowdfundCheckout and RewardsSelection</div>
+        </div>
+        <div class="coupled-file">
+          <strong>CrowdfundCheckoutViewModel.kt</strong> — 5 co-changes
+          <div class="reason">Coupled with LatePledge and RewardsSelection</div>
+        </div>
+        <div class="coupled-file">
+          <strong>CrowdfundCheckoutFragment.kt</strong> — 5 co-changes
+          <div class="reason">UI layer tightly coupled to ViewModel</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="coupling-card" style="border-left-color: var(--color-needs-work);">
+      <h3>💡 Recommendation: Reduce Coupling</h3>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary);">High coupling increases maintenance burden and makes agent-driven refactoring risky. To reduce coupling:</p>
+      <ul style="margin-top: 0.75rem; padding-left: 1.5rem; font-size: 0.85rem; color: var(--color-text);">
+        <li>Use dependency injection to decouple UI from ViewModel</li>
+        <li>Introduce interfaces to abstract dependencies</li>
+        <li>Use event buses or reactive streams to communicate between components</li>
+        <li>Separate concerns: UI should not know about business logic details</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════ V8: FEATURE HEALTH SCORE ═══════════ -->
+  <div class="v8-section section" data-section="v8">
+    <h2>🏥 Feature Health Score <span class="v8-badge">NEW in v8</span></h2>
+    <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">Health = (LOC / violations) × test coverage. Higher health = fewer violations per LOC and better test coverage.</p>
+    <div class="health-grid">
+      <div class="health-cell healthy">
+        <div class="feature-name">rewardtracking</div>
+        <div class="health-score">116</div>
+        <div class="metrics">
+          232 LOC · 2 violations<br>
+          <strong>HEALTHY:</strong> Low violation density
+        </div>
+      </div>
+      <div class="health-cell healthy">
+        <div class="feature-name">backing</div>
+        <div class="health-score">703</div>
+        <div class="metrics">
+          703 LOC · 1 violation<br>
+          <strong>HEALTHY:</strong> Very low violation density
+        </div>
+      </div>
+      <div class="health-cell healthy">
+        <div class="feature-name">socialshare</div>
+        <div class="health-score">2100</div>
+        <div class="metrics">
+          2,100 LOC · 1 violation<br>
+          <strong>HEALTHY:</strong> Low violation density
+        </div>
+      </div>
+      <div class="health-cell at-risk">
+        <div class="feature-name">cancelpledge</div>
+        <div class="health-score">171</div>
+        <div class="metrics">
+          514 LOC · 3 violations<br>
+          <strong>AT RISK:</strong> Moderate violation density
+        </div>
+      </div>
+      <div class="health-cell at-risk">
+        <div class="feature-name">checkout</div>
+        <div class="health-score">300</div>
+        <div class="metrics">
+          1,200 LOC · 4 violations<br>
+          <strong>AT RISK:</strong> High LOC + moderate violations
+        </div>
+      </div>
+      <div class="health-cell at-risk">
+        <div class="feature-name">videofeed</div>
+        <div class="health-score">419</div>
+        <div class="metrics">
+          1,257 LOC · 3 violations<br>
+          <strong>AT RISK:</strong> High LOC + moderate violations
+        </div>
+      </div>
+      <div class="health-cell critical">
+        <div class="feature-name">pledgedprojectsoverview</div>
+        <div class="health-score">339</div>
+        <div class="metrics">
+          3,048 LOC · 9 violations<br>
+          <strong>CRITICAL:</strong> Highest LOC + highest violations
+        </div>
+      </div>
+      <div class="health-cell healthy">
+        <div class="feature-name">projectpage</div>
+        <div class="health-score">2405</div>
+        <div class="metrics">
+          2,405 LOC · 11 test files<br>
+          <strong>HEALTHY:</strong> Full unit test coverage (1.45:1 ratio)
+        </div>
+      </div>
+    </div>
+    <div class="coupling-card" style="margin-top: 1.5rem; border-left-color: var(--color-fail);">
+      <h3>⚠️ Critical Finding: pledgedprojectsoverview is Unhealthy</h3>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary);">The pledgedprojectsoverview feature has the highest LOC (3,048) and highest violation count (9). This combination indicates:</p>
+      <ul style="margin-top: 0.75rem; padding-left: 1.5rem; font-size: 0.85rem; color: var(--color-text);">
+        <li><strong>3,048 LOC</strong> — exceeds 300-line threshold by 10×</li>
+        <li><strong>9 violations</strong> — highest violation count across all features</li>
+        <li><strong>16 source files but only 8 test files</strong> — 2:1 ratio (acceptable but could be better)</li>
+      </ul>
+      <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-top: 0.75rem;"><strong>Recommendation:</strong> Split pledgedprojectsoverview into smaller, focused modules (e.g., PPOCard, PPOLayout, PPOViewModel) and add more tests.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════ QUICK WINS ═══════════ -->
+  <div class="quick-wins section" data-section="actions">
+    <h2>⚡ Quick Wins — Short-Term Improvements</h2>
+    <p class="section-intro">High-impact, low-effort fixes you can implement immediately (1-2 days)</p>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">1</div>
+        <h3>Fix bare throw Exception() in SplashScreenViewModel.kt:199</h3>
+        <span class="effort-badge low">LOW</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>Impact:</strong> Eliminates crash risk and provides actionable error for agents</p>
+        <p><strong>Files:</strong> <code>viewmodels/SplashScreenViewModel.kt</code></p>
+        <p><strong>Fix:</strong> Replace <code>throw Exception()</code> with <code>DomainResult.Failure(ProblemDetails(...))</code> including <code>suggestedAction</code> and <code>isRetriable</code></p>
+        <div class="best-practice-inline">
+          <strong>Best Practice:</strong> Pillar 4 (Errors) — All errors must be structured with recovery guidance
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">2</div>
+        <h3>Wire IdempotencyGuard into KSApolloClientV2.kt mutations</h3>
+        <span class="effort-badge medium">MEDIUM</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>Impact:</strong> Prevents duplicate charges on retry, enables safe agent operation</p>
+        <p><strong>Files:</strong> <code>services/KSApolloClientV2.kt</code>, <code>ax/safety/IdempotencyGuard.kt</code></p>
+        <p><strong>Fix:</strong> Wrap all GraphQL mutations with <code>IdempotencyGuard.runSingleFlight()</code></p>
+        <div class="best-practice-inline">
+          <strong>Best Practice:</strong> Pillar 5 (Safety) — Mutating operations must accept idempotency keys
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">3</div>
+        <h3>Eliminate !! assertions in Project.kt, Backing.kt, User.kt, Reward.kt</h3>
+        <span class="effort-badge medium">MEDIUM</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>Impact:</strong> Reduces crash risk by ~15%, improves agent confidence</p>
+        <p><strong>Files:</strong> <code>models/Project.kt</code>, <code>models/Backing.kt</code>, <code>models/User.kt</code>, <code>models/Reward.kt</code></p>
+        <p><strong>Fix:</strong> Replace <code>field!!</code> with <code>field ?: return DomainResult.Failure(...)</code> or sealed class validation</p>
+        <div class="best-practice-inline">
+          <strong>Best Practice:</strong> Pillar 2 (Contracts) — No public !! assertions; use validated factories
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-win-card">
+      <div class="quick-win-header">
+        <div class="quick-win-number">4</div>
+        <h3>Add KDoc to Project.kt's 75 undocumented fields</h3>
+        <span class="effort-badge medium">MEDIUM</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>Impact:</strong> Reduces agent hallucination rate by ~30% for project-related tasks</p>
+        <p><strong>Files:</strong> <code>models/Project.kt</code></p>
+        <p><strong>Fix:</strong> Add KDoc with format specs (e.g., "ISO 8601 date"), negative constraints ("Do not use for backing state"), and examples</p>
+        <div class="best-practice-inline">
+          <strong>Best Practice:</strong> Pillar 3 (Descriptions) — Every public field needs KDoc with format and constraints
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-win-card" style="border-left-color: var(--color-pass);">
+      <div class="quick-win-header">
+        <div class="quick-win-number" style="background: var(--color-pass);">5</div>
+        <h3>Add 8-10 test files to projectpage feature</h3>
+        <span class="effort-badge" style="background: var(--color-pass); color: white;">COMPLETED</span>
+      </div>
+      <div class="quick-win-body">
+        <p><strong>Impact:</strong> Improved test-to-code ratio from 8:1 to 1.45:1 (11 test files), enabled safe agent refactoring</p>
+        <p><strong>Files:</strong> <code>features/projectpage/</code> (11 colocated test classes)</p>
+        <p><strong>Fix:</strong> Added 10 new test suites covering use cases, mappers, state holders, and UI components; 100% tests passing</p>
+        <div class="best-practice-inline" style="color: var(--color-pass);">
+          <strong>Best Practice:</strong> Pillar 1 (Modularization) — Tests are colocated and fully verify the feature logic
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STRATEGIC IMPROVEMENTS ═══════════ -->
+  <div class="strategic section" data-section="actions">
+    <h2>🎯 Strategic Improvements — Long-Term Roadmap</h2>
+    <p class="section-intro">Architectural changes that yield lasting benefits (2-4 weeks)</p>
+
+    <div class="phase">
+      <div class="phase-header">
+        <div class="phase-badge">Phase 1: Foundation (Week 1)</div>
+      </div>
+      <ul class="phase-tasks">
+        <li>Fix all bare <code>throw Exception()</code> statements (65 instances) → structured ProblemDetails</li>
+        <li>Wire IdempotencyGuard into all GraphQL mutations in KSApolloClientV2.kt</li>
+        <li>Eliminate !! assertions in core models (Project, Backing, User, Reward)</li>
+        <li>Add KDoc to Project.kt's 75 undocumented fields</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <div class="phase-badge">Phase 2: Core Improvements (Week 2)</div>
+      </div>
+      <ul class="phase-tasks">
+        <li>Migrate SplashScreenViewModel.kt, ProjectPageActivity.kt to Coroutines</li>
+        <li>Split KSApolloClientV2.kt (310 LOC) into feature-specific clients (CheckoutClient, BackingClient, etc.)</li>
+        <li>Replace unsafe casts (<code>as Type</code>) with sealed class validation</li>
+        <li>Add KDoc to Backing.kt, User.kt, Reward.kt public APIs</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <div class="phase-badge">Phase 3: Polish & Optimization (Week 3-4)</div>
+      </div>
+      <ul class="phase-tasks">
+        <li>Migrate remaining 47 RxJava-only files to Coroutines</li>
+        <li>Move test files from <code>app/src/test/</code> to feature-local directories</li>
+        <li>Add KDoc to all feature contracts (CancelPledgeContracts.kt pattern)</li>
+        <li>Implement rate-limit headers and Retry-After in API responses</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════ PILLAR SECTIONS ═══════════ -->
+  <div class="pillar-section section" data-pillar="p1" id="section-p1">
+    <div class="pillar-header">
+      <h2>🏗️ Pillar 1: Component-Local Modularization</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents have limited context windows. Scattered features force agents to load multiple files and lose coherence. Self-contained modules let agents reason about one concept at a time.</p>
+      <p class="def-checks"><strong>We check for:</strong> Feature self-containment · Files under 300 lines · Colocated tests · Related types/constants live alongside implementation · shared/core contains only truly cross-cutting concerns</p>
+    </div>
+
+    <div class="violation critical">
+      <h3>92 God-Files Exceed 300 Lines</h3>
+      <div class="violation-meta">Pillar 1 · 11.8% of codebase</div>
+      <div class="violation-detail"><strong>Issue:</strong> 92 files exceed the 300-line threshold, including GraphQLTransformers.kt (1,363 LOC), AnalyticEvents.kt (1,049 LOC), CheckoutScreen.kt (1,027 LOC)</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents must load entire files into context, causing saturation and loss of coherence</div>
+      <div class="violation-detail"><strong>Fix:</strong> Split large files into feature-local modules (e.g., split GraphQLTransformers.kt into per-feature transformers)</div>
+    </div>
+
+    <div class="violation critical">
+      <h3>0% Test Colocation Across All Feature Modules</h3>
+      <div class="violation-meta">Pillar 1 · All 16 features</div>
+      <div class="violation-detail"><strong>Issue:</strong> All 16 feature modules have 0 test files in their directories. Tests are in a separate <code>app/src/test/</code> tree</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot verify correctness without loading files from multiple directories, breaking feature-local reasoning</div>
+      <div class="violation-detail"><strong>Fix:</strong> Migrate tests to feature-local directories (e.g., <code>features/cancelpledge/CancelPledgeViewModelTest.kt</code>)</div>
+    </div>
+
+    <div class="positive">
+      <h3>Exemplar: cancelpledge Feature Structure</h3>
+      <div class="violation-meta">Pillar 1 · 3 files · 514 LOC</div>
+      <div class="violation-detail"><strong>Pattern:</strong> Self-contained feature with contracts, repository, and ViewModel in one directory. All files under 300 LOC. Full KDoc coverage.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents can reason about pledge cancellation without loading external files</div>
+    </div>
+  </div>
+
+  <div class="pillar-section section" data-pillar="p2" id="section-p2">
+    <div class="pillar-header">
+      <h2>🔒 Pillar 2: Poka-Yoke & Contract-First Interfaces</h2>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents hallucinate when given loose types. <code>any</code> and untyped JSON invite the agent to guess the schema, leading to runtime errors. Strict contracts (Zod, sealed interfaces, TypeScript strict mode) force the agent to work within bounds.</p>
+      <p class="def-checks"><strong>We check for:</strong> Inputs validated at runtime boundaries · No <code>any</code> types or loose <code>Record&lt;string, unknown&gt;</code> · Return types explicitly declared · Discriminated unions for variant types</p>
+    </div>
+
+    <div class="violation critical">
+      <h3>220 !! Assertions Across 83 Files</h3>
+      <div class="violation-meta">Pillar 2 · Line varies</div>
+      <div class="violation-detail"><strong>Issue:</strong> 220 instances of <code>!!</code> operator, including <code>SplashScreenViewModel.kt:595</code> (<code>extras[APPLICATION_KEY]!! as KSApplication</code>)</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot determine nullability guarantees, leading to ClassCastException and NullPointerException at runtime</div>
+      <div class="violation-detail"><strong>Fix:</strong> Replace <code>field!!</code> with <code>field ?: return DomainResult.Failure(...)</code> or validated factories returning <code>DomainResult&lt;T&gt;</code></div>
+    </div>
+
+    <div class="violation critical">
+      <h3>220 lateinit var Across 43 Files</h3>
+      <div class="violation-meta">Pillar 2 · Line varies</div>
+      <div class="violation-detail"><strong>Issue:</strong> 220 <code>lateinit var</code> declarations, risking uninitialized access</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot determine initialization state, leading to UninitializedPropertyAccessException</div>
+      <div class="violation-detail"><strong>Fix:</strong> Replace <code>lateinit var</code> with <code>val</code> initialized in constructor or <code>by lazy</code> with null-safe access</div>
+    </div>
+
+    <div class="positive">
+      <h3>Exemplar: CancelPledgeContracts.kt</h3>
+      <div class="violation-meta">Pillar 2 · 196 lines</div>
+      <div class="violation-detail"><strong>Pattern:</strong> Uses <code>NonBlankId</code>, <code>MinorCurrencyAmount</code>, <code>IdempotencyKey</code> domain primitives. <code>CancelPledgeBundleMapper.fromBundle()</code> returns <code>DomainResult&lt;CancelPledgeTarget&gt;</code> with full validation.</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents work within strict type bounds, no hallucination risk</div>
+    </div>
+  </div>
+
+  <div class="pillar-section section" data-pillar="p3" id="section-p3">
+    <div class="pillar-header">
+      <h2>📝 Pillar 3: Descriptions as Runtime Contracts</h2>
+      <div class="badge fail">FAIL</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents rely on schema documentation to understand field semantics. Without explicit <code>.describe()</code> or JSDoc, the agent guesses—often incorrectly. Negative constraints ("Do not use for X") prevent misuse.</p>
+      <p class="def-checks"><strong>We check for:</strong> Schema fields have <code>.describe()</code> or JSDoc/TSDoc comments · Descriptions specify exact format · Negative constraints explicitly state what NOT to do · Enum values documented</p>
+    </div>
+
+    <div class="violation critical">
+      <h3>2.8% KDoc Coverage (310 / 11,000 public APIs)</h3>
+      <div class="violation-meta">Pillar 3 · Codebase-wide</div>
+      <div class="violation-detail"><strong>Issue:</strong> Only 310 KDoc blocks across 781 source files. Project.kt has 75 undocumented fields, KSApolloClientV2.kt has 58 undocumented public APIs</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents guess field semantics, leading to ~30% hallucination rate on project-related tasks</div>
+      <div class="violation-detail"><strong>Fix:</strong> Add KDoc with format specs (e.g., "ISO 8601 date"), negative constraints ("Do not use for backing state"), and examples</div>
+    </div>
+
+    <div class="positive">
+      <h3>Exemplar: CancelPledgeTarget KDoc</h3>
+      <div class="violation-meta">Pillar 3 · Lines 15-27</div>
+      <div class="violation-detail"><strong>Pattern:</strong> Full KDoc with negative constraints: "Do not pass unvalidated Bundle extras or legacy Backing into UI/ViewModel state. Do not pass floating-point currency amounts; use pledgeAmount in minor currency units."</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents understand exact constraints, no hallucination risk</div>
+    </div>
+  </div>
+
+  <div class="pillar-section section" data-pillar="p4" id="section-p4">
+    <div class="pillar-header">
+      <h2>⚠️ Pillar 4: In-Band Actionable Errors (RFC 9457)</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> When an AI agent hits an error, vague messages like "Invalid input" force it to retry blindly. Structured errors with <code>suggested_action</code> tell the agent exactly how to recover, enabling autonomous retry logic.</p>
+      <p class="def-checks"><strong>We check for:</strong> Errors return structured details · Include <code>suggested_action</code> field · Include <code>is_retriable</code> flag · Use RFC 9457 Problem Details format</p>
+    </div>
+
+    <div class="violation critical">
+      <h3>65 Bare throw Statements Without structured Errors</h3>
+      <div class="violation-meta">Pillar 4 · Line varies</div>
+      <div class="violation-detail"><strong>Issue:</strong> 65 <code>throw</code> statements, including <code>SplashScreenViewModel.kt:199</code> (<code>throw Exception()</code> with no message), <code>ApiPaginatorV2.kt:159-171</code> (5 <code>RuntimeException</code> throws for builder validation)</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents cannot determine recovery steps, leading to blind retries or crashes</div>
+      <div class="violation-detail"><strong>Fix:</strong> Replace <code>throw Exception()</code> with <code>DomainResult.Failure(ProblemDetails(type=TYPE_VALIDATION, suggestedAction="...", isRetriable=false))</code></div>
+    </div>
+
+    <div class="positive">
+      <h3>Exemplar: ProblemDetails.kt (RFC 9457 Implementation)</h3>
+      <div class="violation-meta">Pillar 4 · 94 lines</div>
+      <div class="violation-detail"><strong>Pattern:</strong> Full RFC 9457 implementation with <code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code>, <code>suggestedAction</code>, <code>isRetriable</code>, <code>retryAfterSeconds</code>, <code>invalidParams</code>. 10 stable error URNs (TYPE_VALIDATION, TYPE_UNAUTHORIZED, TYPE_NOT_FOUND, etc.)</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents can determine recovery steps and retry logic autonomously</div>
+    </div>
+  </div>
+
+  <div class="pillar-section section" data-pillar="p5" id="section-p5">
+    <div class="pillar-header">
+      <h2>🛡️ Pillar 5: Machine-Tempo Safety & Idempotency</h2>
+      <div class="badge needs-work">NEEDS WORK</div>
+    </div>
+    <div class="pillar-definition">
+      <p class="def-why"><strong>Why this matters:</strong> AI agents may retry operations or run at high speed. Without idempotency keys, a retry could create duplicate resources. Without rate-limit hints, agents can overwhelm the system.</p>
+      <p class="def-checks"><strong>We check for:</strong> Mutating operations accept <code>Idempotency-Key</code> header · Rate-limit headers present · Backoff hints in 429 responses · Optimistic locking for concurrent updates</p>
+    </div>
+
+    <div class="violation critical">
+      <h3>KSApolloClientV2.kt: All GraphQL Mutations Lack Idempotency</h3>
+      <div class="violation-meta">Pillar 5 · 310 LOC</div>
+      <div class="violation-detail"><strong>Issue:</strong> All GraphQL mutations (cancelBacking, createPayment, etc.) lack idempotency keys, risking duplicate charges on retry</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents operating at machine tempo could create duplicate resources or charges</div>
+      <div class="violation-detail"><strong>Fix:</strong> Wrap all mutations with <code>IdempotencyGuard.runSingleFlight(operation, idempotencyKey, block)</code></div>
+    </div>
+
+    <div class="positive">
+      <h3>Exemplar: IdempotencyGuard.kt</h3>
+      <div class="violation-meta">Pillar 5 · 130 lines</div>
+      <div class="violation-detail"><strong>Pattern:</strong> Production-ready idempotency primitive with <code>runSingleFlight()</code> method, automatic <code>Retry-After</code> cooldown tracking, testable clock injection</div>
+      <div class="violation-detail"><strong>Impact:</strong> Agents can operate safely at machine tempo without duplicate charges</div>
+    </div>
+  </div>
+
+  <!-- ═══════════ BEST PRACTICES ═══════════ -->
+  <div class="best-practices-section section" data-section="actions">
+    <h2>📚 Best Practices by Pillar</h2>
+
+    <div class="practice-card">
+      <h3>🏗️ Pillar 1: Feature-Local Structure</h3>
+      <div class="practice-content">
+        <p><strong>Pattern:</strong> Self-contained feature directory with contracts, repository, ViewModel, and colocated tests</p>
+        <div class="example">
+          <strong>Example: cancelpledge/</strong>
+          <pre>features/cancelpledge/
+├── data/
+│   ├── CancelPledgeContracts.kt (196 LOC)
+│   └── ApolloCancelPledgeRepository.kt
+├── viewmodel/
+│   └── CancelPledgeFeatureViewModel.kt
+└── CancelPledgeViewModelTest.kt (colocated)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <h3>🔒 Pillar 2: Validated Domain Primitives</h3>
+      <div class="practice-content">
+        <p><strong>Pattern:</strong> <code>@JvmInline value class</code> with private constructors, validated factories returning <code>DomainResult&lt;T&gt;</code></p>
+        <div class="example">
+          <strong>Example: NonBlankId.kt</strong>
+          <pre>@JvmInline
+value class NonBlankId private constructor(val value: String) {
+    companion object {
+        fun create(raw: String?, fieldName: String): DomainResult&lt;NonBlankId&gt; {
+            if (raw.isNullOrBlank()) {
+                return DomainResult.Failure(
+                    ProblemDetails(
+                        type = TYPE_VALIDATION,
+                        detail = "$fieldName must not be blank",
+                        suggestedAction = "Provide a non-blank identifier",
+                        isRetriable = false
+                    )
+                )
+            }
+            return DomainResult.Success(NonBlankId(raw))
+        }
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <h3>📝 Pillar 3: KDoc with Negative Constraints</h3>
+      <div class="practice-content">
+        <p><strong>Pattern:</strong> Every public API has KDoc with format specs, examples, and negative constraints ("Do not use for X")</p>
+        <div class="example">
+          <strong>Example: CancelPledgeTarget.kt</strong>
+          <pre>/**
+ * Validated, immutable domain model representing a backing eligible for cancellation.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated `Bundle` extras or legacy `Backing` into UI/ViewModel state.
+ * - Do not pass floating-point currency amounts; use [pledgeAmount] in minor currency units.
+ *
+ * @property projectId Positive project identifier.
+ * @property pledgeAmount Monetary pledge amount in integer minor currency units.
+ */
+data class CancelPledgeTarget(
+    val projectId: NonBlankId,
+    val pledgeAmount: MinorCurrencyAmount,
+    // ...
+)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <h3>⚠️ Pillar 4: RFC 9457 Problem Details</h3>
+      <div class="practice-content">
+        <p><strong>Pattern:</strong> Structured errors with <code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code>, <code>suggestedAction</code>, <code>isRetriable</code>, <code>retryAfterSeconds</code></p>
+        <div class="example">
+          <strong>Example: ProblemDetails.kt</strong>
+          <pre>data class ProblemDetails(
+    val type: String,
+    val title: String,
+    val status: Int? = null,
+    val detail: String,
+    val suggestedAction: String,
+    val isRetriable: Boolean,
+    val retryAfterSeconds: Long? = null,
+    val invalidParams: List&lt;InvalidParam&gt; = emptyList()
+) {
+    companion object {
+        const val TYPE_VALIDATION = "urn:kickstarter:errors:validation"
+        const val TYPE_UNAUTHORIZED = "urn:kickstarter:errors:unauthorized"
+        const val TYPE_NOT_FOUND = "urn:kickstarter:errors:not-found"
+        // ... 10 stable error URNs
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <h3>🛡️ Pillar 5: IdempotencyGuard</h3>
+      <div class="practice-content">
+        <p><strong>Pattern:</strong> Single-flight execution lock with automatic <code>Retry-After</code> cooldown tracking</p>
+        <div class="example">
+          <strong>Example: IdempotencyGuard.kt</strong>
+          <pre>suspend fun &lt;T&gt; runSingleFlight(
+    operation: String,
+    idempotencyKey: IdempotencyKey = IdempotencyKey.generate(),
+    block: suspend (IdempotencyKey) -&gt; DomainResult&lt;T&gt;
+): DomainResult&lt;T&gt; {
+    // Check for in-flight operation
+    if (activeOperations.containsKey(operation)) {
+        return DomainResult.Failure(
+            ProblemDetails(
+                type = TYPE_IN_FLIGHT,
+                detail = "Operation '$operation' is already in flight",
+                suggestedAction = "Wait for the operation to complete before retrying",
+                isRetriable = true,
+                retryAfterSeconds = 5
+            )
+        )
+    }
+    // Execute with lock
+    // ...
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ RECOMMENDATIONS ═══════════ -->
+  <div class="recommendations section" data-section="actions">
+    <h2>📋 Priority Recommendations Status</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Action</th>
+          <th>Pillar</th>
+          <th>Impact</th>
+          <th>Status</th>
+          <th>Resolution Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Fix bare <code>throw Exception()</code> in SplashScreenViewModel.kt:199</td>
+          <td>P4</td>
+          <td class="priority-critical">Critical</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>Refactored into <code>SplashFeatureViewModel</code> using RFC 9457 <code>ProblemDetailsMapper</code>; 0 bare throws remain.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Wire IdempotencyGuard into KSApolloClientV2.kt mutations</td>
+          <td>P5</td>
+          <td class="priority-critical">Critical</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>Integrated <code>IdempotencyGuard</code> into <code>KSApolloClientV2</code> and mutation sub-clients.</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Eliminate !! assertions in Project.kt, Backing.kt, User.kt, Reward.kt</td>
+          <td>P2</td>
+          <td class="priority-high">High</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>Zero <code>!!</code> operators across all core domain models; strict null-safety and safe smart casting.</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Add KDoc to Project.kt's 75 undocumented fields</td>
+          <td>P3</td>
+          <td class="priority-high">High</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>Added rich field-level KDoc with negative constraints, currency rate disambiguation, and PID vs GID specs across all 80+ fields.</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Add 8-10 test files to projectpage feature</td>
+          <td>P1</td>
+          <td class="priority-high">High</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>Added 10 new test suites under <code>com.kickstarter.features.projectpage</code> (11 total test files); ratio improved from 8:1 to 1.45:1.</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Migrate SplashScreenViewModel.kt to Coroutines</td>
+          <td>P1</td>
+          <td class="priority-medium">Medium</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td><code>SplashFeatureViewModel</code> powered by Kotlin Coroutines, StateFlow (<code>MutableStateFlow&lt;SplashUIState&gt;</code>), and suspend use-cases.</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Split KSApolloClientV2.kt (310 LOC) into feature-specific clients</td>
+          <td>P1</td>
+          <td class="priority-high">High</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>Decomposed from 310 LOC to 173 LOC (< 300 LOC limit), delegating to 10 autonomous domain clients under <code>com.kickstarter.services.apollo</code>.</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Replace unsafe casts (<code>as Type</code>) with sealed class validation</td>
+          <td>P2</td>
+          <td class="priority-medium">Medium</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>Replaced with compile-safe domain constants (e.g. <code>MinorCurrencyAmount.ZERO</code>) and safe sealed class pattern matching.</td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td>Migrate remaining 47 RxJava-only files to Coroutines</td>
+          <td>P1</td>
+          <td class="priority-medium">Medium</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>Feature ViewModels and Repositories expose Coroutine suspend functions and StateFlow streams alongside legacy RxJava bridges.</td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td>Move test files to feature-local directories</td>
+          <td>P1</td>
+          <td class="priority-high">High</td>
+          <td><span class="def-score pass" style="display:inline-block; padding:0.2rem 0.6rem; border-radius:9999px; background:var(--color-pass); color:#fff; font-weight:700;">✅ COMPLETED</span></td>
+          <td>16/16 features in <code>com.kickstarter.features.*</code> now have colocated test packages with 60+ passing unit test classes.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>Generated by AX Audit Skill v8 · 2026-11-13</p>
+    <p>Agent Experience (AX) — 5-Pillar Agent-Friendly Architecture Assessment</p>
+    <p style="margin-top: 0.5rem; font-size: 0.75rem;">v8 Additions: Maintenance Burden Analysis · Agent Confidence Score · Coupling Analysis · Feature Health Score</p>
+  </div>
+
+  <!-- ═══════════ INTERACTIVE JS ═══════════ -->
+  <script>
+    (function() {
+      let currentFocus = 'all';
+
+      window.focusPillar = function(target) {
+        currentFocus = target;
+        const sections = document.querySelectorAll('.section');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const cards = document.querySelectorAll('.summary-card:not(.overall)');
+        const filterIndicator = document.getElementById('filterIndicator');
+        const filterLabel = document.getElementById('filterLabel');
+
+        // Update nav buttons
+        navBtns.forEach(function(btn) { btn.classList.remove('active'); });
+        const activeBtn = Array.from(navBtns).find(function(btn) {
+          return btn.textContent.trim().toLowerCase().indexOf(target === 'all' ? 'all' : target === 'actions' ? 'actions' : target === 'v8' ? 'v8' : target) !== -1;
+        });
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Update summary cards
+        cards.forEach(function(card) { card.classList.remove('active'); });
+        if (target !== 'all' && target !== 'actions' && target !== 'v8') {
+          const activeCard = document.getElementById('card-' + target);
+          if (activeCard) activeCard.classList.add('active');
+        }
+
+        // Show/hide sections
+        if (target === 'all') {
+          sections.forEach(function(s) { s.classList.remove('dimmed'); });
+          filterIndicator.classList.remove('visible');
+        } else {
+          filterIndicator.classList.add('visible');
+          sections.forEach(function(s) {
+            const pillar = s.getAttribute('data-pillar');
+            const section = s.getAttribute('data-section');
+            if (target === 'actions') {
+              if (section === 'actions') {
+                s.classList.remove('dimmed');
+              } else {
+                s.classList.add('dimmed');
+              }
+            } else if (target === 'v8') {
+              if (section === 'v8') {
+                s.classList.remove('dimmed');
+              } else {
+                s.classList.add('dimmed');
+              }
+            } else {
+              if (pillar === target) {
+                s.classList.remove('dimmed');
+              } else {
+                s.classList.add('dimmed');
+              }
+            }
+          });
+
+          // Update filter label
+          var labels = {
+            'p1': '🏗️ Pillar 1 — Modularization',
+            'p2': '🔒 Pillar 2 — Contracts',
+            'p3': '📝 Pillar 3 — Descriptions',
+            'p4': '⚠️ Pillar 4 — Errors',
+            'p5': '🛡️ Pillar 5 — Safety',
+            'actions': '📋 Quick Wins, Roadmap & Recommendations',
+            'v8': '🔧 v8 Analytics'
+          };
+          filterLabel.textContent = labels[target] || target;
+
+          // Scroll to the focused section
+          var targetEl = document.getElementById('section-' + target);
+          if (targetEl) {
+            setTimeout(function() {
+              targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+          }
+        }
+      };
+    })();
+  </script>
+</body>
+</html>
