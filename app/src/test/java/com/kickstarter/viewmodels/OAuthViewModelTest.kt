@@ -192,7 +192,8 @@ class OAuthViewModelTest : KSRobolectricTestCase() {
             vm.uiState.toList(state)
         }
 
-        val authorizationUrlTest = "https://www.kickstarter.com/oauth/authorizations/new?redirect_uri=ksrauth2&scope=1&client_id=6B5W0CGU6NQPQ67588QEU1DOQL19BPF521VGPNY3XQXXUEGTND&response_type=1&code_challenge=codeChallenge&code_challenge_method=S256"
+        val clientID = Secrets.Api.Client.PRODUCTION
+        val authorizationUrlTest = "https://www.kickstarter.com/oauth/authorizations/new?redirect_uri=ksrauth2&scope=1&client_id=$clientID&response_type=1&code_challenge=codeChallenge&code_challenge_method=S256"
         // - First empty emission due the initialization
         assertEquals(
             listOf(
@@ -294,7 +295,8 @@ class OAuthViewModelTest : KSRobolectricTestCase() {
             vm.uiState.toList(state)
         }
 
-        val authorizationUrl = "https://www.kickstarter.com/oauth/authorizations/new?redirect_uri=ksrauth2&scope=1&client_id=6B5W0CGU6NQPQ67588QEU1DOQL19BPF521VGPNY3XQXXUEGTND&response_type=1&code_challenge=testChallenge&code_challenge_method=S256"
+        val clientID = Secrets.Api.Client.PRODUCTION
+        val authorizationUrl = "https://www.kickstarter.com/oauth/authorizations/new?redirect_uri=ksrauth2&scope=1&client_id=$clientID&response_type=1&code_challenge=testChallenge&code_challenge_method=S256"
         val testErrorMessage = "Response.error() / ${ApiExceptionFactory.badRequestException().errorEnvelope().errorMessages()}"
 
         // - First empty emission due the initialization
