@@ -33,7 +33,7 @@ class ProjectNavigationDelegate(
         val name = projectNameAndShareUrl.first
         val shareMessage = ksString.format(
             activity.getString(R.string.project_checkout_share_twitter_I_just_backed_project_on_kickstarter),
-            "project_title",
+            "project_name",
             name
         )
         val url = projectNameAndShareUrl.second
