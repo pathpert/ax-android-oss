@@ -2,182 +2,58 @@ package com.kickstarter.ui.activities.compose.projectpage
 
 import CollectionOptions
 import CollectionPlan
-import android.content.res.Configuration
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.sp
-import androidx.core.text.HtmlCompat
 import com.kickstarter.R
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.KSCurrency
 import com.kickstarter.libs.KSString
 import com.kickstarter.libs.utils.DateTimeUtils
-import com.kickstarter.libs.utils.RewardUtils
 import com.kickstarter.libs.utils.RewardViewUtils
 import com.kickstarter.libs.utils.extensions.acceptedCardType
-import com.kickstarter.libs.utils.extensions.format
-import com.kickstarter.libs.utils.extensions.hrefUrlFromTranslation
 import com.kickstarter.libs.utils.extensions.isNotNull
-import com.kickstarter.libs.utils.extensions.stringsFromHtmlTranslation
-import com.kickstarter.mock.factories.RewardFactory
-import com.kickstarter.mock.factories.StoredCardFactory
 import com.kickstarter.models.PaymentIncrement
 import com.kickstarter.models.Project
 import com.kickstarter.models.Reward
 import com.kickstarter.models.ShippingRule
 import com.kickstarter.models.StoredCard
-import com.kickstarter.models.extensions.getCardTypeDrawable
 import com.kickstarter.models.extensions.isFromPaymentSheet
-import com.kickstarter.type.CreditCardTypes
 import com.kickstarter.ui.activities.DisclaimerItems
-import com.kickstarter.ui.activities.compose.login.LoginToutTestTag
+import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutBottomBar
+import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutEstimatedShippingContainer
+import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutNotAStoreCard
+import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutPaymentMethodSelector
+import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutRewardSummarySection
+import com.kickstarter.ui.activities.compose.projectpage.components.TermsOfUseClickableText as ComponentsTermsOfUseClickableText
+import com.kickstarter.ui.activities.compose.projectpage.components.TextWithClickableAccountabilityLink as ComponentsTextWithClickableAccountabilityLink
+import com.kickstarter.ui.activities.compose.projectpage.components.KSCardElement as ComponentsKSCardElement
+import com.kickstarter.ui.activities.compose.projectpage.components.KSEstimatedShippingCheckoutView as ComponentsKSEstimatedShippingCheckoutView
+import com.kickstarter.ui.activities.compose.projectpage.components.UpdateSelectedCardIfNewCardAdded
 import com.kickstarter.ui.compose.designsystem.KSCircularProgressIndicator
-import com.kickstarter.ui.compose.designsystem.KSPrimaryGreenButton
-import com.kickstarter.ui.compose.designsystem.KSRadioButton
-import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.ui.compose.designsystem.kds_white
-import com.kickstarter.ui.compose.designsystem.shapes
 import com.kickstarter.ui.data.PledgeReason
-import com.kickstarter.ui.views.compose.checkout.ItemizedRewardListContainer
 import java.math.RoundingMode
-import java.text.SimpleDateFormat
-import java.util.Locale
 
-@Composable
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun CheckoutScreenPreview() {
-    KSTheme {
-        CheckoutScreen(
-            rewardsList = (1..6).map {
-                Pair("Cool Item $it", "$20")
-            },
-            environment = Environment.Builder().build(),
-            shippingAmount = 4.0,
-            selectedReward = RewardFactory.rewardWithShipping(),
-            currentShippingRule = ShippingRule.builder().build(),
-            totalAmount = 60.0,
-            totalBonusSupport = 5.0,
-            storedCards = listOf(
-                StoredCardFactory.visa(), StoredCardFactory.discoverCard(), StoredCardFactory.visa()
-            ),
-            project =
-            Project.builder()
-                .currency("USD")
-                .currentCurrency("USD")
-                .state(Project.STATE_LIVE)
-                .availableCardTypes(
-                    listOf(
-                        CreditCardTypes.AMEX.rawValue,
-                        CreditCardTypes.MASTERCARD.rawValue,
-                        CreditCardTypes.VISA.rawValue
-                    )
-                )
-                .build(),
-            email = "example@example.com",
-            pledgeReason = PledgeReason.PLEDGE,
-            rewardsHaveShippables = true,
-            onPledgeCtaClicked = { _, _, -> },
-            newPaymentMethodClicked = { },
-            onDisclaimerItemClicked = {},
-            onAccountabilityLinkClicked = {},
-            onChangedPaymentMethod = {},
-            plotIsVisible = false,
-            showPaymentMethodSelection = true,
-        )
-    }
-}
-
-@Composable
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun CheckoutScreenIsPlotEnabledPreview() {
-    KSTheme {
-        CheckoutScreen(
-            rewardsList = (1..6).map {
-                Pair("Cool Item $it", "$20")
-            },
-            environment = Environment.Builder().build(),
-            shippingAmount = 4.0,
-            selectedReward = RewardFactory.rewardWithShipping(),
-            currentShippingRule = ShippingRule.builder().build(),
-            totalAmount = 60.0,
-            totalBonusSupport = 5.0,
-            storedCards = listOf(
-                StoredCardFactory.visa(), StoredCardFactory.discoverCard(), StoredCardFactory.visa()
-            ),
-            project =
-            Project.builder()
-                .currency("USD")
-                .currentCurrency("USD")
-                .state(Project.STATE_LIVE)
-                .availableCardTypes(
-                    listOf(
-                        CreditCardTypes.AMEX.rawValue,
-                        CreditCardTypes.MASTERCARD.rawValue,
-                        CreditCardTypes.VISA.rawValue
-                    )
-                )
-                .build(),
-            email = "example@example.com",
-            pledgeReason = PledgeReason.PLEDGE,
-            rewardsHaveShippables = true,
-            onPledgeCtaClicked = { _, _, -> },
-            newPaymentMethodClicked = { },
-            onDisclaimerItemClicked = {},
-            onAccountabilityLinkClicked = {},
-            onChangedPaymentMethod = {},
-            plotIsVisible = true,
-            showPaymentMethodSelection = true,
-        )
-    }
-}
 @Composable
 fun CheckoutScreen(
     storedCards: List<StoredCard> = listOf(),
@@ -190,12 +66,12 @@ fun CheckoutScreen(
     selectedRewardsAndAddOns: List<Reward> = listOf(),
     rewardsList: List<Pair<String, String>> = listOf(),
     shippingAmount: Double = 0.0,
-    pledgeReason: PledgeReason,
-    totalAmount: Double,
-    currentShippingRule: ShippingRule?,
+    totalAmount: Double = 0.0,
     totalBonusSupport: Double = 0.0,
-    rewardsHaveShippables: Boolean,
+    currentShippingRule: ShippingRule? = null,
     isLoading: Boolean = false,
+    pledgeReason: PledgeReason = PledgeReason.PLEDGE,
+    rewardsHaveShippables: Boolean = false,
     onPledgeCtaClicked: (selectedCard: StoredCard?, isIncrementalPledge: Boolean) -> Unit,
     newPaymentMethodClicked: () -> Unit,
     onDisclaimerItemClicked: (disclaimerItem: DisclaimerItems) -> Unit,
@@ -211,9 +87,7 @@ fun CheckoutScreen(
 ) {
     val selectedOption = remember {
         mutableStateOf(
-            storedCards.firstOrNull {
-                project.acceptedCardType(it.type()) || it.isFromPaymentSheet()
-            }
+            storedCards.firstOrNull { project.acceptedCardType(it.type()) || it.isFromPaymentSheet() }
         )
     }
 
@@ -223,179 +97,81 @@ fun CheckoutScreen(
     }
 
     val totalAmountString = environment.ksCurrency()?.let {
-        RewardViewUtils.styleCurrency(
-            totalAmount,
-            project,
-            it
-        ).toString()
+        RewardViewUtils.styleCurrency(totalAmount, project, it).toString()
     } ?: ""
 
-    // - After adding new payment method, selected card should be updated to the newly added
     UpdateSelectedCardIfNewCardAdded(
         remember { mutableStateOf(storedCards.size) },
         storedCards,
         onOptionSelected
     )
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Scaffold(
             containerColor = colors.backgroundAccentGraySubtle,
-            modifier = Modifier
-                .background(kds_white)
-                .fillMaxWidth(),
+            modifier = Modifier.background(kds_white).fillMaxWidth(),
             bottomBar = {
-                Column {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        shape = RoundedCornerShape(
-                            topStart = dimensions.radiusLarge,
-                            topEnd = dimensions.radiusLarge
-                        ),
-                        color = colors.backgroundSurfacePrimary,
-                        tonalElevation = dimensions.elevationLarge,
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .background(colors.kds_white)
-                                .padding(
-                                    bottom = dimensions.paddingMediumLarge,
-                                    start = dimensions.paddingMediumLarge,
-                                    end = dimensions.paddingMediumLarge,
-                                    top = dimensions.paddingMediumLarge
-                                )
-                        ) {
-
-                            KSPrimaryGreenButton(
-                                modifier = Modifier
-                                    .padding(bottom = dimensions.paddingMediumSmall)
-                                    .fillMaxWidth(),
-                                onClickAction = { onPledgeCtaClicked(selectedOption.value, isIncrementalPledge) },
-                                isEnabled = (project.acceptedCardType(selectedOption.value?.type()) || selectedOption.value?.isFromPaymentSheet() ?: false) && isPledgeButtonEnabled,
-                                text = if (pledgeReason == PledgeReason.PLEDGE || pledgeReason == PledgeReason.LATE_PLEDGE) stringResource(
-                                    id = R.string.Pledge
-                                ) + " $totalAmountString" else stringResource(
-                                    id = R.string.Confirm
-                                )
-                            )
-
-                            val formattedEmailDisclaimerString = ksString?.let {
-                                email?.let { email ->
-                                    ksString.format(
-                                        stringResource(id = R.string.Your_payment_method_will_be_charged_immediately),
-                                        "user_email",
-                                        email
-                                    )
-                                }
-                            }
-
-                            if (!formattedEmailDisclaimerString.isNullOrEmpty() && project.isInPostCampaignPledgingPhase() == true) {
-                                Text(
-                                    text = formattedEmailDisclaimerString,
-                                    textAlign = TextAlign.Center,
-                                    style = typographyV2.bodyXS,
-                                    color = colors.kds_support_400
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(dimensions.paddingMediumSmall))
-
-                            TermsOfUseClickableText(
-                                onPrivacyPolicyClicked = {
-                                    onDisclaimerItemClicked.invoke(DisclaimerItems.PRIVACY)
-                                },
-                                onCookiePolicyClicked = {
-                                    onDisclaimerItemClicked.invoke(DisclaimerItems.COOKIES)
-                                },
-                                onTermsOfUseClicked = {
-                                    onDisclaimerItemClicked.invoke(DisclaimerItems.TERMS)
-                                }
-                            )
-                        }
-                    }
-                }
+                CheckoutBottomBar(
+                    totalAmountString = totalAmountString,
+                    project = project,
+                    selectedOption = selectedOption.value,
+                    isPledgeButtonEnabled = isPledgeButtonEnabled,
+                    isIncrementalPledge = isIncrementalPledge,
+                    pledgeReason = pledgeReason,
+                    email = email,
+                    ksString = ksString,
+                    onPledgeCtaClicked = onPledgeCtaClicked,
+                    onDisclaimerItemClicked = onDisclaimerItemClicked
+                )
             }
         ) { padding ->
-            val totalAmountConvertedString =
-                if (project.currentCurrency() == project.currency()) "" else {
-                    environment.ksCurrency()?.formatWithUserPreference(
-                        totalAmount,
-                        project,
-                        RoundingMode.UP,
-                        2
-                    ) ?: ""
-                }
+            val totalAmountConvertedString = if (project.currentCurrency() == project.currency()) "" else {
+                environment.ksCurrency()?.formatWithUserPreference(totalAmount, project, RoundingMode.UP, 2) ?: ""
+            }
 
             val shippingAmountString = environment.ksCurrency()?.let {
-                RewardViewUtils.styleCurrency(
-                    shippingAmount,
-                    project,
-                    it
-                ).toString()
+                RewardViewUtils.styleCurrency(shippingAmount, project, it).toString()
             } ?: ""
 
             val initialBonusSupportString = environment.ksCurrency()?.let {
-                RewardViewUtils.styleCurrency(
-                    0.0,
-                    project,
-                    it
-                ).toString()
+                RewardViewUtils.styleCurrency(0.0, project, it).toString()
             } ?: ""
 
             val totalBonusSupportString = environment.ksCurrency()?.let {
-                RewardViewUtils.styleCurrency(
-                    totalBonusSupport,
-                    project,
-                    it
-                ).toString()
+                RewardViewUtils.styleCurrency(totalBonusSupport, project, it).toString()
             } ?: ""
 
-            val aboutTotalString =
-                if (totalAmountConvertedString.isEmpty()) "" else environment.ksString()?.format(
-                    stringResource(id = R.string.About_reward_amount),
-                    "reward_amount",
-                    totalAmountConvertedString
-                ) ?: "About $totalAmountConvertedString"
+            val aboutTotalString = if (totalAmountConvertedString.isEmpty()) "" else environment.ksString()?.format(
+                stringResource(id = R.string.About_reward_amount),
+                "reward_amount",
+                totalAmountConvertedString
+            ) ?: "About $totalAmountConvertedString"
 
             val shippingLocation = currentShippingRule?.location()?.displayableName() ?: ""
 
             val deliveryDateString = if (selectedReward?.estimatedDeliveryOn().isNotNull()) {
                 stringResource(id = R.string.Estimated_delivery) + " " + DateTimeUtils.estimatedDeliveryOn(
-                    requireNotNull(
-                        selectedReward?.estimatedDeliveryOn()
-                    )
+                    requireNotNull(selectedReward?.estimatedDeliveryOn())
                 )
-            } else {
-                ""
-            }
+            } else ""
+
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
-                    .padding(
-                        bottom = padding.calculateBottomPadding()
-                    ),
+                    .padding(bottom = padding.calculateBottomPadding()),
             ) {
-
                 Text(
-                    modifier = Modifier.padding(
-                        start = dimensions.paddingMediumLarge,
-                        top = dimensions.paddingMediumLarge
-                    ),
+                    modifier = Modifier.padding(start = dimensions.paddingMediumLarge, top = dimensions.paddingMediumLarge),
                     text = stringResource(id = R.string.Checkout),
                     style = typographyV2.headingXL,
                     color = colors.kds_black,
                 )
 
                 Spacer(modifier = Modifier.height(dimensions.paddingMedium))
+
                 if (plotIsVisible) {
                     Text(
-                        modifier = Modifier.padding(
-                            start = dimensions.paddingMediumLarge,
-                            end = dimensions.paddingMediumLarge
-                        ),
+                        modifier = Modifier.padding(start = dimensions.paddingMediumLarge, end = dimensions.paddingMediumLarge),
                         text = stringResource(id = R.string.Collection_plan),
                         style = typographyV2.headLine,
                         color = colors.kds_black,
@@ -418,262 +194,49 @@ fun CheckoutScreen(
                 }
 
                 if (showPaymentMethodSelection) {
-                    Text(
-                        modifier = Modifier.padding(
-                            start = dimensions.paddingMediumLarge,
-                            end = dimensions.paddingMediumLarge
-                        ),
-                        text = stringResource(id = R.string.Payment),
-                        style = typographyV2.headLine,
-                        color = colors.kds_black,
+                    CheckoutPaymentMethodSelector(
+                        storedCards = storedCards,
+                        selectedCard = selectedOption.value,
+                        project = project,
+                        ksString = environment.ksString(),
+                        onOptionSelected = onOptionSelected,
+                        newPaymentMethodClicked = newPaymentMethodClicked
                     )
-
-                    Spacer(modifier = Modifier.height(dimensions.paddingMediumSmall))
-
-                    storedCards.forEachIndexed { index, card ->
-                        val isAvailable =
-                            project.acceptedCardType(card.type()) || card.isFromPaymentSheet()
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = colors.backgroundSurfacePrimary,
-                                contentColor = colors.backgroundSurfaceSecondary
-                            ),
-                            modifier = Modifier
-                                .padding(
-                                    start = dimensions.paddingMedium,
-                                    end = dimensions.paddingMedium
-                                )
-                                .fillMaxWidth()
-                                .selectableGroup()
-                                .selectable(
-                                    enabled = isAvailable,
-                                    selected = if (index == 0) true else false,
-                                    onClick = {
-                                        onOptionSelected(card)
-                                    }
-                                )
-                        ) {
-                            Column {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .padding(
-                                            top = dimensions.paddingSmall,
-                                            bottom = dimensions.paddingSmall
-                                        )
-                                ) {
-
-                                    KSRadioButton(
-                                        selected = card == selectedOption.value,
-                                        onClick = { onOptionSelected(card) },
-                                        enabled = isAvailable
-                                    )
-
-                                    KSCardElement(card = card, environment.ksString(), isAvailable)
-                                }
-
-                                if (!isAvailable) {
-                                    Text(
-                                        modifier = Modifier.padding(
-                                            start = dimensions.paddingDoubleLarge,
-                                            end = dimensions.paddingMediumLarge,
-                                            bottom = dimensions.paddingSmall
-                                        ),
-                                        style = typographyV2.headingSM,
-                                        color = colors.kds_alert,
-                                        text = stringResource(id = R.string.This_project_has_a_set_currency_that_cant_process_this_option)
-                                    )
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(dimensions.paddingXSmall))
-                    }
-
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = colors.backgroundSurfacePrimary,
-                            contentColor = colors.backgroundSurfaceSecondary
-                        ),
-                        modifier = Modifier
-                            .padding(start = dimensions.paddingMedium, end = dimensions.paddingMedium)
-                            .clickable { newPaymentMethodClicked.invoke() }
-                            .fillMaxWidth()
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    top = dimensions.paddingMedium,
-                                    bottom = dimensions.paddingMedium
-                                )
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_add_rounded),
-                                contentDescription = "",
-                                tint = colors.textAccentGreen,
-                                modifier = Modifier.background(
-                                    color = colors.kds_create_700.copy(alpha = 0.2f),
-                                    CircleShape
-                                )
-                            )
-
-                            Text(
-                                modifier = Modifier.padding(start = dimensions.paddingSmall),
-                                color = colors.textAccentGreen,
-                                style = typographyV2.subHeadlineMedium,
-                                text = stringResource(id = R.string.New_payment_method)
-                            )
-                        }
-                    }
-
                     Spacer(modifier = Modifier.height(dimensions.paddingLarge))
                 }
 
-                Card(
-                    modifier = Modifier.padding(
-                        start = dimensions.paddingMedium,
-                        end = dimensions.paddingMedium
-                    ),
-                    shape = RoundedCornerShape(
-                        bottomStart = dimensions.radiusMediumLarge,
-                        bottomEnd = dimensions.radiusMediumLarge,
-                        topStart = dimensions.radiusMediumLarge,
-                        topEnd = dimensions.radiusMediumLarge
-                    ),
-                    colors = CardDefaults.cardColors(
-                        containerColor = colors.kds_support_200,
-                    )
-                ) {
-                    Row(modifier = Modifier.padding(dimensions.paddingSmall)) {
-                        Icon(
-                            modifier = Modifier
-                                .padding(
-                                    start = dimensions.paddingMediumSmall,
-                                    end = dimensions.paddingLarge
-                                )
-                                .align(Alignment.CenterVertically),
-                            painter = painterResource(id = R.drawable.ic_not_a_store),
-                            contentDescription = null,
-                            tint = colors.textAccentGreen
-                        )
-
-                        Column {
-
-                            Text(
-                                modifier = Modifier.padding(
-                                    bottom = dimensions.paddingXSmall,
-                                    top = dimensions.paddingXSmall
-                                ),
-                                text = stringResource(id = R.string.Kickstarter_is_not_a_store),
-                                style = typographyV2.bodyBoldMD,
-                                color = colors.kds_support_400
-                            )
-                            TextWithClickableAccountabilityLink(
-                                padding = dimensions.paddingXSmall,
-                                html = stringResource(id = R.string.Its_a_way_to_bring_creative_projects_to_life_Learn_more_about_accountability),
-                                onClickCallback = {
-                                    onAccountabilityLinkClicked.invoke()
-                                }
-                            )
-                        }
-                    }
-                }
+                CheckoutNotAStoreCard(
+                    modifier = Modifier.padding(start = dimensions.paddingMedium, end = dimensions.paddingMedium),
+                    onAccountabilityLinkClicked = onAccountabilityLinkClicked
+                )
 
                 Spacer(modifier = Modifier.height(dimensions.paddingMediumSmall))
 
-                val resourceString =
-                    stringResource(R.string.If_the_project_reaches_its_funding_goal_you_will_be_charged_total_on_project_deadline_and_receive_proof_of_pledge)
-                val disclaimerText = environment.ksString()?.format(
-                    resourceString,
-                    "total", totalAmountString,
-                    "project_deadline", project.deadline()?.let { DateTimeUtils.longDate(it) }
-                ) ?: ""
-                val plotDisclaimerText =
-                    stringResource(R.string.If_the_project_reaches_its_funding_goal_the_first_charge_will_be_collected_on_project_deadline).format(
-                        key1 = "amount",
-                        paymentIncrements?.first()?.paymentIncrementAmount?.formattedAmount,
-                        key2 = "project_deadline",
-                        paymentIncrements?.first()?.scheduledCollection?.let {
-                            DateTimeUtils.mediumDate(
-                                it
-                            )
-                        }
-                    )
-                val isNoReward = selectedReward?.let { RewardUtils.isNoReward(it) } ?: false
+                CheckoutRewardSummarySection(
+                    environment = environment,
+                    ksString = ksString,
+                    project = project,
+                    selectedReward = selectedReward,
+                    rewardsList = rewardsList,
+                    shippingAmount = shippingAmount,
+                    shippingAmountString = shippingAmountString,
+                    shippingLocation = shippingLocation,
+                    totalAmountString = totalAmountString,
+                    aboutTotalString = aboutTotalString,
+                    initialBonusSupportString = initialBonusSupportString,
+                    totalBonusSupportString = totalBonusSupportString,
+                    deliveryDateString = deliveryDateString,
+                    rewardsHaveShippables = rewardsHaveShippables,
+                    isIncrementalPledge = isIncrementalPledge,
+                    paymentIncrements = paymentIncrements
+                )
 
-                if (!isNoReward) {
-                    ItemizedRewardListContainer(
-                        ksString = ksString,
-                        rewardsList = rewardsList,
-                        shippingAmount = shippingAmount,
-                        shippingAmountString = shippingAmountString,
-                        initialShippingLocation = shippingLocation,
-                        totalAmount = totalAmountString,
-                        totalAmountCurrencyConverted = aboutTotalString,
-                        initialBonusSupport = initialBonusSupportString,
-                        totalBonusSupport = totalBonusSupportString,
-                        deliveryDateString = deliveryDateString,
-                        rewardsHaveShippables = rewardsHaveShippables,
-                        disclaimerText = if (isIncrementalPledge) plotDisclaimerText else disclaimerText,
-                        plotSelected = isIncrementalPledge,
-                        pledgeOverTimeCollectionPlanChargedAsNPayments = project.pledgeOverTimeCollectionPlanChargedAsNPayments(),
-                    )
-                } else {
-                    // - For noReward, totalAmount = bonusAmount as there is no reward
-                    ItemizedRewardListContainer(
-                        totalAmount = totalAmountString,
-                        totalAmountCurrencyConverted = aboutTotalString,
-                        initialBonusSupport = initialBonusSupportString,
-                        totalBonusSupport = totalAmountString,
-                        shippingAmount = shippingAmount,
-                        disclaimerText = if (isIncrementalPledge) plotDisclaimerText else disclaimerText,
-                        plotSelected = isIncrementalPledge,
-                        pledgeOverTimeCollectionPlanChargedAsNPayments = project.pledgeOverTimeCollectionPlanChargedAsNPayments(),
-                    )
-                }
-
-                val ksCurrency = environment.ksCurrency()
-                val ksString = environment.ksString()
-                val shippingRule = currentShippingRule
-                if (ksCurrency != null && ksString != null && shippingRule != null) {
-                    val estimatedShippingRangeString =
-                        RewardViewUtils.getEstimatedShippingRange(
-                            context = LocalContext.current,
-                            ksCurrency = ksCurrency,
-                            ksString = ksString,
-                            project = project,
-                            rewards = selectedRewardsAndAddOns,
-                            selectedShippingRule = shippingRule,
-                            multipleQuantitiesAllowed = false,
-                            useUserPreference = false,
-                            useAbout = false
-                        )
-
-                    val estimatedShippingRangeConversionString =
-                        if (project.currentCurrency() == project.currency()) null
-                        else {
-                            RewardViewUtils.getEstimatedShippingRange(
-                                context = LocalContext.current,
-                                ksCurrency = ksCurrency,
-                                ksString = ksString,
-                                project = project,
-                                rewards = selectedRewardsAndAddOns,
-                                selectedShippingRule = shippingRule,
-                                multipleQuantitiesAllowed = false,
-                                useUserPreference = true,
-                                useAbout = true
-                            )
-                        }
-
-                    if (estimatedShippingRangeString.isNotEmpty()) {
-                        KSEstimatedShippingCheckoutView(
-                            estimatedShippingRange = estimatedShippingRangeString,
-                            estimatedShippingRangeConversion = estimatedShippingRangeConversionString
-                        )
-                    }
-                }
+                CheckoutEstimatedShippingContainer(
+                    environment = environment,
+                    currentShippingRule = currentShippingRule,
+                    project = project,
+                    selectedRewardsAndAddOns = selectedRewardsAndAddOns
+                )
             }
         }
 
@@ -690,339 +253,27 @@ fun CheckoutScreen(
     }
 }
 
-@Composable
-private fun UpdateSelectedCardIfNewCardAdded(
-    index: MutableState<Int>,
-    storedCards: List<StoredCard>,
-    onOptionSelected: (StoredCard?) -> Unit
-) {
-    if (index.value != storedCards.size && storedCards.isNotEmpty()) {
-        onOptionSelected(storedCards.first())
-        index.value = storedCards.size
-    }
-}
-
+// Backward-compatible delegates
 @Composable
 fun TermsOfUseClickableText(
     onTermsOfUseClicked: () -> Unit,
     onPrivacyPolicyClicked: () -> Unit,
     onCookiePolicyClicked: () -> Unit
-) {
-    val formattedText = HtmlCompat.fromHtml(
-        stringResource(id = R.string.By_pledging_you_agree_to_Kickstarters_Terms_of_Use_Privacy_Policy_and_Cookie_Policy),
-        0
-    ).toString()
-
-    val annotatedLinkString = buildAnnotatedString {
-        val termsOfUseString =
-            stringResource(id = R.string.login_tout_help_sheet_terms).lowercase()
-        val termsOfUseStartIndex = formattedText.indexOf(
-            string = termsOfUseString,
-            ignoreCase = true
-        )
-        val termsOfUserEndIndex = termsOfUseStartIndex + termsOfUseString.length
-
-        val privacyPolicyString =
-            stringResource(id = R.string.login_tout_help_sheet_privacy).lowercase()
-        val privacyPolicyStartIndex = formattedText.indexOf(
-            string = privacyPolicyString,
-            ignoreCase = true
-        )
-        val privacyPolicyEndIndex = privacyPolicyStartIndex + privacyPolicyString.length
-
-        val cookiePolicyString =
-            stringResource(id = R.string.login_tout_help_sheet_cookie).lowercase()
-        val cookiePolicyStartIndex = formattedText.indexOf(
-            string = cookiePolicyString,
-            ignoreCase = true
-        )
-        val cookiePolicyEndIndex = cookiePolicyStartIndex + cookiePolicyString.length
-
-        append(formattedText)
-
-        if (termsOfUseStartIndex != -1) {
-            addStyle(
-                style = SpanStyle(
-                    color = colors.textAccentGreen
-                ),
-                start = termsOfUseStartIndex,
-                end = termsOfUserEndIndex
-            )
-
-            addStringAnnotation(
-                tag = DisclaimerItems.TERMS.name,
-                annotation = "",
-                start = termsOfUseStartIndex,
-                end = termsOfUserEndIndex
-            )
-        }
-
-        if (privacyPolicyStartIndex != -1) {
-            addStyle(
-                style = SpanStyle(
-                    color = colors.textAccentGreen
-                ),
-                start = privacyPolicyStartIndex,
-                end = privacyPolicyEndIndex
-            )
-
-            addStringAnnotation(
-                tag = DisclaimerItems.PRIVACY.name,
-                annotation = "",
-                start = privacyPolicyStartIndex,
-                end = privacyPolicyEndIndex
-            )
-        }
-
-        if (cookiePolicyStartIndex != -1) {
-            addStyle(
-                style = SpanStyle(
-                    color = colors.textAccentGreen
-                ),
-                start = cookiePolicyStartIndex,
-                end = cookiePolicyEndIndex
-            )
-
-            addStringAnnotation(
-                tag = DisclaimerItems.COOKIES.name,
-                annotation = "",
-                start = cookiePolicyStartIndex,
-                end = cookiePolicyEndIndex
-            )
-        }
-    }
-
-    ClickableText(
-        modifier = Modifier.testTag(LoginToutTestTag.TOU_PP_COOKIE_DISCLAIMER.name),
-        text = annotatedLinkString,
-        style = typographyV2.bodyXS.copy(
-            color = colors.kds_support_400,
-            textAlign = TextAlign.Center
-        ),
-        onClick = { index ->
-            annotatedLinkString.getStringAnnotations(index, index)
-                .firstOrNull()?.let { annotation ->
-                    when (annotation.tag) {
-                        DisclaimerItems.TERMS.name -> {
-                            onTermsOfUseClicked.invoke()
-                        }
-
-                        DisclaimerItems.PRIVACY.name -> {
-                            onPrivacyPolicyClicked.invoke()
-                        }
-
-                        DisclaimerItems.COOKIES.name -> {
-                            onCookiePolicyClicked.invoke()
-                        }
-                    }
-                }
-        }
-    )
-}
+) = ComponentsTermsOfUseClickableText(onTermsOfUseClicked, onPrivacyPolicyClicked, onCookiePolicyClicked)
 
 @Composable
 fun TextWithClickableAccountabilityLink(
     padding: Dp,
     html: String,
     onClickCallback: (String?) -> Unit = {}
-) {
-
-    val stringList = html.stringsFromHtmlTranslation()
-    val annotation = html.hrefUrlFromTranslation()
-    if (stringList.size == 3) {
-        val annotatedText = buildAnnotatedString {
-            append(stringList.first())
-            pushStringAnnotation(
-                tag = annotation,
-                annotation = stringList[1]
-            )
-            withStyle(
-                style = SpanStyle(
-                    color = colors.kds_create_700,
-                )
-            ) {
-                append(stringList[1])
-            }
-            append(stringList.last())
-
-            pop()
-        }
-
-        ClickableText(
-            modifier = Modifier.padding(bottom = padding),
-            text = annotatedText,
-            style = TextStyle(
-                fontWeight = FontWeight(400),
-                fontSize = 14.sp,
-                lineHeight = 20.sp,
-                letterSpacing = 0.25.sp,
-                color = colors.kds_support_400
-            ),
-            onClick = {
-                annotatedText.getStringAnnotations(
-                    tag = annotation, start = it,
-                    end = it
-                )
-                    .firstOrNull()?.let { annotation ->
-                        onClickCallback(annotation.tag)
-                    } ?: onClickCallback(null)
-            }
-        )
-    }
-}
+) = ComponentsTextWithClickableAccountabilityLink(padding, html, onClickCallback)
 
 @Composable
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun KSCardElementPreview() {
-    KSTheme {
-        KSCardElement(
-            StoredCardFactory.visa(), Environment.builder().build().ksString(), true
-        )
-    }
-}
-
-@Composable
-fun KSCardElement(card: StoredCard, ksString: KSString?, isAvailable: Boolean) {
-    val sdf = SimpleDateFormat(StoredCard.DATE_FORMAT, Locale.getDefault())
-
-    val expirationString = ksString?.let {
-        card.expiration()?.let { expiration ->
-            ksString.format(
-                stringResource(id = R.string.Credit_card_expiration),
-                "expiration_date", sdf.format(expiration).toString()
-            )
-        }
-    }
-
-    val lastFourString = ksString?.let {
-        card.lastFourDigits()?.let { lastFour ->
-            ksString.format(
-                stringResource(id = R.string.payment_method_last_four),
-                "last_four", lastFour
-            )
-        }
-    }
-
-    Row {
-        Image(
-            modifier = Modifier
-                .padding(end = dimensions.paddingMediumSmall)
-                .align(Alignment.CenterVertically)
-                .width(dimensions.storedCardImageWidth)
-                .height(dimensions.storedCardImageHeight),
-            contentDescription = card.type()?.let { StoredCard.issuer(it) },
-            alpha = if (isAvailable) 1.0f else .5f,
-            painter = painterResource(id = card.getCardTypeDrawable()),
-        )
-
-        Column(
-            modifier = Modifier.align(Alignment.CenterVertically),
-            verticalArrangement = Arrangement.Center
-        ) {
-            if (!lastFourString.isNullOrEmpty()) {
-                Text(
-                    modifier = Modifier.padding(end = dimensions.paddingMediumLarge),
-                    color = if (isAvailable) colors.kds_support_700 else colors.kds_support_400,
-                    style = typographyV2.bodyBoldMD,
-                    text = lastFourString
-                )
-            }
-
-            if (!expirationString.isNullOrEmpty()) {
-                Text(
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(
-                        top = dimensions.paddingXSmall,
-                        end = dimensions.paddingMediumLarge
-                    ),
-                    style = typographyV2.headingXS,
-                    color = if (isAvailable) colors.kds_support_700 else colors.kds_support_400,
-                    text = expirationString
-                )
-            }
-        }
-    }
-}
-
-@Composable
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-fun KSEstimatedShippingCheckoutViewPreview() {
-    KSTheme {
-        KSEstimatedShippingCheckoutView(
-            estimatedShippingRange = "€5-€10",
-            estimatedShippingRangeConversion = "About $6-$11"
-        )
-    }
-}
+fun KSCardElement(card: StoredCard, ksString: KSString?, isAvailable: Boolean) =
+    ComponentsKSCardElement(card, ksString, isAvailable)
 
 @Composable
 fun KSEstimatedShippingCheckoutView(
     estimatedShippingRange: String,
     estimatedShippingRangeConversion: String?,
-) {
-    Card(
-        modifier = Modifier.padding(dimensions.paddingMediumLarge),
-        shape = shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = colors.backgroundSurfacePrimary
-        )
-    ) {
-        // TODO: Get these strings translations in place
-        Row {
-            Column(modifier = Modifier.weight(0.6f)) {
-                Text(
-                    modifier = Modifier.padding(
-                        start = dimensions.paddingLarge,
-                        top = dimensions.paddingMedium
-                    ),
-                    text = stringResource(id = R.string.Estimated_Shipping),
-                    style = typographyV2.headingLG,
-                    color = colors.textPrimary
-                )
-
-                Spacer(modifier = Modifier.height(dimensions.paddingSmall))
-
-                Text(
-                    modifier = Modifier.padding(
-                        start = dimensions.paddingLarge,
-                        bottom = dimensions.paddingMedium
-                    ),
-                    text = stringResource(id = R.string.This_is_meant_to_give_you),
-                    style = typographyV2.bodyXS,
-                    color = colors.textSecondary
-                )
-            }
-
-            Spacer(modifier = Modifier.width(dimensions.paddingMedium))
-
-            Column(modifier = Modifier.weight(0.4f), horizontalAlignment = Alignment.End) {
-                Text(
-                    modifier = Modifier.padding(
-                        end = dimensions.paddingLarge,
-                        top = dimensions.paddingMedium
-                    ),
-                    text = estimatedShippingRange,
-                    style = typographyV2.headingLG,
-                    color = colors.textPrimary
-                )
-
-                Spacer(modifier = Modifier.height(dimensions.paddingSmall))
-
-                if (!estimatedShippingRangeConversion.isNullOrEmpty()) {
-                    Text(
-                        modifier = Modifier.padding(
-                            end = dimensions.paddingLarge,
-                            bottom = dimensions.paddingMedium
-                        ),
-                        text = estimatedShippingRangeConversion,
-                        style = typographyV2.bodySM,
-                        color = colors.textSecondary
-                    )
-                }
-            }
-        }
-    }
-}
+) = ComponentsKSEstimatedShippingCheckoutView(estimatedShippingRange, estimatedShippingRangeConversion)
