@@ -2,88 +2,19 @@ package com.kickstarter.services
 
 import android.util.Pair
 import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Error
-import com.apollographql.apollo3.api.Optional
-import com.apollographql.apollo3.exception.ApolloException
-import com.apollographql.apollo3.exception.ApolloHttpException
-import com.apollographql.apollo3.exception.ApolloNetworkException
-import com.apollographql.apollo3.rx2.rxFlowable
-import com.apollographql.apollo3.rx2.rxSingle
-import com.google.android.gms.common.util.Base64Utils
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
-import com.kickstarter.AddUserToSecretRewardGroupMutation
-import com.kickstarter.BuildPaymentPlanQuery
-import com.kickstarter.CancelBackingMutation
-import com.kickstarter.ClearUserUnseenActivityMutation
-import com.kickstarter.CompleteOnSessionCheckoutMutation
-import com.kickstarter.CompleteOrderMutation
-import com.kickstarter.CreateBackingMutation
-import com.kickstarter.CreateCheckoutMutation
-import com.kickstarter.CreateCommentMutation
-import com.kickstarter.CreateFlaggingMutation
 import com.kickstarter.CreatePasswordMutation
-import com.kickstarter.CreatePaymentIntentMutation
-import com.kickstarter.CreateSetupIntentMutation
 import com.kickstarter.DeletePaymentSourceMutation
-import com.kickstarter.ErroredBackingsQuery
-import com.kickstarter.FetchCategoryQuery
-import com.kickstarter.FetchProjectQuery
-import com.kickstarter.FetchProjectRewardsQuery
-import com.kickstarter.FetchProjectStoryQuery
-import com.kickstarter.FetchProjectsQuery
-import com.kickstarter.FetchShippingCountryLocationsQuery
-import com.kickstarter.FetchSimilarProjectsQuery
-import com.kickstarter.FlaggingOptionsQuery
-import com.kickstarter.GetBackingQuery
-import com.kickstarter.GetCommentQuery
-import com.kickstarter.GetCreativePromptTagsQuery
-import com.kickstarter.GetLocationsQuery
-import com.kickstarter.GetProjectAddOnsQuery
-import com.kickstarter.GetProjectBackingQuery
-import com.kickstarter.GetProjectCommentsQuery
-import com.kickstarter.GetProjectUpdateCommentsQuery
-import com.kickstarter.GetProjectUpdatesQuery
-import com.kickstarter.GetRepliesForCommentQuery
-import com.kickstarter.GetRewardAllowedAddOnsQuery
-import com.kickstarter.GetRootCategoriesQuery
-import com.kickstarter.GetShippingRulesForRewardIdQuery
-import com.kickstarter.ProjectCreatorDetailsQuery
-import com.kickstarter.SavePaymentMethodMutation
 import com.kickstarter.SendEmailVerificationMutation
-import com.kickstarter.SendMessageMutation
-import com.kickstarter.UnwatchProjectMutation
-import com.kickstarter.UpdateBackingMutation
 import com.kickstarter.UpdateUserCurrencyMutation
 import com.kickstarter.UpdateUserEmailMutation
 import com.kickstarter.UpdateUserPasswordMutation
-import com.kickstarter.UserPaymentsQuery
-import com.kickstarter.UserPrivacyQuery
-import com.kickstarter.ValidateCheckoutQuery
-import com.kickstarter.VideoFeedQuery
-import com.kickstarter.WatchProjectMutation
-import com.kickstarter.ax.errors.ProblemDetails
-import com.kickstarter.ax.errors.ProblemDetailsMapper
-import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.features.checkout.data.AddOnsEnvelope
 import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsOverviewEnvelope
 import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsOverviewQueryData
 import com.kickstarter.features.projectstory.data.StoriedProject
 import com.kickstarter.features.search.data.SearchEnvelope
 import com.kickstarter.features.videofeed.data.VideoFeedEnvelope
-import com.kickstarter.libs.utils.extensions.addToDisposable
-import com.kickstarter.libs.utils.extensions.hasValidRelayId
-import com.kickstarter.libs.utils.extensions.isNotNull
-import com.kickstarter.libs.utils.extensions.isPresent
-import com.kickstarter.libs.utils.extensions.isTrue
-import com.kickstarter.libs.utils.extensions.toBoolean
-import com.kickstarter.libs.utils.extensions.toGoalBucket
-import com.kickstarter.libs.utils.extensions.toPledgedBucket
-import com.kickstarter.libs.utils.extensions.toProjectSort
-import com.kickstarter.libs.utils.extensions.toProjectState
-import com.kickstarter.libs.utils.extensions.toRaisedBucket
-import com.kickstarter.mock.factories.RewardFactory
 import com.kickstarter.models.Backing
 import com.kickstarter.models.BuildPaymentPlanData
 import com.kickstarter.models.Category
@@ -109,8 +40,17 @@ import com.kickstarter.models.UserPrivacy
 import com.kickstarter.services.apiresponses.DiscoverEnvelope
 import com.kickstarter.services.apiresponses.ShippingRulesEnvelope
 import com.kickstarter.services.apiresponses.commentresponse.CommentEnvelope
-import com.kickstarter.services.apiresponses.commentresponse.PageInfoEnvelope
 import com.kickstarter.services.apiresponses.updatesresponse.UpdatesGraphQlEnvelope
+import com.kickstarter.services.apollo.ApolloBackingMutationClient
+import com.kickstarter.services.apollo.ApolloBackingQueryClient
+import com.kickstarter.services.apollo.ApolloCheckoutClient
+import com.kickstarter.services.apollo.ApolloCommentClient
+import com.kickstarter.services.apollo.ApolloCreatorSocialClient
+import com.kickstarter.services.apollo.ApolloDiscoveryClient
+import com.kickstarter.services.apollo.ApolloPaymentClient
+import com.kickstarter.services.apollo.ApolloProjectClient
+import com.kickstarter.services.apollo.ApolloRewardClient
+import com.kickstarter.services.apollo.ApolloUserClient
 import com.kickstarter.services.mutations.CreateAttributionEventData
 import com.kickstarter.services.mutations.CreateBackingData
 import com.kickstarter.services.mutations.CreateCheckoutData
@@ -119,2114 +59,252 @@ import com.kickstarter.services.mutations.PostCommentData
 import com.kickstarter.services.mutations.SavePaymentMethodData
 import com.kickstarter.services.mutations.UpdateBackerCompletedData
 import com.kickstarter.services.mutations.UpdateBackingData
-import com.kickstarter.services.transformers.backingTransformer
-import com.kickstarter.services.transformers.categoryTransformer
-import com.kickstarter.services.transformers.commentTransformer
-import com.kickstarter.services.transformers.complexRewardItemsTransformer
-import com.kickstarter.services.transformers.decodeRelayId
-import com.kickstarter.services.transformers.encodeRelayId
-import com.kickstarter.services.transformers.extensions.toStoriedProject
-import com.kickstarter.services.transformers.extensions.toVideoFeedEnvelope
-import com.kickstarter.services.transformers.flaggingOptionTransformer
-import com.kickstarter.services.transformers.getCreateAttributionEventMutation
-import com.kickstarter.services.transformers.getCreateOrUpdateBackingAddressMutation
-import com.kickstarter.services.transformers.getPledgedProjectsOverviewQuery
-import com.kickstarter.services.transformers.getTriggerThirdPartyEventMutation
-import com.kickstarter.services.transformers.getUpdateBackerCompletedMutation
-import com.kickstarter.services.transformers.paymentPlanTransformer
-import com.kickstarter.services.transformers.pledgedProjectsOverviewEnvelopeTransformer
-import com.kickstarter.services.transformers.projectTransformer
-import com.kickstarter.services.transformers.rewardTransformer
-import com.kickstarter.services.transformers.shippingRulesListTransformer
-import com.kickstarter.services.transformers.updateTransformer
-import com.kickstarter.services.transformers.userPrivacyTransformer
-import com.kickstarter.type.BackingState
 import com.kickstarter.type.CurrencyCode
 import com.kickstarter.type.FlaggingContent
-import com.kickstarter.type.NonDeprecatedFlaggingKind
-import com.kickstarter.type.PaymentTypes
 import com.kickstarter.type.ProjectRewardsSort
-import com.kickstarter.type.StripeIntentContextTypes
 import com.kickstarter.viewmodels.usecases.TPEventInputData
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.rx2.asObservable
-import timber.log.Timber
-import java.net.SocketTimeoutException
-import java.nio.charset.Charset
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.cancellation.CancellationException
 
-private const val PAGE_SIZE = APOLLO_PAGE_SIZE
-private const val REPLIES_PAGE_SIZE = APOLLO_REPLIES_PAGE_SIZE
-
+/**
+ * Apollo GraphQL Client facade delegating queries and mutations to domain-specific clients.
+ *
+ * Modernized for AX Component-Local Modularization (Pillar 1) and Strangler Fig (Rule 1).
+ */
 class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClientTypeV2 {
     private val disposables = CompositeDisposable()
 
-    // Machine-tempo idempotency single-flight guards for mutating operations
+    // Machine-tempo idempotency single-flight guards preserved for reflection compatibility
     private val createBackingGuard = AtomicBoolean(false)
     private val updateBackingGuard = AtomicBoolean(false)
     private val cancelBackingGuard = AtomicBoolean(false)
     private val createPaymentIntentGuard = AtomicBoolean(false)
     private val completeCheckoutGuard = AtomicBoolean(false)
 
+    // Domain facades
+    private val projectClient = ApolloProjectClient(service, disposables)
+    private val rewardClient = ApolloRewardClient(service, disposables)
+    private val paymentClient = ApolloPaymentClient(service, disposables, createPaymentIntentGuard)
+    private val checkoutClient = ApolloCheckoutClient(service, disposables, completeCheckoutGuard)
+    private val backingMutationClient = ApolloBackingMutationClient(
+        service,
+        disposables,
+        createBackingGuard,
+        updateBackingGuard,
+        cancelBackingGuard
+    )
+    private val backingQueryClient = ApolloBackingQueryClient(service, disposables)
+    private val userClient = ApolloUserClient(service, disposables)
+    private val commentClient = ApolloCommentClient(service, disposables)
+    private val discoveryClient = ApolloDiscoveryClient(service, disposables)
+    private val creatorSocialClient = ApolloCreatorSocialClient(service, gson, disposables)
+
     override fun cleanDisposables() {
         disposables.clear()
     }
 
-    override fun getProject(project: Project): Observable<Project> {
-        return getProject(project.slug() ?: "")
-    }
+    override fun getProject(project: Project): Observable<Project> = projectClient.getProject(project)
 
-    override fun getProject(slug: String): Observable<Project> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Project>()
-            val query = FetchProjectQuery(slug)
-            this.service.query(
-                query
-            )
-                .rxSingle()
-                .subscribeOn(Schedulers.io())
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                    } else {
-                        // Evidence of A null/partial project node transforms to a project with an invalid id see DISC-264.
-                        val project = projectTransformer(response.data?.project?.fullProject)
-                        if (project.hasValidRelayId()) {
-                            ps.onNext(project)
-                        } else {
-                            ps.onError(invalidProjectException(project, "getProject($slug)"))
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
+    override fun getProject(slug: String): Observable<Project> = projectClient.getProject(slug)
 
-    override fun getProjects(
-        discoveryParams: DiscoveryParams,
-        cursor: String?
-    ): Observable<DiscoverEnvelope> {
-        val ps = PublishSubject.create<DiscoverEnvelope>()
-        this.service.query(query = buildFetchProjectsQuery(discoveryParams, cursor))
-            .rxFlowable()
-            .subscribeOn(Schedulers.io())
-            .doOnError {
-                ps.onError(it)
-            }
-            .subscribe { response ->
-                if (response.hasErrors()) {
-                    if (response.hasErrors()) ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                } else {
-                    response.data?.let { responseData ->
-                        val projects = responseData.projects?.edges?.map {
-                            projectTransformer(it?.node?.projectCard)
-                        }
-                        val pageInfoEnvelope =
-                            responseData.projects?.pageInfo?.pageInfo?.let {
-                                createPageInfoObject(it)
-                            }
-                        val discoverEnvelope = DiscoverEnvelope.builder()
-                            .projects(projects)
-                            .pageInfoEnvelope(pageInfoEnvelope)
-                            .build()
-                        ps.onNext(discoverEnvelope)
-                    }
-                }
-                ps.onComplete()
-            }.addToDisposable(disposables)
-        return ps
-    }
+    override fun getProjects(discoveryParams: DiscoveryParams, cursor: String?): Observable<DiscoverEnvelope> =
+        discoveryClient.getProjects(discoveryParams, cursor)
 
-    private fun buildFetchProjectsQuery(
-        discoveryParams: DiscoveryParams,
-        cursor: String?
-    ): FetchProjectsQuery {
-        return FetchProjectsQuery(
-            sort = Optional.present(discoveryParams.sort()?.toProjectSort()),
-            cursor = cursor?.let { if (it.isNotEmpty()) Optional.present(it) else Optional.absent() } ?: Optional.absent(),
-            categoryId = if (discoveryParams.category()?.id() == null) Optional.absent() else Optional.present(discoveryParams.category()?.id().toString()),
-            recommended = if (discoveryParams.recommended() == null) Optional.absent() else Optional.present(discoveryParams.recommended()),
-            starred = if (discoveryParams.starred() == null) Optional.absent() else Optional.present(discoveryParams.starred().toBoolean()),
-            backed = if (discoveryParams.staffPicks() == null) Optional.absent() else Optional.present(discoveryParams.backed().toBoolean()),
-            searchTerm = if (discoveryParams.term() == null || discoveryParams.term().isNullOrBlank()) Optional.absent() else Optional.present(discoveryParams.term()),
-            state = if (discoveryParams.state() == null) Optional.absent() else Optional.present(discoveryParams.state()?.toProjectState()),
-            raised = if (discoveryParams.raisedBucket() == null) Optional.absent() else Optional.present(discoveryParams.raisedBucket()?.toRaisedBucket()),
-            location = if (discoveryParams.location() == null) Optional.absent() else Optional.present(discoveryParams.location()?.let { encodeRelayId(it) }),
-            amountRaisedBucket = if (discoveryParams.amountBucket() == null) Optional.absent() else Optional.present(discoveryParams.amountBucket()?.toPledgedBucket()),
-            goalBucket = if (discoveryParams.goalBucket() == null) Optional.absent() else Optional.present(discoveryParams.goalBucket()?.toGoalBucket()),
-            following = if (discoveryParams.social() == null) Optional.absent() else Optional.present(discoveryParams.social().toBoolean()),
-            staffPicks = if (discoveryParams.staffPicks() == null) Optional.absent() else Optional.present(discoveryParams.staffPicks()),
-            tagId = discoveryParams.tagId().toOptional()
-        )
-    }
+    override fun createSetupIntent(project: Project?): Observable<String> = paymentClient.createSetupIntent(project)
 
-    /**
-     * Collapses the repeated `if (x == null) Optional.absent() else Optional.present(x)` pattern
-     * used when building Apollo query variables.
-     */
-    private fun <T : Any> T?.toOptional(): Optional<T> =
-        if (this == null) Optional.absent() else Optional.present(this)
+    override fun savePaymentMethod(savePaymentMethodData: SavePaymentMethodData): Observable<StoredCard> =
+        paymentClient.savePaymentMethod(savePaymentMethodData)
 
-    override fun createSetupIntent(project: Project?): Observable<String> {
-        return Observable.defer {
-            val ps = PublishSubject.create<String>()
-            val mutation = project?.let {
-                CreateSetupIntentMutation(
-                    projectId = Optional.present(encodeRelayId(it)),
-                    setupIntentContext = Optional.present(StripeIntentContextTypes.CROWDFUNDING_CHECKOUT)
-                )
-            } ?: CreateSetupIntentMutation(Optional.absent(), Optional.present(StripeIntentContextTypes.PROFILE_SETTINGS))
+    override fun getStoredCards(): Observable<List<StoredCard>> = paymentClient.getStoredCards()
 
-            this.service.mutation(mutation)
-                .rxSingle()
-                .subscribeOn(Schedulers.io())
-                .doOnError {
-                    ps.onError(it)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors())
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                    else {
-                        ps.onNext(response.data?.createSetupIntent?.clientSecret ?: "")
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
+    override fun deletePaymentSource(paymentSourceId: String): Observable<DeletePaymentSourceMutation.Data> =
+        paymentClient.deletePaymentSource(paymentSourceId)
 
-    override fun savePaymentMethod(savePaymentMethodData: SavePaymentMethodData): Observable<StoredCard> {
-        return Observable.defer {
-            val ps = PublishSubject.create<StoredCard>()
-            val mutation = SavePaymentMethodMutation(
-                paymentType = if (savePaymentMethodData.paymentType.isNotNull()) Optional.present(savePaymentMethodData.paymentType) else Optional.absent(),
-                stripeToken = if (savePaymentMethodData.stripeToken.isNotNull()) Optional.present(savePaymentMethodData.stripeToken) else Optional.absent(),
-                stripeCardId = if (savePaymentMethodData.stripeCardId.isNotNull()) Optional.present(savePaymentMethodData.stripeCardId) else Optional.absent(),
-                reusable = if (savePaymentMethodData.reusable.isNotNull()) Optional.present(savePaymentMethodData.reusable) else Optional.absent(),
-                intentClientSecret = if (savePaymentMethodData.intentClientSecret.isNotNull()) Optional.present(savePaymentMethodData.intentClientSecret) else Optional.absent()
-            )
-            service.mutation(
-                mutation
-            )
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
+    override fun createFlagging(project: Project?, details: String, flaggingKind: String): Observable<String> =
+        creatorSocialClient.createFlagging(project, details, flaggingKind)
 
-                    val paymentSource = response.data?.createPaymentSource?.paymentSource
-                    paymentSource?.let {
-                        val storedCard = StoredCard.builder()
-                            .expiration(it.expirationDate)
-                            .id(it.id)
-                            .lastFourDigits(it.lastFour)
-                            .type(it.type)
-                            .build()
-                        ps.onNext(storedCard)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun flaggingOptions(contentType: FlaggingContent): Observable<List<FlaggingOption>> =
+        creatorSocialClient.flaggingOptions(contentType)
 
-    override fun getStoredCards(): Observable<List<StoredCard>> =
-        emitAsObservable { _getStoredCards().getOrThrow() }
+    override fun userPrivacy(): Observable<UserPrivacy> = userClient.userPrivacy()
 
-    private suspend fun _getStoredCards(): Result<List<StoredCard>> = executeForResult {
-        val query = UserPaymentsQuery()
+    override fun watchProject(project: Project): Observable<Project> = projectClient.watchProject(project)
 
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.me?.storedCards?.nodes?.filterNotNull()?.map { cardData ->
-            StoredCard.builder()
-                .expiration(cardData.expirationDate)
-                .id(cardData.id)
-                .lastFourDigits(cardData.lastFour)
-                .type(cardData.type)
-                .stripeCardId(cardData.stripeCardId)
-                .build()
-        } ?: listOf()
-    }
-
-    override fun deletePaymentSource(paymentSourceId: String): Observable<DeletePaymentSourceMutation.Data> {
-        return Observable.defer {
-            val ps = PublishSubject.create<DeletePaymentSourceMutation.Data>()
-            val mutation = DeletePaymentSourceMutation(
-                paymentSourceId = paymentSourceId,
-            )
-
-            service.mutation(
-                mutation
-            )
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-
-                    response.data?.let { ps.onNext(it) }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun createFlagging(
-        project: Project?,
-        details: String,
-        flaggingKind: String
-    ): Observable<String> {
-        return Observable.defer {
-            project?.let {
-                val ps = PublishSubject.create<String>()
-                val flagging = NonDeprecatedFlaggingKind.safeValueOf(flaggingKind)
-                val mutation = CreateFlaggingMutation(
-                    contentId = encodeRelayId(it),
-                    details = Optional.present(details),
-                    kind = flagging
-                )
-
-                service.mutation(
-                    mutation
-                ).rxSingle()
-                    .doOnError { throwable ->
-                        ps.onError(throwable)
-                    }
-                    .subscribe { response ->
-                        if (response.hasErrors()) {
-                            ps.onError(Exception(response.errors?.first()?.message))
-                        }
-                        response.data?.let { data ->
-                            data.createFlagging?.flagging?.kind?.name?.let { kindString ->
-                                ps.onNext(kindString)
-                            }
-                        }
-                        ps.onComplete()
-                    }.addToDisposable(disposables)
-                return@defer ps
-            }
-        }
-    }
-
-    override fun flaggingOptions(contentType: FlaggingContent): Observable<List<FlaggingOption>> {
-        return Observable.defer {
-            val ps = PublishSubject.create<List<FlaggingOption>>()
-            val query = FlaggingOptionsQuery(contentType = contentType)
-
-            service.query(
-                query = query
-            ).rxSingle()
-                .subscribe(
-                    { response ->
-                        if (response.hasErrors()) {
-                            ps.onError(Exception(response.errors?.first()?.message))
-                        } else {
-                            ps.onNext(
-                                response.data?.flaggingOptions?.map { flaggingOptionTransformer(it) } ?: emptyList()
-                            )
-                            ps.onComplete()
-                        }
-                    },
-                    { throwable ->
-                        ps.onError(throwable)
-                    }
-                ).addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun userPrivacy(): Observable<UserPrivacy> {
-        return Observable.defer {
-            val ps = PublishSubject.create<UserPrivacy>()
-            val query = UserPrivacyQuery()
-
-            service.query(
-                query = query
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    response.data?.me?.let {
-                        ps.onNext(userPrivacyTransformer(it))
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun watchProject(project: Project): Observable<Project> {
-        return Observable.defer {
-            if (!project.hasValidRelayId()) {
-                return@defer Observable.error<Project>(invalidProjectException(project, "watchProject"))
-            }
-            val ps = PublishSubject.create<Project>()
-            val mutation = WatchProjectMutation(
-                id = encodeRelayId(project)
-            )
-            this.service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                    }
-
-                    /* make a copy of what you posted. just in case
-                     * we want to update the list without doing
-                     * a full refresh.
-                     */
-                    ps.onNext(
-                        projectTransformer(
-                            response.data?.watchProject?.project?.fullProject
-                        )
-                    )
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun unWatchProject(project: Project): Observable<Project> {
-        return Observable.defer {
-            if (!project.hasValidRelayId()) {
-                return@defer Observable.error<Project>(invalidProjectException(project, "unWatchProject"))
-            }
-            val ps = PublishSubject.create<Project>()
-            val mutation = UnwatchProjectMutation(
-                id = encodeRelayId(project)
-            )
-            this.service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                    }
-                    /* make a copy of what you posted. just in case
-                     * we want to update the list without doing
-                     * a full refresh.
-                     */
-                    ps.onNext(
-                        projectTransformer(
-                            response.data?.watchProject?.project?.fullProject
-                        )
-                    )
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
+    override fun unWatchProject(project: Project): Observable<Project> = projectClient.unWatchProject(project)
 
     override fun updateUserPassword(
         currentPassword: String,
         newPassword: String,
         confirmPassword: String
-    ): Observable<UpdateUserPasswordMutation.Data> {
-        return Observable.defer {
-            val ps = PublishSubject.create<UpdateUserPasswordMutation.Data>()
-            val mutation = UpdateUserPasswordMutation(
-                currentPassword = currentPassword,
-                password = newPassword,
-                passwordConfirmation = confirmPassword
+    ): Observable<UpdateUserPasswordMutation.Data> =
+        userClient.updateUserPassword(currentPassword, newPassword, confirmPassword)
 
-            )
-            service.mutation(mutation)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-                    response.data?.let {
-                        ps.onNext(it)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun updateUserEmail(email: String, currentPassword: String): Observable<UpdateUserEmailMutation.Data> =
+        userClient.updateUserEmail(email, currentPassword)
 
-    override fun updateUserEmail(
-        email: String,
-        currentPassword: String
-    ): Observable<UpdateUserEmailMutation.Data> {
-        return Observable.defer {
-            val ps = PublishSubject.create<UpdateUserEmailMutation.Data>()
-            val mutation = UpdateUserEmailMutation(
-                email = email,
-                currentPassword = currentPassword
-            )
-            service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-                    response.data?.let { data ->
-                        ps.onNext(data)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun sendVerificationEmail(): Observable<SendEmailVerificationMutation.Data> =
+        userClient.sendVerificationEmail()
 
-    override fun sendVerificationEmail(): Observable<SendEmailVerificationMutation.Data> {
-        return Observable.defer {
-            val ps = PublishSubject.create<SendEmailVerificationMutation.Data>()
-            val mutation = SendEmailVerificationMutation()
-            service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-                    response.data?.let { data ->
-                        ps.onNext(data)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun updateUserCurrencyPreference(currency: CurrencyCode): Observable<UpdateUserCurrencyMutation.Data> =
+        userClient.updateUserCurrencyPreference(currency)
 
-    override fun updateUserCurrencyPreference(currency: CurrencyCode): Observable<UpdateUserCurrencyMutation.Data> {
-        return Observable.defer {
-            val ps = PublishSubject.create<UpdateUserCurrencyMutation.Data>()
-            val mutation = UpdateUserCurrencyMutation(
-                chosenCurrency = currency
-            )
-            service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-                    response.data?.let {
-                        ps.onNext(it)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun getShippingRules(reward: Reward): Observable<ShippingRulesEnvelope> =
+        rewardClient.getShippingRules(reward)
 
-    override fun getShippingRules(reward: Reward): Observable<ShippingRulesEnvelope> {
-        return Observable.defer {
-            val ps = PublishSubject.create<ShippingRulesEnvelope>()
+    override fun getProjectAddOns(slug: String, locationId: Location): Observable<List<Reward>> =
+        rewardClient.getProjectAddOns(slug, locationId)
 
-            val query = GetShippingRulesForRewardIdQuery(
-                rewardId = encodeRelayId(reward)
-            )
-            this.service
-                .query(query)
-                .rxFlowable()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
+    override suspend fun getRewardAllowedAddOns(
+        locationId: Location,
+        rewardId: Reward,
+        cursor: String?
+    ): Result<AddOnsEnvelope> = rewardClient.getRewardAllowedAddOns(locationId, rewardId, cursor)
 
-                    response.data?.let { data ->
-                        val shippingEnvelope = data.node?.onReward?.shippingRulesExpanded?.nodes?.mapNotNull { node ->
-                            node?.shippingRule
-                        } ?: emptyList()
-                        ps.onNext(shippingRulesListTransformer(shippingEnvelope))
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
+    override fun updateBacking(updateBackingData: UpdateBackingData): Observable<Checkout> =
+        backingMutationClient.updateBacking(updateBackingData)
 
-    override suspend fun getRewardsFromProject(
-        slug: String,
-        sort: ProjectRewardsSort
-    ): Result<List<Reward>> = executeForResult {
-        val query = FetchProjectRewardsQuery(
-            slug = slug,
-            sort = Optional.present(sort)
-        )
+    override fun createBacking(createBackingData: CreateBackingData): Observable<Checkout> =
+        backingMutationClient.createBacking(createBackingData)
 
-        val response = this.service.query(query).execute()
+    override fun triggerThirdPartyEvent(eventInput: TPEventInputData): Observable<Pair<Boolean, String>> =
+        creatorSocialClient.triggerThirdPartyEvent(eventInput)
 
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
+    override fun createPassword(password: String, confirmPassword: String): Observable<CreatePasswordMutation.Data> =
+        userClient.createPassword(password, confirmPassword)
 
-        response.data?.let { data ->
-            val rwList: List<Reward?> = data.project?.rewards?.nodes?.map {
-                it?.reward?.let { rwGr ->
-                    rewardTransformer(
-                        rewardGr = rwGr,
-                        allowedAddons = it.allowedAddons.pageInfo.startCursor?.isNotEmpty() ?: false,
-                        rewardItems = complexRewardItemsTransformer(it.items?.rewardItems),
-                        simpleShippingRules = it.simpleShippingRulesExpanded.filterNotNull(),
-                        rewardImage = it.rewardImage
-                    )
-                }
-            } ?: emptyList<Reward>()
-            // - API does not provide the Reward no reward, we need to add it first
-            val minPledge = data.project?.minPledge?.toDouble() ?: 1.0
-            val modifiedRewards = rwList.filterNotNull().toMutableList()
-            modifiedRewards.add(0, RewardFactory.noReward().toBuilder().minimum(minPledge).build())
-            modifiedRewards
-        } ?: emptyList()
-    }
+    override fun creatorDetails(slug: String): Observable<CreatorDetails> = creatorSocialClient.creatorDetails(slug)
 
-    override fun buildPaymentPlan(input: BuildPaymentPlanData): Observable<PaymentPlan> {
-        return Observable.defer {
-            val ps = PublishSubject.create<PaymentPlan>()
-            val query = BuildPaymentPlanQuery(
-                slug = input.slug,
-                amount = input.amount,
-                includeRefundedAmount = false
-            )
+    override fun sendMessage(project: Project, recipient: User, body: String): Observable<Long> =
+        creatorSocialClient.sendMessage(project, recipient, body)
 
-            this.service.query(query)
-                .rxFlowable()
-                .subscribeOn(Schedulers.io())
-                .doOnError {
-                    ps.onError(it)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
+    override fun cancelBacking(backing: Backing, note: String): Observable<Any> =
+        backingMutationClient.cancelBacking(backing, note)
 
-                    response.data?.let { data ->
-                        data.project?.paymentPlan?.let {
-                            paymentPlanTransformer(it)
-                        }?.let {
-                            ps.onNext(it)
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun fetchCategory(categoryParam: String): Observable<Category?> =
+        discoveryClient.fetchCategory(categoryParam)
 
-    private fun getAddOnsFromProject(addOnsGr: GetProjectAddOnsQuery.AddOns): List<Reward> {
-        return addOnsGr.nodes?.map { node ->
-            val shippingRulesGr =
-                node?.shippingRulesExpanded?.nodes?.map { requireNotNull(it?.shippingRule) }
-                    ?: emptyList()
-            rewardTransformer(
-                requireNotNull(node?.reward),
-                shippingRulesExpanded = shippingRulesGr,
-                addOnItems = complexRewardItemsTransformer(node?.items?.rewardItems),
-                rewardImage = node?.rewardImage
-            )
-        }?.toList() ?: emptyList()
-    }
+    override fun getBacking(backingId: String): Observable<Backing> = backingQueryClient.getBacking(backingId)
 
-    private fun getAddOnsFromAllowedAddOns(addOnsGr: GetRewardAllowedAddOnsQuery.AllowedAddons): List<Reward> {
-        return addOnsGr.edges?.mapNotNull { edge ->
-            val node = edge?.node ?: return@mapNotNull null
-            val shippingRulesGr = node.shippingRulesExpanded?.nodes
-                ?.mapNotNull { it?.shippingRule } ?: emptyList()
+    override fun fetchCategories(): Observable<List<Category>> = discoveryClient.fetchCategories()
 
-            rewardTransformer(
-                requireNotNull(node.reward),
-                shippingRulesExpanded = shippingRulesGr,
-                addOnItems = complexRewardItemsTransformer(node.items?.rewardItems),
-                rewardImage = node.rewardImage
-            )
-        }?.toList() ?: emptyList()
-    }
+    override fun getProjectUpdates(slug: String, cursor: String, limit: Int): Observable<UpdatesGraphQlEnvelope> =
+        creatorSocialClient.getProjectUpdates(slug, cursor, limit)
 
-    override suspend fun getRewardAllowedAddOns(locationId: Location, rewardId: Reward, cursor: String?): Result<AddOnsEnvelope> = executeForResult {
-        val query = GetRewardAllowedAddOnsQuery(
-            locationId = encodeRelayId(locationId),
-            rewardId = encodeRelayId(rewardId),
-            cursor = cursor?.let { Optional.present(it) } ?: Optional.absent()
-        )
+    override fun getComment(commentableId: String): Observable<Comment> = commentClient.getComment(commentableId)
 
-        val response = this.service.query(query).execute()
+    override fun getProjectUpdateComments(updateId: String, cursor: String, limit: Int): Observable<CommentEnvelope> =
+        commentClient.getProjectUpdateComments(updateId, cursor, limit)
 
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.let {
-            val allowedAddOns = it.node?.onReward?.allowedAddons
-
-            val addOns = if (allowedAddOns != null)
-                getAddOnsFromAllowedAddOns(allowedAddOns)
-            else emptyList()
-
-            val pageInfoEnvelope = allowedAddOns?.pageInfo?.pageInfo?.let {
-                createPageInfoObject(it)
-            }
-
-            AddOnsEnvelope(
-                addOnsList = addOns,
-                pageInfo = pageInfoEnvelope
-            )
-        } ?: AddOnsEnvelope()
-    }
-
-    override fun getProjectAddOns(slug: String, locationId: Location): Observable<List<Reward>> {
-        return Observable.defer {
-            val ps = PublishSubject.create<List<Reward>>()
-
-            val query = GetProjectAddOnsQuery(
-                slug = slug,
-                locationId = encodeRelayId(locationId)
-            )
-            this.service
-                .query(query)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-                    response.data?.let { data ->
-                        val addOns = getAddOnsFromProject(requireNotNull(data.project?.addOns))
-                        ps.onNext(addOns)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun updateBacking(updateBackingData: UpdateBackingData): Observable<Checkout> {
-        return Observable.defer {
-            if (!updateBackingGuard.compareAndSet(false, true)) {
-                return@defer Observable.error<Checkout>(
-                    ProblemException(
-                        ProblemDetails(
-                            type = ProblemDetails.TYPE_IN_FLIGHT,
-                            title = "Mutation Already In Flight",
-                            status = 409,
-                            detail = "An operation to update backing is already in progress.",
-                            suggestedAction = "Wait for active mutation to finish before updating backing again.",
-                            isRetriable = false
-                        )
-                    )
-                )
-            }
-            val mutation = UpdateBackingMutation(
-                backingId = encodeRelayId(updateBackingData.backing),
-                amount = if (updateBackingData.amount.isNotNull()) Optional.present(updateBackingData.amount) else Optional.absent(),
-                locationId = if (updateBackingData.locationId.isNotNull()) Optional.present(updateBackingData.locationId) else Optional.absent(),
-                rewardIds =
-                if (updateBackingData.rewardsIds.isNotNull()) Optional.present(updateBackingData.rewardsIds?.let { list -> list.map { encodeRelayId(it) } })
-                else Optional.absent(),
-                paymentSourceId = if (updateBackingData.paymentSourceId.isNotNull()) Optional.present(updateBackingData.paymentSourceId) else Optional.absent(),
-                intentClientSecret = if (updateBackingData.intentClientSecret.isNotNull()) Optional.present(updateBackingData.intentClientSecret) else Optional.absent(),
-                incremental = if (updateBackingData.incremental.isNotNull()) Optional.present(updateBackingData.incremental) else Optional.absent()
-            )
-            val ps = PublishSubject.create<Checkout>()
-            service
-                .mutation(mutation)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "update backing")))
-                }
-                .doFinally { updateBackingGuard.set(false) }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        val problem = ProblemDetailsMapper.fromDomainMessage(
-                            response.errors?.first()?.message,
-                            "update backing"
-                        )
-                        ps.onError(ProblemException(problem))
-                    } else {
-                        val checkoutPayload = response.data?.updateBacking?.checkout
-                        val backing = Checkout.Backing.builder()
-                            .clientSecret(
-                                checkoutPayload?.backing?.checkoutBacking?.clientSecret
-                            )
-                            .requiresAction(
-                                checkoutPayload?.backing?.checkoutBacking?.requiresAction ?: false
-                            )
-                            .build()
-
-                        val checkout = Checkout.builder()
-                            .id(decodeRelayId(checkoutPayload?.id))
-                            .backing(backing)
-                            .build()
-                        ps.onNext(checkout)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun createBacking(createBackingData: CreateBackingData): Observable<Checkout> {
-        return Observable.defer {
-            if (!createBackingGuard.compareAndSet(false, true)) {
-                return@defer Observable.error<Checkout>(
-                    ProblemException(
-                        ProblemDetails(
-                            type = ProblemDetails.TYPE_IN_FLIGHT,
-                            title = "Mutation Already In Flight",
-                            status = 409,
-                            detail = "An operation to create backing is already in progress.",
-                            suggestedAction = "Wait for active mutation to finish before creating backing again.",
-                            isRetriable = false
-                        )
-                    )
-                )
-            }
-            val ps = PublishSubject.create<Checkout>()
-            val mutation = CreateBackingMutation(
-                projectId = encodeRelayId(createBackingData.project),
-                amount = createBackingData.amount,
-                paymentType = PaymentTypes.CREDIT_CARD.rawValue,
-                paymentSourceId = if (createBackingData.paymentSourceId.isNotNull()) Optional.present(createBackingData.paymentSourceId) else Optional.absent(),
-                incremental = if (createBackingData.incremental.isNotNull()) Optional.present(createBackingData.incremental) else Optional.absent(),
-                setupIntentClientSecret =
-                if (createBackingData.setupIntentClientSecret.isNotNull()) Optional.present(createBackingData.setupIntentClientSecret)
-                else Optional.absent(),
-                locationId = if (createBackingData.locationId.isNotNull()) Optional.present(createBackingData.locationId) else Optional.absent(),
-                rewardIds =
-                if (createBackingData.rewardsIds.isNotNull()) Optional.present(createBackingData.rewardsIds?.let { list -> list.map { encodeRelayId(it) } })
-                else Optional.absent(),
-                refParam = if (createBackingData.refTag?.tag().isNotNull()) Optional.present(createBackingData.refTag?.tag()) else Optional.absent()
-            )
-
-            this.service.mutation(mutation)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create backing")))
-                }
-                .doFinally { createBackingGuard.set(false) }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        val problem = ProblemDetailsMapper.fromDomainMessage(
-                            response.errors?.first()?.message,
-                            "create backing"
-                        )
-                        ps.onError(ProblemException(problem))
-                    } else {
-
-                        val checkoutPayload = response.data?.createBacking?.checkout
-
-                        // TODO: Add new status field to backing model
-                        val backing = Checkout.Backing.builder()
-                            .clientSecret(
-                                checkoutPayload?.backing?.checkoutBacking?.clientSecret
-                            )
-                            .requiresAction(
-                                checkoutPayload?.backing?.checkoutBacking
-                                    ?.requiresAction ?: false
-                            )
-                            .build()
-
-                        val checkout = Checkout.builder()
-                            .id(decodeRelayId(checkoutPayload?.id))
-                            .backing(backing)
-                            .build()
-                        ps.onNext(checkout)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun triggerThirdPartyEvent(eventInput: TPEventInputData): Observable<Pair<Boolean, String>> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Pair<Boolean, String>>()
-
-            val mutation = getTriggerThirdPartyEventMutation(eventInput)
-
-            service
-                .mutation(mutation)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                    } else {
-                        val message = response.data?.triggerThirdPartyEvent?.message
-                        val isSuccess = response.data?.triggerThirdPartyEvent?.success ?: false
-
-                        ps.onNext(Pair(isSuccess, message))
-                    }
-
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun createPassword(
-        password: String,
-        confirmPassword: String
-    ): Observable<CreatePasswordMutation.Data> {
-        return Observable.defer {
-            val ps = PublishSubject.create<CreatePasswordMutation.Data>()
-            val mutation = CreatePasswordMutation(
-                password = password,
-                passwordConfirmation = confirmPassword
-            )
-            service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                    }
-                    response.data?.let {
-                        ps.onNext(it)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun creatorDetails(slug: String): Observable<CreatorDetails> {
-        return Observable.defer {
-            val ps = PublishSubject.create<CreatorDetails>()
-
-            val query = ProjectCreatorDetailsQuery(
-                slug = slug
-            )
-            service.query(
-                query
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-
-                    response.data?.project?.creator?.let {
-                        ps.onNext(
-                            CreatorDetails.builder()
-                                .backingsCount(it.backingsCount)
-                                .launchedProjectsCount(it.launchedProjects?.totalCount ?: 1)
-                                .build()
-                        )
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun sendMessage(project: Project, recipient: User, body: String): Observable<Long> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Long>()
-            val mutation = SendMessageMutation(
-                projectId = encodeRelayId(project),
-                recipientId = encodeRelayId(recipient),
-                body = body
-            )
-
-            service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-
-                    response.data?.let {
-                        decodeRelayId(
-                            response.data?.sendMessage?.conversation?.id
-                        )?.let {
-                            ps.onNext(it)
-                        } ?: ps.onError(Exception())
-                    }
-
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun cancelBacking(backing: Backing, note: String): Observable<Any> {
-        return Observable.defer {
-            if (!cancelBackingGuard.compareAndSet(false, true)) {
-                return@defer Observable.error<Any>(
-                    ProblemException(
-                        ProblemDetails(
-                            type = ProblemDetails.TYPE_IN_FLIGHT,
-                            title = "Mutation Already In Flight",
-                            status = 409,
-                            detail = "An operation to cancel backing is already in progress.",
-                            suggestedAction = "Wait for active cancellation to finish before retrying.",
-                            isRetriable = false
-                        )
-                    )
-                )
-            }
-            val ps = PublishSubject.create<Any>()
-            val mutation = CancelBackingMutation(
-                backingId = encodeRelayId(backing),
-                note = Optional.present(note)
-            )
-            service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "cancel backing")))
-                }
-                .doFinally { cancelBackingGuard.set(false) }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        val problem = ProblemDetailsMapper.fromDomainMessage(
-                            response.errors?.first()?.message,
-                            "cancel backing"
-                        )
-                        ps.onError(ProblemException(problem))
-                    } else {
-                        val state = response.data?.cancelBacking?.backing?.status
-                        val success = state == BackingState.canceled
-                        ps.onNext(success)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun fetchCategory(categoryParam: String): Observable<Category?> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Category>()
-            val query = FetchCategoryQuery(
-                categoryParam = categoryParam
-            )
-            this.service.query(
-                query
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        val category =
-                            categoryTransformer(response.data?.category?.category)
-                        ps.onNext(category)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun getBacking(backingId: String): Observable<Backing> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Backing>()
-            val query = GetBackingQuery(
-                backingId = backingId
-            )
-            this.service.query(
-                query
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let {
-                            it.backing?.let { backingFragments ->
-                                backingTransformer(
-                                    backingFragments.backing
-                                )?.let { backingObject ->
-                                    ps.onNext(backingObject)
-                                }
-                            }
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun fetchCategories(): Observable<List<Category>> {
-        return Observable.defer {
-            val query = GetRootCategoriesQuery()
-            val ps = PublishSubject.create<List<Category>>()
-
-            service.query(
-                query
-            ).rxFlowable()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response: ApolloResponse<GetRootCategoriesQuery.Data> ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let { responseData ->
-                            val subCategories = responseData.rootCategories
-                                .flatMap { it.subcategories?.nodes.orEmpty() }
-                                .map {
-                                    categoryTransformer(it?.category)
-                                }
-                            val rootCategories = responseData.rootCategories
-                                .map { categoryTransformer(it.category) }
-                                .toMutableList()
-                                .apply {
-                                    addAll(subCategories)
-                                }
-                            ps.onNext(rootCategories)
-                        }
-                    }
-                    ps.onComplete()
-                }
-                .addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun getProjectUpdates(
-        slug: String,
-        cursor: String,
-        limit: Int
-    ): Observable<UpdatesGraphQlEnvelope> {
-        return Observable.defer {
-            val ps = PublishSubject.create<UpdatesGraphQlEnvelope>()
-
-            val query = GetProjectUpdatesQuery(
-                cursor = Optional.present(cursor),
-                slug = slug,
-                limit = limit
-            )
-            this.service.query(
-                query
-            ).rxFlowable()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let { data ->
-                            val updates = data.project?.posts?.edges?.map {
-                                updateTransformer(it?.node?.post)
-                            }
-                            val envelope = UpdatesGraphQlEnvelope.builder()
-                                .updates(updates)
-                                .totalCount(data.project?.posts?.totalCount ?: 0)
-                                .pageInfoEnvelope(
-                                    createPageInfoObject(
-                                        data.project?.posts?.pageInfo?.pageInfo
-                                    )
-                                )
-                                .build()
-
-                            ps.onNext(envelope)
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    private fun createPageInfoObject(pageFr: com.kickstarter.fragment.PageInfo?): PageInfoEnvelope {
-        return PageInfoEnvelope.builder()
-            .endCursor(pageFr?.endCursor ?: "")
-            .hasNextPage(pageFr?.hasNextPage ?: false)
-            .hasPreviousPage(pageFr?.hasPreviousPage ?: false)
-            .startCursor(pageFr?.startCursor ?: "")
-            .build()
-    }
-
-    override fun getComment(commentableId: String): Observable<Comment> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Comment>()
-            val query = GetCommentQuery(
-                commentableId = commentableId
-            )
-            this.service.query(
-                query
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let { responseData ->
-                            val comment = mapGetCommentQueryResponseToComment(responseData)
-                            ps.onNext(comment)
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    private fun mapGetCommentQueryResponseToComment(responseData: GetCommentQuery.Data): Comment {
-        val commentFragment = responseData.commentable?.onComment?.comment
-        return commentTransformer(commentFragment)
-    }
-
-    override fun getProjectUpdateComments(
-        updateId: String,
-        cursor: String,
-        limit: Int
-    ): Observable<CommentEnvelope> {
-        return Observable.defer {
-            val ps = PublishSubject.create<CommentEnvelope>()
-
-            val query = GetProjectUpdateCommentsQuery(
-                cursor = if (cursor.isPresent()) Optional.present(cursor) else Optional.absent(),
-                id = updateId,
-                limit = limit
-            )
-            this.service.query(
-                query
-            ).rxFlowable()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let { data ->
-                            data.post?.freeformPost?.comments
-                                ?.let { graphComments ->
-                                    val comments = graphComments.edges?.map { edge ->
-                                        commentTransformer(edge?.node?.comment)
-                                            .toBuilder()
-                                            .cursor(edge?.cursor)
-                                            .build()
-                                    }
-
-                                    val envelope = CommentEnvelope.builder()
-                                        .comments(comments)
-                                        .commentableId(data.post?.id ?: "")
-                                        .totalCount(
-                                            data.post?.freeformPost?.comments?.totalCount ?: 0
-                                        )
-                                        .pageInfoEnvelope(
-                                            createPageInfoObject(
-                                                data.post?.freeformPost?.comments?.pageInfo?.pageInfo
-                                            )
-                                        )
-                                        .build()
-                                    ps.onNext(envelope)
-                                }
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun getProjectComments(
-        slug: String,
-        cursor: String,
-        limit: Int
-    ): Observable<CommentEnvelope> {
-        return Observable.defer {
-            val ps = PublishSubject.create<CommentEnvelope>()
-            val query = GetProjectCommentsQuery(
-                cursor = if (cursor.isPresent()) Optional.present(cursor) else Optional.absent(),
-                slug = slug,
-                limit = limit
-            )
-            this.service.query(
-                query
-            ).rxFlowable()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let { data ->
-                            data.project?.comments?.let { graphComments ->
-                                val comments = graphComments.edges?.map { edge ->
-                                    commentTransformer(
-                                        edge?.node?.comment
-                                    ).toBuilder()
-                                        .cursor(edge?.cursor)
-                                        .build()
-                                }
-
-                                val envelope = CommentEnvelope.builder()
-                                    .commentableId(data.project?.id)
-                                    .comments(comments)
-                                    .totalCount(data.project?.comments?.totalCount ?: 0)
-                                    .pageInfoEnvelope(
-                                        createPageInfoObject(
-                                            data.project?.comments?.pageInfo?.pageInfo
-                                        )
-                                    )
-                                    .build()
-                                ps.onNext(envelope)
-                            }
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
+    override fun getProjectComments(slug: String, cursor: String, limit: Int): Observable<CommentEnvelope> =
+        commentClient.getProjectComments(slug, cursor, limit)
 
     override fun getRepliesForComment(
         comment: Comment,
         cursor: String?,
         pageSize: Int
-    ): Observable<CommentEnvelope> {
-        return Observable.defer {
-            val ps = PublishSubject.create<CommentEnvelope>()
-            val query = GetRepliesForCommentQuery(
-                commentableId = encodeRelayId(comment),
-                cursor = if (cursor.isNullOrBlank()) Optional.absent() else Optional.present(cursor),
-                pageSize = Optional.present(pageSize),
-            )
-            this.service.query(
-                query
-            ).rxFlowable()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let { responseData ->
-                            ps.onNext(createCommentEnvelop(responseData))
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
+    ): Observable<CommentEnvelope> = commentClient.getRepliesForComment(comment, cursor, pageSize)
 
-    private fun createCommentEnvelop(responseData: GetRepliesForCommentQuery.Data): CommentEnvelope {
-        val replies = responseData.commentable?.onComment?.replies
-        val listOfComments = replies?.nodes?.map { commentFragment ->
-            commentTransformer(commentFragment?.comment)
-        } ?: emptyList()
-        val totalCount = replies?.totalCount ?: 0
-        val pageInfo = createPageInfoObject(replies?.pageInfo?.pageInfo)
+    override fun createComment(comment: PostCommentData): Observable<Comment> = commentClient.createComment(comment)
 
-        return CommentEnvelope.builder()
-            .comments(listOfComments)
-            .pageInfoEnvelope(pageInfo)
-            .totalCount(totalCount)
-            .build()
-    }
+    override fun erroredBackings(): Observable<List<ErroredBacking>> = backingQueryClient.erroredBackings()
 
-    override fun createComment(comment: PostCommentData): Observable<Comment> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Comment>()
-            val mutation = CreateCommentMutation(
-                parentId = if (comment.parent?.id().isNotNull()) Optional.present(comment.parent?.let { encodeRelayId(it) }) else Optional.absent(),
-                commentableId = comment.commentableId,
-                clientMutationId = Optional.present(comment.clientMutationId),
-                body = comment.body
-            )
-            this.service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                    } else {
-                        /* make a copy of what you posted. just in case
-                     * we want to update the list without doing
-                     * a full refresh.
-                     */
-                        ps.onNext(
-                            commentTransformer(
-                                response.data?.createComment?.comment?.comment
-                            )
-                        )
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun clearUnseenActivity(): Observable<Int> = userClient.clearUnseenActivity()
 
-    override fun erroredBackings(): Observable<List<ErroredBacking>> {
-        return Observable.defer {
-            val ps = PublishSubject.create<List<ErroredBacking>>()
-            val query = ErroredBackingsQuery()
-            this.service
-                .query(query)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        val erroredBackings = response.data?.me?.backings?.nodes?.map {
-                            val project = ErroredBacking.Project.builder()
-                                .finalCollectionDate(it?.project?.finalCollectionDate)
-                                .name(it?.project?.name)
-                                .slug(it?.project?.slug)
-                                .build()
-                            return@map ErroredBacking.builder()
-                                .project(project)
-                                .build()
-                        } ?: listOf()
-                        ps.onNext(erroredBackings)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun getProjectBacking(slug: String): Observable<Backing> = backingQueryClient.getProjectBacking(slug)
 
-    override fun clearUnseenActivity(): Observable<Int> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Int>()
-            val mutation = ClearUserUnseenActivityMutation()
-            service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
-                    }
-                    response.data?.clearUserUnseenActivity?.activityIndicatorCount?.let {
-                        ps.onNext(it)
-                    } ?: ps.onError(Exception())
+    override fun createCheckout(createCheckoutData: CreateCheckoutData): Observable<CheckoutPayment> =
+        checkoutClient.createCheckout(createCheckoutData)
 
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
-
-    override fun getProjectBacking(slug: String): Observable<Backing> =
-        emitAsObservable { _getProjectBacking(slug).getOrThrow() }
-
-    private suspend fun _getProjectBacking(slug: String): Result<Backing> = executeForResult {
-        val query = GetProjectBackingQuery(slug = slug)
-
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        backingTransformer(response.data?.project?.backing?.backing)
-    }
-
-    override fun createCheckout(createCheckoutData: CreateCheckoutData): Observable<CheckoutPayment> {
-        return Observable.defer {
-            val ps = PublishSubject.create<CheckoutPayment>()
-
-            val mutation = CreateCheckoutMutation(
-                projectId = encodeRelayId(createCheckoutData.project),
-                amount = createCheckoutData.amount,
-                rewardIds = Optional.present(
-                    createCheckoutData.rewardsIds?.let { list ->
-                        list.map { encodeRelayId(it) }
-                    }
-                ),
-                locationId = if (createCheckoutData.locationId.isNotNull()) Optional.present(createCheckoutData.locationId) else Optional.absent(),
-                refParam = if (createCheckoutData.refTag?.tag().isNotNull()) Optional.present(createCheckoutData.refTag?.tag()) else Optional.absent()
-            )
-            this.service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let { data ->
-                            data.createCheckout?.checkout?.let { checkoutObj ->
-                                val backingId = decodeRelayId(checkoutObj.id) ?: 0L
-                                val backing = Backing.builder().id(backingId).build()
-                                decodeRelayId(checkoutObj.id)?.let { id ->
-                                    val checkout = CheckoutPayment(
-                                        id,
-                                        checkoutObj.paymentUrl,
-                                        backing = backing
-                                    )
-                                    ps.onNext(checkout)
-                                } ?: ps.onError(Exception("CreateCheckout could not decode ID"))
-                            }
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override fun createPaymentIntent(createPaymentIntentInput: CreatePaymentIntentInput): Observable<String> {
-        return Observable.defer {
-            if (!createPaymentIntentGuard.compareAndSet(false, true)) {
-                return@defer Observable.error<String>(
-                    ProblemException(
-                        ProblemDetails(
-                            type = ProblemDetails.TYPE_IN_FLIGHT,
-                            title = "Mutation Already In Flight",
-                            status = 409,
-                            detail = "An operation to create payment intent is already in progress.",
-                            suggestedAction = "Wait for active payment intent creation to finish before retrying.",
-                            isRetriable = false
-                        )
-                    )
-                )
-            }
-            val ps = PublishSubject.create<String>()
-
-            val checkoutId = createPaymentIntentInput.checkoutId
-            val backingId = encodeRelayId(createPaymentIntentInput.backing)
-            val mutation = CreatePaymentIntentMutation(
-                projectId = encodeRelayId(createPaymentIntentInput.project),
-                amount = createPaymentIntentInput.amount,
-                paymentIntentContext = Optional.present(StripeIntentContextTypes.POST_CAMPAIGN_CHECKOUT),
-                checkoutId = (Base64Utils.encodeUrlSafe(("Checkout-$checkoutId").toByteArray(Charset.defaultCharset()))),
-                backingId = Optional.present(backingId)
-            )
-            this.service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create payment intent")))
-                }
-                .doFinally { createPaymentIntentGuard.set(false) }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        val problem = ProblemDetailsMapper.fromDomainMessage(
-                            response.errors?.first()?.message,
-                            "create payment intent"
-                        )
-                        ps.onError(ProblemException(problem))
-                    } else {
-                        response.data?.createPaymentIntent?.clientSecret?.let {
-                            ps.onNext(it)
-                        } ?: run {
-                            val problem = ProblemDetails(
-                                type = ProblemDetails.TYPE_UNEXPECTED,
-                                title = "Missing Payment Client Secret",
-                                status = 502,
-                                detail = "Server returned null client secret for payment intent.",
-                                suggestedAction = "Retry generating payment intent.",
-                                isRetriable = true
-                            )
-                            ps.onError(ProblemException(problem))
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun createPaymentIntent(createPaymentIntentInput: CreatePaymentIntentInput): Observable<String> =
+        paymentClient.createPaymentIntent(createPaymentIntentInput)
 
     override fun validateCheckout(
         checkoutId: String,
         paymentIntentClientSecret: String,
         paymentSourceId: String
-    ): Observable<PaymentValidationResponse> {
-        return Observable.defer {
-            val ps = PublishSubject.create<PaymentValidationResponse>()
-            val query = ValidateCheckoutQuery(
-                checkoutId = checkoutId,
-                paymentIntentClientSecret = paymentIntentClientSecret,
-                paymentSourceId = paymentSourceId
-            )
-            this.service.query(
-                query
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    } else {
-                        response.data?.let { data ->
-                            val validation = PaymentValidationResponse(
-                                data.checkout?.isValidForOnSessionCheckout?.valid ?: false,
-                                data.checkout?.isValidForOnSessionCheckout?.messages ?: listOf()
-                            )
-                            ps.onNext(validation)
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    ): Observable<PaymentValidationResponse> =
+        checkoutClient.validateCheckout(checkoutId, paymentIntentClientSecret, paymentSourceId)
 
     override fun completeOnSessionCheckout(
         checkoutId: String,
         paymentIntentClientSecret: String,
         paymentSourceId: String?,
         paymentSourceReusable: Boolean
-    ): Observable<Pair<String, Boolean>> {
-        return Observable.defer {
-            if (!completeCheckoutGuard.compareAndSet(false, true)) {
-                return@defer Observable.error<Pair<String, Boolean>>(
-                    ProblemException(
-                        ProblemDetails(
-                            type = ProblemDetails.TYPE_IN_FLIGHT,
-                            title = "Mutation Already In Flight",
-                            status = 409,
-                            detail = "An operation to complete checkout is already in progress.",
-                            suggestedAction = "Wait for active on-session checkout completion before retrying.",
-                            isRetriable = false
-                        )
-                    )
-                )
-            }
-            val ps = PublishSubject.create<Pair<String, Boolean>>()
+    ): Observable<Pair<String, Boolean>> =
+        checkoutClient.completeOnSessionCheckout(checkoutId, paymentIntentClientSecret, paymentSourceId, paymentSourceReusable)
 
-            val mutation = CompleteOnSessionCheckoutMutation(
-                checkoutId = Base64Utils.encodeUrlSafe(("Checkout-$checkoutId").toByteArray(Charset.defaultCharset())),
-                paymentIntentClientSecret = paymentIntentClientSecret,
-                paymentSourceId = if (paymentSourceId.isNotNull()) Optional.present(paymentSourceId) else Optional.absent(),
-                paymentSourceReusable = Optional.present(paymentSourceReusable)
-            )
-            this.service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "complete checkout")))
-                }
-                .doFinally { completeCheckoutGuard.set(false) }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        val problem = ProblemDetailsMapper.fromDomainMessage(
-                            response.errors?.first()?.message,
-                            "complete checkout"
-                        )
-                        ps.onError(ProblemException(problem))
-                    } else {
-                        response.data?.completeOnSessionCheckout?.checkout?.id?.let { checkoutId ->
-                            response.data?.completeOnSessionCheckout?.checkout?.backing?.requiresAction?.let { requiresAction ->
-                                ps.onNext(Pair(checkoutId, requiresAction))
-                            }
-                        } ?: run {
-                            val problem = ProblemDetails(
-                                type = ProblemDetails.TYPE_UNEXPECTED,
-                                title = "Missing Checkout ID",
-                                status = 502,
-                                detail = "Server returned null checkout ID on checkout completion.",
-                                suggestedAction = "Reload checkout state and retry.",
-                                isRetriable = true
-                            )
-                            ps.onError(ProblemException(problem))
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun createAttributionEvent(eventInput: CreateAttributionEventData): Observable<Boolean> =
+        creatorSocialClient.createAttributionEvent(eventInput)
 
-    override fun createAttributionEvent(eventInput: CreateAttributionEventData): Observable<Boolean> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Boolean>()
+    override fun createOrUpdateBackingAddress(eventInput: CreateOrUpdateBackingAddressData): Observable<Boolean> =
+        backingQueryClient.createOrUpdateBackingAddress(eventInput)
 
-            val mutation = getCreateAttributionEventMutation(eventInput, gson)
-            service.mutation(mutation)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
-                    }
+    override fun completeOrder(orderInput: CompleteOrderInput): Observable<CompleteOrderPayload> =
+        checkoutClient.completeOrder(orderInput)
 
-                    response.data?.let {
-                        val isSuccess = it.createAttributionEvent?.successful ?: false
-                        ps.onNext(isSuccess)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override fun getPledgedProjectsOverviewPledges(
+        inputData: PledgedProjectsOverviewQueryData
+    ): Observable<PledgedProjectsOverviewEnvelope> =
+        backingQueryClient.getPledgedProjectsOverviewPledges(inputData)
 
-    override fun createOrUpdateBackingAddress(eventInput: CreateOrUpdateBackingAddressData): Observable<Boolean> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Boolean>()
+    override suspend fun getRewardsFromProject(slug: String, sort: ProjectRewardsSort): Result<List<Reward>> =
+        rewardClient.getRewardsFromProject(slug, sort)
 
-            val mutation = getCreateOrUpdateBackingAddressMutation(eventInput)
+    override fun buildPaymentPlan(input: BuildPaymentPlanData): Observable<PaymentPlan> =
+        checkoutClient.buildPaymentPlan(input)
 
-            service.mutation(mutation)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
-                    }
+    override fun updateBackerCompleted(inputData: UpdateBackerCompletedData): Observable<Boolean> =
+        backingQueryClient.updateBackerCompleted(inputData)
 
-                    response.data?.let {
-                        val isSuccess = it.createOrUpdateBackingAddress?.success ?: false
-                        ps.onNext(isSuccess)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override suspend fun addUserToSecretRewardGroup(project: Project, secretRewardToken: String): Result<Project> =
+        projectClient.addUserToSecretRewardGroup(project, secretRewardToken)
 
-    override fun updateBackerCompleted(inputData: UpdateBackerCompletedData): Observable<Boolean> {
-        return Observable.defer {
-            val ps = PublishSubject.create<Boolean>()
+    override suspend fun getSearchProjects(discoveryParams: DiscoveryParams, cursor: String?): Result<SearchEnvelope> =
+        discoveryClient.getSearchProjects(discoveryParams, cursor)
 
-            val mutation = getUpdateBackerCompletedMutation(inputData)
+    override suspend fun fetchSimilarProjects(pid: Long): Result<List<Project>> =
+        projectClient.fetchSimilarProjects(pid)
 
-            service.mutation(mutation)
-                .rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
-                    }
+    override suspend fun getCategories(): Result<List<Category>> = discoveryClient.getCategories()
 
-                    response.data?.let {
-                        val backerCompleted = it.updateBackerCompleted?.backing?.backerCompleted ?: false
-                        ps.onNext(backerCompleted)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }
-    }
+    override suspend fun getTags(): Result<List<Tag>> = discoveryClient.getTags()
 
-    override suspend fun addUserToSecretRewardGroup(
-        project: Project,
-        secretRewardToken: String,
-    ): Result<Project> = executeForResult {
-        val mutation = AddUserToSecretRewardGroupMutation(
-            projectId = encodeRelayId(project).toString(),
-            secretRewardToken = secretRewardToken
-        )
+    override suspend fun getLocations(
+        useDefault: Boolean,
+        term: String?,
+        lat: Float?,
+        long: Float?,
+        radius: Float?,
+        filterByCoordinates: Boolean?
+    ): Result<List<Location>> =
+        discoveryClient.getLocations(useDefault, term, lat, long, radius, filterByCoordinates)
 
-        val response = service.mutation(mutation).execute()
+    override suspend fun fetchProjectStory(slug: String): Result<StoriedProject> =
+        projectClient.fetchProjectStory(slug)
 
-        if (response.hasErrors()) {
-            throw buildClientException(response.errors)
-        }
+    override suspend fun getVideoFeed(first: Int, cursor: String?, categoryId: String?): Result<VideoFeedEnvelope> =
+        discoveryClient.getVideoFeed(first, cursor, categoryId)
 
-        val updatedProject = response.data?.addUserToSecretRewardGroup?.project
-        projectTransformer(updatedProject)
-    }
+    override suspend fun watchProjectSuspend(project: Project): Result<Project> =
+        projectClient.watchProjectSuspend(project)
 
-    // TODO: was part of initial discovery for PledgeRedemption ML2 on mobile, not is use currently, as is happens on a webview
-    override fun completeOrder(orderInput: CompleteOrderInput): Observable<CompleteOrderPayload> {
-        return Observable.defer {
-            val ps = PublishSubject.create<CompleteOrderPayload>()
+    override suspend fun unWatchProjectSuspend(project: Project): Result<Project> =
+        projectClient.unWatchProjectSuspend(project)
 
-            val mutation = CompleteOrderMutation(
-                orderId = "",
-                stripePaymentMethodId = Optional.present(orderInput.stripePaymentMethodId),
-                paymentSourceReusable = Optional.present(orderInput.paymentSourceReusable)
-            )
-            this.service.mutation(
-                mutation
-            ).rxSingle()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
-                    }
-
-                    response.data?.completeOrder?.let {
-                        val payload = CompleteOrderPayload(
-                            status = it.status.toString(),
-                            clientSecret = it.clientSecret ?: ""
-                        )
-                        ps.onNext(payload)
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-
-            return@defer ps
-        }
-    }
-
-    override fun getPledgedProjectsOverviewPledges(inputData: PledgedProjectsOverviewQueryData): Observable<PledgedProjectsOverviewEnvelope> {
-        return Observable.defer {
-            val ps = PublishSubject.create<PledgedProjectsOverviewEnvelope>()
-
-            this.service.query(
-                getPledgedProjectsOverviewQuery(inputData)
-            ).rxFlowable()
-                .doOnError { throwable ->
-                    ps.onError(throwable)
-                }
-                .subscribe { response ->
-                    if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
-                    }
-
-                    response.data?.let { data ->
-                        data.pledgeProjectsOverview?.let {
-                            pledgedProjectsOverviewEnvelopeTransformer(it)
-                        }?.let {
-                            ps.onNext(it)
-                        }
-                    }
-                    ps.onComplete()
-                }.addToDisposable(disposables)
-            return@defer ps
-        }.subscribeOn(Schedulers.io())
-    }
-
-    override suspend fun getCategories(): Result<List<Category>> = executeForResult {
-        val query = GetRootCategoriesQuery()
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.let { responseData ->
-            val categories = mutableListOf<Category>()
-
-            responseData.rootCategories.forEach { rootCategory ->
-                categories.add(categoryTransformer(rootCategory.category))
-                rootCategory.subcategories?.nodes?.map { subcategory ->
-                    categories.add(categoryTransformer(subcategory?.category))
-                }
-            }
-
-            categories
-        } ?: emptyList()
-    }
-
-    override suspend fun getTags(): Result<List<Tag>> = executeForResult {
-        val response = this.service.query(GetCreativePromptTagsQuery()).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.tags?.nodes?.mapNotNull { node ->
-            node?.let {
-                Tag(
-                    id = decodeRelayId(it.id) ?: return@mapNotNull null,
-                    name = it.name,
-                    url = it.url,
-                    slug = it.slug,
-                )
-            }
-        } ?: emptyList()
-    }
-
-    override suspend fun getSearchProjects(discoveryParams: DiscoveryParams, cursor: String?): Result<SearchEnvelope> = executeForResult {
-        val query = buildFetchProjectsQuery(discoveryParams, cursor)
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.let { responseData ->
-            val projects = responseData.projects?.edges?.map {
-                projectTransformer(it?.node?.projectCard)
-            } ?: emptyList()
-            val pageInfoEnvelope =
-                responseData.projects?.pageInfo?.pageInfo?.let {
-                    createPageInfoObject(it)
-                }
-            val totalCount = responseData.projects?.totalCount ?: 0
-            SearchEnvelope(projects, pageInfoEnvelope, totalCount)
-        } ?: SearchEnvelope()
-    }
-
-    override suspend fun fetchSimilarProjects(pid: Long): Result<List<Project>> = executeForResult {
-        // Expose these as necessary
-        val query = FetchSimilarProjectsQuery(
-            first = Optional.present(4),
-            similarToPid = pid.toString(),
-            excludePid = pid.toInt(),
-            recommended = Optional.present(true),
-            seed = Optional.present(pid.toInt())
-        )
-
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.let { responseData ->
-            responseData.projects?.nodes?.map {
-                projectTransformer(it?.similarProject)
-            }
-        } ?: emptyList()
-    }
-
-    override suspend fun fetchProjectStory(slug: String): Result<StoriedProject> = executeForResult {
-        val query = FetchProjectStoryQuery(
-            slug = slug
-        )
-
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.project?.projectStoryFragment.toStoriedProject()
-    }
-
-    override suspend fun getVideoFeed(first: Int, cursor: String?, categoryId: String?): Result<VideoFeedEnvelope> = executeForResult {
-        val query = VideoFeedQuery(
-            first = first,
-            after = Optional.presentIfNotNull(cursor),
-            categoryId = Optional.presentIfNotNull(categoryId)
-        )
-
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.videoFeed.toVideoFeedEnvelope()
-    }
-
-    override suspend fun watchProjectSuspend(project: Project): Result<Project> {
-        if (!project.hasValidRelayId()) {
-            return Result.failure(invalidProjectException(project, "watchProjectSuspend"))
-        }
-        return executeForResult {
-            val mutation = WatchProjectMutation(id = encodeRelayId(project))
-            val response = this.service.mutation(mutation).execute()
-
-            if (response.hasErrors())
-                throw buildClientException(response.errors)
-            projectTransformer(response.data?.watchProject?.project?.fullProject)
-        }
-    }
-
-    override suspend fun unWatchProjectSuspend(project: Project): Result<Project> {
-        if (!project.hasValidRelayId()) {
-            return Result.failure(invalidProjectException(project, "unWatchProjectSuspend"))
-        }
-        return executeForResult {
-            val mutation = UnwatchProjectMutation(id = encodeRelayId(project))
-            val response = this.service.mutation(mutation).execute()
-
-            if (response.hasErrors())
-                throw buildClientException(response.errors)
-
-            projectTransformer(response.data?.watchProject?.project?.fullProject)
-        }
-    }
-
-    override suspend fun getLocations(useDefault: Boolean, term: String?, lat: Float?, long: Float?, radius: Float?, filterByCoordinates: Boolean?): Result<List<Location>> = executeForResult {
-
-        val query = GetLocationsQuery(
-            useSessionLocation = if (useDefault.isTrue()) Optional.present(useDefault) else Optional.absent(),
-            term = if (term.isNullOrEmpty()) Optional.absent() else Optional.present(term),
-            filterByCoordinates = if (filterByCoordinates == null) Optional.absent() else Optional.present(filterByCoordinates),
-            first = if (useDefault) Optional.Present(5) else Optional.present(10),
-            radius = if (radius == null) Optional.absent() else Optional.present(radius.toDouble()),
-            long = if (long == null) Optional.absent() else Optional.present(long.toDouble()),
-            lat = if (lat == null) Optional.absent() else Optional.present(lat.toDouble()),
-            discoverable = if (useDefault.isTrue()) Optional.present(true) else Optional.absent()
-        )
-
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.let { responseData ->
-            responseData.locations?.nodes?.map {
-                Location.builder()
-                    .name(it?.location?.name)
-                    .displayableName(it?.location?.displayableName)
-                    .id(decodeRelayId(it?.location?.id))
-                    .country(it?.location?.country)
-                    .build()
-            }
-        } ?: emptyList()
-    }
-
-    override suspend fun fetchShippingCountryLocations(forProject: Boolean, slug: String?): Result<ShippingCountryLocationsWrapper> = executeForResult {
-        val query = FetchShippingCountryLocationsQuery(
-            forProject = forProject,
-            slug = Optional.present(slug)
-        )
-
-        val response = this.service.query(query).execute()
-
-        if (response.hasErrors())
-            throw buildClientException(response.errors)
-
-        response.data?.let { responseData ->
-            ShippingCountryLocationsWrapper(
-                shippingCountryLocations = responseData.shippingCountryLocations.map {
-                    Location.builder()
-                        .id(decodeRelayId(it.id) ?: -1)
-                        .displayableName(it.displayableName)
-                        .name(it.name)
-                        .country(it.country)
-                        .build()
-                },
-                shippableCountriesForProject = responseData.project?.shippableCountriesExpanded?.map {
-                    Location.builder()
-                        .id(decodeRelayId(it.id) ?: -1)
-                        .displayableName(it.displayableName)
-                        .name(it.name)
-                        .country(it.country)
-                        .build()
-                }
-            )
-        } ?: ShippingCountryLocationsWrapper()
-    }
+    override suspend fun fetchShippingCountryLocations(
+        forProject: Boolean,
+        slug: String?
+    ): Result<ShippingCountryLocationsWrapper> =
+        rewardClient.fetchShippingCountryLocations(forProject, slug)
 
     sealed class KSApolloClientV2Exception(
         message: String? = null,
         cause: Throwable? = null
     ) : Exception(message, cause) {
-        class Timeout(
-            message: String? = null,
-            cause: Throwable? = null
-        ) : KSApolloClientV2Exception(message, cause)
-        class TooManyRequests(
-            message: String? = null,
-            cause: Throwable? = null
-        ) : KSApolloClientV2Exception(message, cause)
-        class ApiError(
-            message: String? = null,
-            cause: Throwable? = null
-        ) : KSApolloClientV2Exception(message, cause)
-        class InvalidProject(
-            message: String? = null,
-            cause: Throwable? = null
-        ) : KSApolloClientV2Exception(message, cause)
+        class Timeout(message: String? = null, cause: Throwable? = null) : KSApolloClientV2Exception(message, cause)
+        class TooManyRequests(message: String? = null, cause: Throwable? = null) : KSApolloClientV2Exception(message, cause)
+        class ApiError(message: String? = null, cause: Throwable? = null) : KSApolloClientV2Exception(message, cause)
+        class InvalidProject(message: String? = null, cause: Throwable? = null) : KSApolloClientV2Exception(message, cause)
     }
-
-    private fun buildClientException(errors: List<Error>?): KSApolloClientV2Exception {
-        return KSApolloClientV2Exception.ApiError(errors?.first()?.message)
-    }
-
-    private fun invalidProjectException(
-        project: Project,
-        context: String = "Attempted watch/unwatch mutation"
-    ): KSApolloClientV2Exception {
-        val exception = KSApolloClientV2Exception.InvalidProject(
-            "$context: Invalid project id: ${project.id()}"
-        )
-        runCatching {
-            FirebaseCrashlytics.getInstance().recordException(exception)
-        }.onFailure { e ->
-            Timber.e(e, "Error recording exception in Firebase")
-        }
-        return exception
-    }
-
-    private fun ApolloException.toClientException(): Exception =
-        when (this) {
-            is ApolloNetworkException -> {
-                when (cause) {
-                    is SocketTimeoutException -> KSApolloClientV2Exception.Timeout()
-                    else -> this
-                }
-            }
-            is ApolloHttpException -> {
-                when (statusCode) {
-                    429 -> KSApolloClientV2Exception.TooManyRequests()
-                    else -> this
-                }
-            }
-            else -> this
-        }
-
-    private suspend fun <T> executeForResult(block: suspend () -> T): Result<T> =
-        try {
-            Result.success(block())
-        } catch (cancellationException: CancellationException) {
-            // - When using try catch blocks with suspending functions always rethrow CancellationExceptions and not threat them as an error
-            throw cancellationException
-        } catch (apolloException: ApolloException) {
-            val exception = apolloException.toClientException()
-            FirebaseCrashlytics.getInstance().recordException(exception)
-            Result.failure(exception)
-        } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
-            Result.failure(e)
-        }
-
-    private fun <T : Any> emitAsObservable(block: suspend () -> T): Observable<T> =
-        flow { emit(block()) }.asObservable()
 }

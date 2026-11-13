@@ -1,10 +1,5 @@
 package com.kickstarter.ui.activities
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
@@ -20,68 +15,43 @@ import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
 import com.kickstarter.databinding.ActivityProjectPageBinding
-import com.kickstarter.features.socialshare.AndroidSocialShareService
+import com.kickstarter.features.projectpage.ui.components.LatePledgesComposeHost
+import com.kickstarter.features.projectpage.ui.components.ProjectDialogsAndFeedback
+import com.kickstarter.features.projectpage.ui.components.ProjectNavigationDelegate
+import com.kickstarter.features.projectpage.ui.components.ProjectPagerController
+import com.kickstarter.features.projectpage.ui.components.ProjectPledgeSheetController
+import com.kickstarter.features.projectpage.ui.components.ProjectStripePaymentHandler
+import com.kickstarter.features.projectpage.ui.components.SocialShareComposeHost
 import com.kickstarter.features.socialshare.data.SocialShareData
-import com.kickstarter.features.socialshare.ui.LocalSocialShareViewModel
-import com.kickstarter.features.socialshare.ui.SocialShareSheet
-import com.kickstarter.features.socialshare.viewmodel.SocialShareViewModel
-import com.kickstarter.libs.ActivityRequestCodes
 import com.kickstarter.libs.Either
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.KSString
-import com.kickstarter.libs.MessagePreviousScreenType
 import com.kickstarter.libs.ProjectPagerTabs
 import com.kickstarter.libs.featureflag.FeatureFlagClientType
-import com.kickstarter.libs.utils.ApplicationUtils
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName
-import com.kickstarter.libs.utils.UrlUtils
-import com.kickstarter.libs.utils.ViewUtils
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.getEnvironment
-import com.kickstarter.libs.utils.extensions.getPaymentSheetConfiguration
-import com.kickstarter.libs.utils.extensions.reduceProjectPayload
 import com.kickstarter.libs.utils.extensions.showLatePledgeFlow
 import com.kickstarter.libs.utils.extensions.toVisibility
 import com.kickstarter.models.Project
 import com.kickstarter.models.User
-import com.kickstarter.models.chrome.ChromeTabsHelperActivity
 import com.kickstarter.ui.IntentKey
-import com.kickstarter.ui.activities.compose.projectpage.ProjectPledgeButtonAndFragmentContainer
 import com.kickstarter.ui.adapters.ProjectPagerAdapter
-import com.kickstarter.ui.compose.designsystem.KickstarterApp
 import com.kickstarter.ui.data.ActivityResult.Companion.create
 import com.kickstarter.ui.data.CheckoutData
-import com.kickstarter.ui.data.LoginReason
 import com.kickstarter.ui.data.ManagePledgeMenuOptions
 import com.kickstarter.ui.data.PledgeData
 import com.kickstarter.ui.data.PledgeReason
@@ -90,10 +60,7 @@ import com.kickstarter.ui.extensions.finishWithAnimation
 import com.kickstarter.ui.extensions.hideKeyboard
 import com.kickstarter.ui.extensions.selectPledgeFragment
 import com.kickstarter.ui.extensions.setUpConnectivityStatusCheck
-import com.kickstarter.ui.extensions.showErrorToast
-import com.kickstarter.ui.extensions.showSnackbar
 import com.kickstarter.ui.extensions.startBackingDetailsWebViewActivity
-import com.kickstarter.ui.extensions.startDisclaimerChromeTab
 import com.kickstarter.ui.extensions.startPledgeRedemption
 import com.kickstarter.ui.extensions.startRootCommentsActivity
 import com.kickstarter.ui.extensions.startUpdatesActivity
@@ -111,10 +78,7 @@ import com.kickstarter.viewmodels.projectpage.PagerTabConfig
 import com.kickstarter.viewmodels.projectpage.ProjectPageViewModel
 import com.kickstarter.viewmodels.projectpage.RewardsSelectionViewModel
 import com.kickstarter.viewmodels.projectpage.SimilarProjectsViewModel
-import com.stripe.android.ApiResultCallback
-import com.stripe.android.PaymentIntentResult
 import com.stripe.android.Stripe
-import com.stripe.android.StripeIntentResult
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.model.PaymentOption
@@ -123,7 +87,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 const val REFRESH = "refresh"
 
@@ -163,6 +126,14 @@ class ProjectPageActivity :
 
     private lateinit var stripe: Stripe
     private lateinit var flowController: PaymentSheet.FlowController
+
+    private lateinit var socialShareComposeHost: SocialShareComposeHost
+    private lateinit var latePledgesComposeHost: LatePledgesComposeHost
+    private lateinit var pledgeSheetController: ProjectPledgeSheetController
+    private lateinit var navigationDelegate: ProjectNavigationDelegate
+    private lateinit var dialogsAndFeedback: ProjectDialogsAndFeedback
+    private lateinit var pagerController: ProjectPagerController
+    private lateinit var stripePaymentHandler: ProjectStripePaymentHandler
 
     private val projectShareLabelString = R.string.project_accessibility_button_share_label
     private val projectShareCopyString = R.string.project_share_twitter_message
@@ -227,14 +198,81 @@ class ProjectPageActivity :
 
         ffClient.activate(this)
 
-        socialShareSetUp(binding.socialShareComposeView)
-
         flowController = PaymentSheet.FlowController.create(
             activity = this,
             paymentOptionCallback = ::onPaymentOption,
             paymentResultCallback = ::onPaymentSheetResult
         )
         this.ksString = requireNotNull(environment.ksString())
+
+        dialogsAndFeedback = ProjectDialogsAndFeedback(
+            activity = this,
+            snackbarAnchor = binding.snackbarAnchor,
+            errorAnchor = binding.pledgeContainerCompose,
+            clearFragmentBackStack = { clearFragmentBackStack() }
+        )
+
+        navigationDelegate = ProjectNavigationDelegate(
+            activity = this,
+            environment = environment,
+            ksString = ksString
+        )
+
+        socialShareComposeHost = SocialShareComposeHost(
+            composeView = binding.socialShareComposeView,
+            socialShareData = socialShareData,
+            environment = environment,
+            context = applicationContext,
+            onStartActivity = { startActivity(it) }
+        )
+        socialShareComposeHost.setup()
+
+        stripePaymentHandler = ProjectStripePaymentHandler(
+            activity = this,
+            stripe = stripe,
+            flowController = flowController,
+            latePledgeCheckoutViewModel = latePledgeCheckoutViewModel,
+            showToastError = { showToastError(it) }
+        )
+
+        pledgeSheetController = ProjectPledgeSheetController(
+            activity = this,
+            binding = binding,
+            fragmentManager = supportFragmentManager,
+            onPledgeToolbarNavigationClicked = { viewModel.inputs.pledgeToolbarNavigationClicked() },
+            onBackPressed = { onBackPressedDispatcher.onBackPressed() }
+        )
+
+        pagerController = ProjectPagerController(
+            context = this,
+            fragmentManager = supportFragmentManager,
+            lifecycle = lifecycle,
+            viewPager = binding.projectPager,
+            tabLayout = binding.projectDetailTabs,
+            onTabSelected = { viewModel.inputs.tabSelected(it) }
+        )
+
+        latePledgesComposeHost = LatePledgesComposeHost(
+            composeView = binding.pledgeContainerCompose,
+            binding = binding,
+            environment = environment,
+            checkoutFlowViewModel = checkoutFlowViewModel,
+            rewardsSelectionViewModel = rewardsSelectionViewModel,
+            addOnsViewModel = addOnsViewModel,
+            latePledgeCheckoutViewModel = latePledgeCheckoutViewModel,
+            onBackPressedDispatcher = onBackPressedDispatcher,
+            startLoginToutActivity = { startLoginToutActivity() },
+            showDisclaimerScreen = { showDisclaimerScreen(it, environment) },
+            showAccountabilityPage = { showAccountabilityPage() },
+            showCreatePledgeSuccess = { showCreatePledgeSuccess(it) },
+            showToastError = { showToastError(it) },
+            flowControllerPresentPaymentOption = { secret, email, country, currency ->
+                flowControllerPresentPaymentOption(secret, email, country, currency)
+            },
+            stripeNextAction = { stripeNextAction(it) },
+            refreshProject = { refreshProject() },
+            finishWithAnimation = { finishWithAnimation() }
+        )
 
         viewModel.configureWith(intent)
         experimentsViewModel
@@ -597,339 +635,26 @@ class ProjectPageActivity :
         }
     }
 
-    /**
-     * Polishes the project emitted by the gated `showSocialShareSheet` output into the
-     * [SocialShareData] the new sheet needs — the base project URL (no ref tag; the per-platform ref
-     * tag is added inside SocialShareViewModel), the hero image, and the creator name. Then reveals
-     * the Compose host.
-     */
-    private fun showSocialShareSheet(project: Project) {
-        socialShareData.value = SocialShareData(
-            projectName = project.name(),
-            projectUrl = project.webProjectUrl(),
-            imageUrl = project.photo()?.full() ?: "",
-            creatorName = project.creator().name()
-        )
-        binding.socialShareComposeView.isVisible = true
-    }
+    private fun showSocialShareSheet(project: Project) =
+        socialShareComposeHost.showSocialShareSheet(project)
 
-    /**
-     * Hosts the new in-app social share bottom sheet. The host view stays GONE (see layout) until a
-     * share is triggered, so this full-screen overlay never intercepts touches meant for the rest of
-     * the screen. A [SocialShareViewModel] is only built once [socialShareData] is set. Mirrors the
-     * integration in PreLaunchProjectPageActivity / VideoFeed.
-     */
-    private fun socialShareSetUp(composeView: ComposeView) {
-        composeView.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                KickstarterApp {
-                    val data = socialShareData.value
-                    if (data != null) {
-                        val shareViewModel: SocialShareViewModel = viewModel(
-                            key = data.projectUrl,
-                            factory = SocialShareViewModel.Factory(
-                                environment = environment,
-                                service = AndroidSocialShareService(applicationContext),
-                                shareData = data,
-                                contextPage = ContextPageName.PROJECT
-                            )
-                        )
-                        CompositionLocalProvider(LocalSocialShareViewModel provides shareViewModel) {
-                            SocialShareSheet(
-                                shareData = data,
-                                isVisible = true,
-                                onDismiss = {
-                                    socialShareData.value = null
-                                    binding.socialShareComposeView.isGone = true
-                                },
-                                onIntentReady = { startActivity(it) }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
+    private fun socialShareSetUp(composeView: ComposeView) =
+        socialShareComposeHost.setup()
 
-    @OptIn(ExperimentalFoundationApi::class)
-    private fun latePledgesSetUp(composeView: ComposeView) {
-        composeView.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                KickstarterApp {
-                    val flowUIState by checkoutFlowViewModel.flowUIState.collectAsStateWithLifecycle()
+    private fun latePledgesSetUp(composeView: ComposeView) =
+        latePledgesComposeHost.setup()
 
-                    val expanded = flowUIState.expanded
-                    val currentPage = flowUIState.currentPage
+    private fun showDisclaimerScreen(disclaimerItem: DisclaimerItems, environment: Environment) =
+        navigationDelegate.showDisclaimerScreen(disclaimerItem)
 
-                    val rewardSelectionUIState by rewardsSelectionViewModel.rewardSelectionUIState.collectAsStateWithLifecycle()
-                    val shippingUIState by rewardsSelectionViewModel.shippingUIState.collectAsStateWithLifecycle()
+    fun showAccountabilityPage() =
+        navigationDelegate.showAccountabilityPage()
 
-                    val projectData = rewardSelectionUIState.project
-                    val indexOfBackedReward = rewardSelectionUIState.initialRewardIndex
-                    val rewardsList = shippingUIState.filteredRw
-                    val rewardLoading = shippingUIState.loading
-                    val selectedReward = rewardSelectionUIState.selectedReward
-                    val currentUserShippingRule = shippingUIState.selectedShippingRule
-                    val shippingRules = shippingUIState.shippingRules
-                    rewardsSelectionViewModel.sendEvent(expanded, currentPage, projectData)
+    private fun configureTabs(updateTabs: List<PagerTabConfig>) =
+        pagerController.configureTabs(updateTabs)
 
-                    LaunchedEffect(Unit) {
-                        rewardsSelectionViewModel.flowUIRequest.collect {
-                            checkoutFlowViewModel.changePage(it)
-                        }
-                    }
-
-                    val addOnsUIState by addOnsViewModel.addOnsUIState.collectAsStateWithLifecycle()
-                    val addOns = addOnsUIState.addOns
-                    val addOnsIsLoading = addOnsUIState.isLoading
-                    val addOnCount = addOnsUIState.totalCount
-                    val totalPledgeAmount = addOnsUIState.totalPledgeAmount
-
-                    addOnsViewModel.provideErrorAction { message ->
-                        showToastError(message)
-                    }
-
-                    val checkoutPayment by latePledgeCheckoutViewModel.checkoutPayment.collectAsStateWithLifecycle()
-
-                    LaunchedEffect(checkoutPayment.id) {
-                        checkoutPayment.backing?.let {
-                            latePledgeCheckoutViewModel.provideCheckoutIdAndBacking(
-                                checkoutPayment.id,
-                                it
-                            )
-                        }
-                    }
-
-                    val latePledgeCheckoutUIState by latePledgeCheckoutViewModel.latePledgeCheckoutUIState.collectAsStateWithLifecycle()
-
-                    val userStoredCards = latePledgeCheckoutUIState.storeCards
-                    val userEmail = latePledgeCheckoutUIState.userEmail
-                    val checkoutLoading = latePledgeCheckoutUIState.isLoading
-                    val shippingAmount = latePledgeCheckoutUIState.shippingAmount
-                    val checkoutTotal = latePledgeCheckoutUIState.checkoutTotal
-                    val isPledgeButtonEnabled = latePledgeCheckoutUIState.isPledgeButtonEnabled
-
-                    latePledgeCheckoutViewModel.provideErrorAction { message ->
-                        showToastError(message)
-                    }
-
-                    LaunchedEffect(Unit) {
-                        latePledgeCheckoutViewModel.clientSecretForNewPaymentMethod.collect {
-                            flowControllerPresentPaymentOption(
-                                it,
-                                latePledgeCheckoutUIState.userEmail,
-                                latePledgeCheckoutUIState.projectCountryCode,
-                                latePledgeCheckoutUIState.projectCurrency
-                            )
-                        }
-                    }
-
-                    LaunchedEffect(Unit) {
-                        latePledgeCheckoutViewModel.paymentRequiresAction.collect {
-                            stripeNextAction(it)
-                        }
-                    }
-
-                    latePledgeCheckoutViewModel.provideErrorAction { message ->
-                        showToastError(message)
-                    }
-
-                    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 4 })
-
-                    this@ProjectPageActivity.onBackPressedDispatcher.addCallback {
-                        if (expanded) checkoutFlowViewModel.onBackPressed(pagerState.currentPage)
-                        else finishWithAnimation()
-                    }
-
-                    val coroutineScope = rememberCoroutineScope()
-
-                    LaunchedEffect(currentPage) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(
-                                page = currentPage,
-                                animationSpec = tween(
-                                    durationMillis = 200,
-                                    easing = FastOutSlowInEasing
-                                )
-                            )
-
-                            if (currentPage == 3) {
-                                latePledgeCheckoutViewModel.sendPageViewedEvent()
-                            }
-
-                            if (currentPage == 1) {
-                                // Send pageViewed event when user navigates to AddOns Screen
-                                addOnsViewModel.sendEvent()
-                            }
-                        }
-                    }
-
-                    ProjectPledgeButtonAndFragmentContainer(
-                        expanded = expanded,
-                        onContinueClicked = {
-                            checkoutFlowViewModel.onContinueClicked(
-                                logInCallback = { startLoginToutActivity() },
-                                continueCallback = {
-                                    rewardsSelectionViewModel.provideProjectData(projectData)
-                                    checkoutFlowViewModel.onBackThisProjectClicked()
-                                }
-                            )
-                        },
-                        onBackClicked = {
-                            checkoutFlowViewModel.onBackPressed(pagerState.currentPage)
-                        },
-                        pagerState = pagerState,
-                        isLoading = addOnsIsLoading || checkoutLoading || rewardLoading,
-                        onAddOnsContinueClicked = {
-                            checkoutFlowViewModel.onContinueClicked {
-                                val dataAndReason = addOnsViewModel.getPledgeDataAndReason()
-                                dataAndReason?.let { pData ->
-                                    latePledgeCheckoutViewModel.providePledgeData(pData.first)
-                                }
-                            }
-                        },
-                        currentShippingRule = currentUserShippingRule,
-                        shippingRules = shippingRules,
-                        environment = environment,
-                        initialRewardCarouselPosition = indexOfBackedReward,
-                        rewardsList = rewardsList,
-                        addOns = addOns,
-                        project = projectData.project(),
-                        onRewardSelected = { reward ->
-                            checkoutFlowViewModel.userRewardSelection(reward)
-                            addOnsViewModel.userRewardSelection(reward)
-                            addOnsViewModel.provideSelectedShippingRule(currentUserShippingRule)
-                            rewardsSelectionViewModel.onUserRewardSelection(reward)
-                            latePledgeCheckoutViewModel.userRewardSelection(reward)
-                        },
-                        onAddOnAddedOrRemoved = { quantityForId, rewardId ->
-                            addOnsViewModel.updateSelection(rewardId, quantityForId)
-                        },
-                        totalSelectedAddOn = addOnCount,
-                        selectedReward = selectedReward,
-                        totalPledgeAmount = totalPledgeAmount,
-                        totalBonusAmount = addOnsUIState.totalBonusAmount,
-                        bonusAmountChanged = { bonusAmount ->
-                            addOnsViewModel.bonusAmountUpdated(bonusAmount)
-                        },
-                        selectedRewardAndAddOnList = latePledgeCheckoutUIState.selectedRewards,
-                        onShippingRuleSelected = { shippingRule ->
-                            rewardsSelectionViewModel.selectedShippingRule(shippingRule)
-                        },
-                        storedCards = userStoredCards,
-                        userEmail = userEmail,
-                        shippingAmount = shippingAmount,
-                        checkoutTotal = checkoutTotal,
-                        onPledgeCtaClicked = { selectedCard, isIncremental ->
-                            selectedCard?.apply {
-                                latePledgeCheckoutViewModel.sendSubmitCTAEvent()
-                                latePledgeCheckoutViewModel.onPledgeButtonClicked(
-                                    selectedCard = selectedCard,
-                                )
-                            }
-                        },
-                        onAddPaymentMethodClicked = {
-                            latePledgeCheckoutViewModel.onAddNewCardClicked(project = projectData.project())
-                        },
-                        onDisclaimerItemClicked = { disclaimerItem ->
-                            showDisclaimerScreen(disclaimerItem, environment)
-                        },
-                        onAccountabilityLinkClicked = {
-                            showAccountabilityPage()
-                        },
-                        isPledgeButtonEnabled = isPledgeButtonEnabled
-                    )
-
-                    val successfulPledge =
-                        latePledgeCheckoutViewModel.onPledgeSuccess.collectAsStateWithLifecycle(
-                            initialValue = false
-                        ).value
-
-                    LaunchedEffect(successfulPledge) {
-                        if (successfulPledge) {
-                            latePledgeCheckoutViewModel.onPledgeSuccess.collect {
-                                if (latePledgeCheckoutViewModel.getCheckoutData() != null && latePledgeCheckoutViewModel.getPledgeData() != null) {
-                                    showCreatePledgeSuccess(
-                                        Pair(
-                                            latePledgeCheckoutViewModel.getCheckoutData(),
-                                            latePledgeCheckoutViewModel.getPledgeData()
-                                        )
-                                    )
-                                }
-                                checkoutFlowViewModel.onProjectSuccess()
-                                refreshProject()
-                                binding.pledgeContainerCompose.isGone = true
-                                binding.pledgeContainerLayout.pledgeContainerRoot.isGone = false
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun showDisclaimerScreen(disclaimerItem: DisclaimerItems, environment: Environment) {
-        startDisclaimerChromeTab(disclaimerItem, environment)
-    }
-
-    fun showAccountabilityPage() {
-        val endpoint = environment.webEndpoint()
-        val trustUrl = UrlUtils.appendPath(endpoint, "trust")
-        ChromeTabsHelperActivity.openCustomTab(
-            this,
-            UrlUtils.baseCustomTabsIntent(this),
-            trustUrl.toUri(),
-            null
-        )
-    }
-
-    /**
-     * Give a List of configurations will iterate over it and apply
-     * the configuration required.
-     * Will check first if the tab already exists in the pager before adding it.
-     *
-     * @param updateTabs
-     */
-    private fun configureTabs(updateTabs: List<PagerTabConfig>) {
-        updateTabs.forEach { tabConfig ->
-            if (tabConfig.isActive) {
-                // - avoid adding the tab if it already exists
-                if (!pagerAdapterList.contains(tabConfig.tab)) {
-                    pagerAdapterList.add(tabConfig.tab)
-                }
-            }
-        }
-    }
-
-    private fun configurePager(pagerList: List<ProjectPagerTabs>) {
-        val viewPager = binding.projectPager
-        val tabLayout = binding.projectDetailTabs
-
-        viewPager.adapter = ProjectPagerAdapter(supportFragmentManager, pagerList, lifecycle)
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = getTabTitle(position, pagerList)
-        }.attach()
-
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                tab?.let {
-                    viewModel.inputs.tabSelected(tab.position)
-                }
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-                // Handle tab reselect
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                // Handle tab unselect
-            }
-        })
-    }
+    private fun configurePager(pagerList: List<ProjectPagerTabs>) =
+        pagerController.configurePager(pagerList)
 
     override fun onResume() {
         super.onResume()
@@ -989,189 +714,38 @@ class ProjectPageActivity :
     }
 
     private fun getTabTitle(position: Int, pagerList: List<ProjectPagerTabs>) =
-        when (pagerList[position]) {
-            ProjectPagerTabs.OVERVIEW -> getString(R.string.Overview)
-            ProjectPagerTabs.CAMPAIGN -> getString(R.string.Campaign)
-            ProjectPagerTabs.FAQS -> getString(R.string.Faq)
-            ProjectPagerTabs.RISKS -> getString(R.string.Risks)
-            ProjectPagerTabs.USE_OF_AI -> getString(R.string.Use_of_ai)
-            ProjectPagerTabs.ENVIRONMENTAL_COMMITMENT -> getString(R.string.Environmental_commitments)
-        }
+        pagerController.getTabTitle(position, pagerList)
 
-    private fun animateScrimVisibility(show: Boolean) {
-        val shouldAnimateIn = show && binding.pledgeContainerLayout.scrim.alpha <= 1f
-        val shouldAnimateOut = !show && binding.pledgeContainerLayout.scrim.alpha >= 0f
-        if (shouldAnimateIn || shouldAnimateOut) {
-            val finalAlpha = if (show) 1f else 0f
-            binding.pledgeContainerLayout.scrim.animate()
-                .alpha(finalAlpha)
-                .setDuration(200L)
-                .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        if (!show) {
-                            binding.pledgeContainerLayout.scrim.visibility = View.GONE
-                        }
-                    }
+    private fun animateScrimVisibility(show: Boolean) =
+        pledgeSheetController.animateScrimVisibility(show)
 
-                    override fun onAnimationStart(animation: Animator) {
-                        if (show) {
-                            binding.pledgeContainerLayout.scrim.visibility = View.VISIBLE
-                        }
-                    }
-                })
-        }
-    }
+    private fun backingFragment() = pledgeSheetController.backingFragment()
 
-    private fun backingFragment() =
-        supportFragmentManager.findFragmentById(R.id.fragment_backing) as BackingFragment?
+    private fun clearFragmentBackStack(): Boolean = pledgeSheetController.clearFragmentBackStack()
 
-    private fun clearFragmentBackStack(): Boolean {
-        return supportFragmentManager.popBackStackImmediate(
-            null,
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-    }
+    private fun expandPledgeSheet(expandAndAnimate: Pair<Boolean, Boolean>) =
+        pledgeSheetController.expandPledgeSheet(expandAndAnimate)
 
-    @SuppressLint("DiscouragedApi", "InternalInsetResource")
-    private fun expandPledgeSheet(expandAndAnimate: Pair<Boolean, Boolean>) {
-        var statusBarHeight = 0
+    private fun setFragmentsState(expand: Boolean) =
+        pledgeSheetController.setFragmentsState(expand)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
-            statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            insets
-        }
+    private fun handleNativeCheckoutBackPress() =
+        pledgeSheetController.handleNativeCheckoutBackPress()
 
-        val expand = expandAndAnimate.first
-        val animate = expandAndAnimate.second
-        val targetToShow =
-            if (!expand) binding.pledgeContainerLayout.pledgeActionButtonsLayout else binding.pledgeContainerLayout.pledgeContainer
-        val showRewardsFragmentAnimator = ObjectAnimator.ofFloat(targetToShow, View.ALPHA, 0f, 1f)
-
-        val targetToHide =
-            if (!expand) binding.pledgeContainerLayout.pledgeContainer else binding.pledgeContainerLayout.pledgeActionButtonsLayout
-        val hideRewardsFragmentAnimator = ObjectAnimator.ofFloat(targetToHide, View.ALPHA, 1f, 0f)
-
-        val guideline = rewardsSheetGuideline()
-        val initialValue =
-            (if (expand) binding.pledgeContainerLayout.pledgeContainerRoot.height - guideline else 0).toFloat()
-        val finalValue =
-            ((if (expand) 0 else binding.pledgeContainerLayout.pledgeContainerRoot.height - guideline) + statusBarHeight).toFloat()
-        val initialRadius = resources.getDimensionPixelSize(R.dimen.fab_radius).toFloat()
-
-        val pledgeContainerYAnimator = ObjectAnimator.ofFloat(
-            binding.pledgeContainerLayout.pledgeContainerRoot,
-            View.Y,
-            initialValue,
-            finalValue
-        ).apply {
-            addUpdateListener { valueAnim ->
-                val radius =
-                    initialRadius * if (expand) 1 - valueAnim.animatedFraction else valueAnim.animatedFraction
-                binding.pledgeContainerLayout.pledgeContainerRoot.radius = radius
-            }
-        }
-
-        AnimatorSet().apply {
-            playTogether(
-                showRewardsFragmentAnimator,
-                hideRewardsFragmentAnimator,
-                pledgeContainerYAnimator
-            )
-            duration = animDuration
-
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationRepeat(animation: Animator) {}
-                override fun onAnimationCancel(animation: Animator) {}
-
-                override fun onAnimationEnd(animation: Animator) {
-                    setFragmentsState(expand)
-                    if (expand) {
-                        binding.pledgeContainerLayout.pledgeActionButtonsLayout.visibility =
-                            View.GONE
-                        binding.projectActivityToolbar.importantForAccessibility =
-                            View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-                        binding.pledgeContainerLayout.pledgeToolbar.requestFocus()
-                    } else {
-                        binding.pledgeContainerLayout.pledgeContainer.visibility = View.GONE
-                        binding.projectActivityToolbar.importantForAccessibility =
-                            View.IMPORTANT_FOR_ACCESSIBILITY_YES
-                        if (animate) {
-                            binding.projectActivityToolbar.requestFocus()
-                        }
-                    }
-                }
-
-                override fun onAnimationStart(animation: Animator) {
-                    if (expand) {
-                        binding.pledgeContainerLayout.pledgeContainer.visibility = View.VISIBLE
-                    } else if (animate) {
-                        binding.pledgeContainerLayout.pledgeActionButtonsLayout.visibility =
-                            View.VISIBLE
-                    }
-                }
-            })
-
-            start()
-        }
-    }
-
-    private fun setFragmentsState(expand: Boolean) {
-        supportFragmentManager.fragments.map { fragment ->
-            when (fragment) {
-                is RewardsFragment -> {
-                    fragment.setState(expand && fragment.isVisible)
-                }
-
-                is BackingFragment -> {
-                    fragment.setState(expand && fragment.isVisible)
-                }
-            }
-        }
-    }
-
-    private fun handleNativeCheckoutBackPress() {
-        val retryPadding =
-            resources.getDimensionPixelSize(R.dimen.grid_4) // pledge_sheet_retry_container padding
-        val pledgeSheetIsExpanded =
-            binding.pledgeContainerLayout.pledgeContainerRoot.y <= retryPadding
-
-        when {
-            supportFragmentManager.backStackEntryCount > 0 -> supportFragmentManager.popBackStack()
-            pledgeSheetIsExpanded -> this.viewModel.inputs.pledgeToolbarNavigationClicked()
-            else -> onBackPressedDispatcher.onBackPressed()
-        }
-    }
-
-    private fun openProjectAndFinish(url: String) {
-        ApplicationUtils.openUrlExternally(this, url)
-        finish()
-    }
+    private fun openProjectAndFinish(url: String) =
+        navigationDelegate.openProjectAndFinish(url)
 
     private fun renderProject(
         backingFragment: BackingFragment,
         rewardsFragment: RewardsFragment,
         projectData: ProjectData,
-    ) {
-        rewardsFragment.configureWith(projectData)
-        backingFragment.configureWith(projectData)
-    }
+    ) = pledgeSheetController.renderProject(backingFragment, rewardsFragment, projectData)
 
-    private fun revealRewardsFragment() {
-        rewardsFragment()?.let {
-            supportFragmentManager
-                .beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
-                .show(it)
-                .addToBackStack(RewardsFragment::class.java.simpleName)
-                .commit()
-        }
-    }
+    private fun revealRewardsFragment() = pledgeSheetController.revealRewardsFragment()
 
-    private fun rewardsFragment() =
-        supportFragmentManager.findFragmentById(R.id.fragment_rewards) as RewardsFragment?
+    private fun rewardsFragment() = pledgeSheetController.rewardsFragment()
 
-    private fun rewardsSheetGuideline(): Int =
-        resources.getDimensionPixelSize(R.dimen.reward_fragment_guideline_constraint_end)
+    private fun rewardsSheetGuideline(): Int = pledgeSheetController.rewardsSheetGuideline()
 
     private fun setBackingDetailsSubtitle(stringResOrTitle: Either<String, Int>?) {
         stringResOrTitle?.let { either ->
@@ -1228,61 +802,22 @@ class ProjectPageActivity :
         }
     }
 
-    private fun setInitialRewardsContainerY() {
-        val guideline = rewardsSheetGuideline()
-        binding.pledgeContainerLayout.pledgeContainerRoot.y =
-            (binding.root.height - guideline).toFloat()
-    }
+    private fun setInitialRewardsContainerY() = pledgeSheetController.setInitialRewardsContainerY()
 
-    private fun showCancelPledgeFragment(project: Project) {
-        val cancelPledgeFragment = CancelPledgeFragment.newInstance(project)
-        val tag = CancelPledgeFragment::class.java.simpleName
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
-            .add(R.id.fragment_container, cancelPledgeFragment, tag)
-            .addToBackStack(tag)
-            .commit()
-    }
+    private fun showCancelPledgeFragment(project: Project) = pledgeSheetController.showCancelPledgeFragment(project)
 
-    private fun showCancelPledgeSuccess() {
-        clearFragmentBackStack()
-        showSnackbar(binding.snackbarAnchor, getString(R.string.Youve_canceled_your_pledge))
-    }
+    private fun showCancelPledgeSuccess() = dialogsAndFeedback.showCancelPledgeSuccess()
 
-    private fun showCreatePledgeSuccess(checkoutDataAndProjectData: Pair<CheckoutData, PledgeData>) {
-        val checkoutData = checkoutDataAndProjectData.first
-        val pledgeData = checkoutDataAndProjectData.second
-        val projectData = pledgeData.projectData()
+    private fun showCreatePledgeSuccess(checkoutDataAndProjectData: Pair<CheckoutData, PledgeData>) =
+        dialogsAndFeedback.showCreatePledgeSuccess(checkoutDataAndProjectData.first, checkoutDataAndProjectData.second)
 
-        if (clearFragmentBackStack() || (projectData.project().showLatePledgeFlow())) {
-            startActivity(
-                Intent(this, ThanksActivity::class.java)
-                    .putExtra(IntentKey.PROJECT, projectData.project().reduceProjectPayload())
-                    .putExtra(IntentKey.CHECKOUT_DATA, checkoutData)
-                    .putExtra(IntentKey.PLEDGE_DATA, pledgeData)
-            )
-        }
-    }
+    private fun showPledgeNotCancelableDialog() = dialogsAndFeedback.showPledgeNotCancelableDialog()
 
-    private fun showPledgeNotCancelableDialog() {
-        AlertDialog.Builder(this, R.style.Dialog)
-            .setMessage(R.string.We_dont_allow_cancelations_that_will_cause_a_project_to_fall_short_of_its_goal_within_the_last_24_hours)
-            .setPositiveButton(getString(R.string.general_alert_buttons_ok)) { dialog, _ -> dialog.dismiss() }
-            .show()
-    }
-    private fun showPledgeFragment(
-        pledgeDataAndPledgeReason: Pair<PledgeData, PledgeReason>,
-    ) {
-        val pledgeFragment = this.selectPledgeFragment(pledgeDataAndPledgeReason.first, pledgeDataAndPledgeReason.second)
-        val tag = pledgeFragment::class.java.simpleName
-        supportFragmentManager
-            .beginTransaction()
-            .setCustomAnimations(R.anim.slide_in_right, 0, 0, R.anim.slide_out_right)
-            .add(R.id.fragment_container, pledgeFragment, tag)
-            .addToBackStack(tag)
-            .commit()
-    }
+    private fun showPledgeFragment(pledgeDataAndPledgeReason: Pair<PledgeData, PledgeReason>) =
+        pledgeSheetController.showPledgeFragment(
+            pledgeDataAndPledgeReason,
+            selectPledgeFragment(pledgeDataAndPledgeReason.first, pledgeDataAndPledgeReason.second)
+        )
 
     private fun setPledgeActionButtonCTA(stringRes: Int) {
         binding.pledgeContainerLayout.pledgeActionButton.setText(stringRes)
@@ -1292,14 +827,7 @@ class ProjectPageActivity :
         }
     }
 
-    private fun showStarToast() {
-        ViewUtils.showToastFromTop(
-            this,
-            getString(this.projectStarConfirmationString),
-            0,
-            resources.getDimensionPixelSize(R.dimen.grid_8)
-        )
-    }
+    private fun showStarToast() = dialogsAndFeedback.showStarToast()
 
     private fun showUpdatePledgeSuccess() {
         clearFragmentBackStack()
@@ -1309,32 +837,12 @@ class ProjectPageActivity :
         setResult(Activity.RESULT_OK, intent)
     }
 
-    private fun startShareIntent(projectNameAndShareUrl: Pair<String, String>) {
-        val name = projectNameAndShareUrl.first
-        val shareMessage =
-            this.ksString.format(getString(this.projectShareCopyString), "project_title", name)
+    private fun startShareIntent(projectNameAndShareUrl: Pair<String, String>) =
+        navigationDelegate.startShareIntent(projectNameAndShareUrl)
 
-        val url = projectNameAndShareUrl.second
-        val intent = Intent(Intent.ACTION_SEND)
-            .setType("text/plain")
-            .putExtra(Intent.EXTRA_TEXT, "$shareMessage $url")
-        startActivity(Intent.createChooser(intent, getString(this.projectShareLabelString)))
-    }
+    private fun startLoginToutActivity() = navigationDelegate.startLoginToutActivity()
 
-    private fun startLoginToutActivity() {
-        val intent = Intent(this, LoginToutActivity::class.java)
-            .putExtra(IntentKey.LOGIN_REASON, LoginReason.STAR_PROJECT)
-        startActivityForResult(intent, ActivityRequestCodes.LOGIN_FLOW)
-    }
-
-    private fun startMessagesActivity(project: Project) {
-        startActivity(
-            Intent(this, MessagesActivity::class.java)
-                .putExtra(IntentKey.MESSAGE_SCREEN_SOURCE_CONTEXT, MessagePreviousScreenType.PROJECT_PAGE)
-                .putExtra(IntentKey.PROJECT, project.reduceProjectPayload())
-                .putExtra(IntentKey.BACKING, project.backing())
-        )
-    }
+    private fun startMessagesActivity(project: Project) = navigationDelegate.startMessagesActivity(project)
 
     private fun styleProjectActionButton(detailsAreVisible: Boolean) {
         val buttonParams =
@@ -1393,110 +901,34 @@ class ProjectPageActivity :
     }
 
     // Update the UI with the returned PaymentOption
-    private fun onPaymentOption(paymentOption: PaymentOption?) {
-        paymentOption?.let {
-            flowController.confirm()
-            latePledgeCheckoutViewModel.loading()
-        }
-    }
+    private fun onPaymentOption(paymentOption: PaymentOption?) =
+        stripePaymentHandler.onPaymentOption(paymentOption)
 
-    private fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
-        when (paymentSheetResult) {
-            is PaymentSheetResult.Canceled -> {
-                showErrorToast(
-                    applicationContext,
-                    binding.pledgeContainerCompose,
-                    getString(R.string.general_error_oops)
-                )
-                latePledgeCheckoutViewModel.onNewCardFailed()
-            }
+    private fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) =
+        stripePaymentHandler.onPaymentSheetResult(paymentSheetResult)
 
-            is PaymentSheetResult.Failed -> {
-                val errorMessage = paymentSheetResult.error.localizedMessage
-                    ?: getString(R.string.general_error_something_wrong)
-                showErrorToast(
-                    applicationContext,
-                    binding.pledgeContainerCompose,
-                    errorMessage
-                )
-                latePledgeCheckoutViewModel.onNewCardFailed()
-            }
-
-            is PaymentSheetResult.Completed -> {
-                latePledgeCheckoutViewModel.onNewCardSuccessfullyAdded()
-            }
-        }
-    }
-
-    private fun stripeNextAction(it: String) {
-        try {
-            // - PaymentIntent format
-            if (it.contains("pi_")) {
-                stripe.handleNextActionForPayment(this, it)
-            } else {
-                // - SetupIntent format
-                stripe.handleNextActionForSetupIntent(this, it)
-            }
-        } catch (exception: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(exception)
-        }
-    }
+    private fun stripeNextAction(it: String) =
+        stripePaymentHandler.stripeNextAction(it)
 
     private fun flowControllerPresentPaymentOption(
         clientSecret: String,
         userEmail: String,
         googlePayCountryCode: String? = null,
         googlePayCurrencyCode: String? = null
-    ) {
-        val googlePayEnabled = latePledgeCheckoutViewModel.isPaymentSheetGooglePayEnabled()
-        Timber.d("googlePayEnabled: $googlePayEnabled, googlePayCountryCode: $googlePayCountryCode, googlePayCurrencyCode: $googlePayCurrencyCode")
-        flowController.configureWithSetupIntent(
-            setupIntentClientSecret = clientSecret,
-            configuration = getPaymentSheetConfiguration(userEmail, googlePayEnabled, googlePayCountryCode, googlePayCurrencyCode),
-            callback = ::onConfigured
-        )
-    }
+    ) = stripePaymentHandler.flowControllerPresentPaymentOption(
+        clientSecret,
+        userEmail,
+        googlePayCountryCode,
+        googlePayCurrencyCode
+    )
 
-    // error is not used by is needed in the callback object
-    private fun onConfigured(success: Boolean, error: Throwable?) {
-        if (success) {
-            flowController.presentPaymentOptions()
-        } else {
-            showToastError()
-        }
-    }
-
-    private fun showToastError(message: String? = null) {
-        this.runOnUiThread {
-            showErrorToast(
-                applicationContext,
-                binding.pledgeContainerCompose,
-                message ?: getString(R.string.general_error_something_wrong)
-            )
-        }
-    }
+    private fun showToastError(message: String? = null) =
+        dialogsAndFeedback.showToastError(message)
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
         viewModel.activityResult(create(requestCode, resultCode, intent))
-        stripe.onPaymentResult(
-            requestCode, intent,
-            object : ApiResultCallback<PaymentIntentResult> {
-                override fun onSuccess(result: PaymentIntentResult) {
-                    if (result.outcome == StripeIntentResult.Outcome.SUCCEEDED) {
-                        latePledgeCheckoutViewModel.completeOnSessionCheckoutFor3DS()
-                    } else {
-                        latePledgeCheckoutViewModel.clear3DSValues()
-                        showToastError()
-                    }
-                }
-
-                override fun onError(e: Exception) {
-                    latePledgeCheckoutViewModel.clear3DSValues()
-                    showToastError()
-                }
-            }
-        )
+        stripePaymentHandler.handleActivityResult(requestCode, resultCode, intent)
     }
 
     override fun onDestroy() {

@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.kickstarter.R
+import com.kickstarter.features.splash.data.SplashUIState
+import com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel
 import com.kickstarter.libs.ActivityRequestCodes
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.RefTag
@@ -41,16 +43,14 @@ import com.kickstarter.ui.extensions.setUpConnectivityStatusCheck
 import com.kickstarter.ui.extensions.startPreLaunchProjectActivity
 import com.kickstarter.ui.extensions.startVideoFeed
 import com.kickstarter.ui.extensions.startWebViewActivity
-import com.kickstarter.viewmodels.SplashScreenViewModel
-import com.kickstarter.viewmodels.SplashUIState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
 
-    private lateinit var viewModelFactory: SplashScreenViewModel.Factory
-    private val viewModel: SplashScreenViewModel.DeepLinkViewModel by viewModels { viewModelFactory }
+    private lateinit var viewModelFactory: SplashFeatureViewModel.Factory
+    private val viewModel: SplashFeatureViewModel by viewModels { viewModelFactory }
 
     private var disposables = CompositeDisposable()
 
@@ -67,7 +67,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
         this.getEnvironment()?.let {
             environment = it
-            viewModelFactory = SplashScreenViewModel.Factory(it, intent = intent)
+            viewModelFactory = SplashFeatureViewModel.Factory(it, intent = intent)
         }
 
         compatSplashScreen.setKeepOnScreenCondition {

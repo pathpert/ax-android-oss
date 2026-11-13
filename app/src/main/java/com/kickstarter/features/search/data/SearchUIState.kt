@@ -17,4 +17,3 @@ data class SearchUIState(
     val searchList: List<Project> = emptyList(),
     val hasMore: Boolean = true
 )
-

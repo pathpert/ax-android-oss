@@ -1,7 +1,6 @@
 package com.kickstarter.features.search.viewmodel
 
 import com.kickstarter.KSRobolectricTestCase
-import com.kickstarter.features.search.data.SearchUIState
 import com.kickstarter.features.search.data.SearchEnvelope
 import com.kickstarter.features.search.data.SearchUIState
 import com.kickstarter.libs.Environment

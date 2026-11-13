@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.kickstarter.KSApplication
 import com.kickstarter.KSRobolectricTestCase
+import com.kickstarter.features.splash.data.SplashUIState
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.FirebaseHelper
 import com.kickstarter.libs.MockCurrentUserV2

@@ -51,4 +51,3 @@ class PledgeTierTypeTest {
         assertEquals("RewardReceived", PledgeTierType.REWARD_RECEIVED.tierType)
     }
 }
-

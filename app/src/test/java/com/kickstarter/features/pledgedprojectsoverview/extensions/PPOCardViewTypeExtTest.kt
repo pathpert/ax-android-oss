@@ -35,4 +35,3 @@ class PPOCardViewTypeExtTest {
         assertFalse(PPOCardViewType.OPEN_SURVEY.isTier2Type())
     }
 }
-

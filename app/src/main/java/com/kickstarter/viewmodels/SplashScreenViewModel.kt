@@ -15,6 +15,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.remoteconfig.remoteConfig
 import com.kickstarter.KSApplication
 import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.features.splash.data.SplashUIState
 import com.kickstarter.libs.CurrentUserTypeV2
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.FirebaseHelper
@@ -68,30 +69,21 @@ import okhttp3.Request
 import okhttp3.Response
 import java.util.Optional
 
-enum class InitializationState {
-    NOT_STARTED,
-    RUNNING,
-    FINISHED
-}
-
-sealed class SplashUIState {
-    object Loading : SplashUIState()
-    object NoInternet : SplashUIState()
-    object Errored : SplashUIState()
-    object Finished : SplashUIState() // todo update to dataclass in future to pass in navigation target
-    data class Failed(val problem: ProblemDetails) : SplashUIState()
-}
-sealed class NavigationTarget {
-    object Discovery : NavigationTarget()
-}
-
-interface CustomNetworkClient {
-    fun obtainUriFromRedirection(uri: Uri): Observable<Response>
-}
+typealias InitializationState = com.kickstarter.features.splash.data.InitializationState
+typealias SplashUIState = com.kickstarter.features.splash.data.SplashUIState
+typealias NavigationTarget = com.kickstarter.features.splash.data.NavigationTarget
+typealias CustomNetworkClient = com.kickstarter.features.splash.data.CustomNetworkClient
 
 /* For Crashlytics logging only */
 private class ProcessIntentException(message: String) : Exception(message)
 
+@Deprecated(
+    message = "Legacy monolithic ViewModel replaced by SplashFeatureViewModel under features/splash/.",
+    replaceWith = ReplaceWith(
+        expression = "SplashFeatureViewModel",
+        imports = ["com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel"]
+    )
+)
 interface SplashScreenViewModel {
     interface Outputs {
         /** Emits when we should start an external browser because we don't want to deep link.  */

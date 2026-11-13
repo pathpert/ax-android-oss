@@ -86,4 +86,3 @@ class DeliveryAddressTest {
         assertNotEquals(addr1, addr3)
     }
 }
-
