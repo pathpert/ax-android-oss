@@ -33,6 +33,9 @@ import com.kickstarter.type.CreditCardPaymentType
 import com.kickstarter.ui.data.ProjectData
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.joda.time.DateTime
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -57,6 +60,9 @@ open class BackingFeatureViewModel(
     open val inputs: BackingFeatureInputs = this
     open val outputs: BackingFeatureOutputs = this
 
+    private val _backingStateFlow = MutableStateFlow<BackingState>(BackingState.Loading)
+    val backingStateFlow: StateFlow<BackingState> = _backingStateFlow.asStateFlow()
+
     init {
         this.pledgeSuccessfullyCancelled
             .subscribe { this.showUpdatePledgeSuccess.onNext(it) }
@@ -75,7 +81,10 @@ open class BackingFeatureViewModel(
             .switchMap { this.repository.getBackingInfo(it) }
             .share()
 
-        backingState.subscribe(this.backingStateSubject::onNext).addToDisposable(disposables)
+        backingState.subscribe {
+            this.backingStateSubject.onNext(it)
+            _backingStateFlow.value = it
+        }.addToDisposable(disposables)
 
         val backing = backingState
             .ofType(BackingState.Success::class.java)

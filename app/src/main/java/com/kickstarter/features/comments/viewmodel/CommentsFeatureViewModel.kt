@@ -30,6 +30,9 @@ import com.kickstarter.ui.views.CommentCardStatus
 import com.kickstarter.ui.views.CommentComposerStatus
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 open class CommentsFeatureViewModel(
     val environment: Environment,
@@ -45,6 +48,9 @@ open class CommentsFeatureViewModel(
 
     open val inputs: CommentsFeatureInputs = this
     open val outputs: CommentsFeatureOutputs = this
+
+    private val _commentsStateFlow = MutableStateFlow<List<CommentCardData>>(emptyList())
+    val commentsStateFlow: StateFlow<List<CommentCardData>> = _commentsStateFlow.asStateFlow()
 
     private lateinit var project: Project
     private var openedThreadActivityFromDeepLink = false
@@ -185,7 +191,10 @@ open class CommentsFeatureViewModel(
             .distinctUntilChanged().doOnNext { this.scrollToTop.onNext(false) }
             .subscribe { this.commentsList.onNext(it) }.addToDisposable(disposables)
 
-        this.commentsList.filter { it.isNotEmpty() }.subscribe { this.outputCommentList.onNext(it) }.addToDisposable(disposables)
+        this.commentsList.filter { it.isNotEmpty() }.subscribe {
+            this.outputCommentList.onNext(it)
+            _commentsStateFlow.value = it
+        }.addToDisposable(disposables)
 
         this.commentsList.compose(takePairWhenV2(this.failedCommentCardToRefresh))
             .map {

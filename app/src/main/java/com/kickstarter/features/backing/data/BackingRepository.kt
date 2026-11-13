@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit
 interface BackingRepository {
     fun getBackingInfo(projectData: ProjectData): Observable<BackingState>
     fun postBackingReceived(project: Project, backing: Backing, checked: Boolean): Observable<Backing>
+    suspend fun getBackingInfoSuspend(projectData: ProjectData): BackingState = BackingState.Loading
     fun cleanDisposables()
 }
 
@@ -49,6 +50,29 @@ class BackingRepositoryImpl(
 
     override fun postBackingReceived(project: Project, backing: Backing, checked: Boolean): Observable<Backing> {
         return apiClient.postBacking(project, backing, checked)
+    }
+
+    override suspend fun getBackingInfoSuspend(projectData: ProjectData): BackingState {
+        val backing = projectData.backing()
+        val slug = projectData.project().slug()
+
+        return when {
+            backing != null -> BackingState.Success(backing)
+            !slug.isNullOrBlank() -> {
+                runCatching {
+                    val remoteBacking = apolloClient.getProjectBacking(slug).blockingFirst()
+                    BackingState.Success(remoteBacking)
+                }.getOrElse { error ->
+                    val problem = ProblemDetailsMapper.fromThrowable(error)
+                    BackingState.Error(problem = problem, throwable = error)
+                }
+            }
+            else -> BackingState.Error(
+                problem = ProblemDetailsMapper.fromThrowable(
+                    IllegalArgumentException("Missing project slug or backing")
+                )
+            )
+        }
     }
 
     override fun cleanDisposables() {
