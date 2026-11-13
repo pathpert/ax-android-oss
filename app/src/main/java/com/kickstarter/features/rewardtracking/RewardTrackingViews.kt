@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.kickstarter.R
+import com.kickstarter.features.rewardtracking.data.RewardTrackingPageType
+import com.kickstarter.features.rewardtracking.data.RewardTrackingTestTag
 import com.kickstarter.libs.utils.extensions.format
 import com.kickstarter.models.Photo
 import com.kickstarter.ui.compose.KSAsyncImage
@@ -78,7 +80,7 @@ fun RewardTrackingActivityFeed(
 
         Spacer(modifier = Modifier.height(dimensions.paddingMediumSmall))
 
-        Divider(
+        HorizontalDivider(
             color = colors.kds_support_200
         )
 
@@ -187,12 +189,6 @@ fun ProjectInfoHeader(
         )
     }
 }
-enum class RewardTrackingTestTag(name: String) {
-    TRACK_SHIPMENT_BUTTON("track_shipment_button"),
-    PROJECT_CARD_MODAL("project_card_modal")
-}
 
-enum class RewardTrackingPageType(name: String) {
-    VIEW_YOUR_PLEDGE("view_your_pledge"),
-    ACTIVITY_FEED("activity_feed")
-}
+typealias RewardTrackingTestTag = com.kickstarter.features.rewardtracking.data.RewardTrackingTestTag
+typealias RewardTrackingPageType = com.kickstarter.features.rewardtracking.data.RewardTrackingPageType
