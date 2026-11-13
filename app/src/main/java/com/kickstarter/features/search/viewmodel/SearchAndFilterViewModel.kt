@@ -268,17 +268,12 @@ class SearchAndFilterViewModel(
         selectedProject: Project
     ): Pair<Project, RefTag> {
         val isFirstResult = if (projects.isEmpty()) false else selectedProject === projects[0]
-        return if (searchTerm.isEmpty()) {
-            if (isFirstResult) Pair(
-                selectedProject,
-                RefTag.searchPopularFeatured()
-            ) else Pair(selectedProject, RefTag.searchPopular())
+        val tag = if (searchTerm.isEmpty()) {
+            if (isFirstResult) RefTag.searchPopularFeatured() else RefTag.searchPopular()
         } else {
-            if (isFirstResult) Pair(
-                selectedProject,
-                RefTag.searchFeatured()
-            ) else Pair(selectedProject, RefTag.search())
+            if (isFirstResult) RefTag.searchFeatured() else RefTag.search()
         }
+        return Pair(selectedProject, tag)
     }
 
     fun updateSearchTerm(searchTerm: String) {

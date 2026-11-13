@@ -8,7 +8,6 @@ import com.kickstarter.libs.rx.transformers.Transformers.neverErrorV2
 import com.kickstarter.libs.rx.transformers.Transformers.takeWhenV2
 import com.kickstarter.libs.rx.transformers.Transformers.valuesV2
 import com.kickstarter.libs.utils.extensions.addToDisposable
-import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.libs.utils.extensions.isZero
 import com.kickstarter.models.User
 import io.reactivex.Notification

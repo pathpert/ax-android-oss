@@ -41,10 +41,6 @@ import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutEsti
 import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutNotAStoreCard
 import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutPaymentMethodSelector
 import com.kickstarter.ui.activities.compose.projectpage.components.CheckoutRewardSummarySection
-import com.kickstarter.ui.activities.compose.projectpage.components.TermsOfUseClickableText as ComponentsTermsOfUseClickableText
-import com.kickstarter.ui.activities.compose.projectpage.components.TextWithClickableAccountabilityLink as ComponentsTextWithClickableAccountabilityLink
-import com.kickstarter.ui.activities.compose.projectpage.components.KSCardElement as ComponentsKSCardElement
-import com.kickstarter.ui.activities.compose.projectpage.components.KSEstimatedShippingCheckoutView as ComponentsKSEstimatedShippingCheckoutView
 import com.kickstarter.ui.activities.compose.projectpage.components.UpdateSelectedCardIfNewCardAdded
 import com.kickstarter.ui.compose.designsystem.KSCircularProgressIndicator
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
@@ -53,6 +49,10 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.ui.compose.designsystem.kds_white
 import com.kickstarter.ui.data.PledgeReason
 import java.math.RoundingMode
+import com.kickstarter.ui.activities.compose.projectpage.components.KSCardElement as ComponentsKSCardElement
+import com.kickstarter.ui.activities.compose.projectpage.components.KSEstimatedShippingCheckoutView as ComponentsKSEstimatedShippingCheckoutView
+import com.kickstarter.ui.activities.compose.projectpage.components.TermsOfUseClickableText as ComponentsTermsOfUseClickableText
+import com.kickstarter.ui.activities.compose.projectpage.components.TextWithClickableAccountabilityLink as ComponentsTextWithClickableAccountabilityLink
 
 @Composable
 fun CheckoutScreen(

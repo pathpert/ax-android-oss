@@ -21,7 +21,6 @@ import com.kickstarter.models.CreatePaymentIntentInput
 import com.kickstarter.models.Project
 import com.kickstarter.models.Reward
 import com.kickstarter.models.StoredCard
-import com.kickstarter.models.UserPrivacy
 import com.kickstarter.services.mutations.CreateCheckoutData
 import com.kickstarter.services.mutations.SavePaymentMethodData
 import com.kickstarter.type.CreditCardPaymentType
@@ -35,7 +34,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

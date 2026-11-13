@@ -2,8 +2,8 @@ package com.kickstarter.features.discovery.data
 
 import android.content.SharedPreferences
 import com.kickstarter.libs.AnalyticEvents
-import com.kickstarter.libs.utils.RefTagUtils
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName.DISCOVER
+import com.kickstarter.libs.utils.RefTagUtils
 import com.kickstarter.models.Project
 import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.data.ProjectData

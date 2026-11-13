@@ -15,9 +15,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.kickstarter.R
 import com.kickstarter.libs.KSString
+import com.kickstarter.libs.utils.extensions.acceptedCardType
 import com.kickstarter.models.Project
 import com.kickstarter.models.StoredCard
-import com.kickstarter.libs.utils.extensions.acceptedCardType
 import com.kickstarter.models.extensions.isFromPaymentSheet
 import com.kickstarter.ui.activities.DisclaimerItems
 import com.kickstarter.ui.compose.designsystem.KSPrimaryGreenButton
