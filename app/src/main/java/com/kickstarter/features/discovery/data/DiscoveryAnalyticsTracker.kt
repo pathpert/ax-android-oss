@@ -10,14 +10,24 @@ import com.kickstarter.ui.data.ProjectData
 import java.net.CookieManager
 
 /**
- * Analytics tracking dispatcher for Discovery interactions.
+ * Isolated analytics tracking dispatcher for Project Discovery interactions.
+ *
+ * Negative constraints:
+ * - Do not mutate project, params, or cookie state within tracking dispatchers.
+ * - Do not dispatch events with uninitialized analytics instances.
  */
 object DiscoveryAnalyticsTracker {
 
+    /**
+     * Tracks when a discovery project card is tapped.
+     */
     fun trackCardClick(analytics: AnalyticEvents, project: Project) {
         analytics.trackProjectCardClicked(project, DISCOVER.contextName)
     }
 
+    /**
+     * Tracks discovery CTA button clicks with resolved intent and cookie ref-tags.
+     */
     fun trackCtaClick(
         analytics: AnalyticEvents,
         params: DiscoveryParams,
@@ -35,14 +45,23 @@ object DiscoveryAnalyticsTracker {
         analytics.trackDiscoverProjectCtaClicked(params, projectData)
     }
 
+    /**
+     * Tracks the discovery screen page view with current filter params.
+     */
     fun trackPageView(analytics: AnalyticEvents, params: DiscoveryParams) {
         analytics.trackDiscoveryPageViewed(params)
     }
 
+    /**
+     * Tracks click on the login tout within discovery feed.
+     */
     fun trackLoginTout(analytics: AnalyticEvents) {
         analytics.trackLoginOrSignUpCtaClicked(null, DISCOVER.contextName)
     }
 
+    /**
+     * Tracks project bookmark/watch action from discovery.
+     */
     fun trackWatch(analytics: AnalyticEvents, project: Project) {
         analytics.trackWatchProjectCTA(project, DISCOVER)
     }

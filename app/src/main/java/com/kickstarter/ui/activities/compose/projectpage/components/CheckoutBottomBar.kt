@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.kickstarter.R
@@ -26,6 +27,15 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.ui.data.PledgeReason
 
+const val CHECKOUT_BOTTOM_BAR_BUTTON_TEST_TAG = "checkout_bottom_bar_pledge_button"
+
+/**
+ * Bottom action bar for Crowdfund and Late Pledge Checkout screens.
+ *
+ * Negative constraints:
+ * - Do not pass unformatted raw currency amounts in [totalAmountString].
+ * - Do not trigger [onPledgeCtaClicked] when [isPledgeButtonEnabled] is false or the card is not accepted.
+ */
 @Composable
 fun CheckoutBottomBar(
     totalAmountString: String,
@@ -52,7 +62,10 @@ fun CheckoutBottomBar(
         ) {
             val isCardAccepted = (project.acceptedCardType(selectedOption?.type()) || selectedOption?.isFromPaymentSheet() ?: false)
             KSPrimaryGreenButton(
-                modifier = Modifier.padding(bottom = dimensions.paddingMediumSmall).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(bottom = dimensions.paddingMediumSmall)
+                    .fillMaxWidth()
+                    .testTag(CHECKOUT_BOTTOM_BAR_BUTTON_TEST_TAG),
                 onClickAction = { onPledgeCtaClicked(selectedOption, isIncrementalPledge) },
                 isEnabled = isCardAccepted && isPledgeButtonEnabled,
                 text = if (pledgeReason == PledgeReason.PLEDGE || pledgeReason == PledgeReason.LATE_PLEDGE) {
