@@ -23,6 +23,9 @@ abstract class KSArrayViewHolder(private val view: View) {
     }
 
     protected fun environment(): Environment {
-        return (context().applicationContext as KSApplication).component()?.environment()!!
+        val app = context().applicationContext as? KSApplication
+        return checkNotNull(app?.component()?.environment()) {
+            "KSApplication environment must not be null"
+        }
     }
 }

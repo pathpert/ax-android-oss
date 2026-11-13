@@ -54,45 +54,101 @@ class Backing private constructor(
      * Negative constraint: Do not pass directly across modern AX boundaries; convert to MinorCurrencyAmount.
      */
     fun amount() = this.amount
+
+    /** Domain model of the backer user who committed this pledge. */
     fun backer() = this.backer
+
+    /** Note or instruction text submitted by the backer. */
     fun backerNote() = this.backerNote
+
+    /** Database identifier (PID) of the backer user. */
     fun backerId() = this.backerId
+
+    /** Display name of the backer. */
     fun backerName() = this.backerName
+
+    /** Web profile URL for the backer. */
     fun backerUrl() = this.backerUrl
+
+    /** Timestamp when the backer submitted reward fulfillment survey responses. */
     fun backerCompletedAt() = this.backerCompletedAt
+
+    /** Deep-link navigation route for the backing details screen. */
     fun backingDetailsPageRoute() = this.backingDetailsPageRoute
 
     /**
      * Whether the backing can be cancelled by the backer at the current time.
+     * Negative constraint: Guard all cancellation mutations with [com.kickstarter.ax.safety.IdempotencyGuard].
      */
     fun cancelable() = this.cancelable
 
+    /** Timestamp when the backing transaction was finalized or collected. */
     fun completedAt() = this.completedAt
+
+    /** Whether the backer has completed all required post-campaign fulfillment forms. */
     fun completedByBacker() = this.completedByBacker
 
     /**
      * Database identifier (PID) of the backing.
+     * Negative constraint: Do not confuse with GraphQL Relay global IDs (`gid://Kickstarter/Backing/...`).
      */
     override fun id() = this.id
 
+    /** Whether this backing is split across installment payments (Pledge Over Time). */
     fun incremental() = this.incremental
+
+    /** Delivery destination location metadata for physical shipping. */
     fun location() = this.location
+
+    /** Location identifier for the selected shipping destination rule. */
     fun locationId() = this.locationId
+
+    /** Display name of the shipping destination. */
     fun locationName() = this.locationName
+
+    /** Payment source / card details used to process this backing transaction. */
     fun paymentSource() = this.paymentSource
+
+    /** List of installment payment schedules if [incremental] is true. */
     fun paymentIncrements() = this.paymentIncrements
+
+    /** Timestamp when the backing was committed. */
     fun pledgedAt() = this.pledgedAt
+
+    /** Associated campaign project domain model. */
     fun project() = this.project
+
+    /** Database identifier (PID) of the campaign project. */
     fun projectId() = this.projectId
+
+    /** Primary reward tier selected by the backer. */
     fun reward() = this.reward
+
+    /** Database identifier (PID) of the selected reward tier. */
     fun rewardId() = this.rewardId
+
+    /** Backer sequence number for this campaign (e.g. Backer #100). */
     fun sequence() = this.sequence
+
+    /** Shipping fee charged for delivery in project native currency. */
     fun shippingAmount() = this.shippingAmount
+
+    /**
+     * Current lifecycle status string (e.g. [STATUS_PLEDGED], [STATUS_COLLECTED], [STATUS_DROPPED], [STATUS_ERRORED], [STATUS_CANCELED]).
+     */
     @Status
     fun status() = this.status
+
+    /** List of add-on reward items selected alongside the primary reward. */
     fun addOns() = this.addOns
+
+    /** Additional bonus support amount contributed beyond the reward minimum. */
     fun bonusAmount() = this.bonusAmount
+
+    /** Whether this backing was pledged during post-campaign late pledging. */
     fun isPostCampaign() = this.isPostCampaign
+
+    /** Fulfillment order metadata for physical merchandise delivery. */
     fun order() = this.order
 
     @Parcelize

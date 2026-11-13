@@ -190,16 +190,18 @@ class PaymentMethodsSettingsActivity : AppCompatActivity() {
     }
 
     private fun lazyDeleteCardConfirmationDialog(): AlertDialog {
-        if (this.showDeleteCardDialog == null) {
-            this.showDeleteCardDialog = AlertDialog.Builder(this, R.style.AlertDialog)
-                .setCancelable(false)
-                .setTitle(R.string.Remove_this_card)
-                .setMessage(R.string.Are_you_sure_you_wish_to_remove_this_card)
-                .setNegativeButton(R.string.No_nevermind) { _, _ -> lazyDeleteCardConfirmationDialog().dismiss() }
-                .setPositiveButton(R.string.Yes_remove) { _, _ -> this.viewModel.inputs.confirmDeleteCardClicked() }
-                .create()
-        }
-        return this.showDeleteCardDialog!!
+        val existing = this.showDeleteCardDialog
+        if (existing != null) return existing
+
+        val dialog = AlertDialog.Builder(this, R.style.AlertDialog)
+            .setCancelable(false)
+            .setTitle(R.string.Remove_this_card)
+            .setMessage(R.string.Are_you_sure_you_wish_to_remove_this_card)
+            .setNegativeButton(R.string.No_nevermind) { d, _ -> d.dismiss() }
+            .setPositiveButton(R.string.Yes_remove) { _, _ -> this.viewModel.inputs.confirmDeleteCardClicked() }
+            .create()
+        this.showDeleteCardDialog = dialog
+        return dialog
     }
 
     private fun setCards(cards: List<StoredCard>) = this.adapter.populateCards(cards)

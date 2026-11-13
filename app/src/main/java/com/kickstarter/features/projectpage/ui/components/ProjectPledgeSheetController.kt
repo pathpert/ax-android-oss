@@ -35,10 +35,10 @@ class ProjectPledgeSheetController(
     private val animDuration = 200L
 
     fun backingFragment(): BackingFragment? =
-        fragmentManager.findFragmentById(R.id.fragment_backing) as BackingFragment?
+        fragmentManager.findFragmentById(R.id.fragment_backing) as? BackingFragment
 
     fun rewardsFragment(): RewardsFragment? =
-        fragmentManager.findFragmentById(R.id.fragment_rewards) as RewardsFragment?
+        fragmentManager.findFragmentById(R.id.fragment_rewards) as? RewardsFragment
 
     fun clearFragmentBackStack(): Boolean {
         return fragmentManager.popBackStackImmediate(

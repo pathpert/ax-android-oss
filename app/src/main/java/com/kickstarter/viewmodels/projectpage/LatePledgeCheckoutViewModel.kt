@@ -146,15 +146,14 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
                 val user = environment.currentUserV2()?.observable()?.asFlow()?.first()?.getValue()
                 user ?: return@coroutineScope
 
-                val privacy = async { apolloClient.userPrivacy().asFlow().first() }
-                val cards = async { apolloClient.getStoredCards().asFlow().first() }
+                val privacyAsync = async { apolloClient.userPrivacy().asFlow().first() }
+                val cardsAsync = async { apolloClient.getStoredCards().asFlow().first() }
 
-                // TODO: change to Pair?
-                val privacyAndCards = awaitAll(privacy, cards)
+                val privacy = privacyAsync.await()
+                val cards = cardsAsync.await()
 
-                userEmail = (privacyAndCards[0] as UserPrivacy).email
-                @Suppress("UNCHECKED_CAST")
-                storedCards = privacyAndCards[1] as List<StoredCard>
+                userEmail = privacy.email
+                storedCards = cards
                 emitCurrentState()
             }
         } catch (t: Throwable) {

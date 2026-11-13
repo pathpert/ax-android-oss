@@ -119,8 +119,8 @@ interface NotificationsViewModel {
                 .addToDisposable(disposables)
 
             val currentUser = this.currentUser.observable()
-                .filter { it.getValue().isNotNull() }
-                .map { it.getValue()!! }
+                .filter { it.isPresent() }
+                .map { checkNotNull(it.getValue()) }
 
             currentUser
                 .take(1)

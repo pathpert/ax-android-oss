@@ -22,17 +22,12 @@ object CommentsIntentProcessor {
 
     fun parseProjectOrUpdate(intent: Intent?): Observable<Either<Project?, Update?>> {
         return toIntentObservable(intent)
-            .map<Any?> {
+            .map {
                 val projectData = it.getParcelableExtra(IntentKey.PROJECT_DATA) as? ProjectData
                 val update = it.getParcelableExtra(IntentKey.UPDATE) as? Update
                 projectData?.project()?.let { p ->
                     Either.Left<Project?, Update?>(p)
                 } ?: Either.Right<Project?, Update?>(update)
-            }
-            .ofType(Either::class.java)
-            .map {
-                @Suppress("UNCHECKED_CAST")
-                it as Either<Project?, Update?>
             }
             .take(1)
     }

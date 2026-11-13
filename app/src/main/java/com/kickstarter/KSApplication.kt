@@ -192,15 +192,14 @@ open class KSApplication : MultiDexApplication(), IKSApplicationComponent, Image
 
     private fun createErrorHandler() {
         RxJavaPlugins.setErrorHandler { t: Throwable ->
+            val cause = t.cause
             if (t is OnErrorNotImplementedException &&
-                t.cause != null && t.cause is ApolloHttpException &&
-                (t.cause as ApolloHttpException).statusCode == 429
+                cause is ApolloHttpException &&
+                cause.statusCode == 429
             ) {
                 Timber.e(t, "RxJavaPlugins.setErrorHandler")
-                val apolloHttpException = t.cause as ApolloHttpException?
-                val value =
-                    if (apolloHttpException?.message != null) apolloHttpException.message else ""
-                FirebaseCrashlytics.getInstance().setCustomKey("ApolloHttpException (429)", value!!)
+                val value = cause.message ?: ""
+                FirebaseCrashlytics.getInstance().setCustomKey("ApolloHttpException (429)", value)
                 FirebaseCrashlytics.getInstance().recordException(t)
             } else if (t is UndeliverableException) {
                 Timber.w(t, "Undeliverable Exception")

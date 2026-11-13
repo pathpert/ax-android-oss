@@ -31,6 +31,9 @@ value class MinorCurrencyAmount private constructor(val minorUnits: Long) {
     companion object {
         const val DEFAULT_FRACTION_DIGITS = 2
 
+        /** Default zero amount representation in minor currency units. */
+        val ZERO = MinorCurrencyAmount(0L)
+
         /**
          * Creates a validated [MinorCurrencyAmount] from integer minor units.
          *

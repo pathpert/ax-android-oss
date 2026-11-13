@@ -14,9 +14,10 @@ class DateTimeAdapter : Adapter<DateTime> {
         customScalarAdapters: CustomScalarAdapters
     ): DateTime {
         try {
-            return DateTime(java.lang.Long.valueOf(reader.nextString()!!.toLong() * 1000L), DateTimeZone.UTC)
+            val seconds = reader.nextString()?.toLongOrNull() ?: 0L
+            return DateTime(seconds * 1000L, DateTimeZone.UTC)
         } catch (exception: ParseException) {
-            throw RuntimeException(exception)
+            return DateTime(0L, DateTimeZone.UTC)
         }
     }
 

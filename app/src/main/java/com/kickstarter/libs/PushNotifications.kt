@@ -264,7 +264,7 @@ class PushNotifications(
             .setContentIntent(projectContentIntent(envelope, projectIntent))
             .build()
 
-        notificationManager().notify(envelope.signature(), notification)
+        notificationManager()?.notify(envelope.signature(), notification)
     }
 
     private fun displayNotificationFromFriendFollowActivity(envelope: PushNotificationEnvelope) {
@@ -276,7 +276,7 @@ class PushNotifications(
             .setLargeIcon(fetchBitmap(activity.userPhoto(), true))
             .setContentIntent(friendFollowActivityIntent(envelope))
             .build()
-        notificationManager().notify(envelope.signature(), notification)
+        notificationManager()?.notify(envelope.signature(), notification)
     }
 
     private fun displayNotificationFromMessageActivity(
@@ -292,7 +292,7 @@ class PushNotifications(
                 .setContentIntent(messageThreadIntent(envelope, messageThread))
                 .build()
 
-            notificationManager().notify(envelope.signature(), notification)
+            notificationManager()?.notify(envelope.signature(), notification)
         }
     }
 
@@ -316,7 +316,7 @@ class PushNotifications(
         }
         val notification = notificationBuilder.build()
 
-        notificationManager().notify(envelope.signature(), notification)
+        notificationManager()?.notify(envelope.signature(), notification)
     }
 
     private fun displayNotificationFromProjectReminder(envelope: PushNotificationEnvelope) {
@@ -330,7 +330,7 @@ class PushNotifications(
             .setLargeIcon(fetchBitmap(project.photo(), false))
             .build()
 
-        notificationManager().notify(envelope.signature(), notification)
+        notificationManager()?.notify(envelope.signature(), notification)
     }
 
     private fun displayNotificationFromSurveyResponseActivity(
@@ -343,7 +343,7 @@ class PushNotifications(
         val notification = notificationBuilder(gcm.title(), gcm.alert(), CHANNEL_SURVEY)
             .setContentIntent(surveyResponseContentIntent(envelope, surveyUrlPath, IntentKey.NOTIFICATION_SURVEY_RESPONSE))
             .build()
-        notificationManager().notify(envelope.signature(), notification)
+        notificationManager()?.notify(envelope.signature(), notification)
     }
 
     private fun displayNotificationFromPledgeRedemption(
@@ -356,7 +356,7 @@ class PushNotifications(
         val notification = notificationBuilder(gcm.title(), gcm.alert(), CHANNEL_PLEDGE_REDEMPTION)
             .setContentIntent(surveyResponseContentIntent(envelope, pledgeRedemptionPath, IntentKey.NOTIFICATION_PLEDGE_REDEMPTION))
             .build()
-        notificationManager().notify(envelope.signature(), notification)
+        notificationManager()?.notify(envelope.signature(), notification)
     }
 
     private fun displayNotificationFromUpdateActivity(
@@ -375,7 +375,7 @@ class PushNotifications(
             .setContentIntent(projectUpdateContentIntent(envelope, update, projectParam))
             .setLargeIcon(fetchBitmap(activity.projectPhoto(), false))
             .build()
-        notificationManager().notify(envelope.signature(), notification)
+        notificationManager()?.notify(envelope.signature(), notification)
     }
 
     private fun friendFollowActivityIntent(envelope: PushNotificationEnvelope): PendingIntent {
@@ -384,10 +384,12 @@ class PushNotifications(
         val taskStackBuilder = TaskStackBuilder.create(this.context)
             .addNextIntentWithParentStack(messageThreadIntent)
 
-        return taskStackBuilder.getPendingIntent(
-            envelope.signature(),
-            PendingIntent.FLAG_IMMUTABLE
-        )!!
+        return checkNotNull(
+            taskStackBuilder.getPendingIntent(
+                envelope.signature(),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        ) { "Failed to obtain pending intent for friend follow activity" }
     }
 
     @VisibleForTesting
@@ -395,17 +397,20 @@ class PushNotifications(
         envelope: PushNotificationEnvelope,
         messageThread: MessageThread
     ): PendingIntent {
-        this.messageThreadIntent = Intent(this.context, MessagesActivity::class.java)
+        val intent = Intent(this.context, MessagesActivity::class.java)
             .putExtra(IntentKey.MESSAGE_THREAD, messageThread)
             .putExtra(IntentKey.MESSAGE_SCREEN_SOURCE_CONTEXT, MessagePreviousScreenType.PUSH)
+        this.messageThreadIntent = intent
 
         val taskStackBuilder = TaskStackBuilder.create(this.context)
-            .addNextIntentWithParentStack(messageThreadIntent!!)
+            .addNextIntentWithParentStack(intent)
 
-        return taskStackBuilder.getPendingIntent(
-            envelope.signature(),
-            PendingIntent.FLAG_IMMUTABLE
-        )!!
+        return checkNotNull(
+            taskStackBuilder.getPendingIntent(
+                envelope.signature(),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        ) { "Failed to obtain pending intent for message thread" }
     }
 
     private fun notificationBuilder(
@@ -429,10 +434,12 @@ class PushNotifications(
         val taskStackBuilder = TaskStackBuilder.create(this.context)
             .addNextIntentWithParentStack(projectIntent)
 
-        return taskStackBuilder.getPendingIntent(
-            envelope.signature(),
-            PendingIntent.FLAG_IMMUTABLE
-        )!!
+        return checkNotNull(
+            taskStackBuilder.getPendingIntent(
+                envelope.signature(),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        ) { "Failed to obtain pending intent for project content" }
     }
 
     private fun projectUpdateContentIntent(
@@ -453,10 +460,12 @@ class PushNotifications(
             .addNextIntentWithParentStack(projectIntent)
             .addNextIntent(updateIntent)
 
-        return taskStackBuilder.getPendingIntent(
-            envelope.signature(),
-            PendingIntent.FLAG_IMMUTABLE
-        )!!
+        return checkNotNull(
+            taskStackBuilder.getPendingIntent(
+                envelope.signature(),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        ) { "Failed to obtain pending intent for project update content" }
     }
 
     private fun surveyResponseContentIntent(
@@ -473,10 +482,12 @@ class PushNotifications(
             .addNextIntentWithParentStack(activityFeedIntent)
             .addNextIntent(surveyResponseIntent)
 
-        return taskStackBuilder.getPendingIntent(
-            envelope.signature(),
-            PendingIntent.FLAG_IMMUTABLE
-        )!!
+        return checkNotNull(
+            taskStackBuilder.getPendingIntent(
+                envelope.signature(),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        ) { "Failed to obtain pending intent for survey response" }
     }
 
     private fun fetchBitmap(url: String?, transformIntoCircle: Boolean): Bitmap? {
@@ -513,8 +524,8 @@ class PushNotifications(
         }
     }
 
-    private fun notificationManager(): NotificationManager {
-        return context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private fun notificationManager(): NotificationManager? {
+        return context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
     }
 
     private fun fetchMessageThreadWithEnvelope(

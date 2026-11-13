@@ -39,7 +39,7 @@ class CommentsRepositoryImpl(
 
     override fun getProject(projectId: String): Observable<Project?> {
         return apolloClient.getProject(projectId)
-            .map { it as Project? }
+            .map<Project?> { it }
             .compose(Transformers.neverErrorV2())
     }
 

@@ -139,11 +139,11 @@ class ApolloDiscoveryRepository(
         }
         val pledged = when (val res = MinorCurrencyAmount.fromMajorDouble(project.pledged())) {
             is DomainResult.Success -> res.value
-            is DomainResult.Failure -> (MinorCurrencyAmount.fromMinorUnits(0L) as DomainResult.Success).value
+            is DomainResult.Failure -> MinorCurrencyAmount.ZERO
         }
         val goal = when (val res = MinorCurrencyAmount.fromMajorDouble(project.goal())) {
             is DomainResult.Success -> res.value
-            is DomainResult.Failure -> (MinorCurrencyAmount.fromMinorUnits(0L) as DomainResult.Success).value
+            is DomainResult.Failure -> MinorCurrencyAmount.ZERO
         }
 
         return DiscoveryProjectCard(

@@ -2,81 +2,32 @@ package com.kickstarter.viewmodels
 
 import android.content.Intent
 import android.net.Uri
-import android.text.TextUtils
-import android.util.Pair
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.remoteconfig.remoteConfig
 import com.kickstarter.KSApplication
-import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.features.splash.data.CustomNetworkClient
+import com.kickstarter.features.splash.data.InitializationState
+import com.kickstarter.features.splash.data.NavigationTarget
+import com.kickstarter.features.splash.data.SplashOutputs
 import com.kickstarter.features.splash.data.SplashUIState
-import com.kickstarter.libs.CurrentUserTypeV2
+import com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel
 import com.kickstarter.libs.Environment
-import com.kickstarter.libs.FirebaseHelper
-import com.kickstarter.libs.RefTag
-import com.kickstarter.libs.featureflag.FlagKey
-import com.kickstarter.libs.rx.transformers.Transformers
-import com.kickstarter.libs.rx.transformers.Transformers.combineLatestPair
-import com.kickstarter.libs.utils.UrlUtils.appendRefTag
-import com.kickstarter.libs.utils.UrlUtils.refTag
-import com.kickstarter.libs.utils.extensions.addToDisposable
-import com.kickstarter.libs.utils.extensions.canUpdateFulfillment
-import com.kickstarter.libs.utils.extensions.isCheckoutUri
-import com.kickstarter.libs.utils.extensions.isDiscoverUri
-import com.kickstarter.libs.utils.extensions.isEmailDomain
-import com.kickstarter.libs.utils.extensions.isKSDomain
-import com.kickstarter.libs.utils.extensions.isMainPage
-import com.kickstarter.libs.utils.extensions.isNotNull
-import com.kickstarter.libs.utils.extensions.isNull
-import com.kickstarter.libs.utils.extensions.isPMOrderEditUri
-import com.kickstarter.libs.utils.extensions.isPMUri
-import com.kickstarter.libs.utils.extensions.isProjectCommentUri
-import com.kickstarter.libs.utils.extensions.isProjectPreviewUri
-import com.kickstarter.libs.utils.extensions.isProjectSaveUri
-import com.kickstarter.libs.utils.extensions.isProjectSurveyUri
-import com.kickstarter.libs.utils.extensions.isProjectUpdateCommentsUri
-import com.kickstarter.libs.utils.extensions.isProjectUpdateUri
-import com.kickstarter.libs.utils.extensions.isProjectUri
-import com.kickstarter.libs.utils.extensions.isRewardFulfilledDl
-import com.kickstarter.libs.utils.extensions.isSettingsUrl
-import com.kickstarter.libs.utils.extensions.isTrue
-import com.kickstarter.libs.utils.extensions.isVideoFeedUri
-import com.kickstarter.models.Project
-import com.kickstarter.models.User
-import com.kickstarter.services.ApiClientTypeV2
-import com.kickstarter.ui.intentmappers.ProjectIntentMapper
-import io.reactivex.Notification
 import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.BehaviorSubject
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import java.util.Optional
 
 typealias InitializationState = com.kickstarter.features.splash.data.InitializationState
 typealias SplashUIState = com.kickstarter.features.splash.data.SplashUIState
 typealias NavigationTarget = com.kickstarter.features.splash.data.NavigationTarget
 typealias CustomNetworkClient = com.kickstarter.features.splash.data.CustomNetworkClient
 
-/* For Crashlytics logging only */
-private class ProcessIntentException(message: String) : Exception(message)
-
+/**
+ * Legacy monolithic ViewModel facade delegating to modern [SplashFeatureViewModel].
+ */
 @Deprecated(
     message = "Legacy monolithic ViewModel replaced by SplashFeatureViewModel under features/splash/.",
     replaceWith = ReplaceWith(
@@ -85,529 +36,40 @@ private class ProcessIntentException(message: String) : Exception(message)
     )
 )
 interface SplashScreenViewModel {
-    interface Outputs {
-        /** Emits when we should start an external browser because we don't want to deep link.  */
-        fun startBrowser(): Observable<String>
-
-        /** Emits when we should start the [com.kickstarter.ui.activities.DiscoveryActivity].  */
-        fun startDiscoveryActivity(): Observable<Optional<Uri>>
-
-        /** Emits when we should start the [com.kickstarter.ui.activities.ProjectActivity].  */
-        fun startProjectActivity(): Observable<Uri>
-
-        /** Emits when we should start the [com.kickstarter.ui.activities.ProjectActivity].  */
-        fun startProjectActivityForComment(): Observable<Uri>
-
-        /** Emits when we should start the [com.kickstarter.ui.activities.ProjectActivity].  */
-        fun startProjectActivityForUpdate(): Observable<Uri>
-
-        /** Emits when we should start the [com.kickstarter.ui.activities.ProjectActivity].  */
-        fun startProjectActivityForCommentToUpdate(): Observable<Uri>
-
-        /** Emits when we should start the [com.kickstarter.ui.activities.ProjectActivity] with pledge sheet expanded.  */
-        fun startProjectActivityForCheckout(): Observable<Uri>
-
-        /** Emits when we should finish the current activity  */
-        fun finishDeeplinkActivity(): Observable<Unit>
-
-        /** Emits when we should start the [com.kickstarter.ui.activities.ProjectPageActivity].  */
-        fun startProjectActivityToSave(): Observable<Uri>
-
-        fun startProjectSurvey(): Observable<Pair<Uri, Boolean>>
-
-        fun startPMWebview(): Observable<Uri>
-
-        /** Emits a Project and RefTag pair when we should start the [com.kickstarter.ui.activities.PreLaunchProjectPageActivity].  */
-        fun startPreLaunchProjectActivity(): Observable<Pair<Uri, Project>>
-
-        /** Emits when we should start the [com.kickstarter.features.videofeed.ui.VideoFeedActivity].  */
-        fun startVideoFeedActivity(): Observable<Unit>
-    }
-
-    class DeepLinkViewModel(environment: Environment, private val application: KSApplication, private val intent: Intent?, private val externalCall: CustomNetworkClient) :
-        ViewModel(), Outputs {
-
-        private val startBrowser = BehaviorSubject.create<String>()
-        private val startDiscoveryActivity = BehaviorSubject.create<Optional<Uri>>()
-        private val startProjectActivity = BehaviorSubject.create<Uri>()
-        private val startProjectActivityForComment = BehaviorSubject.create<Uri>()
-        private val startProjectActivityForUpdate = BehaviorSubject.create<Uri>()
-        private val startProjectActivityForCommentToUpdate = BehaviorSubject.create<Uri>()
-        private val startProjectActivityWithCheckout = BehaviorSubject.create<Uri>()
-        private val startProjectActivityToSave = BehaviorSubject.create<Uri>()
-        private val startProjectSurvey = BehaviorSubject.create<Pair<Uri, Boolean>>()
-
-        private val startPMWebview = BehaviorSubject.create<Uri>()
-        private val startVideoFeedActivity = BehaviorSubject.create<Unit>()
-        private val updateUserPreferences = BehaviorSubject.create<Boolean>()
-        private val finishDeeplinkActivity = BehaviorSubject.create<Unit>()
-        private val apolloClient = requireNotNull(environment.apolloClientV2())
-        private val apiClientType = requireNotNull(environment.apiClientV2())
-        private val currentUser = requireNotNull(environment.currentUserV2())
-        private val webEndpoint = requireNotNull(environment.webEndpoint())
-        private val startPreLaunchProjectActivity = BehaviorSubject.create<Pair<Uri, Project>>()
-
-        private val ffClient = requireNotNull(environment.featureFlagClient())
-
-        private val disposables = CompositeDisposable()
-        private fun intent() = intent?.let { Observable.just(it) } ?: Observable.empty()
-
-        private val mutableUiState = MutableStateFlow<SplashUIState>(SplashUIState.Loading)
-        val uiState: StateFlow<SplashUIState> = mutableUiState.asStateFlow()
-
-        val outputs: Outputs = this
-
-        fun runInitializations() {
-
-            when (application.initializationState.value) {
-                InitializationState.FINISHED,
-                InitializationState.RUNNING -> {
-                    processIntent(externalCall = externalCall)
-                    mutableUiState.value = SplashUIState.Finished
-                    return
-                }
-                else -> {}
-            }
-
-            application.mutableInitializationState.value = InitializationState.RUNNING
-
-            viewModelScope.launch {
-                // - Remote config requires FirebaseApp.initializeApp(context) to be called before initializing
-                val remoteConfig = runCatching { Firebase.remoteConfig }.getOrNull() // TODO: Inject or set FirebaseRemoteConfig. Currently this just makes remoteConfig null in tests
-                ffClient?.initialize(remoteConfig)
-
-                FirebaseHelper.identifier
-                    .filter { it.isNotBlank() }
-                    .collect {
-                        try {
-                            val ffClientInitialization = async(SupervisorJob()) {
-                                initializeFeatureFlagClient()
-                            }
-                            val isInitialized = awaitAll(ffClientInitialization)
-
-                            if (isInitialized.isNotEmpty() && isInitialized.all { it.isTrue() }) {
-                                mutableUiState.emit(SplashUIState.Finished)
-                                application.mutableInitializationState.value = InitializationState.FINISHED
-                                processIntent(externalCall = externalCall)
-                            } else {
-                                val problem = ProblemDetails(
-                                    type = ProblemDetails.TYPE_SERVER,
-                                    title = "Feature-Flag Initialization Failed",
-                                    status = 503,
-                                    detail = "Statsig client did not initialize on startup.",
-                                    suggestedAction = "Retry app cold-start.",
-                                    isRetriable = true,
-                                    retryAfterSeconds = 5
-                                )
-                                mutableUiState.emit(SplashUIState.Failed(problem))
-                                application.mutableInitializationState.value = InitializationState.FINISHED
-                                processIntent(externalCall = externalCall)
-                            }
-                        } catch (e: Exception) {
-                            val problem = ProblemDetails(
-                                type = ProblemDetails.TYPE_UNEXPECTED,
-                                title = "Startup Initialization Error",
-                                status = 500,
-                                detail = e.message ?: "Unexpected startup initialization error.",
-                                suggestedAction = "Retry app cold-start.",
-                                isRetriable = true
-                            )
-                            mutableUiState.emit(SplashUIState.Failed(problem))
-                            application.mutableInitializationState.value = InitializationState.FINISHED
-                            processIntent(externalCall = externalCall)
-                        }
-                    }
-            }
-        }
-
-        private fun processIntent(intent: Observable<Intent> = intent(), externalCall: CustomNetworkClient) {
-            intent()
-                .filter {
-                    it.action == Intent.ACTION_MAIN
-                }
-                .subscribe {
-                    runCatching {
-                        if (it.categories.isNullOrEmpty()) {
-                            val strIntentUri = it.toUri(Intent.URI_INTENT_SCHEME)
-                            FirebaseCrashlytics.getInstance().setCustomKey("SplashScreenViewModel.processIntent", strIntentUri)
-                            FirebaseCrashlytics.getInstance().log(strIntentUri)
-                            FirebaseCrashlytics.getInstance().recordException(ProcessIntentException(strIntentUri))
-                        }
-                    }
-                    startDiscoveryActivity.onNext(Optional.empty<Uri>())
-                }
-                .addToDisposable(disposables)
-
-            val uriFromIntent = intent
-                .filter { it.data.isNotNull() }
-                .map { obj: Intent -> obj.data }
-                .ofType(Uri::class.java)
-
-            // - Takes URI from Marketing email domain, executes network call that and redirection took place
-            val uriFromEmailDomain = uriFromIntent
-                .filter { it.isNotNull() }
-                .filter { it.isEmailDomain() }
-                .switchMap {
-                    externalCall.obtainUriFromRedirection(it)
-                }
-                .filter { it.priorResponse?.code == 302 }
-
-            // TODO: on following tickets recognize discovery with category_id links, for now if not project URL, open discovery
-            val isKSDomainUriFromEmail = uriFromEmailDomain
-                .map { it.request.url.toString().toUri() }
-                .filter { !it.isProjectUri() && it.isKSDomain() }
-
-            // - The redirected URI is a project URI
-            val projectFromEmail = uriFromEmailDomain
-                .filter {
-                    it.request.url.toString().toUri().isProjectUri()
-                }
-                .map {
-                    it.request.url.toString().toUri()
-                }
-
-            // - Take URI from main page Open button with URL - ksr://www.kickstarter.com/?app_banner=1&ref=nav
-            val mainPageUri = uriFromIntent
-                .filter { it.isMainPage() }
-
-            mainPageUri
-                .subscribe {
-                    startDiscoveryActivity.onNext(Optional.empty<Uri>())
-                }.addToDisposable(disposables)
-
-            projectFromEmail
-                .subscribe {
-                    startProjectActivity.onNext(it)
-                }.addToDisposable(disposables)
-
-            isKSDomainUriFromEmail
-                .subscribe {
-                    startDiscoveryActivity.onNext(Optional.empty<Uri>())
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isDiscoverUri(webEndpoint) }
-                .subscribe {
-                    startDiscoveryActivity.onNext(Optional.of(it))
-                }
-                .addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isNotNull() }
-                .filter { !it.isDiscoverUri(webEndpoint) }
-                .filter { lastPathSegmentIsProjects(it) }
-                .compose(Transformers.ignoreValuesV2())
-                .subscribe {
-                    startDiscoveryActivity.onNext(Optional.empty<Uri>())
-                }.addToDisposable(disposables)
-
-            val projectObservable: Observable<Project> = uriFromIntent
-                .filter { it.isNotNull() }
-                .filter { ProjectIntentMapper.paramFromUri(it).isNotNull() }
-                .map { ProjectIntentMapper.paramFromUri(it) }
-                .switchMap {
-                    getProject(it)
-                        .doOnError {
-                            finishDeeplinkActivity.onNext(Unit)
-                        }
-                }
-                .filter { it.value.isNotNull() }
-                .map { it.value }
-
-            uriFromIntent
-                .filter { it.isNotNull() }
-                .filter {
-                    !it.isProjectSaveUri(webEndpoint)
-                }
-                .filter {
-                    !it.isCheckoutUri(webEndpoint)
-                }
-                .filter {
-                    !it.isProjectPreviewUri(webEndpoint)
-                }
-                .filter {
-                    !it.isProjectCommentUri(webEndpoint)
-                }
-                .filter {
-                    !it.isProjectUpdateUri(webEndpoint)
-                }
-                .filter {
-                    !it.isProjectUpdateCommentsUri(webEndpoint)
-                }
-                .filter {
-                    !it.isRewardFulfilledDl()
-                }
-                .filter {
-                    it.isProjectUri(webEndpoint)
-                }
-                .map { appendRefTagIfNone(it) }
-                .compose(Transformers.combineLatestPair(projectObservable))
-                .subscribe {
-                    onDeepLinkToProjectPage(it, startProjectActivity)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isNotNull() }
-                .filter {
-                    it.isProjectSaveUri(webEndpoint)
-                }
-                .map { appendRefTagIfNone(it) }
-                .compose(Transformers.combineLatestPair(projectObservable))
-                .subscribe {
-                    onDeepLinkToProjectPage(it, startProjectActivityToSave)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isNotNull() }
-                .filter {
-                    it.isProjectCommentUri(webEndpoint)
-                }
-                .map { appendRefTagIfNone(it) }
-                .subscribe {
-                    startProjectActivityForComment.onNext(it)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isNotNull() }
-                .filter {
-                    it.isProjectUpdateUri(webEndpoint)
-                }
-                .filter {
-                    !it.isProjectUpdateCommentsUri(webEndpoint)
-                }
-                .map { appendRefTagIfNone(it) }
-                .subscribe {
-                    startProjectActivityForUpdate.onNext(it)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isNotNull() }
-                .filter {
-                    it.isProjectUpdateCommentsUri(webEndpoint)
-                }
-                .map { appendRefTagIfNone(it) }
-                .subscribe {
-                    startProjectActivityForCommentToUpdate.onNext(it)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isNotNull() }
-                .filter { it.isSettingsUrl() }
-                .subscribe {
-                    updateUserPreferences.onNext(true)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter {
-                    it.isNotNull()
-                }
-                .filter {
-                    it.isProjectSurveyUri(webEndpoint)
-                }
-                .map { appendRefTagIfNone(it) }
-                .withLatestFrom(this.currentUser.isLoggedIn) { url, isLoggedIn ->
-                    return@withLatestFrom Pair(url, isLoggedIn)
-                }
-                .subscribe {
-                    startProjectSurvey.onNext(it)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter {
-                    it.isPMUri(webEndpoint) ||
-                        it.isPMOrderEditUri(webEndpoint, ffClient.getBoolean(FlagKey.ANDROID_EDIT_ORDER))
-                }
-                .map { appendRefTagIfNone(it) }
-                .subscribe {
-                    startPMWebview.onNext(it)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isNotNull() }
-                .filter { it.isVideoFeedUri(webEndpoint) }
-                .subscribe {
-                    startVideoFeedActivity.onNext(Unit)
-                }.addToDisposable(disposables)
-
-            currentUser.observable()
-                .filter { it.isPresent() }
-                .map { it.getValue() }
-                .compose<Pair<User, Boolean>>(combineLatestPair(updateUserPreferences))
-                .switchMap { it: Pair<User, Boolean> ->
-                    updateSettings(it.first, apiClientType)
-                }
-                .compose(Transformers.valuesV2())
-                .distinctUntilChanged()
-                .subscribe {
-                    refreshUserAndFinishActivity(it, currentUser)
-                }.addToDisposable(disposables)
-
-            projectObservable
-                .filter {
-                    it.backing() == null || !it.canUpdateFulfillment()
-                }
-                .subscribe {
-                    finishDeeplinkActivity.onNext(Unit)
-                }.addToDisposable(disposables)
-
-            projectObservable
-                .filter { it.isNotNull() }
-                .filter { it.canUpdateFulfillment() }
-                .switchMap {
-                    postBacking(it)
-                        .doOnError {
-                            finishDeeplinkActivity.onNext(Unit)
-                        }
-                        .distinctUntilChanged()
-                }
-                .subscribe {
-                    finishDeeplinkActivity.onNext(Unit)
-                }.addToDisposable(disposables)
-
-            uriFromIntent
-                .filter { it.isCheckoutUri(webEndpoint) }
-                .map { appendRefTagIfNone(it) }
-                .subscribe {
-                    startProjectActivityWithCheckout.onNext(it)
-                }.addToDisposable(disposables)
-
-            val projectPreview = uriFromIntent
-                .filter { it.isNotNull() }
-                .filter { it.isProjectPreviewUri(webEndpoint) }
-
-            val unsupportedDeepLink = uriFromIntent
-                .filter { it.isNotNull() }
-                .filter { !it.isMainPage() }
-                .filter { !it.isDiscoverUri(webEndpoint) }
-                .filter { !lastPathSegmentIsProjects(it) }
-                .filter { !it.isSettingsUrl() }
-                .filter { !it.isProjectSaveUri(webEndpoint) }
-                .filter { !it.isCheckoutUri(webEndpoint) }
-                .filter { !it.isProjectCommentUri(webEndpoint) }
-                .filter { !it.isProjectUpdateUri(webEndpoint) }
-                .filter { !it.isProjectUpdateCommentsUri(webEndpoint) }
-                .filter { !it.isProjectUri(webEndpoint) }
-                .filter { !it.isRewardFulfilledDl() }
-                .filter { !it.isEmailDomain() }
-                .filter { !it.isProjectSurveyUri(webEndpoint) }
-                .filter { !it.isPMUri(webEndpoint) }
-                .filter {
-                    !it.isPMOrderEditUri(
-                        webEndpoint,
-                        ffClient.getBoolean(FlagKey.ANDROID_EDIT_ORDER)
-                    )
-                }
-                .filter { !it.isVideoFeedUri(webEndpoint) }
-
-            Observable.merge(projectPreview, unsupportedDeepLink)
-                .map { obj: Uri -> obj.toString() }
-                .filter { !TextUtils.isEmpty(it) }
-                .subscribe {
-                    startBrowser.onNext(it)
-                }.addToDisposable(disposables)
-        }
-
-        private suspend fun initializeFeatureFlagClient(): Boolean? {
-            return ffClient?.fetchAndActivate()
-        }
-
-        private fun onDeepLinkToProjectPage(it: Pair<Uri, Project>, startProjectPage: BehaviorSubject<Uri>) {
-            if (it.second.displayPrelaunch() == true) {
-                startPreLaunchProjectActivity.onNext(Pair(it.first, it.second))
-            } else {
-                startProjectPage.onNext(it.first)
-            }
-        }
-
-        private fun postBacking(it: Project) =
-            apiClientType.postBacking(it, requireNotNull(it.backing()), true)
-                .compose(Transformers.neverErrorV2())
-                .distinctUntilChanged()
-
-        private fun getProject(it: String) = apolloClient.getProject(it)
-            .materialize()
-            .share()
-            .distinctUntilChanged()
-
-        private fun refreshUserAndFinishActivity(user: User, currentUser: CurrentUserTypeV2) {
-            currentUser.refresh(user)
-            finishDeeplinkActivity.onNext(Unit)
-        }
-
-        private fun appendRefTagIfNone(uri: Uri): Uri {
-            val url = uri.toString()
-            val ref = refTag(url)
-            return if (ref.isNull()) {
-                appendRefTag(url, RefTag.deepLink().tag()).toUri()
-            } else uri
-        }
-
-        private fun lastPathSegmentIsProjects(uri: Uri): Boolean {
-            return uri.lastPathSegment == "projects"
-        }
-
-        private fun updateSettings(
-            user: User,
-            apiClientType: ApiClientTypeV2
-        ): Observable<Notification<User>> {
-            val updatedUser = user.toBuilder().notifyMobileOfMarketingUpdate(true).build()
-            return apiClientType.updateUserSettings(updatedUser)
-                .materialize()
-                .share()
-        }
-
-        override fun onCleared() {
-            disposables.clear()
-            super.onCleared()
-        }
-
-        override fun startBrowser(): Observable<String> = startBrowser
-
-        override fun startDiscoveryActivity(): Observable<Optional<Uri>> = startDiscoveryActivity
-
-        override fun startProjectActivityForComment(): Observable<Uri> = startProjectActivityForComment
-
-        override fun startProjectActivityForUpdate(): Observable<Uri> = startProjectActivityForUpdate
-
-        override fun startProjectActivityForCommentToUpdate(): Observable<Uri> = startProjectActivityForCommentToUpdate
-
-        override fun startProjectActivity(): Observable<Uri> = startProjectActivity
-
-        override fun startProjectActivityForCheckout(): Observable<Uri> = startProjectActivityWithCheckout
-
-        override fun finishDeeplinkActivity(): Observable<Unit> = finishDeeplinkActivity
-
-        override fun startProjectActivityToSave(): Observable<Uri> = startProjectActivityToSave
-
-        override fun startProjectSurvey(): Observable<Pair<Uri, Boolean>> = startProjectSurvey
-
-        override fun startPMWebview(): Observable<Uri> = startPMWebview
-
-        override fun startPreLaunchProjectActivity(): Observable<Pair<Uri, Project>> = startPreLaunchProjectActivity
-
-        override fun startVideoFeedActivity(): Observable<Unit> = startVideoFeedActivity
-    }
-
-    class Factory(private val environment: Environment, private val intent: Intent? = null, private val customNetworkClient: CustomNetworkClient? = null) : ViewModelProvider.Factory {
-        /**
-         * Custom Networking Client as plain as possible. Given an URI, will execute the network call on Schedulers.io pool,
-         * and return the response as Observable.
-         */
+    interface Outputs : SplashOutputs
+
+    class DeepLinkViewModel(
+        environment: Environment,
+        application: KSApplication,
+        intent: Intent?,
+        externalCall: CustomNetworkClient
+    ) : SplashFeatureViewModel(environment, application, intent, externalCall), Outputs
+
+    class Factory(
+        private val environment: Environment,
+        private val intent: Intent? = null,
+        private val customNetworkClient: CustomNetworkClient? = null
+    ) : ViewModelProvider.Factory {
         private var externalCall = object : CustomNetworkClient {
             override fun obtainUriFromRedirection(uri: Uri): Observable<Response> {
                 val httpClient: OkHttpClient = OkHttpClient.Builder().build()
-
                 return Observable.fromCallable {
                     httpClient.newCall(Request.Builder().url(uri.toString()).build()).execute()
-                }
-                    .subscribeOn(Schedulers.io())
+                }.subscribeOn(Schedulers.io())
             }
         }
+
+        @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
             val ksApplication = requireNotNull(extras[APPLICATION_KEY] as? KSApplication) {
                 "KSApplication must be provided in CreationExtras"
             }
-            return DeepLinkViewModel(environment, ksApplication, intent, externalCall = customNetworkClient ?: externalCall) as T
+            return DeepLinkViewModel(
+                environment = environment,
+                application = ksApplication,
+                intent = intent,
+                externalCall = customNetworkClient ?: externalCall
+            ) as T
         }
     }
 }

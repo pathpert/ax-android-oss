@@ -71,18 +71,42 @@ class User private constructor(
     private val weeklyNewsletter: Boolean
 ) : Parcelable, Relay {
 
+    /** Whether the user is subscribed to the alumni newsletter. */
     fun alumniNewsletter() = this.alumniNewsletter
+
+    /** Whether the user is subscribed to the arts & culture newsletter. */
     fun artsCultureNewsletter() = this.artsCultureNewsletter
+
+    /** Profile avatar images for the user. */
     fun avatar() = this.avatar
+
+    /** Number of campaigns backed by this user. */
     fun backedProjectsCount() = this.backedProjectsCount
+
+    /** Number of pending backing/pledge actions requiring user attention. */
     fun backingActionCount() = this.backingActionCount
+
+    /** Number of campaigns created by this user. */
     fun createdProjectsCount() = this.createdProjectsCount
+
+    /** Number of unlaunched draft campaigns owned by this user. */
     fun draftProjectsCount() = this.draftProjectsCount
+
+    /** Number of backings with billing or payment errors. */
     fun erroredBackingsCount() = this.erroredBackingsCount
+
+    /** Whether the user has linked a Facebook account. */
     fun facebookConnected() = this.facebookConnected
+
+    /** Whether the user is subscribed to the film newsletter. */
     fun filmNewsletter() = this.filmNewsletter
+
+    /** Whether the user is subscribed to the games newsletter. */
     fun gamesNewsletter() = this.gamesNewsletter
+
+    /** Whether the user is subscribed to the Happening newsletter. */
     fun happeningNewsletter() = this.happeningNewsletter
+
     /**
      * Database identifier (PID) of the user.
      * Negative constraint: Do not confuse with GraphQL Relay global IDs.
@@ -90,17 +114,28 @@ class User private constructor(
     override fun id() = this.id
 
     /**
-     * Whether the user has staff/admin privileges.
+     * Whether the user has staff or administrative privileges.
      */
     fun isAdmin() = this.isAdmin
+
+    /**
+     * Whether this account has an active password (false for social/OAuth-only accounts).
+     */
     fun hasPassword() = this.hasPassword
 
+    /**
+     * Whether the primary email address has been verified.
+     */
     fun isEmailVerified() = this.isEmailVerified
 
     /**
      * Whether the user has launched at least one active or historical campaign.
      */
     fun isCreator() = this.isCreator
+
+    /**
+     * Whether physical reward delivery is currently supported/active for this user's address.
+     */
     fun isDeliverable() = this.isDeliverable
 
     /**
@@ -108,40 +143,110 @@ class User private constructor(
      * Negative constraint: May be null for unauthenticated public profile queries.
      */
     fun email() = this.email
+
+    /** User's preferred display currency (e.g. "USD", "EUR", "CAD"). */
     fun chosenCurrency() = this.chosenCurrency
+
+    /** Whether the user is subscribed to the invent newsletter. */
     fun inventNewsletter() = this.inventNewsletter
+
+    /** Geographic location associated with the user profile. */
     fun location() = this.location
+
+    /** Number of projects on which the user is a team member/collaborator. */
     fun memberProjectsCount() = this.memberProjectsCount
+
+    /** Whether the user is subscribed to the music newsletter. */
     fun musicNewsletter() = this.musicNewsletter
+
+    /** Full display name of the user. */
     fun name() = this.name
+
+    /** Push notification preference for project backings. */
     fun notifyMobileOfBackings() = this.notifyMobileOfBackings
+
+    /** Push notification preference for project comments. */
     fun notifyMobileOfComments() = this.notifyMobileOfComments
+
+    /** Push notification preference for creator education materials. */
     fun notifyMobileOfCreatorEdu() = this.notifyMobileOfCreatorEdu
+
+    /** Push notification preference when followed by another user. */
     fun notifyMobileOfFollower() = this.notifyMobileOfFollower
+
+    /** Push notification preference for friend activity. */
     fun notifyMobileOfFriendActivity() = this.notifyMobileOfFriendActivity
+
+    /** Push notification preference for direct messages. */
     fun notifyMobileOfMessages() = this.notifyMobileOfMessages
+
+    /** Push notification preference for post likes. */
     fun notifyMobileOfPostLikes() = this.notifyMobileOfPostLikes
+
+    /** Push notification preference for project updates. */
     fun notifyMobileOfUpdates() = this.notifyMobileOfUpdates
+
+    /** Push notification preference for marketing announcements. */
     fun notifyMobileOfMarketingUpdate() = this.notifyMobileOfMarketingUpdate
+
+    /** Email notification preference for project backings. */
     fun notifyOfBackings() = this.notifyOfBackings
+
+    /** Email notification preference for project comments. */
     fun notifyOfComments() = this.notifyOfComments
+
+    /** Email notification preference for comment replies. */
     fun notifyOfCommentReplies() = this.notifyOfCommentReplies
+
+    /** Email preference for creator performance digest. */
     fun notifyOfCreatorDigest() = this.notifyOfCreatorDigest
+
+    /** Email preference for creator education tips. */
     fun notifyOfCreatorEdu() = this.notifyOfCreatorEdu
+
+    /** Email preference when followed by another user. */
     fun notifyOfFollower() = this.notifyOfFollower
+
+    /** Email preference for friend activities. */
     fun notifyOfFriendActivity() = this.notifyOfFriendActivity
+
+    /** Email preference for direct messages. */
     fun notifyOfMessages() = this.notifyOfMessages
+
+    /** Email preference for project updates. */
     fun notifyOfUpdates() = this.notifyOfUpdates
+
+    /** Whether the user has opted out of personalized recommendation algorithms. */
     fun optedOutOfRecommendations() = this.optedOutOfRecommendations
+
+    /** Whether pending actions exist in the Pledged Projects Overview. */
     fun ppoHasAction() = this.ppoHasAction
+
+    /** Whether the user is subscribed to promotional newsletters. */
     fun promoNewsletter() = this.promoNewsletter
+
+    /** Whether the user is subscribed to publishing newsletters. */
     fun publishingNewsletter() = this.publishingNewsletter
+
+    /** Whether the user's backing history is publicly visible. */
     fun showPublicProfile() = this.showPublicProfile
+
+    /** Whether password creation is required for this account. */
     fun needsPassword() = this.needsPassword
+
+    /** Whether social friend discovery features are enabled. */
     fun social() = this.social
+
+    /** Number of projects saved or starred by this user. */
     fun starredProjectsCount() = this.starredProjectsCount
+
+    /** Total count of unread direct messages across all threads. */
     fun unreadMessagesCount() = this.unreadMessagesCount
+
+    /** Total count of unseen activity feed notifications. */
     fun unseenActivityCount() = this.unseenActivityCount
+
+    /** Whether the user is subscribed to the weekly Kickstarter newsletter. */
     fun weeklyNewsletter() = this.weeklyNewsletter
 
     @Parcelize

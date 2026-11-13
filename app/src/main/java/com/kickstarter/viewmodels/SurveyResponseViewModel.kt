@@ -48,7 +48,7 @@ interface SurveyResponseViewModel {
          * which indicates a redirect from a successful submit.
          */
         private fun requestTagUrlIsSurveyUrl(projectRequestAndSurveyUrl: Pair<Request, String>): Boolean {
-            val tag = projectRequestAndSurveyUrl.first.tag() as Request?
+            val tag = projectRequestAndSurveyUrl.first.tag() as? Request
             return tag == null || tag.url.toString() == projectRequestAndSurveyUrl.second
         }
 

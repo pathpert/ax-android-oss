@@ -63,12 +63,28 @@ class Reward private constructor(
     private val isSecretReward: Boolean?,
     private val isFeatured: Boolean
 ) : Parcelable, Relay {
+    /** Total count of backers who have pledged for this reward tier. */
     fun backersCount() = this.backersCount
+
+    /** Converted minimum pledge amount in the viewer's preferred display currency. */
     fun convertedMinimum() = this.convertedMinimum
+
+    /** Detailed text description of the reward tier and deliverables. */
     fun description() = this.description
+
+    /** Expiration timestamp for time-limited reward tiers, or null if available until campaign deadline. */
     fun endsAt() = this.endsAt
+
+    /**
+     * Database identifier (PID) of the reward.
+     * Negative constraint: Do not confuse with GraphQL Relay global IDs.
+     */
     override fun id() = this.id
+
+    /** Preview photo/image metadata for this reward tier. */
     fun image() = this.image
+
+    /** Total inventory limit set by the creator, or null if unlimited. */
     fun limit() = this.limit
 
     /**
@@ -82,26 +98,73 @@ class Reward private constructor(
      * Negative constraint: Do not pass directly across modern AX boundaries; convert to MinorCurrencyAmount.
      */
     fun pledgeAmount() = this.pledgeAmount
+
+    /** Pledge price tier during late / post-campaign pledging. */
     fun latePledgeAmount() = this.latePledgeAmount
+
+    /** Estimated delivery date for backer fulfillment. */
     fun estimatedDeliveryOn() = this.estimatedDeliveryOn
+
+    /**
+     * Remaining inventory count, or null if inventory is unlimited.
+     * Negative constraint: Do not assume non-null for open reward tiers.
+     */
     fun remaining() = this.remaining
+
+    /** List of component items/deliverables bundled within this reward tier. */
     fun rewardsItems() = this.rewardsItems
+
+    /** Shipping preference string ("none", "restricted", "unrestricted"). */
     fun shippingPreference() = this.shippingPreference
+
+    /** Destination details if reward ships to a single specific country. */
     fun shippingSingleLocation() = this.shippingSingleLocation
+
+    /** Shipping classification type string. */
     fun shippingType() = this.shippingType
+
+    /** Display title of this reward tier. */
     fun title() = this.title
+
+    /** Whether this reward represents an add-on item rather than a primary tier. */
     fun isAddOn() = this.isAddOn
+
+    /** Add-on items bundled with this reward selection. */
     fun addOnsItems() = this.addOnsItems
+
+    /** Selected quantity of this reward item. */
     fun quantity() = this.quantity
+
+    /** Whether this reward tier permits add-on attachments. */
     fun hasAddons() = this.hasAddons
+
+    /** Scheduled availability start timestamp, or null if available immediately. */
     fun startsAt() = this.startsAt
+
+    /**
+     * Whether this reward tier is currently open and backable (within inventory limits and time window).
+     */
     fun isAvailable() = this.isAvailable
+
+    /** GraphQL shipping preference enum value. */
     fun shippingPreferenceType() = this.shippingPreferenceType
+
+    /** Applicable shipping destination rules and pricing rates. */
     fun shippingRules() = this.shippingRules
+
+    /** Returns true if inventory is exhausted ([remaining] == 0). */
     fun isAllGone() = remaining().isZero()
+
+    /** Returns true if this tier has a finite inventory limit and items remain. */
     fun isLimited() = limit() != null && !isAllGone()
+
+    /** Physical pickup location details for local collection rewards. */
     fun localReceiptLocation() = this.localReceiptLocation
+
+    /** Whether this reward tier requires a secret share link or token for access. */
     fun isSecretReward() = this.isSecretReward
+
+    /** Whether this reward tier is highlighted as featured by the creator. */
     fun isFeatured() = this.isFeatured
     @Parcelize
     data class Builder(

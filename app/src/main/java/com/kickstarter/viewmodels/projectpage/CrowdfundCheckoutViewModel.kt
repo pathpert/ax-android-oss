@@ -73,8 +73,8 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
     fun getPledgeReason() = this.pledgeReason
 
     fun provideBundle(arguments: Bundle?) {
-        val pData = arguments?.getParcelable(ArgumentsKey.PLEDGE_PLEDGE_DATA) as PledgeData?
-        pledgeReason = arguments?.getSerializable(ArgumentsKey.PLEDGE_PLEDGE_REASON) as PledgeReason?
+        val pData = arguments?.getParcelable(ArgumentsKey.PLEDGE_PLEDGE_DATA) as? PledgeData
+        pledgeReason = arguments?.getSerializable(ArgumentsKey.PLEDGE_PLEDGE_REASON) as? PledgeReason
 
         if (pData != null) {
             pledgeData = pData

@@ -58,12 +58,12 @@ class ApiPaginatorV2<Data, Envelope : Any, Params : Any> private constructor(
     }
 
     class Builder<Data, Envelope : Any, Params : Any> {
-        private lateinit var nextPage: Observable<Unit>
+        private var nextPage: Observable<Unit>? = null
         private var startOverWith: Observable<Params>? = null
-        private lateinit var envelopeToListOfData: Function<Envelope, List<Data>>
-        private lateinit var loadWithParams: Function<Params, Observable<Envelope>>
-        private lateinit var loadWithPaginationPath: Function<String, Observable<Envelope>>
-        private lateinit var envelopeToMoreUrl: Function<Envelope, String>
+        private var envelopeToListOfData: Function<Envelope, List<Data>>? = null
+        private var loadWithParams: Function<Params, Observable<Envelope>>? = null
+        private var loadWithPaginationPath: Function<String, Observable<Envelope>>? = null
+        private var envelopeToMoreUrl: Function<Envelope, String>? = null
         private var pageTransformation: Function<List<Data>, List<Data>>? = null
         private var clearWhenStartingOver = false
         private var concater: BiFunction<List<Data>, List<Data>, List<Data>> =
@@ -152,43 +152,38 @@ class ApiPaginatorV2<Data, Envelope : Any, Params : Any> private constructor(
             return this
         }
 
-        @Throws(RuntimeException::class)
+        @Throws(IllegalStateException::class)
         fun build(): ApiPaginatorV2<Data, Envelope, Params> {
-            // Early error when required field is not set
-            if (nextPage == null) {
-                throw RuntimeException("`nextPage` is required")
+            val nextPageVal = checkNotNull(nextPage) {
+                "ApiPaginatorV2: `nextPage` is required before building paginator."
             }
-            if (envelopeToListOfData == null) {
-                throw RuntimeException("`envelopeToListOfData` is required")
+            val envelopeToList = checkNotNull(envelopeToListOfData) {
+                "ApiPaginatorV2: `envelopeToListOfData` is required before building paginator."
             }
-            if (loadWithParams == null) {
-                throw RuntimeException("`loadWithParams` is required")
+            val loadParams = checkNotNull(loadWithParams) {
+                "ApiPaginatorV2: `loadWithParams` is required before building paginator."
             }
-            if (loadWithPaginationPath == null) {
-                throw RuntimeException("`loadWithPaginationPath` is required")
+            val loadPagination = checkNotNull(loadWithPaginationPath) {
+                "ApiPaginatorV2: `loadWithPaginationPath` is required before building paginator."
             }
-            if (envelopeToMoreUrl == null) {
-                throw RuntimeException("`envelopeToMoreUrl` is required")
+            val envelopeMore = checkNotNull(envelopeToMoreUrl) {
+                "ApiPaginatorV2: `envelopeToMoreUrl` is required before building paginator."
             }
 
-            // Default params for optional fields
             if (startOverWith == null) {
                 startOverWith = Observable.empty()
             }
             if (pageTransformation == null) {
                 pageTransformation = Function<List<Data>, List<Data>> { x: List<Data> -> x }
             }
-            if (concater == null) {
-                concater =
-                    BiFunction { xs: List<Data>, ys: List<Data> -> ListUtils.concat(xs, ys) }
-            }
+
             return ApiPaginatorV2(
-                nextPage,
+                nextPageVal,
                 startOverWith,
-                envelopeToListOfData,
-                loadWithParams,
-                loadWithPaginationPath,
-                envelopeToMoreUrl,
+                envelopeToList,
+                loadParams,
+                loadPagination,
+                envelopeMore,
                 pageTransformation,
                 clearWhenStartingOver,
                 concater,
@@ -224,11 +219,13 @@ class ApiPaginatorV2<Data, Envelope : Any, Params : Any> private constructor(
 
     @Throws(Exception::class)
     private fun fetchData(paginatingData: Pair<Params, String>): Observable<List<Data>> {
-        return (
-            if (paginatingData.second != null) loadWithPaginationPath.apply(paginatingData.second!!) else loadWithParams.apply(
-                paginatingData.first
-            )
-            )
+        val paginationPath = paginatingData.second
+        val requestObservable = if (paginationPath != null) {
+            loadWithPaginationPath.apply(paginationPath)
+        } else {
+            loadWithParams.apply(paginatingData.first)
+        }
+        return requestObservable
             .retry(2)
             .compose(Transformers.neverErrorV2())
             .doOnNext { envelope: Envelope -> keepMorePath(envelope) }
@@ -245,8 +242,8 @@ class ApiPaginatorV2<Data, Envelope : Any, Params : Any> private constructor(
             val url = URL(envelopeToMoreUrl.apply(envelope))
             _morePath.onNext(pathAndQueryFromURL(url))
         } catch (ignored: MalformedURLException) {
-        } catch (e: Exception) {
-            throw RuntimeException(e)
+        } catch (ignored: Exception) {
+            // Silently drop malformed pagination URLs instead of crashing with bare RuntimeException
         }
     }
 

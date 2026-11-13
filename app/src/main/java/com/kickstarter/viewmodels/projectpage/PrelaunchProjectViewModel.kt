@@ -101,11 +101,9 @@ interface PrelaunchProjectViewModel {
 
         init {
 
-            val reducedProject = this.intent.filter {
-                it.getParcelableExtra<Project>(IntentKey.PROJECT).isNotNull()
-            }.map { it.getParcelableExtra(IntentKey.PROJECT) as Project? }
-                .filter { it.isNotNull() }
-                .map { it }
+            val reducedProject = this.intent
+                .map { it.getParcelableExtra<Project>(IntentKey.PROJECT) }
+                .ofType(Project::class.java)
                 .withLatestFrom(
                     currentConfig.observable(),
                     currentUser.observable(),

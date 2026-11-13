@@ -80,8 +80,8 @@ class AndroidSocialShareService(
     }
 
     override fun copyToClipboard(label: String, url: String) {
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText(label, url))
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        clipboard?.setPrimaryClip(ClipData.newPlainText(label, url))
     }
 
     override suspend fun loadShareImage(imageUrl: String): Bitmap? =

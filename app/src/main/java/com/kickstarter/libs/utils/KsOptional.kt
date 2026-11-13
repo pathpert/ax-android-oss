@@ -18,8 +18,9 @@ class KsOptional<T> {
     }
 
     fun ifPresent(action: Action<T>) {
-        if (value != null) {
-            action.apply(value!!)
+        val current = value
+        if (current != null) {
+            action.apply(current)
         }
     }
 

@@ -311,12 +311,13 @@ class RewardsSelectionViewModel(private val environment: Environment, private va
         shippingLocations: List<Location>,
     ): Location {
         val backingLocation =
-            if (project.isBacking() && project.backing()?.locationId() != null) {
-                /* While it's worth ensuring the backing location is in `shippingLocations`,
-                 * we should probably just keep and use Backing.location() itself in GraphQLTransformers,
-                 * instead of pulling out a separate `locationId` */
-                val backingLocationId = project.backing()!!.locationId()!!
-                shippingLocations.firstOrNull { it.id() == backingLocationId }
+            if (project.isBacking()) {
+                val backingLocationId = project.backing()?.locationId()
+                if (backingLocationId != null) {
+                    shippingLocations.firstOrNull { it.id() == backingLocationId }
+                } else {
+                    null
+                }
             } else {
                 null
             }

@@ -41,9 +41,10 @@ private fun ClockPreview() {
 
 val featuredRewardStar: ImageVector
     get() {
-        if (_featuredRewardStar != null) return _featuredRewardStar!!
+        val existing = _featuredRewardStar
+        if (existing != null) return existing
 
-        _featuredRewardStar = ImageVector.Builder(
+        val built = ImageVector.Builder(
             name = "featuredRewardStar",
             defaultWidth = 16.dp,
             defaultHeight = 16.dp,
@@ -98,16 +99,18 @@ val featuredRewardStar: ImageVector
             }
         }.build()
 
-        return _featuredRewardStar!!
+        _featuredRewardStar = built
+        return built
     }
 
 private var _featuredRewardStar: ImageVector? = null
 
 val secretRewardLock: ImageVector
     get() {
-        if (_secretRewardLock != null) return _secretRewardLock!!
+        val existing = _secretRewardLock
+        if (existing != null) return existing
 
-        _secretRewardLock = ImageVector.Builder(
+        val built = ImageVector.Builder(
             name = "secretRewardLock",
             defaultWidth = 16.dp,
             defaultHeight = 16.dp,
@@ -157,17 +160,19 @@ val secretRewardLock: ImageVector
             }
         }.build()
 
-        return _secretRewardLock!!
+        _secretRewardLock = built
+        return built
     }
 
 private var _secretRewardLock: ImageVector? = null
 
 val Whatshot: ImageVector
     get() {
-        if (_Whatshot != null) {
-            return _Whatshot!!
+        val existing = _Whatshot
+        if (existing != null) {
+            return existing
         }
-        _Whatshot = ImageVector.Builder(
+        val built = ImageVector.Builder(
             name = "Whatshot",
             defaultWidth = 12.dp,
             defaultHeight = 15.dp,
@@ -218,7 +223,8 @@ val Whatshot: ImageVector
             }
         }.build()
 
-        return _Whatshot!!
+        _Whatshot = built
+        return built
     }
 
 @Suppress("ObjectPropertyName")
@@ -226,10 +232,11 @@ private var _Whatshot: ImageVector? = null
 
 val ProjectWeLove: ImageVector
     get() {
-        if (_ProjectWeLove != null) {
-            return _ProjectWeLove!!
+        val existing = _ProjectWeLove
+        if (existing != null) {
+            return existing
         }
-        _ProjectWeLove = ImageVector.Builder(
+        val built = ImageVector.Builder(
             name = "ProjectWeLove",
             defaultWidth = 16.dp,
             defaultHeight = 16.dp,
@@ -313,7 +320,8 @@ val ProjectWeLove: ImageVector
             }
         }.build()
 
-        return _ProjectWeLove!!
+        _ProjectWeLove = built
+        return built
     }
 
 @Suppress("ObjectPropertyName")
@@ -321,10 +329,11 @@ private var _ProjectWeLove: ImageVector? = null
 
 val Clock: ImageVector
     get() {
-        if (_Clock != null) {
-            return _Clock!!
+        val existing = _Clock
+        if (existing != null) {
+            return existing
         }
-        _Clock = ImageVector.Builder(
+        val built = ImageVector.Builder(
             name = "Clock",
             defaultWidth = 16.dp,
             defaultHeight = 16.dp,
@@ -368,7 +377,8 @@ val Clock: ImageVector
             }
         }.build()
 
-        return _Clock!!
+        _Clock = built
+        return built
     }
 
 @Suppress("ObjectPropertyName")

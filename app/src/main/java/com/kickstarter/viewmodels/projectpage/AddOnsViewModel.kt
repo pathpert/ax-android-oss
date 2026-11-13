@@ -100,12 +100,14 @@ class AddOnsViewModel(
      */
     fun provideBundle(bundle: Bundle?) {
         bundle?.let {
-            pledgeData = it.getParcelable(ArgumentsKey.PLEDGE_PLEDGE_DATA) as PledgeData?
+            pledgeData = it.getParcelable(ArgumentsKey.PLEDGE_PLEDGE_DATA) as? PledgeData
 
             // Send analytic event for crowdfund checkout
             this.sendEvent()
 
-            pReason = it.getSerializable(ArgumentsKey.PLEDGE_PLEDGE_REASON) as PledgeReason
+            (it.getSerializable(ArgumentsKey.PLEDGE_PLEDGE_REASON) as? PledgeReason)?.let { reason ->
+                pReason = reason
+            }
 
             pledgeData?.projectData()?.let {
                 projectData = it
@@ -239,7 +241,7 @@ class AddOnsViewModel(
         val filteredAddOns = addOns.filter { reward ->
             when (reward.shippingPreference()) {
                 "unrestricted", "none", "local" -> true
-                else -> reward.shippingRules()!!.any { it.location()?.id() == locationId }
+                else -> reward.shippingRules()?.any { it.location()?.id() == locationId } ?: false
             }
         }
         // Store filtered addOns into holder

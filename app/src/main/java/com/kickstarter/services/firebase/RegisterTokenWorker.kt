@@ -24,10 +24,10 @@ class RegisterTokenWorker(@ApplicationContext applicationContext: Context, priva
     @Inject
     lateinit var gson: Gson
 
-    private val token = this.params.inputData.getString(IntentKey.PUSH_TOKEN) as String
+    private val token = this.params.inputData.getString(IntentKey.PUSH_TOKEN).orEmpty()
 
     override fun doWork(): Result {
-        (applicationContext as KSApplication).component()?.inject(this)
+        (applicationContext as? KSApplication)?.component()?.inject(this)
         val refreshHandler = object : RefreshPushToken {}
         var result: Result = Result.failure()
         refreshHandler.invoke(

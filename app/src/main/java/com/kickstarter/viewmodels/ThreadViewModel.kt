@@ -485,10 +485,7 @@ interface ThreadViewModel {
             }
 
         private fun getCommentCardDataFromIntent() = intent
-            .filter {
-                it.getParcelableExtra<CommentCardData?>(IntentKey.COMMENT_CARD_DATA).isNotNull()
-            }
-            .map { it.getParcelableExtra<CommentCardData>(IntentKey.COMMENT_CARD_DATA) as CommentCardData }
+            .map { it.getParcelableExtra<CommentCardData>(IntentKey.COMMENT_CARD_DATA) }
             .ofType(CommentCardData::class.java)
 
         private fun getProjectUpdateId() = intent

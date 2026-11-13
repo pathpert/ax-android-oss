@@ -30,7 +30,9 @@ class SimilarProjectsViewModel(
 ) : ViewModel() {
 
     private val scope = viewModelScope + (testDispatcher ?: EmptyCoroutineContext)
-    private val apolloClient = environment.apolloClientV2()!!
+    private val apolloClient = requireNotNull(environment.apolloClientV2()) {
+        "Environment apolloClientV2 must not be null"
+    }
 
     private val _parentUiState = MutableStateFlow(ParentUiState())
     val parentUiState = _parentUiState.asStateFlow()

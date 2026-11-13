@@ -204,21 +204,25 @@ class AccountActivity : AppCompatActivity() {
     }
 
     private fun lazyFollowingOptOutConfirmationDialog(): AlertDialog {
-        if (this.showCurrencyChangeDialog == null) {
-            this.showCurrencyChangeDialog = AlertDialog.Builder(this, R.style.AlertDialog)
-                .setCancelable(false)
-                .setTitle(getString(R.string.Change_currency))
-                .setMessage(getString(R.string.Project_goal_and_pledge))
-                .setNegativeButton(R.string.Cancel) { _, _ ->
-                    setSpinnerSelection(currentCurrencySelection!!.rawValue)
+        val existing = this.showCurrencyChangeDialog
+        if (existing != null) return existing
+
+        val dialog = AlertDialog.Builder(this, R.style.AlertDialog)
+            .setCancelable(false)
+            .setTitle(getString(R.string.Change_currency))
+            .setMessage(getString(R.string.Project_goal_and_pledge))
+            .setNegativeButton(R.string.Cancel) { _, _ ->
+                currentCurrencySelection?.let { setSpinnerSelection(it.rawValue) }
+            }
+            .setPositiveButton(R.string.Yes_change_currency) { _, _ ->
+                newCurrencySelection?.let {
+                    this.viewModel.inputs.onSelectedCurrency(it)
+                    setSpinnerSelection(it.rawValue)
                 }
-                .setPositiveButton(R.string.Yes_change_currency) { _, _ ->
-                    this.viewModel.inputs.onSelectedCurrency(newCurrencySelection!!)
-                    setSpinnerSelection(newCurrencySelection!!.rawValue)
-                }
-                .create()
-        }
-        return this.showCurrencyChangeDialog!!
+            }
+            .create()
+        this.showCurrencyChangeDialog = dialog
+        return dialog
     }
 
     private fun setSpinnerSelection(currencyCode: String) {

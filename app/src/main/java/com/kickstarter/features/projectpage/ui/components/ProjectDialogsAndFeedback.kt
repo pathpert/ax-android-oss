@@ -60,9 +60,10 @@ class ProjectDialogsAndFeedback(
 
     fun showToastError(message: String? = null) {
         activity.runOnUiThread {
+            val anchor = errorAnchor as? ViewGroup ?: return@runOnUiThread
             showErrorToast(
                 activity.applicationContext,
-                errorAnchor as ViewGroup,
+                anchor,
                 message ?: activity.getString(R.string.general_error_something_wrong)
             )
         }

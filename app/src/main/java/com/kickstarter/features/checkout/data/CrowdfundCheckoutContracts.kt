@@ -16,8 +16,7 @@ import com.kickstarter.services.mutations.UpdateBackingData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.rx2.awaitFirstOrNull
 
-private val ZERO_MINOR: MinorCurrencyAmount =
-    (MinorCurrencyAmount.fromMinorUnits(0L) as DomainResult.Success).value
+private val ZERO_MINOR: MinorCurrencyAmount = MinorCurrencyAmount.ZERO
 
 /**
  * Immutable container for checkout currency amounts in integer minor units.

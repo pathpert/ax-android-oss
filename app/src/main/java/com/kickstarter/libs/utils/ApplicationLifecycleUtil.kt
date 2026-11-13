@@ -74,7 +74,9 @@ class ApplicationLifecycleUtil(private val application: KSApplication) :
                 notification.value?.let {
                     // sync save features flags in the config object
                     if (build.isDebug || Build.isInternal()) {
-                        it.syncUserFeatureFlagsFromPref(featuresFlagPreference!!)
+                        featuresFlagPreference?.let { pref ->
+                            it.syncUserFeatureFlagsFromPref(pref)
+                        }
                     }
                     config.config(it)
                 }

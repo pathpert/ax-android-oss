@@ -11,8 +11,8 @@ fun <T : Any> T?.isNotNull(): Boolean {
 }
 
 fun <T : Any> T?.coalesce(theDefault: T): T {
-    if (this.isNotNull() && this != "") {
-        return this!!
+    if (this != null && this != "") {
+        return this
     }
     return theDefault
 }

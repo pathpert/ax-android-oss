@@ -43,12 +43,17 @@ open class KSToolbar @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (!isInEditMode && webEndpoint != Secrets.WebEndpoint.PRODUCTION) {
-            canvas.drawRect(0f, 0f, context.resources.getDimension(R.dimen.grid_2), height.toFloat(), backgroundPaint!!)
+            backgroundPaint?.let { paint ->
+                canvas.drawRect(0f, 0f, context.resources.getDimension(R.dimen.grid_2), height.toFloat(), paint)
+            }
         }
     }
 
     protected fun environment(): Environment {
-        return (context.applicationContext as KSApplication).component()?.environment()!!
+        val app = context.applicationContext as? KSApplication
+        return checkNotNull(app?.component()?.environment()) {
+            "KSApplication environment must not be null"
+        }
     }
 
     /**

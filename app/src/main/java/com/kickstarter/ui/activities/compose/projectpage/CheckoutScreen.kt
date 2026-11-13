@@ -634,17 +634,18 @@ fun CheckoutScreen(
                     )
                 }
 
-                if (environment.ksCurrency().isNotNull() && environment.ksString()
-                    .isNotNull() && currentShippingRule.isNotNull()
-                ) {
+                val ksCurrency = environment.ksCurrency()
+                val ksString = environment.ksString()
+                val shippingRule = currentShippingRule
+                if (ksCurrency != null && ksString != null && shippingRule != null) {
                     val estimatedShippingRangeString =
                         RewardViewUtils.getEstimatedShippingRange(
                             context = LocalContext.current,
-                            ksCurrency = environment.ksCurrency()!!,
-                            ksString = environment.ksString()!!,
+                            ksCurrency = ksCurrency,
+                            ksString = ksString,
                             project = project,
                             rewards = selectedRewardsAndAddOns,
-                            selectedShippingRule = currentShippingRule!!,
+                            selectedShippingRule = shippingRule,
                             multipleQuantitiesAllowed = false,
                             useUserPreference = false,
                             useAbout = false
@@ -655,11 +656,11 @@ fun CheckoutScreen(
                         else {
                             RewardViewUtils.getEstimatedShippingRange(
                                 context = LocalContext.current,
-                                ksCurrency = environment.ksCurrency()!!,
-                                ksString = environment.ksString()!!,
+                                ksCurrency = ksCurrency,
+                                ksString = ksString,
                                 project = project,
                                 rewards = selectedRewardsAndAddOns,
-                                selectedShippingRule = currentShippingRule,
+                                selectedShippingRule = shippingRule,
                                 multipleQuantitiesAllowed = false,
                                 useUserPreference = true,
                                 useAbout = true

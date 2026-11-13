@@ -96,16 +96,18 @@ class PrivacyActivity : ComponentActivity() {
     }
 
     private fun lazyFollowingOptOutConfirmationDialog(): AlertDialog {
-        if (this.followingConfirmationDialog == null) {
-            this.followingConfirmationDialog = AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setTitle(getString(R.string.Are_you_sure))
-                .setMessage(getString(R.string.If_you_turn_following_off))
-                .setNegativeButton(this.cancelString) { _, _ -> this.viewModel.inputs.optOutOfFollowing(false) }
-                .setPositiveButton(this.yesTurnOffString) { _, _ -> this.viewModel.inputs.optOutOfFollowing(true) }
-                .create()
-        }
-        return this.followingConfirmationDialog!!
+        val existing = this.followingConfirmationDialog
+        if (existing != null) return existing
+
+        val dialog = AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setTitle(getString(R.string.Are_you_sure))
+            .setMessage(getString(R.string.If_you_turn_following_off))
+            .setNegativeButton(this.cancelString) { _, _ -> this.viewModel.inputs.optOutOfFollowing(false) }
+            .setPositiveButton(this.yesTurnOffString) { _, _ -> this.viewModel.inputs.optOutOfFollowing(true) }
+            .create()
+        this.followingConfirmationDialog = dialog
+        return dialog
     }
 
     private fun showPrivacyWebpage(url: String) {

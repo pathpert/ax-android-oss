@@ -16,10 +16,10 @@ abstract class TrackingWorker(@ApplicationContext applicationContext: Context, p
     @Inject
     lateinit var build: Build
 
-    private val eventName = this.params.inputData.getString(IntentKey.EVENT_NAME) as String
-    private val tag = this.params.inputData.getString(IntentKey.TRACKING_CLIENT_TYPE_TAG) as String
+    private val eventName = this.params.inputData.getString(IntentKey.EVENT_NAME).orEmpty()
+    private val tag = this.params.inputData.getString(IntentKey.TRACKING_CLIENT_TYPE_TAG).orEmpty()
 
-    protected val eventData = this.params.inputData.getString(IntentKey.EVENT_DATA) as String
+    protected val eventData = this.params.inputData.getString(IntentKey.EVENT_DATA).orEmpty()
 
     protected fun handleResult(response: Response<ResponseBody>): Result {
         return if (response.isSuccessful) {

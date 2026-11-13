@@ -44,7 +44,7 @@ import okhttp3.Response
  * - Do not perform network calls directly on main thread; use [Schedulers.io] or [viewModelScope].
  * - Do not mutate [SplashUIState] outside reducer routines.
  */
-class SplashFeatureViewModel(
+open class SplashFeatureViewModel(
     environment: Environment,
     private val application: KSApplication,
     private val intent: Intent?,
