@@ -13,6 +13,7 @@ typealias PagerTabConfig = com.kickstarter.features.projectpage.data.PagerTabCon
  * Legacy ProjectPageViewModel interface maintained for backward compatibility.
  * Replaced by [ProjectFeatureViewModel] under `com.kickstarter.features.projectpage.viewmodel`.
  */
+@Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
 interface ProjectPageViewModel {
     interface Inputs : ProjectPageInputs
     interface Outputs : ProjectPageOutputs
@@ -33,6 +34,7 @@ interface ProjectPageViewModel {
         val outputs: Outputs = this
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

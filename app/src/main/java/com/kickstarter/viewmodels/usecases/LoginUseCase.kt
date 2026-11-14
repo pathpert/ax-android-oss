@@ -4,6 +4,10 @@ import com.kickstarter.libs.Environment
 import com.kickstarter.libs.rx.transformers.Transformers
 import com.kickstarter.models.User
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SplashFeatureViewModel under com.kickstarter.features.splash.viewmodel.",
+    replaceWith = ReplaceWith("SplashFeatureViewModel", "com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel")
+)
 class LoginUseCase(environment: Environment) {
     private val currentUserV2 = requireNotNull(environment.currentUserV2())
     private val apolloClientV2 = requireNotNull(environment.apolloClientV2())

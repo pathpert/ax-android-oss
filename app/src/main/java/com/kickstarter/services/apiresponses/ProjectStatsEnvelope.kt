@@ -16,11 +16,22 @@ class ProjectStatsEnvelope private constructor(
     private val rewardDistribution: List<RewardStats>,
     private val videoStats: VideoStats?
 ) : Parcelable {
+    /** Cumulative pledged amounts, backer counts, and average pledge stats. */
     fun cumulative() = this.cumulativeStats
+
+    /** Daily/periodic funding progression and pledged amounts over the campaign lifecycle. */
     fun fundingDistribution() = this.fundingDistribution
+
+    /** Aggregated referral sources summary (internal Kickstarter vs external referrers). */
     fun referralAggregates() = this.referralAggregates
+
+    /** Breakdown of funding and pledges by individual referral source and domain. */
     fun referralDistribution() = this.referralDistribution
+
+    /** Breakdown of pledges and backers across each reward tier. */
     fun rewardDistribution() = this.rewardDistribution
+
+    /** Video view counts, completion rates, and playback statistics. */
     fun videoStats() = this.videoStats
 
     @Parcelize

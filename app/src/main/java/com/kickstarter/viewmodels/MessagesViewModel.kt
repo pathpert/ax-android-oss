@@ -38,6 +38,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface MessagesViewModel {
     interface Inputs {
         /** Call with the app bar's vertical offset value.  */
@@ -62,6 +66,7 @@ interface MessagesViewModel {
         fun projectContainerViewClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a boolean that determines if the back button should be gone.  */
         fun backButtonIsGone(): Observable<Boolean>
@@ -133,6 +138,7 @@ interface MessagesViewModel {
         fun viewPledgeButtonIsGone(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class MessagesViewModel(environment: Environment, private val intent: Intent? = null) :
         ViewModel(),
         Inputs,
@@ -618,6 +624,7 @@ interface MessagesViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return MessagesViewModel(environment, intent) as T

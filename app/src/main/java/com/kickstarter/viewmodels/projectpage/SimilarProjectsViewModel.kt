@@ -24,6 +24,10 @@ data class SimilarProjectsUiState(
     val data: List<Project>? = null,
 )
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by DiscoveryFeatureViewModel under com.kickstarter.features.discovery.viewmodel.",
+    replaceWith = ReplaceWith("DiscoveryFeatureViewModel", "com.kickstarter.features.discovery.viewmodel.DiscoveryFeatureViewModel")
+)
 class SimilarProjectsViewModel(
     environment: Environment,
     testDispatcher: CoroutineDispatcher? = null
@@ -82,6 +86,7 @@ class SimilarProjectsViewModel(
         _parentUiState.value = ParentUiState(scrollable)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

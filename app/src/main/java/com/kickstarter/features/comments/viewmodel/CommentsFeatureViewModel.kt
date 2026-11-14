@@ -52,7 +52,7 @@ open class CommentsFeatureViewModel(
     private val _commentsStateFlow = MutableStateFlow<List<CommentCardData>>(emptyList())
     val commentsStateFlow: StateFlow<List<CommentCardData>> = _commentsStateFlow.asStateFlow()
 
-    private lateinit var project: Project
+    private var project: Project? = null
     private var openedThreadActivityFromDeepLink = false
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -116,7 +116,7 @@ open class CommentsFeatureViewModel(
             .map {
                 CommentCardData.builder()
                     .comment(it.first.first.first)
-                    .project(this.project)
+                    .project(this.project ?: Project.builder().build())
                     .commentCardState(it.first.first.first.cardStatus(it.second.getValue()))
                     .commentableId(it.first.second)
                     .build()
@@ -227,7 +227,7 @@ open class CommentsFeatureViewModel(
         val apolloPaginate = CommentsPaginationHelper.buildPaginate(
             nextPage = nextPage,
             startOverWith = startOverWith,
-            projectProvider = { this.project },
+            projectProvider = { this.project ?: Project.builder().build() },
             currentUserProvider = { this.currentUser },
             loadWithComments = { stream, cursor -> loadComments(stream, cursor) }
         )

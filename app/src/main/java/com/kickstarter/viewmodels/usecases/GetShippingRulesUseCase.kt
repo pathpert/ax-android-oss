@@ -40,6 +40,10 @@ enum class NoRewardPlacement {
  *
  *  As the UseCase is lifecycle agnostic and is scoped to the class that uses it.
  */
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 class GetShippingRulesUseCase(
     private val project: Project,
     private val config: Config?,

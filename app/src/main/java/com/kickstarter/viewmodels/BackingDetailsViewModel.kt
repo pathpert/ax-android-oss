@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by BackingFeatureViewModel under com.kickstarter.features.backing.viewmodel.",
+    replaceWith = ReplaceWith("BackingFeatureViewModel", "com.kickstarter.features.backing.viewmodel.BackingFeatureViewModel")
+)
 class BackingDetailsViewModel(environment: Environment, private val intent: Intent? = null) : ViewModel() {
 
     private var mutableUrl = MutableStateFlow<String>("")
@@ -31,6 +35,7 @@ class BackingDetailsViewModel(environment: Environment, private val intent: Inte
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent? = null) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return BackingDetailsViewModel(environment, intent) as T

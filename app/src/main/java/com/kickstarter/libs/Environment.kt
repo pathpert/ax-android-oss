@@ -39,30 +39,79 @@ class Environment private constructor(
     private val featureFlagClient: FeatureFlagClientType?,
     private val statsigClient: StatsigClientType?,
 ) {
+    /** Shared preferences entry for debug activity sampling rate. */
     fun activitySamplePreference() = this.activitySamplePreference
+
+    /** REST API client (Retrofit) for legacy v1/v2 endpoints. */
     fun apiClientV2() = this.apiClientV2
+
+    /** Apollo GraphQL client for modern GraphQL queries and mutations. */
     fun apolloClientV2() = this.apolloClientV2
+
+    /** App build information (version code, variant, git SHA). */
     fun build() = this.build
+
+    /** HTTP cookie store used across web views and API clients. */
     fun cookieManager() = this.cookieManager
+
+    /** Observable stream of remote configuration and country settings. */
     fun currentConfigV2() = this.currentConfigV2
+
+    /** Observable stream and state holder of currently authenticated user. */
     fun currentUserV2() = this.currentUserV2
+
+    /** Shared preference tracking whether this is the user's first app session. */
     fun firstSessionPreference() = this.firstSessionPreference
+
+    /** Gson serializer instance configured with custom date and model adapters. */
     fun gson() = this.gson
+
+    /** Shared preference tracking whether the in-app rating prompt has been shown. */
     fun hasSeenAppRatingPreference() = this.hasSeenAppRatingPreference
+
+    /** Shared preference tracking whether the games newsletter prompt has been shown. */
     fun hasSeenGamesNewsletterPreference() = this.hasSeenGamesNewsletterPreference
+
+    /** Developer tools and debug menu interfaces. */
     fun internalTools() = this.internalTools
+
+    /** Kickstarter currency formatter respecting user locale and project currencies. */
     fun ksCurrency() = this.ksCurrency
+
+    /** String localization and interpolation helper. */
     fun ksString() = this.ksString
+
+    /** App-wide analytics client dispatching Lake and third-party events. */
     fun analytics() = this.analytics
+
+    /** Attribution event tracker (e.g. branch, install attribution). */
     fun attributionEvents() = this.attributionEvents
+
+    /** Session logout handler clearing local credentials and caches. */
     fun logout() = this.logout
+
+    /** Google Play Services availability checker. */
     fun playServicesCapability() = this.playServicesCapability
+
+    /** RxJava Scheduler for background worker threads. */
     fun schedulerV2() = this.schedulerV2
+
+    /** Android SharedPreferences interface for persisted app settings. */
     fun sharedPreferences() = this.sharedPreferences
+
+    /** Stripe SDK instance for credit card tokenization and payments. */
     fun stripe() = this.stripe
+
+    /** Base web endpoint URL (e.g. "https://www.kickstarter.com"). */
     fun webEndpoint() = this.webEndpoint
+
+    /** Firebase Analytics client for event tracking. */
     fun firebaseAnalyticsClient() = this.firebaseAnalyticsClient
+
+    /** Feature flag evaluation client for remote experimentation. */
     fun featureFlagClient() = this.featureFlagClient
+
+    /** Statsig client for remote feature gating and A/B experiments. */
     fun statsigClient() = this.statsigClient
 
     data class Builder(

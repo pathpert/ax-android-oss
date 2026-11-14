@@ -29,6 +29,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.DateTime
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface ThreadViewModel {
 
     interface Inputs {
@@ -43,6 +47,7 @@ interface ThreadViewModel {
         fun onShowCanceledPledgeComment(comment: Comment)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** The anchored root comment */
         fun getRootComment(): Observable<CommentCardData>
@@ -74,6 +79,7 @@ interface ThreadViewModel {
         fun closeThreadActivity(): Observable<Unit>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ThreadViewModel(val environment: Environment) : ViewModel(), Inputs, Outputs {
         private val apolloClient = requireNotNull(environment.apolloClientV2())
         private val currentUserStream = requireNotNull(environment.currentUserV2())
@@ -542,6 +548,7 @@ interface ThreadViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

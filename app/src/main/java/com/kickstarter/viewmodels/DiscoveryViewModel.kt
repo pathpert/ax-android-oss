@@ -67,6 +67,7 @@ interface DiscoveryViewModel {
         fun hasExitedOnboarding()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the drawable resource ID of the drawer menu icon.   */
         fun drawerMenuIcon(): Observable<Int>
@@ -129,6 +130,7 @@ interface DiscoveryViewModel {
         fun showErrorMessage(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class DiscoveryViewModel(environment: Environment) : ViewModel(), Inputs, Outputs {
         val inputs = this
         val outputs = this
@@ -550,6 +552,7 @@ interface DiscoveryViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return DiscoveryViewModel(environment) as T

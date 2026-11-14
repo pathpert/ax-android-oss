@@ -7,6 +7,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 class ActivitySampleProjectViewHolderViewModel {
     interface Inputs {
         /** Configure with current [Activity]. */
@@ -15,6 +19,7 @@ class ActivitySampleProjectViewHolderViewModel {
         fun onCleared()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         fun bindActivity(): Observable<Activity>
     }

@@ -65,6 +65,12 @@ class PPOCard private constructor(
     fun reward() = this.reward
     fun webviewUrl() = this.webviewUrl
 
+    /**
+     * Builder for [PPOCard].
+     *
+     * Negative constraints:
+     * - Do not construct with invalid or blank backing IDs.
+     */
     @Parcelize
     data class Builder(
         var deliveryAddress: DeliveryAddress? = null,

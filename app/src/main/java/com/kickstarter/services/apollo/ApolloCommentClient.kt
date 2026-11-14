@@ -5,6 +5,9 @@ import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.rx2.rxFlowable
 import com.apollographql.apollo3.rx2.rxSingle
 import com.kickstarter.CreateCommentMutation
+import com.kickstarter.ax.errors.DomainResult
+import com.kickstarter.ax.safety.IdempotencyGuard
+import com.kickstarter.ax.safety.IdempotencyKey
 import com.kickstarter.GetCommentQuery
 import com.kickstarter.GetProjectCommentsQuery
 import com.kickstarter.GetProjectUpdateCommentsQuery
@@ -29,7 +32,8 @@ import io.reactivex.subjects.PublishSubject
  */
 class ApolloCommentClient(
     private val service: ApolloClient,
-    private val disposables: CompositeDisposable
+    private val disposables: CompositeDisposable,
+    private val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
 ) {
     fun getComment(commentableId: String): Observable<Comment> {
         return Observable.defer {
@@ -208,10 +212,11 @@ class ApolloCommentClient(
     fun createComment(comment: PostCommentData): Observable<Comment> {
         return Observable.defer {
             val ps = PublishSubject.create<Comment>()
+            val key = comment.clientMutationId?.let { (IdempotencyKey.create(it) as? DomainResult.Success)?.value } ?: IdempotencyKey.generate()
             val mutation = CreateCommentMutation(
                 parentId = if (comment.parent?.id().isNotNull()) Optional.present(comment.parent?.let { encodeRelayId(it) }) else Optional.absent(),
                 commentableId = comment.commentableId,
-                clientMutationId = Optional.present(comment.clientMutationId),
+                clientMutationId = Optional.present(key.value),
                 body = comment.body
             )
             service.mutation(mutation)

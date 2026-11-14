@@ -50,6 +50,9 @@ data class PledgeRedemptionArgs(
 /**
  * Temporary bridge carrying legacy models strictly for `CheckoutScreen` until `CheckoutScreen`
  * is migrated to AX contracts in Wave 3.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null project, reward, or shipping rule instances.
  */
 @Deprecated(
     message = "Legacy UI bridge for CheckoutScreen; remove once CheckoutScreen accepts PledgeRedemptionArgs directly."
@@ -62,6 +65,9 @@ data class PledgeRedemptionLegacySnapshot(
 
 /**
  * Unidirectional UI state for Pledge Redemption.
+ *
+ * Negative constraints:
+ * - Do not expose raw unhandled exceptions; all failures MUST resolve to [ProblemDetails].
  */
 sealed interface PledgeRedemptionUiState {
     data object Loading : PledgeRedemptionUiState

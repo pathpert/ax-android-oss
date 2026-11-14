@@ -17,6 +17,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface AccountViewModel {
 
     interface Inputs {
@@ -24,6 +28,7 @@ interface AccountViewModel {
         fun onSelectedCurrency(currencyCode: CurrencyCode)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the current user's chosen Currency. */
         fun chosenCurrency(): Observable<String>
@@ -47,6 +52,7 @@ interface AccountViewModel {
         fun success(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class AccountViewModel(val environment: Environment, private val intent: Intent? = null) : ViewModel(), Inputs, Outputs {
 
         val inputs: Inputs = this
@@ -159,6 +165,7 @@ interface AccountViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent? = null) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return AccountViewModel(environment, intent) as T

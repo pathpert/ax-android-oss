@@ -7,6 +7,9 @@ import androidx.core.graphics.drawable.toBitmap
 import coil.Coil
 import coil.request.ImageRequest
 import coil.request.SuccessResult
+import com.kickstarter.ax.errors.DomainResult
+import com.kickstarter.ax.errors.ProblemDetails
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -72,17 +75,47 @@ object ShareImageCache {
      *   flattened onto an opaque background).
      * @return A content:// Uri for the file, or null if the write operation fails.
      */
-    suspend fun cacheBitmap(context: Context, bitmap: android.graphics.Bitmap): Uri? =
+    suspend fun cacheBitmapResult(context: Context, bitmap: android.graphics.Bitmap): DomainResult<Uri> =
         withContext(Dispatchers.IO) {
             try {
                 val dir = File(context.cacheDir, SHARE_DIR).apply { mkdirs() }
                 val file = File(dir, SHARE_FILE_NAME)
                 FileOutputStream(file).use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
-                toFileProviderUri(context, file)
+                val uri = toFileProviderUri(context, file)
+                if (uri != null) {
+                    DomainResult.Success(uri)
+                } else {
+                    DomainResult.Failure(
+                        ProblemDetails(
+                            type = ProblemDetails.TYPE_UNEXPECTED,
+                            title = "Cache Bitmap Failed",
+                            status = 500,
+                            detail = "FileProvider returned null URI for cached share bitmap.",
+                            suggestedAction = "Verify FileProvider configuration in manifest.",
+                            isRetriable = false
+                        )
+                    )
+                }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Timber.e(e, "Failed to write share image to cache")
-                null
+                DomainResult.Failure(
+                    ProblemDetails(
+                        type = ProblemDetails.TYPE_UNEXPECTED,
+                        title = "Cache Bitmap Failed",
+                        status = 500,
+                        detail = e.message ?: "Failed to write share image to cache.",
+                        suggestedAction = "Check cache directory permissions and retry.",
+                        isRetriable = true
+                    )
+                )
             }
+        }
+
+    suspend fun cacheBitmap(context: Context, bitmap: android.graphics.Bitmap): Uri? =
+        when (val result = cacheBitmapResult(context, bitmap)) {
+            is DomainResult.Success -> result.value
+            is DomainResult.Failure -> null
         }
 
     /**

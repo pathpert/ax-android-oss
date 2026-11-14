@@ -28,6 +28,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.DateTime
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface ProjectOverviewViewModel {
     interface Inputs {
         /** Call to configure view holder with ProjectData.  */
@@ -58,6 +62,7 @@ interface ProjectOverviewViewModel {
         fun linkClicked(urlTag: String)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the creator's avatar photo url for display.  */
         fun avatarPhotoUrl(): Observable<String>
@@ -181,6 +186,7 @@ interface ProjectOverviewViewModel {
         fun projectProjectNotice(): Observable<String?>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProjectOverviewViewModel(
         private val environment: Environment
     ) : ViewModel(), Inputs, Outputs {
@@ -725,6 +731,7 @@ interface ProjectOverviewViewModel {
         }
 
         @Suppress("UNCHECKED_CAST")
+        @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
         class Factory(private val environment: Environment) : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return ProjectOverviewViewModel(

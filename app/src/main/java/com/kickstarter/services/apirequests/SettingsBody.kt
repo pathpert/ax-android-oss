@@ -103,96 +103,37 @@ class SettingsBody internal constructor(
         private var publishingNewsletter: Int = 0,
         private var weeklyNewsletter: Int = 0
     ) : Parcelable {
-        fun optedOutOfRecommendations(optedOutOfRecommendations: Int?) =
-            apply { this.optedOutOfRecommendations = optedOutOfRecommendations ?: 0 }
-
-        fun notifyMobileOfBackings(notifyMobileOfBackings: Boolean?) =
-            apply { this.notifyMobileOfBackings = notifyMobileOfBackings ?: false }
-
-        fun notifyMobileOfComments(notifyMobileOfComments: Boolean?) =
-            apply { this.notifyMobileOfComments = notifyMobileOfComments ?: false }
-
-        fun notifyMobileOfCreatorEdu(notifyMobileOfCreatorEdu: Boolean?) =
-            apply { this.notifyMobileOfCreatorEdu = notifyMobileOfCreatorEdu ?: false }
-
-        fun notifyMobileOfFollower(notifyMobileOfFollower: Boolean?) =
-            apply { this.notifyMobileOfFollower = notifyMobileOfFollower ?: false }
-
-        fun notifyMobileOfFriendActivity(notifyMobileOfFriendActivity: Boolean?) =
-            apply { this.notifyMobileOfFriendActivity = notifyMobileOfFriendActivity ?: false }
-
-        fun notifyMobileOfMessages(notifyMobileOfMessages: Boolean?) =
-            apply { this.notifyMobileOfMessages = notifyMobileOfMessages ?: false }
-
-        fun notifyMobileOfPostLikes(notifyMobileOfPostLikes: Boolean?) =
-            apply { this.notifyMobileOfPostLikes = notifyMobileOfPostLikes ?: false }
-
-        fun notifyMobileOfUpdates(notifyMobileOfUpdates: Boolean?) =
-            apply { this.notifyMobileOfUpdates = notifyMobileOfUpdates ?: false }
-
-        fun notifyMobileOfMarketingUpdate(notifyMobileOfMarketingUpdate: Boolean?) =
-            apply { this.notifyMobileOfMarketingUpdate = notifyMobileOfMarketingUpdate ?: false }
-
-        fun notifyOfBackings(notifyOfBackings: Boolean?) =
-            apply { this.notifyOfBackings = notifyOfBackings ?: false }
-
-        fun notifyOfComments(notifyOfComments: Boolean?) =
-            apply { this.notifyOfComments = notifyOfComments ?: false }
-
-        fun notifyOfCommentReplies(notifyOfCommentReplies: Boolean?) =
-            apply { this.notifyOfCommentReplies = notifyOfCommentReplies ?: false }
-
-        fun notifyOfCreatorDigest(notifyOfCreatorDigest: Boolean?) =
-            apply { this.notifyOfCreatorDigest = notifyOfCreatorDigest ?: false }
-
-        fun notifyOfCreatorEdu(notifyOfCreatorEdu: Boolean?) =
-            apply { this.notifyOfCreatorEdu = notifyOfCreatorEdu ?: false }
-
-        fun notifyOfFollower(notifyOfFollower: Boolean?) =
-            apply { this.notifyOfFollower = notifyOfFollower ?: false }
-
-        fun notifyOfFriendActivity(notifyOfFriendActivity: Boolean?) =
-            apply { this.notifyOfFriendActivity = notifyOfFriendActivity ?: false }
-
-        fun notifyOfMessages(notifyOfMessages: Boolean?) =
-            apply { this.notifyOfMessages = notifyOfMessages ?: false }
-
-        fun notifyOfUpdates(notifyOfUpdates: Boolean?) =
-            apply { this.notifyOfUpdates = notifyOfUpdates ?: false }
-
-        fun showPublicProfile(showPublicProfile: Int?) =
-            apply { this.showPublicProfile = showPublicProfile ?: 0 }
-
+        fun optedOutOfRecommendations(optedOutOfRecommendations: Int?) = apply { this.optedOutOfRecommendations = optedOutOfRecommendations ?: 0 }
+        fun notifyMobileOfBackings(notifyMobileOfBackings: Boolean?) = apply { this.notifyMobileOfBackings = notifyMobileOfBackings ?: false }
+        fun notifyMobileOfComments(notifyMobileOfComments: Boolean?) = apply { this.notifyMobileOfComments = notifyMobileOfComments ?: false }
+        fun notifyMobileOfCreatorEdu(notifyMobileOfCreatorEdu: Boolean?) = apply { this.notifyMobileOfCreatorEdu = notifyMobileOfCreatorEdu ?: false }
+        fun notifyMobileOfFollower(notifyMobileOfFollower: Boolean?) = apply { this.notifyMobileOfFollower = notifyMobileOfFollower ?: false }
+        fun notifyMobileOfFriendActivity(notifyMobileOfFriendActivity: Boolean?) = apply { this.notifyMobileOfFriendActivity = notifyMobileOfFriendActivity ?: false }
+        fun notifyMobileOfMessages(notifyMobileOfMessages: Boolean?) = apply { this.notifyMobileOfMessages = notifyMobileOfMessages ?: false }
+        fun notifyMobileOfPostLikes(notifyMobileOfPostLikes: Boolean?) = apply { this.notifyMobileOfPostLikes = notifyMobileOfPostLikes ?: false }
+        fun notifyMobileOfUpdates(notifyMobileOfUpdates: Boolean?) = apply { this.notifyMobileOfUpdates = notifyMobileOfUpdates ?: false }
+        fun notifyMobileOfMarketingUpdate(notifyMobileOfMarketingUpdate: Boolean?) = apply { this.notifyMobileOfMarketingUpdate = notifyMobileOfMarketingUpdate ?: false }
+        fun notifyOfBackings(notifyOfBackings: Boolean?) = apply { this.notifyOfBackings = notifyOfBackings ?: false }
+        fun notifyOfComments(notifyOfComments: Boolean?) = apply { this.notifyOfComments = notifyOfComments ?: false }
+        fun notifyOfCommentReplies(notifyOfCommentReplies: Boolean?) = apply { this.notifyOfCommentReplies = notifyOfCommentReplies ?: false }
+        fun notifyOfCreatorDigest(notifyOfCreatorDigest: Boolean?) = apply { this.notifyOfCreatorDigest = notifyOfCreatorDigest ?: false }
+        fun notifyOfCreatorEdu(notifyOfCreatorEdu: Boolean?) = apply { this.notifyOfCreatorEdu = notifyOfCreatorEdu ?: false }
+        fun notifyOfFollower(notifyOfFollower: Boolean?) = apply { this.notifyOfFollower = notifyOfFollower ?: false }
+        fun notifyOfFriendActivity(notifyOfFriendActivity: Boolean?) = apply { this.notifyOfFriendActivity = notifyOfFriendActivity ?: false }
+        fun notifyOfMessages(notifyOfMessages: Boolean?) = apply { this.notifyOfMessages = notifyOfMessages ?: false }
+        fun notifyOfUpdates(notifyOfUpdates: Boolean?) = apply { this.notifyOfUpdates = notifyOfUpdates ?: false }
+        fun showPublicProfile(showPublicProfile: Int?) = apply { this.showPublicProfile = showPublicProfile ?: 0 }
         fun social(social: Int?) = apply { this.social = social ?: 0 }
-        fun alumniNewsletter(alumniNewsletter: Int?) =
-            apply { this.alumniNewsletter = alumniNewsletter ?: 0 }
-
-        fun artsCultureNewsletter(artsCultureNewsletter: Int?) =
-            apply { this.artsCultureNewsletter = artsCultureNewsletter ?: 0 }
-
-        fun filmNewsletter(filmNewsletter: Int?) =
-            apply { this.filmNewsletter = filmNewsletter ?: 0 }
-
-        fun gamesNewsletter(gamesNewsletter: Int?) =
-            apply { this.gamesNewsletter = gamesNewsletter ?: 0 }
-
-        fun happeningNewsletter(happeningNewsletter: Int?) =
-            apply { this.happeningNewsletter = happeningNewsletter ?: 0 }
-
-        fun inventNewsletter(inventNewsletter: Int?) =
-            apply { this.inventNewsletter = inventNewsletter ?: 0 }
-
-        fun musicNewsletter(musicNewsletter: Int?) =
-            apply { this.musicNewsletter = musicNewsletter ?: 0 }
-
-        fun promoNewsletter(promoNewsletter: Int?) =
-            apply { this.promoNewsletter = promoNewsletter ?: 0 }
-
-        fun publishingNewsletter(publishingNewsletter: Int?) =
-            apply { this.publishingNewsletter = publishingNewsletter ?: 0 }
-
-        fun weeklyNewsletter(weeklyNewsletter: Int?) =
-            apply { this.weeklyNewsletter = weeklyNewsletter ?: 0 }
+        fun alumniNewsletter(alumniNewsletter: Int?) = apply { this.alumniNewsletter = alumniNewsletter ?: 0 }
+        fun artsCultureNewsletter(artsCultureNewsletter: Int?) = apply { this.artsCultureNewsletter = artsCultureNewsletter ?: 0 }
+        fun filmNewsletter(filmNewsletter: Int?) = apply { this.filmNewsletter = filmNewsletter ?: 0 }
+        fun gamesNewsletter(gamesNewsletter: Int?) = apply { this.gamesNewsletter = gamesNewsletter ?: 0 }
+        fun happeningNewsletter(happeningNewsletter: Int?) = apply { this.happeningNewsletter = happeningNewsletter ?: 0 }
+        fun inventNewsletter(inventNewsletter: Int?) = apply { this.inventNewsletter = inventNewsletter ?: 0 }
+        fun musicNewsletter(musicNewsletter: Int?) = apply { this.musicNewsletter = musicNewsletter ?: 0 }
+        fun promoNewsletter(promoNewsletter: Int?) = apply { this.promoNewsletter = promoNewsletter ?: 0 }
+        fun publishingNewsletter(publishingNewsletter: Int?) = apply { this.publishingNewsletter = publishingNewsletter ?: 0 }
+        fun weeklyNewsletter(weeklyNewsletter: Int?) = apply { this.weeklyNewsletter = weeklyNewsletter ?: 0 }
 
         fun build() = SettingsBody(
             optedOutOfRecommendations = optedOutOfRecommendations,

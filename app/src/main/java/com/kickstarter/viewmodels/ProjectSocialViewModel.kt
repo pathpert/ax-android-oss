@@ -11,11 +11,16 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SocialShareViewModel under com.kickstarter.features.socialshare.viewmodel.",
+    replaceWith = ReplaceWith("SocialShareViewModel", "com.kickstarter.features.socialshare.viewmodel.SocialShareViewModel")
+)
 interface ProjectSocialViewModel {
     interface Outputs {
         fun project(): Observable<Project>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProjectSocialViewModel(private val environment: Environment, private val intent: Intent? = null) :
         ViewModel(), Outputs {
 
@@ -44,6 +49,7 @@ interface ProjectSocialViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent? = null) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ProjectSocialViewModel(environment, intent) as T

@@ -18,6 +18,10 @@ import kotlinx.coroutines.flow.stateIn
 /**
  * State container for reactive UI states in CrowdfundCheckoutViewModel.
  */
+@Deprecated(
+    message = "Legacy monolithic path replaced by CrowdfundCheckoutContracts under com.kickstarter.features.checkout.data.",
+    replaceWith = ReplaceWith("CrowdfundCheckoutContracts", "com.kickstarter.features.checkout.data.CrowdfundCheckoutContracts")
+)
 abstract class CrowdfundCheckoutStateHolder : ViewModel() {
 
     protected var storedCards = emptyList<StoredCard>()

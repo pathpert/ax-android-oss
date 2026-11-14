@@ -19,11 +19,16 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by BackingFeatureViewModel under com.kickstarter.features.backing.viewmodel.",
+    replaceWith = ReplaceWith("BackingFeatureViewModel", "com.kickstarter.features.backing.viewmodel.BackingFeatureViewModel")
+)
 interface BackingViewModel {
     interface Inputs {
         fun refresh()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /**
          * Set the backer name TextView's text.
@@ -32,6 +37,7 @@ interface BackingViewModel {
         fun isRefreshing(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class BackingViewModel(environment: Environment, private val intent: Intent? = null) :
         ViewModel(),
         Outputs,
@@ -134,6 +140,7 @@ interface BackingViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return BackingViewModel(environment, intent) as T

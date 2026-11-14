@@ -13,6 +13,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectStoryViewModel under com.kickstarter.features.projectstory.",
+    replaceWith = ReplaceWith("ProjectStoryViewModel", "com.kickstarter.features.projectstory.ProjectStoryViewModel")
+)
 class ProjectCampaignViewModel {
     interface Inputs {
         /** Configure with current [ProjectData]. */
@@ -21,6 +25,7 @@ class ProjectCampaignViewModel {
         fun openVideoInFullScreen(index: Int, source: String, seekPosition: Long)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits in a list format the DOM elements  */
         fun storyViewElements(): Observable<List<ViewElement>>
@@ -29,6 +34,7 @@ class ProjectCampaignViewModel {
         fun updateVideoCloseSeekPosition(): Observable<Pair<Int, Long>>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProjectCampaignViewModel(val environment: Environment) : ViewModel(), Inputs, Outputs {
         val inputs: Inputs = this
         val outputs: Outputs = this
@@ -120,6 +126,7 @@ class ProjectCampaignViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ProjectCampaignViewModel(environment) as T

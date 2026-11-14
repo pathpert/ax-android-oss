@@ -38,6 +38,7 @@ interface CancelPledgeViewModel {
         fun goBackButtonClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits when the fragment should be dismissed. */
         fun dismiss(): Observable<Unit>
@@ -61,6 +62,7 @@ interface CancelPledgeViewModel {
         fun showServerError(): Observable<Unit>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class CancelPledgeViewModel(private val environment: Environment, private val bundle: Bundle? = null) : ViewModel(), Inputs, Outputs {
 
         private val confirmCancellationClicked = PublishSubject.create<String>()
@@ -183,6 +185,7 @@ interface CancelPledgeViewModel {
     }
 
     @Suppress("UNCHECKED_CAST")
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val bundle: Bundle? = null) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return CancelPledgeViewModel(

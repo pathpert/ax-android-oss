@@ -3,6 +3,13 @@ package com.kickstarter.models
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Immutable domain model representing a project taxonomy category or subcategory.
+ *
+ * ### Negative Constraints:
+ * - Do not mutate fields directly; use [builder] or [toBuilder].
+ * - Do not assume [parentId] is non-zero; root categories have `parentId == 0L`.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class Category internal constructor(
@@ -18,15 +25,34 @@ class Category internal constructor(
     private val slug: String
 ) : Parcelable, Comparable<Category>, Relay {
 
+    /** Identifier name used in analytics event tracking. */
     fun analyticsName() = this.analyticsName
+
+    /** Brand color integer associated with the category. */
     fun color() = this.color
+
+    /** Persistent database identifier (PID) of the category. */
     override fun id() = this.id
+
+    /** Localized display name of the category. */
     fun name() = this.name
+
+    /** Parent category domain entity if this is a subcategory, or null for root categories. */
     fun parent() = this.parent
+
+    /** Persistent database identifier of the parent category, or 0L if root. */
     fun parentId() = this.parentId
+
+    /** Localized display name of the parent category, or null if root. */
     fun parentName() = this.parentName
+
+    /** Ordering position index for presentation in category pickers. */
     fun position() = this.position
+
+    /** Total number of campaigns belonging to this category. */
     fun projectsCount() = this.projectsCount
+
+    /** URL-safe slug identifying this category (e.g., "art", "games/tabletop-games"). */
     fun slug() = this.slug
 
     @Parcelize

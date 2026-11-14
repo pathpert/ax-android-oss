@@ -7,6 +7,10 @@ import com.kickstarter.models.SurveyResponse
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by PledgeRedemptionViewModel under com.kickstarter.features.pledgeredemption.viewmodels.",
+    replaceWith = ReplaceWith("PledgeRedemptionViewModel", "com.kickstarter.features.pledgeredemption.viewmodels.PledgeRedemptionViewModel")
+)
 interface SurveyHolderViewModel {
     interface Inputs {
         /** Call to configure the view model with a survey  */
@@ -16,6 +20,7 @@ interface SurveyHolderViewModel {
         fun surveyClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits creator avatar image  */
         fun creatorAvatarImageUrl(): Observable<String>
@@ -30,6 +35,7 @@ interface SurveyHolderViewModel {
         fun startSurveyResponseActivity(): Observable<SurveyResponse>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel : Inputs, Outputs {
         private val surveyResponse = PublishSubject.create<SurveyResponse>()
         private val surveyClicked = PublishSubject.create<Unit>()

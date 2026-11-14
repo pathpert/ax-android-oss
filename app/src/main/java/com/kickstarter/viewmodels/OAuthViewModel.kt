@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 import timber.log.Timber
 
+@Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
 class OAuthException(cause: Throwable) : Exception(cause)
 
 /**
@@ -39,6 +40,10 @@ data class OAuthUiState(
     val user: User? = null,
     val isAuthorizationStep: Boolean = false,
     val error: String = ""
+)
+@Deprecated(
+    message = "Legacy monolithic path replaced by SplashFeatureViewModel under com.kickstarter.features.splash.viewmodel.",
+    replaceWith = ReplaceWith("SplashFeatureViewModel", "com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel")
 )
 class OAuthViewModel(
     private val environment: Environment,
@@ -205,6 +210,7 @@ class OAuthViewModel(
     }
 }
 
+@Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
 class OAuthViewModelFactory(
     private val environment: Environment,
     private val verifier: PKCE = CodeVerifier()

@@ -19,6 +19,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.math.RoundingMode
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface AddOnViewHolderViewModel {
     interface Inputs {
         /** Configure with the current [ProjectData] and [Reward].
@@ -28,6 +32,7 @@ interface AddOnViewHolderViewModel {
         fun configureWith(projectData: ProjectData, reward: Reward)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
 
         /** Emits Photo of reward  */
@@ -79,6 +84,7 @@ interface AddOnViewHolderViewModel {
      *  - No interaction with the user just displaying information
      *  - Loading in [AddOnViewHolder] -> [RewardAndAddOnsAdapter] -> [BackingFragment]
      */
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(environment: Environment) : Inputs, Outputs {
 
         private val ksCurrency = requireNotNull(environment.ksCurrency())

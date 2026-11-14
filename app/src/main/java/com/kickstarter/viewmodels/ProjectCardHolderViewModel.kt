@@ -25,6 +25,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.DateTime
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by DiscoveryFeatureViewModel under com.kickstarter.features.discovery.viewmodel.",
+    replaceWith = ReplaceWith("DiscoveryFeatureViewModel", "com.kickstarter.features.discovery.viewmodel.DiscoveryFeatureViewModel")
+)
 interface ProjectCardHolderViewModel {
     interface Inputs {
         /** Call to configure view model with a project and current discovery params.  */
@@ -37,6 +41,7 @@ interface ProjectCardHolderViewModel {
         fun heartButtonClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the project's number of backers.  */
         fun backersCountTextViewText(): Observable<String>
@@ -161,6 +166,7 @@ interface ProjectCardHolderViewModel {
         fun notifyDelegateOfHeartButtonClicked(): Observable<Project>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel : Inputs, Outputs {
         private fun shouldShowLocationTag(params: DiscoveryParams): Boolean {
             return params.tagId() != null && params.tagId() == Editorial.LIGHTS_ON.tagId

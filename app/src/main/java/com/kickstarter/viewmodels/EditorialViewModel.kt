@@ -18,12 +18,17 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by DiscoveryFeatureViewModel under com.kickstarter.features.discovery.viewmodel.",
+    replaceWith = ReplaceWith("DiscoveryFeatureViewModel", "com.kickstarter.features.discovery.viewmodel.DiscoveryFeatureViewModel")
+)
 interface EditorialViewModel {
     interface Inputs {
         /** Call when the user clicks the retry container. */
         fun retryContainerClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the @StringRes ID of the description of the [Editorial]. */
         fun description(): Observable<Int>
@@ -47,6 +52,7 @@ interface EditorialViewModel {
         fun title(): Observable<Int>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class EditorialViewModel(val environment: Environment, private val intent: Intent) :
         ViewModel(), Inputs, Outputs {
         private val retryContainerClicked: PublishSubject<Unit> = PublishSubject.create()
@@ -147,6 +153,7 @@ interface EditorialViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return EditorialViewModel(environment, intent) as T

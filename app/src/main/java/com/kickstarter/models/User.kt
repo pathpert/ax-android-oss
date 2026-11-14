@@ -71,6 +71,55 @@ class User private constructor(
     private val weeklyNewsletter: Boolean
 ) : Parcelable, Relay {
 
+    /** Sub-model grouping user newsletter subscription settings. */
+    fun newsletterPreferences() = UserNewsletterPreferences(
+        alumni = this.alumniNewsletter,
+        artsCulture = this.artsCultureNewsletter,
+        film = this.filmNewsletter,
+        games = this.gamesNewsletter,
+        happening = this.happeningNewsletter,
+        invent = this.inventNewsletter,
+        music = this.musicNewsletter,
+        promo = this.promoNewsletter,
+        publishing = this.publishingNewsletter,
+        weekly = this.weeklyNewsletter
+    )
+
+    /** Sub-model grouping user push and email notification channels. */
+    fun notificationPreferences() = UserNotificationPreferences(
+        mobileBackings = this.notifyMobileOfBackings,
+        mobileComments = this.notifyMobileOfComments,
+        mobileCreatorEdu = this.notifyMobileOfCreatorEdu,
+        mobileFollower = this.notifyMobileOfFollower,
+        mobileFriendActivity = this.notifyMobileOfFriendActivity,
+        mobileMessages = this.notifyMobileOfMessages,
+        mobilePostLikes = this.notifyMobileOfPostLikes,
+        mobileUpdates = this.notifyMobileOfUpdates,
+        mobileMarketing = this.notifyMobileOfMarketingUpdate,
+        emailBackings = this.notifyOfBackings,
+        emailComments = this.notifyOfComments,
+        emailCommentReplies = this.notifyOfCommentReplies,
+        emailCreatorDigest = this.notifyOfCreatorDigest,
+        emailCreatorEdu = this.notifyOfCreatorEdu,
+        emailFollower = this.notifyOfFollower,
+        emailFriendActivity = this.notifyOfFriendActivity,
+        emailMessages = this.notifyOfMessages,
+        emailUpdates = this.notifyOfUpdates
+    )
+
+    /** Sub-model grouping user activity, backings, and project counts. */
+    fun stats() = UserStats(
+        backedProjectsCount = this.backedProjectsCount,
+        backingActionCount = this.backingActionCount,
+        createdProjectsCount = this.createdProjectsCount,
+        draftProjectsCount = this.draftProjectsCount,
+        erroredBackingsCount = this.erroredBackingsCount,
+        memberProjectsCount = this.memberProjectsCount,
+        starredProjectsCount = this.starredProjectsCount,
+        unreadMessagesCount = this.unreadMessagesCount,
+        unseenActivityCount = this.unseenActivityCount
+    )
+
     /** Whether the user is subscribed to the alumni newsletter. */
     fun alumniNewsletter() = this.alumniNewsletter
 
@@ -361,6 +410,52 @@ class User private constructor(
         fun unseenActivityCount(unseenActivityCount: Int?) = apply { this.unseenActivityCount = unseenActivityCount ?: 0 }
         fun weeklyNewsletter(weeklyNewsletter: Boolean?) = apply { this.weeklyNewsletter = weeklyNewsletter ?: false }
         fun needsPassword(needsPassword: Boolean?) = apply { this.needsPassword = needsPassword ?: false }
+
+        fun newsletterPreferences(prefs: UserNewsletterPreferences) = apply {
+            alumniNewsletter(prefs.alumni)
+            artsCultureNewsletter(prefs.artsCulture)
+            filmNewsletter(prefs.film)
+            gamesNewsletter(prefs.games)
+            happeningNewsletter(prefs.happening)
+            inventNewsletter(prefs.invent)
+            musicNewsletter(prefs.music)
+            promoNewsletter(prefs.promo)
+            publishingNewsletter(prefs.publishing)
+            weeklyNewsletter(prefs.weekly)
+        }
+
+        fun notificationPreferences(prefs: UserNotificationPreferences) = apply {
+            notifyMobileOfBackings(prefs.mobileBackings)
+            notifyMobileOfComments(prefs.mobileComments)
+            notifyMobileOfCreatorEdu(prefs.mobileCreatorEdu)
+            notifyMobileOfFollower(prefs.mobileFollower)
+            notifyMobileOfFriendActivity(prefs.mobileFriendActivity)
+            notifyMobileOfMessages(prefs.mobileMessages)
+            notifyMobileOfPostLikes(prefs.mobilePostLikes)
+            notifyMobileOfUpdates(prefs.mobileUpdates)
+            notifyMobileOfMarketingUpdate(prefs.mobileMarketing)
+            notifyOfBackings(prefs.emailBackings)
+            notifyOfComments(prefs.emailComments)
+            notifyOfCommentReplies(prefs.emailCommentReplies)
+            notifyOfCreatorDigest(prefs.emailCreatorDigest)
+            notifyOfCreatorEdu(prefs.emailCreatorEdu)
+            notifyOfFollower(prefs.emailFollower)
+            notifyOfFriendActivity(prefs.emailFriendActivity)
+            notifyOfMessages(prefs.emailMessages)
+            notifyOfUpdates(prefs.emailUpdates)
+        }
+
+        fun stats(stats: UserStats) = apply {
+            backedProjectsCount(stats.backedProjectsCount)
+            backingActionCount(stats.backingActionCount)
+            createdProjectsCount(stats.createdProjectsCount)
+            draftProjectsCount(stats.draftProjectsCount)
+            erroredBackingsCount(stats.erroredBackingsCount)
+            memberProjectsCount(stats.memberProjectsCount)
+            starredProjectsCount(stats.starredProjectsCount)
+            unreadMessagesCount(stats.unreadMessagesCount)
+            unseenActivityCount(stats.unseenActivityCount)
+        }
 
         fun build() = User(
             alumniNewsletter = alumniNewsletter,

@@ -6,11 +6,16 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface RepliesStatusCellViewHolderViewModel {
     interface Inputs {
         fun configureWith(configureCellWith: RepliesStatusCellType)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         fun isViewMoreRepliesPaginationVisible(): Observable<Boolean>
         fun isErrorPaginationVisible(): Observable<Boolean>

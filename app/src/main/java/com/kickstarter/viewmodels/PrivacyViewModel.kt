@@ -17,6 +17,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface PrivacyViewModel {
     interface Inputs {
         /** Call when the user toggles the Following switch.  */
@@ -32,6 +36,7 @@ interface PrivacyViewModel {
         fun showPublicProfile(checked: Boolean)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits when Following switch should be turned back on after user cancels opting out.  */
         fun hideConfirmFollowingOptOutPrompt(): Observable<Unit>
@@ -46,6 +51,7 @@ interface PrivacyViewModel {
         fun user(): Observable<User>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Errors {
         /** Emits when saving preference fails.  */
         fun unableToSavePreferenceError(): Observable<String>
@@ -196,6 +202,7 @@ interface PrivacyViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return PrivacyViewModel(environment) as T

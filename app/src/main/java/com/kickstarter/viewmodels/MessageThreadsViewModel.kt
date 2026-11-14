@@ -26,6 +26,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface MessageThreadsViewModel {
     interface Inputs {
         fun mailbox(mailbox: Mailbox)
@@ -40,6 +44,7 @@ interface MessageThreadsViewModel {
         fun swipeRefresh()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a boolean to determine if there are no messages.  */
         fun hasNoMessages(): Observable<Boolean>
@@ -72,6 +77,7 @@ interface MessageThreadsViewModel {
         fun unreadMessagesCountIsGone(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class MessageThreadsViewModel(environment: Environment, private val intent: Intent? = null) : ViewModel(), Inputs, Outputs {
         private val client: ApiClientTypeV2
         private val currentUser: CurrentUserTypeV2
@@ -293,6 +299,7 @@ interface MessageThreadsViewModel {
         override fun unreadMessagesCountIsGone(): Observable<Boolean> = unreadMessagesCountIsGone
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return MessageThreadsViewModel(environment, intent) as T

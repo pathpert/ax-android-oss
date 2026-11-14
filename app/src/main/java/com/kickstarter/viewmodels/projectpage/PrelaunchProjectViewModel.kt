@@ -31,6 +31,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface PrelaunchProjectViewModel {
 
     interface Inputs {
@@ -50,6 +54,7 @@ interface PrelaunchProjectViewModel {
         fun creatorInfoClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         fun project(): Observable<Project>
 
@@ -68,6 +73,7 @@ interface PrelaunchProjectViewModel {
         fun isNewSocialShareEnabled(): Boolean
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class PrelaunchProjectViewModel(val environment: Environment) : ViewModel(), Inputs, Outputs {
         val inputs: Inputs = this
         val outputs: Outputs = this
@@ -375,6 +381,7 @@ interface PrelaunchProjectViewModel {
                 statsigClient.checkGate(StatsigGateKey.ANDROID_PRELAUNCH_SOCIAL_SHARE.key)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return PrelaunchProjectViewModel(environment) as T

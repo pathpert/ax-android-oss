@@ -10,9 +10,11 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import com.kickstarter.R
+import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
+import kotlinx.coroutines.CancellationException
 import com.kickstarter.features.pledgedprojectsoverview.data.ApolloPledgedProjectsRepository
 import com.kickstarter.features.pledgedprojectsoverview.data.PPOCard
 import com.kickstarter.features.pledgedprojectsoverview.data.PPO_PAGE_LIMIT
@@ -46,6 +48,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 
+/**
+ * UI state representation for Pledged Projects Overview screen.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
+ */
 data class PledgedProjectsOverviewUIState(
     val isLoading: Boolean = false,
     val isErrored: Boolean = false,
@@ -74,6 +83,7 @@ class PledgedProjectsOverviewViewModel(
 
     private val mutablePPOUIState = MutableStateFlow(PledgedProjectsOverviewUIState())
     val ppoCardsState: StateFlow<PagingData<PPOCard>> = mutablePpoCards.asStateFlow()
+    private val idempotencyGuard = IdempotencyGuard()
 
     private var mutablePaymentRequiresAction = MutableSharedFlow<String>()
     val paymentRequiresAction: SharedFlow<String>
@@ -149,6 +159,7 @@ class PledgedProjectsOverviewViewModel(
                         emitCurrentState()
                     }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 emitCurrentState(
                     isErrored = true,
                     problem = ProblemDetailsMapper.fromThrowable(
@@ -163,7 +174,10 @@ class PledgedProjectsOverviewViewModel(
     fun confirmAddress(addressID: String, backingID: String) {
         viewModelScope.launch(ioDispatcher) {
             emitCurrentState(isLoading = true)
-            when (val result = repository.confirmAddress(addressID, backingID)) {
+            val result = idempotencyGuard.runSingleFlight("confirm address") {
+                repository.confirmAddress(addressID, backingID)
+            }
+            when (result) {
                 is DomainResult.Success -> {
                     showHeadsUpSnackbar(R.string.Address_confirmed_need_to_change_your_address_before_it_locks)
                     getPledgedProjects()
@@ -179,7 +193,10 @@ class PledgedProjectsOverviewViewModel(
 
     fun onRewardRecievedChanged(backingID: String, checked: Boolean) {
         viewModelScope.launch(ioDispatcher) {
-            when (val result = repository.updateRewardReceived(backingID, checked)) {
+            val result = idempotencyGuard.runSingleFlight("update reward received") {
+                repository.updateRewardReceived(backingID, checked)
+            }
+            when (result) {
                 is DomainResult.Success -> emitCurrentState()
                 is DomainResult.Failure -> {
                     showErrorSnackbar(R.string.Something_went_wrong_please_try_again)

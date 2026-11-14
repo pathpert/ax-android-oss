@@ -19,6 +19,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface SetPasswordViewModel {
 
     interface Inputs {
@@ -34,6 +38,7 @@ interface SetPasswordViewModel {
         fun newPassword(newPassword: String)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits when the password update was unsuccessful. */
         fun error(): Observable<String>
@@ -51,6 +56,7 @@ interface SetPasswordViewModel {
         fun setUserEmail(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class SetPasswordViewModel(val environment: Environment) : ViewModel(), Inputs, Outputs {
 
         private val savePasswordClicked = PublishSubject.create<Unit>()
@@ -184,6 +190,7 @@ interface SetPasswordViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return SetPasswordViewModel(environment) as T

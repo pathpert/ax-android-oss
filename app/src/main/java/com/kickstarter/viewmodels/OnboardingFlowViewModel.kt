@@ -14,6 +14,10 @@ import kotlinx.coroutines.plus
 import kotlinx.coroutines.rx2.asFlow
 import kotlin.coroutines.EmptyCoroutineContext
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SplashFeatureViewModel under com.kickstarter.features.splash.viewmodel.",
+    replaceWith = ReplaceWith("SplashFeatureViewModel", "com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel")
+)
 class OnboardingFlowViewModel(
     environment: Environment,
     testDispatcher: CoroutineDispatcher? = null
@@ -61,6 +65,7 @@ class OnboardingFlowViewModel(
     fun trackOnboardingCancelled(onboardingPage: OnboardingPage) {
         analytics.trackOnboardingCloseCTAClicked(onboardingPage.analyticsSectionName)
     }
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

@@ -13,6 +13,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by VideoFeedViewModel under com.kickstarter.features.videofeed.viewmodel.",
+    replaceWith = ReplaceWith("VideoFeedViewModel", "com.kickstarter.features.videofeed.viewmodel.VideoFeedViewModel")
+)
 interface VideoViewModel {
     interface Outputs {
         /** Emits the url of the video for the player.  */
@@ -20,12 +24,14 @@ interface VideoViewModel {
         fun preparePlayerWithUrlAndPosition(): Observable<Pair<String, Long>>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Inputs {
         fun onVideoStarted(videoLength: Long, videoPosition: Long)
         fun onVideoCompleted(videoLength: Long, videoPosition: Long)
         fun resume(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class VideoViewModel(private val environment: Environment, private val intent: Intent? = null) : ViewModel(), Inputs, Outputs {
 
         private val analyticEvents = requireNotNull(environment.analytics())
@@ -115,6 +121,7 @@ interface VideoViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent? = null) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return VideoViewModel(environment, intent) as T

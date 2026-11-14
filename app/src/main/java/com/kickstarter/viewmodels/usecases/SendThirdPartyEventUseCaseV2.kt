@@ -14,6 +14,10 @@ import com.kickstarter.ui.data.CheckoutData
 import com.kickstarter.ui.data.PledgeData
 import io.reactivex.Observable
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by VideoFeedViewModel under com.kickstarter.features.videofeed.viewmodel.",
+    replaceWith = ReplaceWith("VideoFeedViewModel", "com.kickstarter.features.videofeed.viewmodel.VideoFeedViewModel")
+)
 class SendThirdPartyEventUseCaseV2(
     sharedPreferences: SharedPreferences,
     ffClient: FeatureFlagClientType,

@@ -11,12 +11,17 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface ProjectNotificationSettingsViewModel {
     interface Outputs {
         fun projectNotifications(): Observable<List<ProjectNotification>>
         fun unableToFetchProjectNotificationsError(): Observable<Unit>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProjectNotificationSettingsViewModel(environment: Environment) : androidx.lifecycle.ViewModel(), Outputs {
         private val client: ApiClientTypeV2 = requireNotNull(environment.apiClientV2())
         private val projectNotifications = BehaviorSubject.create<List<ProjectNotification>>()
@@ -54,6 +59,7 @@ interface ProjectNotificationSettingsViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
             return ProjectNotificationSettingsViewModel(environment) as T

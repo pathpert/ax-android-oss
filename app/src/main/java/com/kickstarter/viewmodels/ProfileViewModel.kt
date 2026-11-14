@@ -23,6 +23,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface ProfileViewModel {
 
     interface Inputs {
@@ -39,6 +43,7 @@ interface ProfileViewModel {
         fun projectCardClicked(project: Project)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the user avatar image to be displayed.  */
         fun avatarImageViewUrl(): Observable<String>
@@ -83,6 +88,7 @@ interface ProfileViewModel {
         fun userNameTextViewText(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProfileViewModel(environment: Environment) : ViewModel(), ProfileAdapter.Delegate, Inputs, Outputs {
         private val client = requireNotNull(environment.apiClientV2())
         private val currentUser = requireNotNull(environment.currentUserV2())
@@ -225,6 +231,7 @@ interface ProfileViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

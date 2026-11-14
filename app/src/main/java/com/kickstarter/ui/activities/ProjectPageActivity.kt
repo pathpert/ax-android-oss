@@ -35,7 +35,7 @@ import com.kickstarter.features.projectpage.ui.components.ProjectNavigationDeleg
 import com.kickstarter.features.projectpage.ui.components.ProjectPagerController
 import com.kickstarter.features.projectpage.ui.components.ProjectPledgeSheetController
 import com.kickstarter.features.projectpage.ui.components.ProjectStripePaymentHandler
-import com.kickstarter.features.projectpage.ui.components.SocialShareComposeHost
+import com.kickstarter.features.socialshare.ui.SocialShareComposeHost
 import com.kickstarter.features.socialshare.data.SocialShareData
 import com.kickstarter.libs.Either
 import com.kickstarter.libs.Environment
@@ -101,57 +101,57 @@ class ProjectPageActivity :
     CancelPledgeFragment.CancelPledgeDelegate,
     PledgeDelegate,
     BackingFragment.BackingDelegate {
-    private lateinit var ksString: KSString
+    internal lateinit var ksString: KSString
 
-    private lateinit var viewModelFactory: ProjectPageViewModel.Factory
-    private val viewModel: ProjectPageViewModel.ProjectPageViewModel by viewModels { viewModelFactory }
+    internal lateinit var viewModelFactory: ProjectPageViewModel.Factory
+    internal val viewModel: ProjectPageViewModel.ProjectPageViewModel by viewModels { viewModelFactory }
 
-    private lateinit var checkoutViewModelFactory: CheckoutFlowViewModel.Factory
-    private val checkoutFlowViewModel: CheckoutFlowViewModel by viewModels { checkoutViewModelFactory }
+    internal lateinit var checkoutViewModelFactory: CheckoutFlowViewModel.Factory
+    internal val checkoutFlowViewModel: CheckoutFlowViewModel by viewModels { checkoutViewModelFactory }
 
-    private lateinit var rewardsSelectionViewModelFactory: RewardsSelectionViewModel.Factory
-    private val rewardsSelectionViewModel: RewardsSelectionViewModel by viewModels { rewardsSelectionViewModelFactory }
+    internal lateinit var rewardsSelectionViewModelFactory: RewardsSelectionViewModel.Factory
+    internal val rewardsSelectionViewModel: RewardsSelectionViewModel by viewModels { rewardsSelectionViewModelFactory }
 
-    private lateinit var latePledgeCheckoutViewModelFactory: LatePledgeCheckoutViewModel.Factory
-    private val latePledgeCheckoutViewModel: LatePledgeCheckoutViewModel by viewModels { latePledgeCheckoutViewModelFactory }
+    internal lateinit var latePledgeCheckoutViewModelFactory: LatePledgeCheckoutViewModel.Factory
+    internal val latePledgeCheckoutViewModel: LatePledgeCheckoutViewModel by viewModels { latePledgeCheckoutViewModelFactory }
 
-    private lateinit var addOnsViewModelFactory: AddOnsViewModel.Factory
-    private val addOnsViewModel: AddOnsViewModel by viewModels { addOnsViewModelFactory }
+    internal lateinit var addOnsViewModelFactory: AddOnsViewModel.Factory
+    internal val addOnsViewModel: AddOnsViewModel by viewModels { addOnsViewModelFactory }
 
-    private lateinit var similarProjectsViewModelFactory: SimilarProjectsViewModel.Factory
-    private val similarProjectsViewModel: SimilarProjectsViewModel by viewModels { similarProjectsViewModelFactory }
+    internal lateinit var similarProjectsViewModelFactory: SimilarProjectsViewModel.Factory
+    internal val similarProjectsViewModel: SimilarProjectsViewModel by viewModels { similarProjectsViewModelFactory }
 
-    private lateinit var experimentsViewModelFactory: ExperimentsViewModel.Factory
-    private val experimentsViewModel: ExperimentsViewModel by viewModels { experimentsViewModelFactory }
+    internal lateinit var experimentsViewModelFactory: ExperimentsViewModel.Factory
+    internal val experimentsViewModel: ExperimentsViewModel by viewModels { experimentsViewModelFactory }
 
-    private lateinit var stripe: Stripe
-    private lateinit var flowController: PaymentSheet.FlowController
+    internal lateinit var stripe: Stripe
+    internal lateinit var flowController: PaymentSheet.FlowController
 
-    private lateinit var socialShareComposeHost: SocialShareComposeHost
-    private lateinit var latePledgesComposeHost: LatePledgesComposeHost
-    private lateinit var pledgeSheetController: ProjectPledgeSheetController
-    private lateinit var navigationDelegate: ProjectNavigationDelegate
-    private lateinit var dialogsAndFeedback: ProjectDialogsAndFeedback
-    private lateinit var pagerController: ProjectPagerController
-    private lateinit var stripePaymentHandler: ProjectStripePaymentHandler
+    internal lateinit var socialShareComposeHost: SocialShareComposeHost
+    internal lateinit var latePledgesComposeHost: LatePledgesComposeHost
+    internal lateinit var pledgeSheetController: ProjectPledgeSheetController
+    internal lateinit var navigationDelegate: ProjectNavigationDelegate
+    internal lateinit var dialogsAndFeedback: ProjectDialogsAndFeedback
+    internal lateinit var pagerController: ProjectPagerController
+    internal lateinit var stripePaymentHandler: ProjectStripePaymentHandler
 
-    private val projectShareLabelString = R.string.project_accessibility_button_share_label
-    private val projectShareCopyString = R.string.project_share_twitter_message
-    private val projectStarConfirmationString = R.string.project_star_confirmation
+    internal val projectShareLabelString = R.string.project_accessibility_button_share_label
+    internal val projectShareCopyString = R.string.project_share_twitter_message
+    internal val projectStarConfirmationString = R.string.project_star_confirmation
 
-    private val animDuration = 200L
-    private lateinit var binding: ActivityProjectPageBinding
+    internal val animDuration = 200L
+    internal lateinit var binding: ActivityProjectPageBinding
 
-    private lateinit var environment: Environment
-    private lateinit var ffClient: FeatureFlagClientType
+    internal lateinit var environment: Environment
+    internal lateinit var ffClient: FeatureFlagClientType
 
-    private var disposables = CompositeDisposable()
+    internal var disposables = CompositeDisposable()
 
     // Bridges the RxJava social-share output into the Compose host below. Non-null → the sheet is
     // shown for that project; null → hidden.
-    private val socialShareData = mutableStateOf<SocialShareData?>(null)
+    internal val socialShareData = mutableStateOf<SocialShareData?>(null)
 
-    private val pagerAdapterList = mutableListOf(
+    internal val pagerAdapterList = mutableListOf(
         ProjectPagerTabs.OVERVIEW,
         ProjectPagerTabs.CAMPAIGN,
         ProjectPagerTabs.FAQS,
@@ -310,305 +310,8 @@ class ProjectPageActivity :
             }
         }
 
-        this.viewModel.outputs.showLatePledgeFlow()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showLatePledgeFlow ->
-                if (showLatePledgeFlow) {
-                    binding.pledgeContainerLayout.pledgeContainerRoot.isGone = true
-                    latePledgesSetUp(binding.pledgeContainerCompose)
-                } else {
-                    binding.pledgeContainerCompose.isGone = true
-                    binding.pledgeContainerLayout.pledgeContainerRoot.isGone = false
-                }
-            }.addToDisposable(disposables)
-
-        this.viewModel.outputs.projectData()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                (binding.projectPager.adapter as? ProjectPagerAdapter)?.updatedWithProjectData(it)
-
-                if (it.project().showLatePledgeFlow()) {
-                    rewardsSelectionViewModel.provideProjectData(it)
-                    addOnsViewModel.provideProjectData(it)
-                }
-            }.addToDisposable(disposables)
-
-        this.viewModel.outputs.updateTabs()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { updateTabs ->
-                configureTabs(updateTabs)
-                configurePager(pagerAdapterList)
-            }.addToDisposable(disposables)
-
-        this.viewModel.outputs.backingDetailsSubtitle()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { setBackingDetailsSubtitle(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.backingDetailsTitle()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { binding.pledgeContainerLayout.backingDetailsTitle.setText(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.backingDetailsIsVisible()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { styleProjectActionButton(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.expandPledgeSheet()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { expandPledgeSheet(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.goBack()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { onBackPressedDispatcher.onBackPressed() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.heartDrawableId()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { binding.heartIcon.setImageDrawable(ContextCompat.getDrawable(this, it)) }
-            .addToDisposable(disposables)
-
-        viewModel.managePledgeMenuOptions()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { updateManagePledgeMenuVisibility(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.pledgeActionButtonColor()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                binding.pledgeContainerLayout.pledgeActionButton.backgroundTintList =
-                    ContextCompat.getColorStateList(this, it)
-            }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.pledgeActionButtonContainerIsGone()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                binding.pledgeContainerLayout.pledgeActionButtonsLayout.visibility =
-                    (!it).toVisibility()
-            }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.pledgeActionButtonText()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { setPledgeActionButtonCTA(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.pledgeToolbarNavigationIcon()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                binding.pledgeContainerLayout.pledgeToolbar.navigationIcon =
-                    ContextCompat.getDrawable(this, it)
-            }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.pledgeToolbarTitle()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { binding.pledgeContainerLayout.pledgeToolbar.title = getString(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.prelaunchUrl()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { openProjectAndFinish(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.reloadProjectContainerIsGone()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                binding.pledgeContainerLayout.projectRetryLayout.pledgeSheetRetryContainer.visibility =
-                    (!it).toVisibility()
-            }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.reloadProgressBarIsGone()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                binding.pledgeContainerLayout.projectRetryLayout.pledgeSheetProgressBar.visibility =
-                    (!it).toVisibility()
-            }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.scrimIsVisible()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { animateScrimVisibility(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.setInitialRewardsContainerY()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { setInitialRewardsContainerY() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showCancelPledgeSuccess()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showCancelPledgeSuccess() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showUpdatePledgeSuccess()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showUpdatePledgeSuccess() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showCancelPledgeFragment()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showCancelPledgeFragment(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showPledgeNotCancelableDialog()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showPledgeNotCancelableDialog() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.revealRewardsFragment()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { revealRewardsFragment() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showSavedPrompt()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { this.showStarToast() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showShareSheet()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { startShareIntent(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showSocialShareSheet()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showSocialShareSheet(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.showUpdatePledge()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showPledgeFragment(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.startRootCommentsActivity()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                startRootCommentsActivity(it)
-            }.addToDisposable(disposables)
-
-        this.viewModel.outputs.startRootCommentsForCommentsThreadActivity()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                startRootCommentsActivity(it.second, it.first)
-            }.addToDisposable(disposables)
-
-        this.viewModel.outputs.startProjectUpdateActivity()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                startUpdatesActivity(it.second.first, it.first.first, it.first.second)
-            }.addToDisposable(disposables)
-
-        this.viewModel.outputs.startProjectUpdateToRepliesDeepLinkActivity()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                startUpdatesActivity(
-                    it.second.first,
-                    it.first.first,
-                    it.first.second.isNotEmpty(),
-                    it.first.second
-                )
-            }.addToDisposable(disposables)
-
-        this.viewModel.outputs.startLoginToutActivity()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { this.startLoginToutActivity() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.startMessagesActivity()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { startMessagesActivity(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.startThanksActivity()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { showCreatePledgeSuccess(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.openBackingDetailsWebview()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { startBackingDetailsWebViewActivity(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.openPledgeManagerWebview()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { startWebViewActivity(it) }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.projectMedia()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { binding.mediaHeader.inputs.setProjectMedia(it) }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.playButtonIsVisible()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { binding.mediaHeader.inputs.setPlayButtonVisibility(it) }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.updateVideoCloseSeekPosition()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { binding.mediaHeader.inputs.setPlayerSeekPosition(it) }
-            .addToDisposable(disposables)
-
-        binding.mediaHeader.outputs.onFullScreenClicked()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { viewModel.inputs.fullScreenVideoButtonClicked(it) }
-            .addToDisposable(disposables)
-
-        binding.mediaHeader.outputs.playButtonClicks()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { viewModel.inputs.onVideoPlayButtonClicked() }
-            .addToDisposable(disposables)
-
-        this.viewModel.outputs.onOpenVideoInFullScreen()
-            .subscribeOn(Schedulers.io())
-            .distinctUntilChanged()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                this.startVideoActivity(startForResult, it.first, it.second)
-            }.addToDisposable(disposables)
-
-        viewModel.outputs.backingViewGroupIsVisible()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                binding.backingGroup.visibility = it.toVisibility()
-            }.addToDisposable(disposables)
-
-        viewModel.outputs.hideVideoPlayer()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                if (it) {
-                    binding.projectAppBarLayout.setExpanded(false)
-                }
-            }.addToDisposable(disposables)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                similarProjectsViewModel.parentUiState.collect {
-                    binding.projectPager.isUserInputEnabled = it.scrollable
-                }
-            }
-        }
-
-        var pBacking: Project? = null
-        var user: User? = null
-        viewModel.outputs.showPledgeRedemptionScreen()
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                pBacking = it.first
-                user = it.second
-                binding.pledgeRedemptionAlpha.visibility = View.VISIBLE
-            }.addToDisposable(disposables)
-
-        binding.pledgeRedemptionAlpha.setOnClickListener {
-            pBacking?.let {
-                startPledgeRedemption(it)
-            }
-        }
+        bindPledgeAndUiSubscriptions()
+        bindNavigationAndMediaSubscriptions()
 
         binding.backIcon.setOnClickListener {
             if (binding.pledgeContainerLayout.pledgeContainerRoot.isGone) {
@@ -635,25 +338,25 @@ class ProjectPageActivity :
         }
     }
 
-    private fun showSocialShareSheet(project: Project) =
+    internal fun showSocialShareSheet(project: Project) =
         socialShareComposeHost.showSocialShareSheet(project)
 
-    private fun socialShareSetUp(composeView: ComposeView) =
+    internal fun socialShareSetUp(composeView: ComposeView) =
         socialShareComposeHost.setup()
 
-    private fun latePledgesSetUp(composeView: ComposeView) =
+    internal fun latePledgesSetUp(composeView: ComposeView) =
         latePledgesComposeHost.setup()
 
-    private fun showDisclaimerScreen(disclaimerItem: DisclaimerItems, environment: Environment) =
+    internal fun showDisclaimerScreen(disclaimerItem: DisclaimerItems, environment: Environment) =
         navigationDelegate.showDisclaimerScreen(disclaimerItem)
 
     fun showAccountabilityPage() =
         navigationDelegate.showAccountabilityPage()
 
-    private fun configureTabs(updateTabs: List<PagerTabConfig>) =
+    internal fun configureTabs(updateTabs: List<PagerTabConfig>) =
         pagerController.configureTabs(updateTabs)
 
-    private fun configurePager(pagerList: List<ProjectPagerTabs>) =
+    internal fun configurePager(pagerList: List<ProjectPagerTabs>) =
         pagerController.configurePager(pagerList)
 
     override fun onResume() {
@@ -716,14 +419,14 @@ class ProjectPageActivity :
     private fun getTabTitle(position: Int, pagerList: List<ProjectPagerTabs>) =
         pagerController.getTabTitle(position, pagerList)
 
-    private fun animateScrimVisibility(show: Boolean) =
+    internal fun animateScrimVisibility(show: Boolean) =
         pledgeSheetController.animateScrimVisibility(show)
 
     private fun backingFragment() = pledgeSheetController.backingFragment()
 
     private fun clearFragmentBackStack(): Boolean = pledgeSheetController.clearFragmentBackStack()
 
-    private fun expandPledgeSheet(expandAndAnimate: Pair<Boolean, Boolean>) =
+    internal fun expandPledgeSheet(expandAndAnimate: Pair<Boolean, Boolean>) =
         pledgeSheetController.expandPledgeSheet(expandAndAnimate)
 
     private fun setFragmentsState(expand: Boolean) =
@@ -732,7 +435,7 @@ class ProjectPageActivity :
     private fun handleNativeCheckoutBackPress() =
         pledgeSheetController.handleNativeCheckoutBackPress()
 
-    private fun openProjectAndFinish(url: String) =
+    internal fun openProjectAndFinish(url: String) =
         navigationDelegate.openProjectAndFinish(url)
 
     private fun renderProject(
@@ -741,13 +444,13 @@ class ProjectPageActivity :
         projectData: ProjectData,
     ) = pledgeSheetController.renderProject(backingFragment, rewardsFragment, projectData)
 
-    private fun revealRewardsFragment() = pledgeSheetController.revealRewardsFragment()
+    internal fun revealRewardsFragment() = pledgeSheetController.revealRewardsFragment()
 
     private fun rewardsFragment() = pledgeSheetController.rewardsFragment()
 
     private fun rewardsSheetGuideline(): Int = pledgeSheetController.rewardsSheetGuideline()
 
-    private fun setBackingDetailsSubtitle(stringResOrTitle: Either<String, Int>?) {
+    internal fun setBackingDetailsSubtitle(stringResOrTitle: Either<String, Int>?) {
         stringResOrTitle?.let { either ->
             @StringRes val stringRes = either.right()
             val title = either.left()
@@ -802,24 +505,24 @@ class ProjectPageActivity :
         }
     }
 
-    private fun setInitialRewardsContainerY() = pledgeSheetController.setInitialRewardsContainerY()
+    internal fun setInitialRewardsContainerY() = pledgeSheetController.setInitialRewardsContainerY()
 
-    private fun showCancelPledgeFragment(project: Project) = pledgeSheetController.showCancelPledgeFragment(project)
+    internal fun showCancelPledgeFragment(project: Project) = pledgeSheetController.showCancelPledgeFragment(project)
 
-    private fun showCancelPledgeSuccess() = dialogsAndFeedback.showCancelPledgeSuccess()
+    internal fun showCancelPledgeSuccess() = dialogsAndFeedback.showCancelPledgeSuccess()
 
-    private fun showCreatePledgeSuccess(checkoutDataAndProjectData: Pair<CheckoutData, PledgeData>) =
+    internal fun showCreatePledgeSuccess(checkoutDataAndProjectData: Pair<CheckoutData, PledgeData>) =
         dialogsAndFeedback.showCreatePledgeSuccess(checkoutDataAndProjectData.first, checkoutDataAndProjectData.second)
 
-    private fun showPledgeNotCancelableDialog() = dialogsAndFeedback.showPledgeNotCancelableDialog()
+    internal fun showPledgeNotCancelableDialog() = dialogsAndFeedback.showPledgeNotCancelableDialog()
 
-    private fun showPledgeFragment(pledgeDataAndPledgeReason: Pair<PledgeData, PledgeReason>) =
+    internal fun showPledgeFragment(pledgeDataAndPledgeReason: Pair<PledgeData, PledgeReason>) =
         pledgeSheetController.showPledgeFragment(
             pledgeDataAndPledgeReason,
             selectPledgeFragment(pledgeDataAndPledgeReason.first, pledgeDataAndPledgeReason.second)
         )
 
-    private fun setPledgeActionButtonCTA(stringRes: Int) {
+    internal fun setPledgeActionButtonCTA(stringRes: Int) {
         binding.pledgeContainerLayout.pledgeActionButton.setText(stringRes)
         binding.pledgeContainerLayout.pledgeActionButton.contentDescription = when (stringRes) {
             R.string.Manage -> getString(R.string.Manage_your_pledge)
@@ -827,9 +530,9 @@ class ProjectPageActivity :
         }
     }
 
-    private fun showStarToast() = dialogsAndFeedback.showStarToast()
+    internal fun showStarToast() = dialogsAndFeedback.showStarToast()
 
-    private fun showUpdatePledgeSuccess() {
+    internal fun showUpdatePledgeSuccess() {
         clearFragmentBackStack()
         backingFragment()?.pledgeSuccessfullyUpdated()
         val intent = Intent()
@@ -837,14 +540,14 @@ class ProjectPageActivity :
         setResult(Activity.RESULT_OK, intent)
     }
 
-    private fun startShareIntent(projectNameAndShareUrl: Pair<String, String>) =
+    internal fun startShareIntent(projectNameAndShareUrl: Pair<String, String>) =
         navigationDelegate.startShareIntent(projectNameAndShareUrl)
 
-    private fun startLoginToutActivity() = navigationDelegate.startLoginToutActivity()
+    internal fun startLoginToutActivity() = navigationDelegate.startLoginToutActivity()
 
-    private fun startMessagesActivity(project: Project) = navigationDelegate.startMessagesActivity(project)
+    internal fun startMessagesActivity(project: Project) = navigationDelegate.startMessagesActivity(project)
 
-    private fun styleProjectActionButton(detailsAreVisible: Boolean) {
+    internal fun styleProjectActionButton(detailsAreVisible: Boolean) {
         val buttonParams =
             binding.pledgeContainerLayout.pledgeActionButton.layoutParams as LinearLayout.LayoutParams
         when {
@@ -943,7 +646,7 @@ class ProjectPageActivity :
      *
      * @param options The options for managing the pledge.
      */
-    private fun updateManagePledgeMenuVisibility(options: ManagePledgeMenuOptions) {
+    internal fun updateManagePledgeMenuVisibility(options: ManagePledgeMenuOptions) {
         val menu = binding.pledgeContainerLayout.pledgeToolbar.menu
         menu.findItem(R.id.edit_pledge)?.isVisible = options.showEditPledge
         menu.findItem(R.id.choose_another_reward)?.isVisible = options.showChooseAnotherReward

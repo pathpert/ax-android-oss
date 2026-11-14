@@ -21,6 +21,11 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Unidirectional UI state for the modern Discovery feature.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ * - Do not pass mutable lists into [projects] or [categories].
+ * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
  */
 data class DiscoveryUiState(
     val projects: List<DiscoveryProjectCard> = emptyList(),

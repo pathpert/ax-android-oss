@@ -12,12 +12,17 @@ import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by RewardTrackingViews under com.kickstarter.features.rewardtracking.",
+    replaceWith = ReplaceWith("RewardTrackingViews", "com.kickstarter.features.rewardtracking.RewardTrackingViews")
+)
 interface RewardCardUnselectedViewHolderViewModel : BaseRewardCardViewHolderViewModel {
     interface Inputs : BaseRewardCardViewHolderViewModel.Inputs {
         /** Call when the user selects this card. */
         fun cardSelected(position: Int)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs : BaseRewardCardViewHolderViewModel.Outputs {
         /** Emits a boolean that determines if the card is clickable. */
         fun isClickable(): Observable<Boolean>
@@ -38,6 +43,7 @@ interface RewardCardUnselectedViewHolderViewModel : BaseRewardCardViewHolderView
         fun selectImageIsVisible(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel : BaseRewardCardViewHolderViewModel.ViewModel(), Inputs, Outputs {
         val inputs: Inputs = this
         val outputs: Outputs = this

@@ -45,26 +45,67 @@ class DiscoveryParams private constructor(
     private val goalBucket: GoalBuckets?
 ) : Parcelable {
 
+    /** Filter for campaigns backed by the current user (1 for backed, -1 for not backed). */
     fun backed() = this.backed
+
+    /** Selected category filter model, or null if all categories. */
     fun category() = this.category
+
+    /** Category parameter string (slug or ID) for URL queries. */
     fun categoryParam() = this.categoryParam
+
+    /** Selected geographic location filter model, or null if worldwide. */
     fun location() = this.location
+
+    /** Location parameter string (slug or ID) for URL queries. */
     fun locationParam() = this.locationParam
+
+    /** 1-based page index for discovery pagination. Negative constraint: Must be >= 1. */
     fun page() = this.page
+
+    /** Number of campaigns requested per page. Negative constraint: Must be >= 1. */
     fun perPage() = this.perPage
+
+    /** Filter by pledged percentage status code. */
     fun pledged() = this.pledged
+
+    /** Filter for Kickstarter Staff Picks / Projects We Love. */
     fun staffPicks() = this.staffPicks
+
+    /** Filter for campaigns saved or starred by the user. */
     fun starred() = this.starred
+
+    /** Filter for campaigns backed by social connections/friends. */
     fun social() = this.social
+
+    /** Sort order for discovery results (e.g. MAGIC, POPULAR, END_DATE). */
     fun sort() = this.sort
+
+    /** Filter for personalized recommendation feed items. */
     fun recommended() = this.recommended
+
+    /** Project reference used when discovering campaigns similar to a specific project. */
     fun similarTo() = this.similarTo
+
+    /** Campaign lifecycle state filter (e.g. LIVE, SUCCESSFUL). */
     fun state() = this.state
+
+    /** Thematic or creative prompt tag identifier filter. */
     fun tagId() = this.tagId
+
+    /** Free-text search query term. Negative constraint: Do not pass un-trimmed whitespace. */
     fun term() = this.term
+
+    /** Percentage raised bracket filter. */
     fun raisedBucket() = this.raisedbucket
+
+    /** Monetary amount raised bracket filter. */
     fun amountBucket() = this.amountRaisedBucket
+
+    /** Target funding goal bracket filter. */
     fun goalBucket() = this.goalBucket
+
+    /** Returns a new [DiscoveryParams] instance targeting the subsequent pagination page. */
     fun nextPage(): DiscoveryParams {
         val page = page()
         return if (page != null) toBuilder().page(page + 1).build() else this

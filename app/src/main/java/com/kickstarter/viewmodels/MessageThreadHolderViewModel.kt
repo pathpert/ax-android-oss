@@ -14,6 +14,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.DateTime
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface MessageThreadHolderViewModel {
     interface Inputs {
         /** Call to configure with a MessageThread.  */
@@ -23,6 +27,7 @@ interface MessageThreadHolderViewModel {
         fun messageThreadCardViewClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits when the card view should be elevated.  */
         fun cardViewIsElevated(): Observable<Boolean>
@@ -58,6 +63,7 @@ interface MessageThreadHolderViewModel {
         fun unreadCountTextViewText(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(val environment: Environment) : androidx.lifecycle.ViewModel(), Inputs, Outputs {
 
         private val sharedPreferences: SharedPreferences?

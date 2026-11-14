@@ -20,6 +20,10 @@ enum class WebViewEvent {
     LOAD_WEBVIEW
 }
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 class WebViewViewModel(
     val environment: Environment,
     testDispatcher: CoroutineDispatcher? = null
@@ -53,6 +57,7 @@ class WebViewViewModel(
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

@@ -16,6 +16,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface FrequentlyAskedQuestionViewModel {
 
     interface Inputs {
@@ -26,6 +30,7 @@ interface FrequentlyAskedQuestionViewModel {
         fun askQuestionButtonClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the current list [ProjectFaq]. */
         fun projectFaqList(): Observable<List<ProjectFaq>>
@@ -40,6 +45,7 @@ interface FrequentlyAskedQuestionViewModel {
         fun startMessagesActivity(): Observable<Project>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class FrequentlyAskedQuestionViewModel(val environment: Environment) :
         ViewModel(), Inputs, Outputs {
 
@@ -125,6 +131,7 @@ interface FrequentlyAskedQuestionViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return FrequentlyAskedQuestionViewModel(environment) as T

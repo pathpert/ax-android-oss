@@ -39,6 +39,11 @@ data class PaymentMethodCard(
 
 /**
  * Unidirectional UI state for the payment methods screen.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
+ * - Do not pass mutable lists into [cards].
  */
 data class PaymentMethodsUiState(
     val cards: List<PaymentMethodCard> = emptyList(),
@@ -50,6 +55,9 @@ data class PaymentMethodsUiState(
 
 /**
  * One-shot navigation and user feedback events for payment methods.
+ *
+ * Negative constraints:
+ * - Do not emit events for blank IDs or empty client secrets.
  */
 sealed interface PaymentMethodsEvent {
     data class PresentPaymentSheet(val setupClientId: String, val userEmail: String) : PaymentMethodsEvent

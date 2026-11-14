@@ -23,6 +23,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import java.net.CookieManager
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface ProjectUpdatesViewModel {
     interface Inputs {
         /** Call when pagination should happen. */
@@ -35,6 +39,7 @@ interface ProjectUpdatesViewModel {
         fun updateClicked(update: Update)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a boolean indicating whether the horizontal ProgressBar is visible.  */
         fun horizontalProgressBarIsGone(): Observable<Boolean>
@@ -49,6 +54,7 @@ interface ProjectUpdatesViewModel {
         fun startUpdateActivity(): Observable<Pair<Project, Update>>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProjectUpdatesViewModel(environment: Environment, private val intent: Intent? = null) :
         ViewModel(), Inputs, Outputs {
         private val client: ApolloClientTypeV2 = requireNotNull(environment.apolloClientV2())
@@ -169,6 +175,7 @@ interface ProjectUpdatesViewModel {
         override fun startUpdateActivity(): Observable<Pair<Project, Update>> = startUpdateActivity
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ProjectUpdatesViewModel(environment, intent) as T

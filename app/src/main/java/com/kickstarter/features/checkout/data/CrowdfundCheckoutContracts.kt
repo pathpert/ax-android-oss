@@ -71,6 +71,9 @@ data class CheckoutAmounts(
 
 /**
  * Normalized payment plan information for Pledge Over Time (PLOT).
+ *
+ * Negative constraints:
+ * - Do not pass negative installment counts or unvalidated payment increments.
  */
 data class CheckoutPaymentPlan(
     val isPledgeOverTimeEligible: Boolean,
@@ -79,6 +82,9 @@ data class CheckoutPaymentPlan(
 
 /**
  * Successful checkout result identifier.
+ *
+ * Negative constraints:
+ * - Do not construct with negative or zero [checkoutId].
  */
 data class CheckoutBackingResult(
     val checkoutId: Long

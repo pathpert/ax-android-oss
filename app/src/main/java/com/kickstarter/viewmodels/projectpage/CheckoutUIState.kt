@@ -11,6 +11,10 @@ import com.kickstarter.models.StoredCard
  * Negative Constraints:
  * - Do NOT pass floating point values without validation against minor currency rules.
  */
+@Deprecated(
+    message = "Legacy monolithic path replaced by CrowdfundCheckoutContracts under com.kickstarter.features.checkout.data.",
+    replaceWith = ReplaceWith("CrowdfundCheckoutContracts", "com.kickstarter.features.checkout.data.CrowdfundCheckoutContracts")
+)
 data class CheckoutUIState(
     val storeCards: List<StoredCard> = listOf(),
     val userEmail: String = "",

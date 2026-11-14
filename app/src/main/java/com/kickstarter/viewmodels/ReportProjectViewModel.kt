@@ -16,6 +16,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SocialShareViewModel under com.kickstarter.features.socialshare.viewmodel.",
+    replaceWith = ReplaceWith("SocialShareViewModel", "com.kickstarter.features.socialshare.viewmodel.SocialShareViewModel")
+)
 interface ReportProjectViewModel {
 
     interface Inputs {
@@ -35,6 +39,7 @@ interface ReportProjectViewModel {
         fun openExternalBrowser(tag: String)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         fun projectUrl(): Observable<String>
         fun email(): Observable<String>
@@ -49,6 +54,7 @@ interface ReportProjectViewModel {
         fun placeholder(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ReportProjectViewModel(
         private val environment: Environment,
         private val arguments: Bundle?
@@ -224,6 +230,7 @@ interface ReportProjectViewModel {
         const val OUR_RULES_TAG = "{our_rules}"
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val arguments: Bundle?) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ReportProjectViewModel(environment, arguments) as T

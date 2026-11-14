@@ -9,6 +9,10 @@ import com.kickstarter.ui.adapters.DiscoveryProjectCardAdapter;
 
 import java.util.List;
 
+/**
+ * @deprecated Replaced by com.kickstarter.features.discovery.viewmodel.DiscoveryFeatureViewModel
+ */
+@Deprecated
 public interface DiscoveryFragmentViewModelInputs extends DiscoveryProjectCardAdapter.Delegate,
         DiscoveryOnboardingAdapter.Delegate,
         DiscoveryEditorialAdapter.Delegate,

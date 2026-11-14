@@ -21,6 +21,7 @@ interface CommentsViewModel {
     interface Inputs : CommentsFeatureInputs
     interface Outputs : CommentsFeatureOutputs
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     open class CommentsViewModel(
         environment: Environment,
         intent: Intent? = null
@@ -31,6 +32,7 @@ interface CommentsViewModel {
         override val outputs: Outputs = this
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(
         private val environment: Environment,
         private val intent: Intent? = null

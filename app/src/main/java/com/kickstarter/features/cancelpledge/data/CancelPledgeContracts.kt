@@ -36,6 +36,10 @@ data class CancelPledgeTarget(
 
 /**
  * Unidirectional UI state for canceling a pledge.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
  */
 data class CancelPledgeUiState(
     val formattedPledgeAmount: String = "",

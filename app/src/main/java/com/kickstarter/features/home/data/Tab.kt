@@ -13,6 +13,9 @@ import androidx.compose.ui.unit.dp
  *  Static: Given icon (human,search,home ...)
  *  Dynamic: Url string of Image
  *  Resource: Local resource
+ *
+ * Negative constraints:
+ * - Do not pass blank URLs to [Dynamic] or invalid resource IDs to [Resource].
  */
 sealed interface TabIcon {
     data class Static(val vector: ImageVector) : TabIcon
@@ -33,6 +36,9 @@ sealed class Tab(
 
     /**
      * Profile Tab requires dynamic type, as the url will change depending on User profile
+     *
+     * Negative constraints:
+     * - Do not construct with blank avatar URL.
      */
     data class Profile(val avatarUrl: String) : Tab(
         route = "profile",

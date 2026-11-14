@@ -22,6 +22,7 @@ import com.kickstarter.libs.utils.extensions.isTrue
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -118,6 +119,7 @@ open class SplashFeatureViewModel(
                             processIntent()
                         }
                     } catch (e: Exception) {
+                        if (e is CancellationException) throw e
                         val problem = ProblemDetails(
                             type = ProblemDetails.TYPE_UNEXPECTED,
                             title = "Startup Initialization Error",

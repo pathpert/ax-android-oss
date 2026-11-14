@@ -16,6 +16,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface EditProfileViewModel {
 
     interface Inputs {
@@ -23,6 +27,7 @@ interface EditProfileViewModel {
         fun privateProfileChecked(checked: Boolean)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits when the user is a creator and we need to hide the private profile row. */
         fun hidePrivateProfileRow(): Observable<Boolean>
@@ -37,6 +42,7 @@ interface EditProfileViewModel {
         fun userName(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Errors {
         /** Emits when saving preference fails.  */
         fun unableToSavePreferenceError(): Observable<String>
@@ -162,6 +168,7 @@ interface EditProfileViewModel {
                 .share()
         }
     }
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

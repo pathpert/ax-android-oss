@@ -36,6 +36,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface ActivityFeedViewModel {
     interface Inputs : ActivityFeedAdapter.Delegate {
         /** Invoke when pagination should happen.  */
@@ -48,6 +52,7 @@ interface ActivityFeedViewModel {
         fun refresh()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a list of activities representing the user's activity feed.  */
         fun activityList(): Observable<List<Activity>>
@@ -89,6 +94,7 @@ interface ActivityFeedViewModel {
         fun surveys(): Observable<List<SurveyResponse>>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ActivityFeedViewModel(environment: Environment) : ViewModel(), Inputs, Outputs {
 
         private val apiClient: ApiClientTypeV2
@@ -362,6 +368,7 @@ interface ActivityFeedViewModel {
         override fun surveys(): Observable<List<SurveyResponse>> = surveys
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ActivityFeedViewModel(environment) as T

@@ -275,6 +275,7 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val bundle: Bundle? = null) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

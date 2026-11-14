@@ -18,6 +18,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SocialShareViewModel under com.kickstarter.features.socialshare.viewmodel.",
+    replaceWith = ReplaceWith("SocialShareViewModel", "com.kickstarter.features.socialshare.viewmodel.SocialShareViewModel")
+)
 interface CreatorBioViewModel {
 
     interface Inputs {
@@ -25,6 +29,7 @@ interface CreatorBioViewModel {
         fun messageButtonClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a boolean that determines if the message icon should be shown. */
         fun messageIconIsGone(): Observable<Boolean>
@@ -39,6 +44,7 @@ interface CreatorBioViewModel {
         fun url(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class CreatorBioViewModel(environment: Environment, private val intent: Intent? = null) : ViewModel(), Inputs, Outputs {
 
         private val messageButtonClicked = PublishSubject.create<Unit>()
@@ -116,6 +122,7 @@ interface CreatorBioViewModel {
             super.onCleared()
         }
 
+        @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
         class Factory(private val environment: Environment, private val intent: Intent? = null) : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return CreatorBioViewModel(environment, intent) as T

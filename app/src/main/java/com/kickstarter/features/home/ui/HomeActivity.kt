@@ -39,8 +39,6 @@ import androidx.navigation.compose.rememberNavController
 import com.kickstarter.features.home.data.Tab
 import com.kickstarter.features.home.ui.components.FloatingBottomNav
 import com.kickstarter.features.home.viewmodel.HomeScreenViewModel
-import com.kickstarter.features.search.viewmodel.FilterMenuViewModel
-import com.kickstarter.features.search.viewmodel.SearchAndFilterViewModel
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.ThirdPartyEventValues
 import com.kickstarter.libs.utils.TransitionUtils
@@ -61,12 +59,6 @@ class HomeActivity : ComponentActivity() {
     private lateinit var viewModelFactory: HomeScreenViewModel.Factory
     private val viewModel: HomeScreenViewModel by viewModels { viewModelFactory }
 
-    // Search related VM's
-    private lateinit var searchVMFactory: SearchAndFilterViewModel.Factory
-    private lateinit var filterMenuViewModelFactory: FilterMenuViewModel.Factory
-    private val searchVM: SearchAndFilterViewModel by viewModels { searchVMFactory }
-    private val filterMenuVM: FilterMenuViewModel by viewModels { filterMenuViewModelFactory }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setUpConnectivityStatusCheck(lifecycle)
@@ -75,9 +67,6 @@ class HomeActivity : ComponentActivity() {
         this.getEnvironment()?.let { env ->
             environment = env
             viewModelFactory = HomeScreenViewModel.Factory(env)
-            searchVMFactory = SearchAndFilterViewModel.Factory(environment)
-            filterMenuViewModelFactory = FilterMenuViewModel.Factory(environment)
-            filterMenuVM.getRootCategories()
         }
 
         setContent {
@@ -154,8 +143,6 @@ class HomeActivity : ComponentActivity() {
                             composable(tab.route) {
                                 SearchAndFilterScreen(
                                     env = environment,
-                                    searchViewModel = searchVM,
-                                    filterMenuVM = filterMenuVM,
                                     onBackClicked = { },
                                     preLaunchedCallback = { project, tag ->
                                         startPreLaunchProjectActivity(

@@ -3,6 +3,13 @@ package com.kickstarter.models
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Immutable domain model representing a geographic location for project discovery or shipping.
+ *
+ * ### Negative Constraints:
+ * - Do not mutate fields directly; use [builder] or [toBuilder].
+ * - Do not assume [state] is populated for non-US locations.
+ */
 @Parcelize
 class Location private constructor(
     private val id: Long,
@@ -15,13 +22,28 @@ class Location private constructor(
     private val state: String
 ) : Parcelable, Relay {
 
+    /** Formatted full location string suitable for UI display (e.g., "Brooklyn, NY"). */
     fun displayableName() = this.displayableName
+
+    /** City name component. */
     fun city() = this.city
+
+    /** ISO 3166-1 alpha-2 two-letter country code. */
     fun country() = this.country
+
+    /** Full expanded country name (e.g., "United States"). */
     fun expandedCountry() = this.expandedCountry
+
+    /** Primary location name. */
     fun name() = this.name
+
+    /** State or province subdivision component. */
     fun state() = this.state
+
+    /** Number of active projects originating from this location. */
     fun projectsCount() = this.projectsCount
+
+    /** Persistent database identifier (PID) of the location. */
     override fun id(): Long = this.id
 
     @Parcelize

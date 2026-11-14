@@ -12,6 +12,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 class ProjectEnvironmentalCommitmentsViewModel {
     interface Inputs {
         /** Configure with current [ProjectData]. */
@@ -19,6 +23,7 @@ class ProjectEnvironmentalCommitmentsViewModel {
         fun onVisitOurEnvironmentalResourcesCenterClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the current list [EnvironmentalCommitment]. */
         fun projectEnvironmentalCommitment(): Observable<List<EnvironmentalCommitment>>
@@ -26,6 +31,7 @@ class ProjectEnvironmentalCommitmentsViewModel {
         fun openVisitOurEnvironmentalResourcesCenter(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProjectEnvironmentalCommitmentsViewModel(private val environment: Environment) :
         ViewModel(),
         Inputs,
@@ -84,6 +90,7 @@ class ProjectEnvironmentalCommitmentsViewModel {
     }
 
     @Suppress("UNCHECKED_CAST")
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ProjectEnvironmentalCommitmentsViewModel(

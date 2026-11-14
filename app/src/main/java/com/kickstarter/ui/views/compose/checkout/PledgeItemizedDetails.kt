@@ -1,6 +1,5 @@
 package com.kickstarter.ui.views.compose.checkout
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,92 +10,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.kickstarter.R
 import com.kickstarter.libs.KSString
 import com.kickstarter.ui.compose.designsystem.KSDividerLineGrey
-import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
-
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ItemizedContainerForNoRewardPreview() {
-    KSTheme {
-        Scaffold(
-            containerColor = KSTheme.colors.backgroundAccentGraySubtle
-        ) { padding ->
-            ItemizedRewardListContainer(
-                modifier = Modifier.padding(paddingValues = padding),
-                totalAmount = "US$ 1",
-                totalAmountCurrencyConverted = "About CA$ 1.38",
-                initialBonusSupport = "US$ 0",
-                totalBonusSupport = "US$ 1",
-                shippingAmount = -1.0,
-                plotSelected = false
-            )
-        }
-    }
-}
-
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ItemizedRewardListContainerPreview() {
-    KSTheme {
-        Scaffold(
-            containerColor = KSTheme.colors.backgroundAccentGraySubtle
-        ) { padding ->
-            ItemizedRewardListContainer(
-                modifier = Modifier
-                    .padding(paddingValues = padding),
-                ksString = null,
-                rewardsList = emptyList<Pair<String, String>>(),
-                shippingAmount = 20.0,
-                shippingAmountString = "",
-                initialShippingLocation = "",
-                totalAmount = "50$",
-                totalAmountCurrencyConverted = "About CA\$ 1.38",
-                initialBonusSupport = "0",
-                totalBonusSupport = "0",
-                deliveryDateString = "",
-                rewardsHaveShippables = false,
-                plotSelected = false,
-                disclaimerText = stringResource(id = R.string.If_the_project_reaches_its_funding_goal_you_will_be_charged_total_on_project_deadline_and_receive_proof_of_pledge)
-            )
-        }
-    }
-}
-
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ItemizedContainerForNoRewardPlotSelectedPreview() {
-    KSTheme {
-        Scaffold(
-            containerColor = KSTheme.colors.backgroundAccentGraySubtle
-        ) { padding ->
-            ItemizedRewardListContainer(
-                modifier = Modifier.padding(paddingValues = padding),
-                totalAmount = "US$ 1",
-                totalAmountCurrencyConverted = "About CA$ 1.38",
-                initialBonusSupport = "US$ 0",
-                totalBonusSupport = "US$ 1",
-                shippingAmount = -1.0,
-                plotSelected = true
-            )
-        }
-    }
-}
 
 enum class PledgeItemizedDetailsTestTag {
     DELIVERY_DATE,

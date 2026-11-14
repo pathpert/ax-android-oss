@@ -11,6 +11,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface ShippingRuleViewHolderViewModel {
 
     interface Inputs {
@@ -18,6 +22,7 @@ interface ShippingRuleViewHolderViewModel {
         fun configureWith(shippingRule: ShippingRule, project: Project)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Returns the Shipping Rule text. */
         fun shippingRuleText(): Observable<String>

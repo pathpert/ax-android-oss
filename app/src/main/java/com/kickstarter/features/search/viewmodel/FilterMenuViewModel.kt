@@ -24,12 +24,24 @@ import kotlinx.coroutines.rx2.asFlow
 import timber.log.Timber
 import kotlin.coroutines.EmptyCoroutineContext
 
+/**
+ * UI state for category and tag filter menu options.
+ *
+ * Negative constraints:
+ * - Do not mutate lists directly; emit new immutable state instances.
+ */
 data class FilterMenuUIState(
     val isLoading: Boolean = false,
     val categoriesList: List<Category> = emptyList(),
     val tagsList: List<Tag> = emptyList()
 )
 
+/**
+ * UI state for location filter choices.
+ *
+ * Negative constraints:
+ * - Do not pass mutable collections into [nearLocations] or [searchedLocations].
+ */
 data class LocationsUIState(
     val isLoading: Boolean = false,
     val nearLocations: List<Location> = emptyList(),

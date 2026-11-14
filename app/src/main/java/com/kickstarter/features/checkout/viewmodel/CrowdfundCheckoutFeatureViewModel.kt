@@ -33,6 +33,11 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Unidirectional UI state for the modern Crowdfund Checkout feature.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ * - Do not pass floating-point amounts; use [CheckoutAmounts] with integer minor units.
+ * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
  */
 data class CrowdfundCheckoutUiState(
     val storedCards: List<StoredCard> = emptyList(),
@@ -50,6 +55,9 @@ data class CrowdfundCheckoutUiState(
 
 /**
  * One-shot navigation and mutation events.
+ *
+ * Negative constraints:
+ * - Do not emit events with invalid or negative checkout IDs.
  */
 sealed interface CrowdfundCheckoutEvent {
     data class BackingCreated(val checkoutId: Long) : CrowdfundCheckoutEvent

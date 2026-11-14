@@ -93,6 +93,39 @@ class Project private constructor(
     private val isInPostCampaignPledgingPhase: Boolean? = null,
     private val postCampaignPledgingEnabled: Boolean? = null
 ) : Parcelable, Relay {
+    /** Financial metrics and currency configuration sub-model. */
+    fun financials() = ProjectFinancials(
+        currency = this.currency,
+        currencySymbol = this.currencySymbol,
+        currentCurrency = this.currentCurrency,
+        currencyTrailingCode = this.currencyTrailingCode,
+        goal = this.goal,
+        pledged = this.pledged,
+        staticUsdRate = this.staticUsdRate,
+        usdExchangeRate = this.usdExchangeRate,
+        fxRate = this.fxRate
+    )
+
+    /** Pledge-Over-Time configuration and copy sub-model. */
+    fun pledgeOverTime() = ProjectPledgeOverTime(
+        isAllowed = this.isPledgeOverTimeAllowed ?: false,
+        minimumExplanation = this.pledgeOverTimeMinimumExplanation ?: "",
+        chargeExplanation = this.pledgeOverTimeCollectionPlanChargeExplanation ?: "",
+        chargedAsNPayments = this.pledgeOverTimeCollectionPlanChargedAsNPayments ?: "",
+        shortPitch = this.pledgeOverTimeCollectionPlanShortPitch ?: ""
+    )
+
+    /** Backer, community, and engagement counts sub-model. */
+    fun engagementStats() = ProjectEngagementStats(
+        backersCount = this.backersCount,
+        commentsCount = this.commentsCount ?: 0,
+        updatesCount = this.updatesCount ?: 0,
+        watchesCount = this.watchesCount,
+        sharesCount = this.sharesCount,
+        unreadMessagesCount = this.unreadMessagesCount ?: 0,
+        unseenActivityCount = this.unseenActivityCount ?: 0
+    )
+
     /**
      * List of accepted credit card brands (e.g., "AMEX", "DISCOVER", "MASTERCARD", "VISA").
      * Negative constraint: Do not pass directly to payment processor without validating against supported payment methods.
@@ -645,6 +678,36 @@ class Project private constructor(
             apply {
                 this.pledgeOverTimeCollectionPlanShortPitch = pledgeOverTimeCollectionPlanShortPitch
             }
+
+        fun financials(fin: ProjectFinancials) = apply {
+            currency(fin.currency)
+            currencySymbol(fin.currencySymbol)
+            currentCurrency(fin.currentCurrency)
+            currencyTrailingCode(fin.currencyTrailingCode)
+            goal(fin.goal)
+            pledged(fin.pledged)
+            staticUsdRate(fin.staticUsdRate)
+            usdExchangeRate(fin.usdExchangeRate)
+            fxRate(fin.fxRate)
+        }
+
+        fun pledgeOverTime(pot: ProjectPledgeOverTime) = apply {
+            isPledgeOverTimeAllowed(pot.isAllowed)
+            pledgeOverTimeMinimumExplanation(pot.minimumExplanation)
+            pledgeOverTimeCollectionPlanChargeExplanation(pot.chargeExplanation)
+            pledgeOverTimeCollectionPlanChargedAsNPayments(pot.chargedAsNPayments)
+            pledgeOverTimeCollectionPlanShortPitch(pot.shortPitch)
+        }
+
+        fun engagementStats(stats: ProjectEngagementStats) = apply {
+            backersCount(stats.backersCount)
+            commentsCount(stats.commentsCount)
+            updatesCount(stats.updatesCount)
+            watchesCount(stats.watchesCount)
+            sharesCount(stats.sharesCount)
+            unreadMessagesCount(stats.unreadMessagesCount)
+            unseenActivityCount(stats.unseenActivityCount)
+        }
 
         fun build() = Project(
             availableCardTypes = availableCardTypes,

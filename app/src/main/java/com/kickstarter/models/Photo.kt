@@ -3,6 +3,12 @@ package com.kickstarter.models
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Immutable domain model representing multi-resolution imagery assets.
+ *
+ * ### Negative Constraints:
+ * - Do not assume all size variants are non-blank.
+ */
 @Parcelize
 class Photo private constructor(
     private val ed: String,
@@ -13,12 +19,25 @@ class Photo private constructor(
     private val thumb: String,
     private val altText: String,
 ) : Parcelable {
+    /** Editorial resolution image URL. */
     fun ed() = this.ed
+
+    /** Full high-resolution image URL. */
     fun full() = this.full
+
+    /** Small preview image URL. */
     fun little() = this.little
+
+    /** Medium display resolution image URL. */
     fun med() = this.med
+
+    /** Small display resolution image URL. */
     fun small() = this.small
+
+    /** Thumbnail resolution image URL. */
     fun thumb() = this.thumb
+
+    /** Accessibility alt text description for screen readers. */
     fun altText() = this.altText
 
     @Parcelize

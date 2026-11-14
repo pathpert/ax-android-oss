@@ -10,6 +10,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface AudioViewElementViewHolderViewModel {
 
     interface Inputs {
@@ -18,12 +22,14 @@ interface AudioViewElementViewHolderViewModel {
         fun onPlayButtonPressed()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         fun preparePlayerWithUrl(): Observable<String>
         fun stopPlayer(): Observable<Unit>
         fun pausePlayer(): Observable<Unit>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class AudioViewElementViewHolderViewModel(private val lifecycleObservable: BehaviorSubject<KSLifecycleEvent>) :
         ViewModel(), Inputs, Outputs {
         val inputs: Inputs = this

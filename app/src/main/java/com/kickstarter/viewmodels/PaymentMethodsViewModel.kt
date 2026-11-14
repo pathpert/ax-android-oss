@@ -20,6 +20,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
 interface Inputs {
 
     /** Call when the user hits add new card button. */
@@ -41,6 +42,7 @@ interface Inputs {
     fun confirmedLoading(isLoading: Boolean)
 }
 
+@Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
 interface Outputs {
     /** Emits a list of stored cards for a user. */
     fun cards(): Observable<List<StoredCard>>
@@ -314,6 +316,7 @@ class PaymentMethodsViewModel(environment: Environment) : ViewModel(), PaymentMe
     override fun isPaymentSheetGooglePayEnabled(): Boolean =
         statsigClient.configReady.value && statsigClient.checkGate(StatsigGateKey.ANDROID_PAYMENTSHEET_GOOGLE_PAY.key)
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return PaymentMethodsViewModel(environment) as T

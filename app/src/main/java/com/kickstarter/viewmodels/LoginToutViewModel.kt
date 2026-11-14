@@ -35,6 +35,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SplashFeatureViewModel under com.kickstarter.features.splash.viewmodel.",
+    replaceWith = ReplaceWith("SplashFeatureViewModel", "com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel")
+)
 interface LoginToutViewModel {
     interface Inputs {
         /** Call when the Login to Facebook button is clicked.  */
@@ -50,6 +54,7 @@ interface LoginToutViewModel {
         fun onLoginFacebookErrorDialogClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits when a user has successfully logged in; the login flow should finish with a result indicating success.  */
         fun finishWithSuccessfulResult(): Observable<Unit>
@@ -85,6 +90,7 @@ interface LoginToutViewModel {
         fun startResetPasswordActivity(): Observable<Unit>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class LoginToutViewmodel(val environment: Environment) :
         ViewModel(),
         Inputs,
@@ -344,6 +350,7 @@ interface LoginToutViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return LoginToutViewmodel(environment) as T

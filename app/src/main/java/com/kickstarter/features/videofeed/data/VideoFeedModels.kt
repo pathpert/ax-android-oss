@@ -6,6 +6,12 @@ import com.kickstarter.services.apiresponses.commentresponse.PageInfoEnvelope
 
 sealed class KSVideoBadgeType {
     object ProjectWeLove : KSVideoBadgeType()
+    /**
+     * Badge displaying days left for campaign.
+     *
+     * Negative constraints:
+     * - Do not pass blank text.
+     */
     data class DaysLeft(val text: String) : KSVideoBadgeType()
     object JustLaunched : KSVideoBadgeType()
     object FirstTimeCreator : KSVideoBadgeType()

@@ -12,6 +12,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface ProjectNotificationViewModel {
     interface Inputs {
         /** Call when the enable switch is clicked.  */
@@ -21,6 +25,7 @@ interface ProjectNotificationViewModel {
         fun projectNotification(projectNotification: ProjectNotification)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits `True` if the enabled switch should be toggled on, `False` otherwise.  */
         fun enabledSwitch(): Observable<Boolean>
@@ -32,6 +37,7 @@ interface ProjectNotificationViewModel {
         fun showUnableToSaveProjectNotificationError(): Observable<Unit>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(environment: Environment) : androidx.lifecycle.ViewModel(), Inputs, Outputs {
 
         private val enabledSwitchClick = PublishSubject.create<Boolean>()

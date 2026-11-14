@@ -45,6 +45,7 @@ interface SplashScreenViewModel {
         externalCall: CustomNetworkClient
     ) : SplashFeatureViewModel(environment, application, intent, externalCall), Outputs
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(
         private val environment: Environment,
         private val intent: Intent? = null,

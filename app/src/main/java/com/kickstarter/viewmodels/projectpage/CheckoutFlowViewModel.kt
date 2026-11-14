@@ -18,6 +18,10 @@ data class FlowUIState(
     val expanded: Boolean = false
 )
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CrowdfundCheckoutFeatureViewModel under com.kickstarter.features.checkout.viewmodel.",
+    replaceWith = ReplaceWith("CrowdfundCheckoutFeatureViewModel", "com.kickstarter.features.checkout.viewmodel.CrowdfundCheckoutFeatureViewModel")
+)
 class CheckoutFlowViewModel(val environment: Environment) : ViewModel() {
 
     private lateinit var newUserReward: Reward
@@ -116,6 +120,7 @@ class CheckoutFlowViewModel(val environment: Environment) : ViewModel() {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

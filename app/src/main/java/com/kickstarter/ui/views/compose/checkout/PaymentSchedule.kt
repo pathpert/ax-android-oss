@@ -1,4 +1,3 @@
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -14,10 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,16 +24,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import com.kickstarter.R
 import com.kickstarter.libs.KSCurrency
 import com.kickstarter.libs.models.Country
 import com.kickstarter.libs.utils.DateTimeUtils
 import com.kickstarter.libs.utils.extensions.findCurrencySymbolIndex
 import com.kickstarter.libs.utils.extensions.trimAllWhitespace
-import com.kickstarter.mock.MockCurrentConfigV2
-import com.kickstarter.mock.factories.ConfigFactory
-import com.kickstarter.mock.factories.PaymentIncrementFactory
 import com.kickstarter.models.PaymentIncrement
 import com.kickstarter.models.PaymentIncrementBadge
 import com.kickstarter.models.PaymentIncrementBadgeVariant
@@ -57,75 +48,6 @@ enum class PaymentScheduleTestTags {
     AMOUNT_TEXT,
     BADGE_TEXT,
     TERMS_OF_USE_TEXT
-}
-
-@Preview(
-    name = "Dark Collapsed State", uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Preview(
-    name = "Light Collapsed State", uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Composable
-fun PreviewCollapsedPaymentScheduleWhite() {
-    KSTheme {
-        PaymentSchedule(
-            isExpanded = false,
-            onExpandChange = {}
-
-        )
-    }
-}
-
-private fun getMockKSCurrencyForUS(): KSCurrency {
-    val config = ConfigFactory.configForUSUser()
-
-    val currentConfig = MockCurrentConfigV2()
-    currentConfig.config(config)
-    val mockCurrency = KSCurrency(currentConfig)
-
-    return mockCurrency
-}
-
-// Expanded State Preview
-@Preview(showBackground = true, name = "Expanded State", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewExpandedPaymentScheduleDark() {
-    KSTheme {
-        PaymentSchedule(
-            isExpanded = true,
-            onExpandChange = {},
-            paymentIncrements = PaymentIncrementFactory.samplePaymentIncrements(),
-            ksCurrency = getMockKSCurrencyForUS()
-        )
-    }
-}
-
-// Expanded State Preview
-@Preview(showBackground = true, name = "Expanded State")
-@Composable
-fun PreviewExpandedPaymentSchedule() {
-    KSTheme {
-        PaymentSchedule(
-            isExpanded = true,
-            onExpandChange = {},
-            paymentIncrements = PaymentIncrementFactory.samplePaymentIncrements(),
-            ksCurrency = getMockKSCurrencyForUS()
-        )
-    }
-}
-
-@Preview
-@Composable
-fun InteractivePaymentSchedulePreview() {
-    var isExpanded by remember { mutableStateOf(false) }
-    KSTheme {
-        PaymentSchedule(
-            isExpanded = isExpanded,
-            onExpandChange = { isExpanded = it },
-            paymentIncrements = PaymentIncrementFactory.samplePaymentIncrements(),
-            ksCurrency = getMockKSCurrencyForUS()
-        )
-    }
 }
 
 @Composable

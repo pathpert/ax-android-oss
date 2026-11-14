@@ -91,13 +91,16 @@ enum class SearchScreenTestTag {
 @Composable
 fun SearchAndFilterScreen(
     env: Environment,
-    filterMenuVM: FilterMenuViewModel,
-    searchViewModel: SearchAndFilterViewModel,
+    filterMenuVM: FilterMenuViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = FilterMenuViewModel.Factory(env)),
+    searchViewModel: SearchAndFilterViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = SearchAndFilterViewModel.Factory(env)),
     onBackClicked: () -> Unit = {},
     preLaunchedCallback: (project: Project, reftag: RefTag) -> Unit = { a, b -> },
     projectCallback: (projAndRef: Pair<Project, RefTag>) -> Unit = { a -> },
     onVideoFeedBannerClicked: () -> Unit = {}
 ) {
+    LaunchedEffect(Unit) {
+        filterMenuVM.getRootCategories()
+    }
     val phaseff = env.featureFlagClient()?.getBoolean(FlagKey.ANDROID_SEARCH_FILTER) ?: false
     var currentSearchTerm by rememberSaveable { mutableStateOf("") }
     val lazyListState = rememberLazyListState()

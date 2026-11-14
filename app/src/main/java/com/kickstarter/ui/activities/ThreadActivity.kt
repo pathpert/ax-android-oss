@@ -34,19 +34,18 @@ import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
-class ThreadActivity :
-    AppCompatActivity(),
-    RepliesStatusAdapter.Delegate,
-    RepliesAdapter.Delegate {
+class ThreadActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityThreadLayoutBinding
     private lateinit var ksString: KSString
 
+    private val adapterDelegate = ThreadAdapterDelegate { viewModel }
+
     /** Replies list adapter **/
-    private val repliesAdapter = RepliesAdapter(this)
+    private val repliesAdapter = RepliesAdapter(adapterDelegate)
 
     /**  Replies cell status viewMore or Error  **/
-    private val repliesStatusAdapter = RepliesStatusAdapter(this)
+    private val repliesStatusAdapter = RepliesStatusAdapter(adapterDelegate)
 
     /** Replies Root comment cell adapter **/
     private val rootCommentAdapter = RootCommentAdapter()
@@ -267,42 +266,6 @@ class ThreadActivity :
     override fun onStop() {
         super.onStop()
         hideKeyboard()
-    }
-
-    override fun onRetryViewClicked(comment: Comment) {
-    }
-
-    override fun onReplyButtonClicked(comment: Comment) {
-    }
-
-    override fun onFlagButtonClicked(comment: Comment) {
-    }
-
-    override fun onCommentGuideLinesClicked(comment: Comment) {
-        viewModel.inputs.onShowGuideLinesLinkClicked()
-    }
-
-    override fun onCommentRepliesClicked(comment: Comment) {
-    }
-
-    override fun onCommentPostedFailed(comment: Comment, position: Int) {
-        viewModel.inputs.refreshCommentCardInCaseFailedPosted(comment, position)
-    }
-
-    override fun onCommentPostedSuccessFully(comment: Comment, position: Int) {
-        viewModel.inputs.refreshCommentCardInCaseSuccessPosted(comment, position)
-    }
-
-    override fun loadMoreCallback() {
-        viewModel.inputs.reloadRepliesPage()
-    }
-
-    override fun retryCallback() {
-        viewModel.inputs.reloadRepliesPage()
-    }
-
-    override fun onShowCommentClicked(comment: Comment) {
-        viewModel.inputs.onShowCanceledPledgeComment(comment)
     }
 
     override fun onDestroy() {

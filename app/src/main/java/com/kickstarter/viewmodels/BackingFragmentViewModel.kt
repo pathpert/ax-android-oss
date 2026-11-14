@@ -22,6 +22,7 @@ interface BackingFragmentViewModel {
     interface Inputs : BackingFeatureInputs
     interface Outputs : BackingFeatureOutputs
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     open class BackingFragmentViewModel(environment: Environment) :
         com.kickstarter.features.backing.viewmodel.BackingFeatureViewModel(environment),
         Inputs,
@@ -30,6 +31,7 @@ interface BackingFragmentViewModel {
         override val outputs: Outputs = this
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")

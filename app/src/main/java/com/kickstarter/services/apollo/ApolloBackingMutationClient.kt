@@ -9,6 +9,7 @@ import com.kickstarter.UpdateBackingMutation
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.errors.ProblemException
+import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.models.Backing
@@ -32,7 +33,8 @@ class ApolloBackingMutationClient(
     private val disposables: CompositeDisposable,
     private val createBackingGuard: AtomicBoolean,
     private val updateBackingGuard: AtomicBoolean,
-    private val cancelBackingGuard: AtomicBoolean
+    private val cancelBackingGuard: AtomicBoolean,
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
 ) {
     fun createBacking(createBackingData: CreateBackingData): Observable<Checkout> {
         return Observable.defer {

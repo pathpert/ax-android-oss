@@ -14,18 +14,24 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface RootCommentViewHolderViewModel {
     interface Inputs {
         fun configureWith(configureCellWith: CommentCardData)
         fun onShowCanceledPledgeRootCommentClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         fun bindRootComment(): Observable<CommentCardData>
         fun showCanceledPledgeRootComment(): Observable<CommentCardStatus>
         fun authorBadge(): Observable<CommentCardBadge>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(environment: Environment) : Inputs, Outputs {
         private val initCellConfig = BehaviorSubject.create<CommentCardData>()
         private val onShowCanceledPledgeRootCommentClicked = PublishSubject.create<Unit>()

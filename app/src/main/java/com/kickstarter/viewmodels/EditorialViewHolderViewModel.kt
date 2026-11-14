@@ -9,6 +9,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by DiscoveryFeatureViewModel under com.kickstarter.features.discovery.viewmodel.",
+    replaceWith = ReplaceWith("DiscoveryFeatureViewModel", "com.kickstarter.features.discovery.viewmodel.DiscoveryFeatureViewModel")
+)
 interface EditorialViewHolderViewModel {
     interface Inputs {
         /** Call when the user clicks the editorial tout. */
@@ -18,6 +22,7 @@ interface EditorialViewHolderViewModel {
         fun configureWith(editorial: Editorial)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the @ColorRes ID of the background color of the [Editorial]. */
         fun backgroundColor(): Observable<Int>
@@ -35,6 +40,7 @@ interface EditorialViewHolderViewModel {
         fun graphic(): Observable<Int>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel : Inputs, Outputs {
         private val editorialInput = PublishSubject.create<Editorial>()
         private val editorialClicked = PublishSubject.create<Unit>()

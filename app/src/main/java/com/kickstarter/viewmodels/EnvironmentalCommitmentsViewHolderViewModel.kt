@@ -9,6 +9,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface EnvironmentalCommitmentsViewHolderViewModel {
     interface Inputs {
         /** Configure the view model with the [EnvironmentalCommitment]. */
@@ -18,6 +22,7 @@ interface EnvironmentalCommitmentsViewHolderViewModel {
         fun onCleared()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the String for the description  */
         fun description(): Observable<String>
@@ -25,6 +30,7 @@ interface EnvironmentalCommitmentsViewHolderViewModel {
         fun category(): Observable<Int>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class EnvironmentalCommitmentsViewHolderViewModel() : Inputs, Outputs {
         val inputs: Inputs = this
         val outputs: Outputs = this

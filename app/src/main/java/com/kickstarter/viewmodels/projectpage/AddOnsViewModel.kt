@@ -40,6 +40,10 @@ data class AddOnsUIState(
     val totalBonusAmount: Double = 0.0
 )
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 class AddOnsViewModel(
     private val environment: Environment,
     bundle: Bundle? = null,
@@ -333,6 +337,7 @@ class AddOnsViewModel(
         return getPledgeDataAndReason()?.first?.pledgeAmountTotalPlusBonus() ?: 0.0
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(
         private val environment: Environment,
         private val bundle: Bundle? = null,

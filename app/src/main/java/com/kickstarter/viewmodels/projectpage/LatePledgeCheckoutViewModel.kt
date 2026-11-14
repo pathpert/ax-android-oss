@@ -44,6 +44,10 @@ typealias LatePledgeCheckoutUIState = DomainLatePledgeCheckoutUIState
  * Deconstructed to satisfy AX Rule 1 (Strangler Fig) & Rule 2 (Dev-Primitives < 300 LOC),
  * delegating network and payment mutations to [LatePledgePaymentProcessor].
  */
+@Deprecated(
+    message = "Legacy monolithic path replaced by LatePledgeCheckoutFeatureViewModel under com.kickstarter.features.checkout.viewmodel.",
+    replaceWith = ReplaceWith("LatePledgeCheckoutFeatureViewModel", "com.kickstarter.features.checkout.viewmodel.LatePledgeCheckoutFeatureViewModel")
+)
 class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
 
     private var pledgeData: PledgeData? = null
@@ -378,6 +382,7 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
     fun isPaymentSheetGooglePayEnabled(): Boolean =
         statsigClient.configReady.value && statsigClient.checkGate(StatsigGateKey.ANDROID_PAYMENTSHEET_GOOGLE_PAY.key)
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")

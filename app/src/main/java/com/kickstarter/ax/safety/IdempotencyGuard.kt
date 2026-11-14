@@ -2,6 +2,7 @@ package com.kickstarter.ax.safety
 
 import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.types.RateLimitBackoff
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -62,10 +63,52 @@ value class IdempotencyKey private constructor(val value: String) {
 class IdempotencyGuard(
     private val clockMillis: () -> Long = { System.currentTimeMillis() }
 ) {
+    companion object {
+        @Volatile
+        private var globalBlockedUntilMillis: Long = 0L
+
+        /**
+         * Propagates a server [RateLimitBackoff] cooldown globally to protect all mutation call sites.
+         */
+        fun applyGlobalBackoff(
+            backoff: RateLimitBackoff,
+            clockMillis: () -> Long = { System.currentTimeMillis() }
+        ) {
+            val retryAfter = backoff.retryAfterSeconds
+            if (retryAfter != null && retryAfter > 0L) {
+                val until = clockMillis() + (retryAfter * 1000L)
+                if (until > globalBlockedUntilMillis) {
+                    globalBlockedUntilMillis = until
+                }
+            }
+        }
+
+        fun getGlobalBlockedUntilMillis(): Long = globalBlockedUntilMillis
+
+        fun resetGlobalCooldown() {
+            globalBlockedUntilMillis = 0L
+        }
+    }
+
     private val inFlight = AtomicBoolean(false)
 
     @Volatile
     private var blockedUntilMillis: Long = 0L
+
+    /**
+     * Applies a server [RateLimitBackoff] cooldown to this guard instance.
+     */
+    fun applyBackoff(backoff: RateLimitBackoff) {
+        val retryAfter = backoff.retryAfterSeconds
+        if (retryAfter != null && retryAfter > 0L) {
+            val until = clockMillis() + (retryAfter * 1000L)
+            if (until > blockedUntilMillis) {
+                blockedUntilMillis = until
+            }
+        }
+    }
+
+    fun getBlockedUntilMillis(): Long = maxOf(blockedUntilMillis, globalBlockedUntilMillis)
 
     /**
      * Returns `true` if a mutation is currently executing inside this guard.
@@ -84,7 +127,8 @@ class IdempotencyGuard(
         block: suspend (IdempotencyKey) -> DomainResult<T>
     ): DomainResult<T> {
         val now = clockMillis()
-        val remainingCooldownMs = blockedUntilMillis - now
+        val effectiveBlockedUntil = maxOf(blockedUntilMillis, globalBlockedUntilMillis)
+        val remainingCooldownMs = effectiveBlockedUntil - now
         if (remainingCooldownMs > 0L) {
             val waitSeconds = ((remainingCooldownMs + 999L) / 1000L).coerceAtLeast(1L)
             return DomainResult.Failure(
@@ -118,7 +162,11 @@ class IdempotencyGuard(
             if (result is DomainResult.Failure) {
                 val retryAfter = result.problem.retryAfterSeconds
                 if (retryAfter != null && retryAfter > 0L) {
-                    blockedUntilMillis = clockMillis() + (retryAfter * 1000L)
+                    val until = clockMillis() + (retryAfter * 1000L)
+                    blockedUntilMillis = until
+                    if (until > globalBlockedUntilMillis) {
+                        globalBlockedUntilMillis = until
+                    }
                 }
             }
             result

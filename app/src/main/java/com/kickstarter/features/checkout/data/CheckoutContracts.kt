@@ -32,6 +32,9 @@ data class AddOnContract(
 
 /**
  * Typed GraphQL cursor pagination contract decoupled from legacy `PageInfoEnvelope`.
+ *
+ * Negative constraints:
+ * - Do not pass blank strings to [endCursor] when [hasNextPage] is true.
  */
 data class CursorPageContract(
     val endCursor: String? = null,
@@ -40,6 +43,9 @@ data class CursorPageContract(
 
 /**
  * Typed add-ons page contract replacing legacy [AddOnsEnvelope].
+ *
+ * Negative constraints:
+ * - Do not mutate [items] list after instantiation.
  */
 data class AddOnsPageContract(
     val items: List<AddOnContract>,

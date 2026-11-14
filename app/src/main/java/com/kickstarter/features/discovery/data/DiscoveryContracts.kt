@@ -63,6 +63,10 @@ data class DiscoveryProjectCard(
 
 /**
  * Discovery pagination envelope.
+ *
+ * Negative constraints:
+ * - Do not mutate [projects] list after construction.
+ * - Do not pass a blank string to [endCursor] when more pages exist.
  */
 data class DiscoveryEnvelopeContract(
     val projects: List<DiscoveryProjectCard>,

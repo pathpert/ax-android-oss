@@ -19,6 +19,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface ChangeEmailViewModel {
 
     interface Inputs {
@@ -38,6 +42,7 @@ interface ChangeEmailViewModel {
         fun updateEmailClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the logged in user's email address.  */
         fun currentEmail(): Observable<String>
@@ -70,6 +75,7 @@ interface ChangeEmailViewModel {
         fun warningTextColor(): Observable<Int>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ChangeEmailViewModel(val environment: Environment) : ViewModel(), Inputs, Outputs {
 
         val inputs: Inputs = this
@@ -299,6 +305,7 @@ interface ChangeEmailViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ChangeEmailViewModel(environment) as T

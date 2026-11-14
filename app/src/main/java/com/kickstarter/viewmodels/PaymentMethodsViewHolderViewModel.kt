@@ -11,6 +11,10 @@ import io.reactivex.subjects.PublishSubject
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by PaymentMethodsFeatureViewModel under com.kickstarter.features.paymentmethods.viewmodel.",
+    replaceWith = ReplaceWith("PaymentMethodsFeatureViewModel", "com.kickstarter.features.paymentmethods.viewmodel.PaymentMethodsFeatureViewModel")
+)
 interface PaymentMethodsViewHolderViewModel {
 
     interface Inputs {
@@ -21,6 +25,7 @@ interface PaymentMethodsViewHolderViewModel {
         fun deleteIconClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the expiration date for a credit card. */
         fun expirationDate(): Observable<String>
@@ -38,6 +43,7 @@ interface PaymentMethodsViewHolderViewModel {
         fun lastFour(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class PaymentMethodsViewHolderViewModel : Inputs, Outputs {
 
         private val card = PublishSubject.create<StoredCard>()

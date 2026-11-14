@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.activity.ComponentActivity
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
+import com.kickstarter.ax.errors.DomainResult
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.libs.utils.extensions.getPaymentSheetConfiguration
 import com.kickstarter.viewmodels.projectpage.LatePledgeCheckoutViewModel
 import com.stripe.android.ApiResultCallback
@@ -52,15 +54,27 @@ class ProjectStripePaymentHandler(
         }
     }
 
-    fun stripeNextAction(actionUrlOrSecret: String) {
-        try {
+    fun stripeNextAction(actionUrlOrSecret: String): DomainResult<Unit> {
+        return try {
             if (actionUrlOrSecret.contains("pi_")) {
                 stripe.handleNextActionForPayment(activity, actionUrlOrSecret)
             } else {
                 stripe.handleNextActionForSetupIntent(activity, actionUrlOrSecret)
             }
+            DomainResult.Success(Unit)
         } catch (exception: Exception) {
             FirebaseCrashlytics.getInstance().recordException(exception)
+            showToastError(exception.message)
+            DomainResult.Failure(
+                ProblemDetails(
+                    type = ProblemDetails.TYPE_UNEXPECTED,
+                    title = "Stripe Next Action Failed",
+                    status = 500,
+                    detail = exception.message ?: "Failed to execute Stripe next action.",
+                    suggestedAction = "Verify payment details and try again.",
+                    isRetriable = true
+                )
+            )
         }
     }
 

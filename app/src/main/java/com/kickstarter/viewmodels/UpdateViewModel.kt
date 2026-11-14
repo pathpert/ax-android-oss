@@ -26,6 +26,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import okhttp3.Request
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface UpdateViewModel {
     interface Inputs {
 
@@ -48,6 +52,7 @@ interface UpdateViewModel {
         fun goToCommentsActivityToDeepLinkThreadActivity(commentableID: String)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a project url to open externally.  */
         fun openProjectExternally(): Observable<String>
@@ -75,6 +80,7 @@ interface UpdateViewModel {
         fun hasCommentsDeepLinks(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class UpdateViewModel(environment: Environment) : ViewModel(), Inputs, Outputs {
 
         private val client = requireNotNull(environment.apiClientV2())
@@ -344,6 +350,7 @@ interface UpdateViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return UpdateViewModel(environment) as T

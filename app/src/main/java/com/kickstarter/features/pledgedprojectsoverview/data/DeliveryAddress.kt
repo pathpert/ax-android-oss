@@ -36,6 +36,12 @@ class DeliveryAddress private constructor(
     fun phoneNumber() = this.phoneNumber
     fun recipientName() = this.recipientName
 
+    /**
+     * Builder for [DeliveryAddress].
+     *
+     * Negative constraints:
+     * - Do not invoke [build] with invalid or blank address fields.
+     */
     @Parcelize
     data class Builder(
         var addressID: String? = null,

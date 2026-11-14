@@ -5,6 +5,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface PaginationErrorViewHolderViewModel {
     interface Inputs {
         /** Pair with the configuration for the feedback cell UI
@@ -15,6 +19,7 @@ interface PaginationErrorViewHolderViewModel {
         fun configureWith(configureCellWith: Boolean)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         fun isErrorPaginationVisible(): Observable<Boolean>
     }

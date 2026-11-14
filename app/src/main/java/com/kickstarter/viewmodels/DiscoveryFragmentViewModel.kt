@@ -48,6 +48,7 @@ interface DiscoveryFragmentViewModel {
         fun rootCategories(rootCategories: List<Category>)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         fun activity(): Observable<Activity>
         fun clearActivities(): Observable<Unit>
@@ -71,6 +72,7 @@ interface DiscoveryFragmentViewModel {
         fun startSetPasswordActivity(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class DiscoveryFragmentViewModel(environment: Environment) :
         ViewModel(),
         Inputs,
@@ -126,6 +128,7 @@ interface DiscoveryFragmentViewModel {
         override fun startSetPasswordActivity(): Observable<String> = pipeline.startSetPasswordActivity
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return DiscoveryFragmentViewModel(environment) as T

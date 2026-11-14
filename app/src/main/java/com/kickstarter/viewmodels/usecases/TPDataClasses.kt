@@ -14,6 +14,10 @@ import com.kickstarter.ui.data.PledgeData
  * ThirdPartyEventInputData data model to sent items values to third party analytics systems
  * an item makes reference to a reward or addOn
  */
+@Deprecated(
+    message = "Legacy analytics payload model replaced by features.videofeed.data.VideoFeedItem.",
+    replaceWith = ReplaceWith("VideoFeedItem", "com.kickstarter.features.videofeed.data.VideoFeedItem")
+)
 data class TPEventItemInputData(val itemId: String, val itemName: String, val price: Double? = null)
 /***
  * ThirdPartyAppDataInput information required for certain types of events for third party actors
@@ -60,6 +64,7 @@ data class TPEventInputData(
     val firebasePreviousScreen: String? = null
 )
 
+@Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
 interface BuildInput {
     fun buildInput(
         eventName: ThirdPartyEventValues.EventName,

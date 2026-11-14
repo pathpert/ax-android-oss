@@ -18,12 +18,17 @@ import io.reactivex.subjects.PublishSubject
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by RewardTrackingViews under com.kickstarter.features.rewardtracking.",
+    replaceWith = ReplaceWith("RewardTrackingViews", "com.kickstarter.features.rewardtracking.RewardTrackingViews")
+)
 interface BaseRewardCardViewHolderViewModel {
     interface Inputs {
         /** Call to configure view model with a stored card and project. */
         fun configureWith(cardAndProject: Pair<StoredCard, Project>)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the expiration date for a credit card. */
         fun expirationDate(): Observable<String>
@@ -44,6 +49,7 @@ interface BaseRewardCardViewHolderViewModel {
         fun retryCopyIsVisible(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     open class ViewModel : Inputs, Outputs {
         protected val cardAndProject: PublishSubject<Pair<StoredCard, Project>> = PublishSubject.create()
 

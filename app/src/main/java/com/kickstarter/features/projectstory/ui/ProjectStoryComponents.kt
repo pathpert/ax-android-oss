@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Bullet
@@ -216,7 +217,7 @@ fun RichTextItemPhotoComponent(
 @Composable
 fun WebViewComponent(url: String) {
     Timber.d("WebViewComponent($url)")
-    lateinit var context: Context
+    val context = LocalContext.current
 
     @SuppressLint("SetJavaScriptEnabled")
     AndroidView(
@@ -224,7 +225,6 @@ fun WebViewComponent(url: String) {
             .fillMaxSize()
             .testTag(ProjectStoryComponentTestTag.WEBVIEW.name),
         factory = {
-            context = it
             WebView(it).apply {
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,

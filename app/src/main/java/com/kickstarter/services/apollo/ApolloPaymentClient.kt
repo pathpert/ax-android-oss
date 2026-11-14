@@ -12,6 +12,7 @@ import com.kickstarter.UserPaymentsQuery
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.errors.ProblemException
+import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.models.CreatePaymentIntentInput
@@ -33,7 +34,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ApolloPaymentClient(
     private val service: ApolloClient,
     private val disposables: CompositeDisposable,
-    private val createPaymentIntentGuard: AtomicBoolean
+    private val createPaymentIntentGuard: AtomicBoolean,
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
 ) {
     fun createSetupIntent(project: Project? = null): Observable<String> {
         return Observable.defer {
@@ -48,12 +50,16 @@ class ApolloPaymentClient(
             service.mutation(mutation)
                 .rxSingle()
                 .subscribeOn(Schedulers.io())
-                .doOnError {
-                    ps.onError(it)
+                .doOnError { throwable ->
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create setup intent")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            response.errors?.first()?.message,
+                            "create setup intent"
+                        )
+                        ps.onError(ProblemException(problem))
                     } else {
                         ps.onNext(response.data?.createSetupIntent?.clientSecret ?: "")
                     }
@@ -76,11 +82,15 @@ class ApolloPaymentClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "save payment method")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            response.errors?.first()?.message,
+                            "save payment method"
+                        )
+                        ps.onError(ProblemException(problem))
                     }
 
                     val paymentSource = response.data?.createPaymentSource?.paymentSource
@@ -128,11 +138,15 @@ class ApolloPaymentClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "save payment method")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            response.errors?.first()?.message,
+                            "save payment method"
+                        )
+                        ps.onError(ProblemException(problem))
                     }
                     response.data?.let { ps.onNext(it) }
                     ps.onComplete()

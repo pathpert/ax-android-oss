@@ -21,6 +21,10 @@ data class UpdatePasswordUIState(
     val errorMessage: String? = null,
     val email: String? = null
 )
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 class ChangePasswordViewModel(val environment: Environment) : ViewModel() {
 
     private val apolloClient = requireNotNull(this.environment.apolloClientV2())
@@ -61,6 +65,7 @@ class ChangePasswordViewModel(val environment: Environment) : ViewModel() {
     }
 }
 
+@Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
 class ChangePasswordViewModelFactory(private val environment: Environment) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

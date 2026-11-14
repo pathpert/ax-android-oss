@@ -18,6 +18,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.DateTime
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface UpdateCardViewHolderViewModel {
     interface Inputs {
         /** Configure with the current [Project] and [Update]. */
@@ -27,6 +31,7 @@ interface UpdateCardViewHolderViewModel {
         fun updateClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a boolean determining if the backers only container should be visible. */
         fun backersOnlyContainerIsVisible(): Observable<Boolean>
@@ -59,6 +64,7 @@ interface UpdateCardViewHolderViewModel {
         fun title(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(environment: Environment) : Inputs, Outputs {
 
         private val projectAndUpdate = PublishSubject.create<Pair<Project, Update>>()

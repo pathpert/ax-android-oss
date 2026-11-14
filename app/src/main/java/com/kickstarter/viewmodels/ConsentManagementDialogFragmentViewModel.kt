@@ -7,6 +7,10 @@ import com.kickstarter.ui.SharedPreferenceKey
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface ConsentManagementDialogFragmentViewModel {
 
     interface Inputs {
@@ -14,6 +18,7 @@ interface ConsentManagementDialogFragmentViewModel {
         fun userConsentPreference(consentPreference: Boolean)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs
 
     class ConsentManagementDialogFragmentViewModel(environment: Environment) : ViewModel(), Inputs, Outputs {
@@ -45,6 +50,7 @@ interface ConsentManagementDialogFragmentViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ConsentManagementDialogFragmentViewModel(environment) as T

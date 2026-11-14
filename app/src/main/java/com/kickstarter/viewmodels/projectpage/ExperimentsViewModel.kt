@@ -19,6 +19,10 @@ import kotlin.coroutines.cancellation.CancellationException
 /** For Crashlytics logging only **/
 private class ExperimentsException(cause: Exception) : Exception(cause)
 @OptIn(FlowPreview::class)
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 class ExperimentsViewModel(
     environment: Environment,
     testDispatcher: CoroutineDispatcher? = null
@@ -87,6 +91,7 @@ class ExperimentsViewModel(
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

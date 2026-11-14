@@ -4,6 +4,12 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
+/**
+ * Immutable domain model representing a project comment or threaded reply.
+ *
+ * ### Negative Constraints:
+ * - Do not pass blank [body] text when creating new comments.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class Comment private constructor(
@@ -20,17 +26,40 @@ class Comment private constructor(
     private val id: Long,
     private val parentId: Long
 ) : Parcelable, Relay {
+    /** Domain model representing the user author who posted the comment. */
     fun author() = this.author
+
+    /** Comment body text content. */
     fun body() = this.body
+
+    /** Timestamp when the comment was published. */
     fun createdAt() = this.createdAt
+
+    /** Whether the comment has been deleted by its author or moderator. */
     fun deleted() = this.deleted
+
+    /** Whether the comment has been flagged for inappropriate content. */
     fun hasFlaggings() = this.hasFlaggings
+
+    /** Whether the flagged content objection was sustained by moderators. */
     fun sustained() = this.sustained
+
+    /** Whether the author had backed the project and subsequently canceled their pledge. */
     fun authorCanceledPledge() = this.authorCanceledPledge
+
+    /** Pagination cursor for fetching threaded replies. */
     fun cursor() = this.cursor
+
+    /** Total count of threaded child replies to this comment. */
     fun repliesCount() = this.repliesCount
+
+    /** Creator, collaborator, or superbacker badge identifiers for the author. */
     fun authorBadges() = this.authorBadges
+
+    /** Persistent database identifier (PID) of the comment. */
     override fun id() = this.id
+
+    /** Identifier of parent comment if this is a reply, or -1 if a root comment. */
     fun parentId() = this.parentId
 
     @Parcelize

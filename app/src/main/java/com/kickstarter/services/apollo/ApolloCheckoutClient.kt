@@ -14,6 +14,7 @@ import com.kickstarter.ValidateCheckoutQuery
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.errors.ProblemException
+import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.models.Backing
@@ -40,7 +41,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ApolloCheckoutClient(
     private val service: ApolloClient,
     private val disposables: CompositeDisposable,
-    private val completeCheckoutGuard: AtomicBoolean
+    private val completeCheckoutGuard: AtomicBoolean,
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
 ) {
     fun createCheckout(createCheckoutData: CreateCheckoutData): Observable<CheckoutPayment> {
         return Observable.defer {

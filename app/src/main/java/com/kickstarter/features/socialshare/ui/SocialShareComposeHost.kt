@@ -1,4 +1,4 @@
-package com.kickstarter.features.projectpage.ui.components
+package com.kickstarter.features.socialshare.ui
 
 import android.content.Context
 import android.content.Intent
@@ -10,8 +10,6 @@ import androidx.core.view.isGone
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kickstarter.features.socialshare.AndroidSocialShareService
 import com.kickstarter.features.socialshare.data.SocialShareData
-import com.kickstarter.features.socialshare.ui.LocalSocialShareViewModel
-import com.kickstarter.features.socialshare.ui.SocialShareSheet
 import com.kickstarter.features.socialshare.viewmodel.SocialShareViewModel
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName
@@ -71,3 +69,4 @@ class SocialShareComposeHost(
         composeView.isGone = false
     }
 }
+

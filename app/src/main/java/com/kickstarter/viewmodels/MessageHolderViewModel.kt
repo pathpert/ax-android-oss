@@ -10,6 +10,10 @@ import com.kickstarter.models.User
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface MessageHolderViewModel {
     interface Inputs {
         /** Call to configure the view model with a message.  */
@@ -19,6 +23,7 @@ interface MessageHolderViewModel {
         fun isLastPosition(isLastPosition: Boolean)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a boolean to determine whether the delivery status text view should be gone.  */
         fun deliveryStatusTextViewIsGone(): Observable<Boolean>
@@ -42,6 +47,7 @@ interface MessageHolderViewModel {
         fun participantAvatarImageUrl(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(environment: Environment) :
         Inputs,
         Outputs {

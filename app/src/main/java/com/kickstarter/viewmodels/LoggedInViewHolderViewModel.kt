@@ -16,6 +16,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface LoggedInViewHolderViewModel {
 
     interface Inputs {
@@ -26,6 +30,7 @@ interface LoggedInViewHolderViewModel {
         fun onCleared()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the user's unseen activity and errored backings count. */
         fun activityCount(): Observable<Int>
@@ -55,6 +60,7 @@ interface LoggedInViewHolderViewModel {
         fun pledgedProjectsIndicatorIsVisible(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(val environment: Environment) : Inputs, Outputs {
 
         private val apolloClient = requireNotNull(environment.apolloClientV2())

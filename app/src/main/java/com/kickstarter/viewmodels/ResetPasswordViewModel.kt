@@ -21,6 +21,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SplashFeatureViewModel under com.kickstarter.features.splash.viewmodel.",
+    replaceWith = ReplaceWith("SplashFeatureViewModel", "com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel")
+)
 interface ResetPasswordViewModel {
 
     interface Inputs {
@@ -31,6 +35,7 @@ interface ResetPasswordViewModel {
         fun configureWith(intent: Intent)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a boolean that determines if the form is in the progress of being submitted. */
         fun isFormSubmitting(): Observable<Boolean>
@@ -51,6 +56,7 @@ interface ResetPasswordViewModel {
         fun resetPasswordScreenStatus(): Observable<ResetPasswordScreenState>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ResetPasswordViewModel(val environment: Environment) : ViewModel(), Inputs, Outputs {
         private val client = requireNotNull(environment.apiClientV2())
 
@@ -191,6 +197,7 @@ interface ResetPasswordViewModel {
         override fun resetPasswordScreenStatus(): Observable<ResetPasswordScreenState> = this.resetPasswordScreenStatus
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ResetPasswordViewModel(environment) as T

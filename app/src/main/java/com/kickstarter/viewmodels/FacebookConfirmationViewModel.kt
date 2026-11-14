@@ -18,6 +18,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SplashFeatureViewModel under com.kickstarter.features.splash.viewmodel.",
+    replaceWith = ReplaceWith("SplashFeatureViewModel", "com.kickstarter.features.splash.viewmodel.SplashFeatureViewModel")
+)
 interface FacebookConfirmationViewModel {
     interface Inputs {
         /** Call when the create new account button has been clicked.  */
@@ -27,6 +31,7 @@ interface FacebookConfirmationViewModel {
         fun sendNewslettersClick(b: Boolean)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Fill the view's email address.  */
         fun prefillEmail(): Observable<String>
@@ -41,6 +46,7 @@ interface FacebookConfirmationViewModel {
         fun sendNewslettersIsChecked(): Observable<Boolean>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class FacebookConfirmationViewModel(environment: Environment) :
         ViewModel(), Inputs, Outputs {
         private val client = requireNotNull(environment.apiClientV2())
@@ -159,6 +165,7 @@ interface FacebookConfirmationViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return FacebookConfirmationViewModel(environment) as T

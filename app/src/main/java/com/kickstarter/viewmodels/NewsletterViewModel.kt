@@ -21,6 +21,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface NewsletterViewModel {
 
     interface Inputs {
@@ -58,6 +62,7 @@ interface NewsletterViewModel {
         fun sendWeeklyNewsletter(checked: Boolean)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Show a dialog to inform the user that their newsletter subscription must be confirmed via email.  */
         fun showOptInPrompt(): Observable<Newsletter>
@@ -69,6 +74,7 @@ interface NewsletterViewModel {
         fun user(): Observable<User>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Errors {
         /** Emits when there is an error updating the user preferences. */
         fun unableToSavePreferenceError(): Observable<String>
@@ -286,6 +292,7 @@ interface NewsletterViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return NewsletterViewModel(environment) as T

@@ -30,6 +30,10 @@ import io.reactivex.subjects.PublishSubject
 import org.joda.time.DateTime
 import java.math.RoundingMode
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by RewardTrackingViews under com.kickstarter.features.rewardtracking.",
+    replaceWith = ReplaceWith("RewardTrackingViews", "com.kickstarter.features.rewardtracking.RewardTrackingViews")
+)
 interface RewardViewHolderViewModel {
     interface Inputs {
         /** Configure with the current [ProjectData] and [Reward]. */
@@ -39,6 +43,7 @@ interface RewardViewHolderViewModel {
         fun rewardClicked(position: Int)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /**  Emits the count of backers who have pledged this reward. */
         fun backersCount(): Observable<Int>
@@ -134,6 +139,7 @@ interface RewardViewHolderViewModel {
         fun localPickUpName(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(environment: Environment) : Inputs, Outputs {
         private val currentUser = requireNotNull(environment.currentUserV2())
         private val ksCurrency = requireNotNull(environment.ksCurrency())

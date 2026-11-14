@@ -28,6 +28,7 @@ import com.kickstarter.ui.extensions.showRatingDialogWidget
 import com.kickstarter.ui.extensions.startCreatorBioWebViewActivity
 import com.kickstarter.ui.extensions.startPreLaunchProjectActivity
 import com.kickstarter.ui.extensions.startProjectActivity
+import com.kickstarter.ui.extensions.startShareIntent
 
 class VideoFeedActivity : ComponentActivity() {
 
@@ -125,6 +126,9 @@ class VideoFeedActivity : ComponentActivity() {
                     },
                     onShareCTAClick = { project, videoId ->
                         viewModel.onCTAClicked(project, videoId, CtaContextName.VIDEO_SHARE)
+                        val shareUrl = project.urls()?.web()?.project() ?: ""
+                        val name = project.name() ?: ""
+                        startShareIntent(Pair(name, shareUrl))
                     },
                     onVideoPlaybackError = { videoFeedItem, position, error, isActive ->
                         viewModel.onVideoPlaybackError(videoFeedItem, position, error, isActive)

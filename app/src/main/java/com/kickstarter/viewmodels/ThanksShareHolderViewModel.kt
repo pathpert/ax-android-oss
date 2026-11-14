@@ -15,6 +15,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by SocialShareViewModel under com.kickstarter.features.socialshare.viewmodel.",
+    replaceWith = ReplaceWith("SocialShareViewModel", "com.kickstarter.features.socialshare.viewmodel.SocialShareViewModel")
+)
 interface ThanksShareHolderViewModel {
     interface Inputs {
         /** Call to configure the view model with a project.  */
@@ -32,6 +36,7 @@ interface ThanksShareHolderViewModel {
         fun onCleared()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the backing's project name.  */
         fun projectName(): Observable<String>
@@ -46,6 +51,7 @@ interface ThanksShareHolderViewModel {
         fun startShareOnTwitter(): Observable<Pair<String, String>>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ThanksShareViewHolderViewModel(environment: Environment) : Inputs, Outputs {
 
         private val thanksShareData = PublishSubject.create<Pair<Project, CheckoutData>>()

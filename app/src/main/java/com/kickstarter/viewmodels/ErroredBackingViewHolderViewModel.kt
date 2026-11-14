@@ -10,6 +10,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import org.joda.time.DateTime
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface ErroredBackingViewHolderViewModel {
     interface Inputs {
         /** Configure with the current [ErroredBacking]. */
@@ -19,6 +23,7 @@ interface ErroredBackingViewHolderViewModel {
         fun manageButtonClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the final collection date of the [ErroredBacking.Project]. */
         fun projectFinalCollectionDate(): Observable<DateTime>
@@ -30,6 +35,7 @@ interface ErroredBackingViewHolderViewModel {
         fun notifyDelegateToStartFixPaymentMethod(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel : Inputs, Outputs {
 
         private val erroredBacking = PublishSubject.create<ErroredBacking>()

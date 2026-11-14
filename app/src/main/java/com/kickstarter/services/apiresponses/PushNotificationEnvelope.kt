@@ -20,12 +20,25 @@ class PushNotificationEnvelope private constructor(
     private val pledgeRedemption: PledgeRedemption?,
 
 ) : Parcelable {
+    /** Associated activity payload (e.g. new update, comment, backing) if this is an activity notification. */
     fun activity() = this.activity
+
+    /** Associated errored pledge payload requiring card/billing fix, or null. */
     fun erroredPledge() = this.erroredPledge
+
+    /** Google Cloud Messaging / Firebase push metadata (alert text, sound, collapse key). */
     fun gcm() = this.gcm
+
+    /** Direct message payload if this is a chat/inbox notification, or null. */
     fun message() = this.message
+
+    /** Campaign project payload referenced by this push notification, or null. */
     fun project() = this.project
+
+    /** Backer survey payload if this is a survey notification, or null. */
     fun survey() = this.survey
+
+    /** Pledge redemption notification payload for reward fulfillment, or null. */
     fun pledgeRedemption() = this.pledgeRedemption
 
     @Parcelize

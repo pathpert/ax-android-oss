@@ -20,6 +20,10 @@ import io.reactivex.subjects.PublishSubject
 import java.math.RoundingMode
 import kotlin.math.min
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 class BackingAddOnViewHolderViewModel {
     interface Inputs {
         /** Configure with the current [ProjectData] and [Reward].
@@ -38,6 +42,7 @@ class BackingAddOnViewHolderViewModel {
         fun clearDisposables()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits a pair with the add on title and the quantity in order to build the stylized title  */
         fun titleForAddOn(): Observable<String>
@@ -106,6 +111,7 @@ class BackingAddOnViewHolderViewModel {
      *  - No interaction with the user just displaying information
      *  - Loading in [BackingAddOnViewHolder] -> [BackingAddOnsAdapter] -> [BackingAddOnsFragment]
      */
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class BackingAddOnViewHolderViewModel(
         private val environment: Environment,
         private val intent: Intent? = null

@@ -72,129 +72,6 @@ import com.kickstarter.ui.toolbars.compose.TopToolBar
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
-@Composable
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-private fun PledgedProjectsOverviewScreenPreview() {
-    KSTheme {
-        Scaffold(
-            containerColor = colors.backgroundSurfacePrimary
-        ) { padding ->
-            val ppoCardList1 = (0..10).map {
-                PPOCardFactory.fixPaymentCard()
-            }
-            val ppoCardPagingList = flowOf(PagingData.from(ppoCardList1)).collectAsLazyPagingItems()
-            PledgedProjectsOverviewScreen(
-                modifier = Modifier.padding(padding),
-                lazyColumnListState = rememberLazyListState(),
-                ppoCards = ppoCardPagingList,
-                totalAlerts = 10,
-                onBackPressed = {},
-                onPrimaryActionButtonClicked = {},
-                onSecondaryActionButtonClicked = {},
-                onAddressConfirmed = { _, _ -> },
-                onRewardReceivedChanged = { _, _ -> },
-                onProjectPledgeSummaryClick = { _ -> },
-                onSendMessageClick = { _, _, _, _, _ -> },
-                onSeeAllBackedProjectsClick = {},
-                errorSnackBarHostState = SnackbarHostState(),
-            )
-        }
-    }
-}
-
-@Composable
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-private fun PledgedProjectsOverviewScreenErrorPreview() {
-    KSTheme {
-        Scaffold(
-            containerColor = colors.backgroundSurfacePrimary
-        ) { padding ->
-            val ppoCardList1 = (0..10).map {
-                PPOCardFactory.confirmAddressCard()
-            }
-            val ppoCardPagingList = flowOf(PagingData.from(ppoCardList1)).collectAsLazyPagingItems()
-            PledgedProjectsOverviewScreen(
-                modifier = Modifier.padding(padding),
-                lazyColumnListState = rememberLazyListState(),
-                ppoCards = ppoCardPagingList,
-                totalAlerts = 10,
-                onBackPressed = {},
-                onPrimaryActionButtonClicked = {},
-                onSecondaryActionButtonClicked = {},
-                onAddressConfirmed = { _, _ -> },
-                onRewardReceivedChanged = { _, _ -> },
-                onProjectPledgeSummaryClick = { _ -> },
-                onSendMessageClick = { _, _, _, _, _ -> },
-                onSeeAllBackedProjectsClick = {},
-                isErrored = true,
-                errorSnackBarHostState = SnackbarHostState(),
-            )
-        }
-    }
-}
-
-@Composable
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-private fun PledgedProjectsOverviewScreenEmptyPreview() {
-    KSTheme {
-        Scaffold(
-            containerColor = colors.backgroundSurfacePrimary
-        ) { padding ->
-            val ppoCardPagingList = flowOf(PagingData.from(listOf<PPOCard>())).collectAsLazyPagingItems()
-            PledgedProjectsOverviewScreen(
-                modifier = Modifier.padding(padding),
-                lazyColumnListState = rememberLazyListState(),
-                ppoCards = ppoCardPagingList,
-                totalAlerts = 0,
-                onBackPressed = {},
-                onPrimaryActionButtonClicked = {},
-                onSecondaryActionButtonClicked = {},
-                onAddressConfirmed = { _, _ -> },
-                onRewardReceivedChanged = { _, _ -> },
-                onProjectPledgeSummaryClick = { _ -> },
-                onSendMessageClick = { _, _, _, _, _ -> },
-                errorSnackBarHostState = SnackbarHostState(),
-                onSeeAllBackedProjectsClick = {}
-            )
-        }
-    }
-}
-
-@Composable
-@Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-private fun PledgedProjectsOverviewScreenV2Preview() {
-    KSTheme {
-        Scaffold(
-            containerColor = colors.backgroundSurfacePrimary
-        ) { padding ->
-            val ppoCardList1 = (0..10).map {
-                PPOCardFactory.fixPaymentCard()
-            }
-            val ppoCardPagingList = flowOf(PagingData.from(ppoCardList1)).collectAsLazyPagingItems()
-            PledgedProjectsOverviewScreen(
-                modifier = Modifier.padding(padding),
-                lazyColumnListState = rememberLazyListState(),
-                ppoCards = ppoCardPagingList,
-                totalAlerts = 10,
-                onBackPressed = {},
-                onPrimaryActionButtonClicked = {},
-                onSecondaryActionButtonClicked = {},
-                onAddressConfirmed = { _, _ -> },
-                onRewardReceivedChanged = { _, _ -> },
-                onProjectPledgeSummaryClick = { _ -> },
-                onSendMessageClick = { _, _, _, _, _ -> },
-                onSeeAllBackedProjectsClick = {},
-                errorSnackBarHostState = SnackbarHostState(),
-                v2Enabled = true,
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PledgedProjectsOverviewScreen(
@@ -250,38 +127,15 @@ fun PledgedProjectsOverviewScreen(
             )
         },
         topBar = {
-            TopToolBar(
-                title = if (v2Enabled) stringResource(id = R.string.Backings) else stringResource(id = R.string.Project_alerts),
-                titleColor = colors.textPrimary,
-                leftOnClickAction = onBackPressed,
-                leftIconColor = colors.icon,
-                leftIconModifier = Modifier.testTag(PledgedProjectsOverviewScreenTestTag.BACK_BUTTON.name),
-                backgroundColor = colors.backgroundSurfacePrimary,
-                showBetaPill = true,
-                right = {
-                    if (v2Enabled) {
-                        IconButton(
-                            modifier = Modifier.testTag(PledgedProjectsOverviewScreenTestTag.INFO_BUTTON.name),
-                            onClick = {
-                                isSheetOpen = true
-                                coroutineScope.launch {
-                                    sheetState.show()
-                                }
-                            },
-                            enabled = true
-                        ) {
-                            Box {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_info_new),
-                                    contentDescription = stringResource(
-                                        id = R.string.general_navigation_accessibility_button_help_menu_label
-                                    ),
-                                    tint = colors.kds_black
-                                )
-                            }
-                        }
+            PPOTopBar(
+                v2Enabled = v2Enabled,
+                onBackPressed = onBackPressed,
+                onInfoClick = {
+                    isSheetOpen = true
+                    coroutineScope.launch {
+                        sheetState.show()
                     }
-                },
+                }
             )
         },
         containerColor = colors.backgroundSurfacePrimary
@@ -416,130 +270,28 @@ fun PledgedProjectsOverviewScreen(
             }
         }
 
-        when {
-            openConfirmAddressAlertDialog.value -> {
-                KSAlertDialog(
-                    setShowDialog = { openConfirmAddressAlertDialog.value = it },
-                    headlineText = stringResource(id = R.string.Confirm_your_address),
-                    bodyText = confirmedAddress,
-                    leftButtonText = stringResource(id = R.string.Cancel),
-                    leftButtonAction = { openConfirmAddressAlertDialog.value = false },
-                    rightButtonText = stringResource(id = R.string.Confirm),
-                    rightButtonAction = {
-                        openConfirmAddressAlertDialog.value = false
-                        analyticEvents?.trackPPOConfirmAddressSubmitCTAClicked(ppoCards = ppoCards.itemSnapshotList.items, projectID = projectID, totalCount = totalAlerts)
-                        onAddressConfirmed(addressID, backingID)
-                    }
-                )
+        PPOConfirmAddressDialog(
+            isOpen = openConfirmAddressAlertDialog.value,
+            confirmedAddress = confirmedAddress,
+            onDismiss = { openConfirmAddressAlertDialog.value = false },
+            onConfirm = {
+                openConfirmAddressAlertDialog.value = false
+                analyticEvents?.trackPPOConfirmAddressSubmitCTAClicked(ppoCards = ppoCards.itemSnapshotList.items, projectID = projectID, totalCount = totalAlerts)
+                onAddressConfirmed(addressID, backingID)
             }
-        }
+        )
     }
 
-    if (isSheetOpen) {
-        ModalBottomSheet(
-            modifier = Modifier.testTag(PledgedProjectsOverviewScreenTestTag.BOTTOM_SHEET.name),
-            onDismissRequest = {
+    PPOBetaMessagingSheet(
+        isOpen = isSheetOpen,
+        sheetState = sheetState,
+        onDismiss = {
+            coroutineScope.launch {
+                sheetState.hide()
                 isSheetOpen = false
-            },
-            sheetState = sheetState,
-            shape = RoundedCornerShape(
-                topStart = dimensions.paddingLarge,
-                topEnd = dimensions.paddingLarge
-            ),
-            containerColor = colors.backgroundSurfacePrimary
-        ) {
-            BetaMessagingBottomSheet(
-                onSeeAllBackedProjectsClick = onSeeAllBackedProjectsClick,
-                dismiss = {
-                    coroutineScope.launch {
-                        sheetState.hide()
-                        isSheetOpen = false
-                    }
-                }
-            )
-        }
-    }
+            }
+        },
+        onSeeAllBackedProjectsClick = onSeeAllBackedProjectsClick
+    )
 }
 
-@Composable
-fun PPOScreenEmptyState(
-    onSeeAllBackedProjectsClick: () -> Unit,
-    v2Enabled: Boolean = false
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(
-                start = dimensions.paddingMedium,
-                end = dimensions.paddingMedium,
-                top = dimensions.paddingMedium
-            )
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            color = colors.textPrimary,
-            text = if (v2Enabled) stringResource(id = R.string.No_funded_backings) else stringResource(id = R.string.Youre_all_caught_up),
-            style = typographyV2.headingXL,
-        )
-
-        Spacer(modifier = Modifier.height(dimensions.paddingMediumLarge))
-
-        Text(
-            color = colors.textPrimary,
-            text = if (v2Enabled) stringResource(id = R.string.When_projects_youve_backed_have_successfully_funded_youll_see_them_here) else stringResource(id = R.string.When_projects_youve_backed_need_your_attention_youll_see_them_here),
-            style = typographyV2.body,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(dimensions.paddingMediumLarge))
-
-        KSPrimaryGreenButton(
-            modifier = Modifier,
-            onClickAction = { onSeeAllBackedProjectsClick.invoke() },
-            text = stringResource(id = R.string.See_all_backed__projects),
-            isEnabled = true
-        )
-    }
-}
-
-@Composable
-fun PPOScreenErrorState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(
-                start = dimensions.paddingMedium,
-                end = dimensions.paddingMedium,
-                top = dimensions.paddingMedium
-            )
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-
-        Image(
-            painter = painterResource(id = R.drawable.ic_alert),
-            modifier = Modifier.size(dimensions.iconSizeLarge),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(colors.icon)
-        )
-        Spacer(modifier = Modifier.height(dimensions.paddingMediumLarge))
-
-        Text(
-            color = colors.textPrimary,
-            text = (stringResource(id = R.string.Something_went_wrong_pull_to_refresh_no_period)),
-            style = typographyV2.body,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-enum class PledgedProjectsOverviewScreenTestTag {
-    BACK_BUTTON,
-    INFO_BUTTON,
-    BOTTOM_SHEET,
-    ALERT_COUNT
-}

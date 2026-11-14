@@ -19,6 +19,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface MessageCreatorViewModel {
     interface Inputs {
         /** Call when the message edit text changes.  */
@@ -28,6 +32,7 @@ interface MessageCreatorViewModel {
         fun sendButtonClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the creator's name to display in the message edit text hint.  */
         fun creatorName(): Observable<String>
@@ -48,6 +53,7 @@ interface MessageCreatorViewModel {
         fun showSentSuccess(): Observable<Int>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class MessageCreatorViewModel(private val environment: Environment, private val intent: Intent? = null) : ViewModel(), Inputs, Outputs {
 
         private val messageBodyChanged = PublishSubject.create<String>()
@@ -175,6 +181,7 @@ interface MessageCreatorViewModel {
         data class SendMessage(val project: Project, val body: String)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return MessageCreatorViewModel(environment, intent) as T

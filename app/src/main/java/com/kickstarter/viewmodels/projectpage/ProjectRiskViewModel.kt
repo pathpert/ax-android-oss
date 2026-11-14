@@ -11,6 +11,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface ProjectRiskViewModel {
 
     interface Inputs {
@@ -19,6 +23,7 @@ interface ProjectRiskViewModel {
         fun onLearnAboutAccountabilityOnKickstarterClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
 
         /** Emits the current list [EnvironmentalCommitment]. */
@@ -27,6 +32,7 @@ interface ProjectRiskViewModel {
         fun openLearnAboutAccountabilityOnKickstarter(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProjectRiskViewModel(environment: Environment) : ViewModel(), Inputs, Outputs {
         val inputs: Inputs = this
         val outputs: Outputs = this
@@ -88,6 +94,7 @@ interface ProjectRiskViewModel {
         const val ACCOUNTABILITY = "help/hc/sections/115001107133"
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ProjectRiskViewModel(environment) as T

@@ -18,6 +18,10 @@ import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import okhttp3.Request
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by PledgeRedemptionViewModel under com.kickstarter.features.pledgeredemption.viewmodels.",
+    replaceWith = ReplaceWith("PledgeRedemptionViewModel", "com.kickstarter.features.pledgeredemption.viewmodels.PledgeRedemptionViewModel")
+)
 interface SurveyResponseViewModel {
     interface Inputs {
         /** Call when the dialog's OK button has been clicked.  */
@@ -30,6 +34,7 @@ interface SurveyResponseViewModel {
         fun projectSurveyUriRequest(request: Request)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits when we should navigate back.  */
         fun goBack(): Observable<Unit>
@@ -41,6 +46,7 @@ interface SurveyResponseViewModel {
         fun webViewUrl(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(val environment: Environment, val intent: Intent) :
         androidx.lifecycle.ViewModel(), Inputs, Outputs {
         /**
@@ -155,6 +161,7 @@ interface SurveyResponseViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment, private val intent: Intent) : ViewModelProvider.Factory {
         override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
             return ViewModel(environment, intent) as T

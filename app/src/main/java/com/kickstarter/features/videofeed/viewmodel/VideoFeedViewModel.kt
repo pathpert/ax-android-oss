@@ -21,6 +21,14 @@ import kotlinx.coroutines.rx2.asFlow
 import timber.log.Timber
 import kotlin.coroutines.EmptyCoroutineContext
 
+/**
+ * UI state representation for the Video Feed screen.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ * - Do not pass mutable lists into [items].
+ * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
+ */
 data class VideoFeedUIState(
     val items: List<VideoFeedItem> = emptyList(),
     val isLoading: Boolean = false,

@@ -8,6 +8,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.kickstarter.models.AiDisclosure
 import com.kickstarter.ui.data.ProjectData
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 class ProjectAIViewModel private constructor() : ViewModel() {
     var state by mutableStateOf(UiState())
         private set
@@ -40,6 +44,7 @@ class ProjectAIViewModel private constructor() : ViewModel() {
         const val AIPOLICY = "https://help.kickstarter.com/hc/en-us/articles/16848396410267"
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory() : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return ProjectAIViewModel() as T

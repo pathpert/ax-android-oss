@@ -3,6 +3,12 @@ package com.kickstarter.models
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Immutable domain model representing video pitch stream and thumbnail URLs.
+ *
+ * ### Negative Constraints:
+ * - Prefer [hls] adaptive streaming URL when available.
+ */
 @Parcelize
 class Video private constructor(
     private val base: String?,
@@ -11,10 +17,19 @@ class Video private constructor(
     private val hls: String?,
     private val webm: String?
 ) : Parcelable {
+    /** Base progressive stream URL. */
     fun base() = this.base
+
+    /** Static preview frame image URL. */
     fun frame() = this.frame
+
+    /** High-definition MP4 progressive stream URL. */
     fun high() = this.high
+
+    /** HLS (HTTP Live Streaming) adaptive bitrate playlist URL. */
     fun hls() = this.hls
+
+    /** WebM format stream URL. */
     fun webm() = this.webm
 
     @Parcelize

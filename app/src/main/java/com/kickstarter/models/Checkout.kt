@@ -3,12 +3,21 @@ package com.kickstarter.models
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Domain entity representing an ongoing checkout session payload.
+ *
+ * ### Negative Constraints:
+ * - Do not pass unvalidated [id] directly across feature boundaries.
+ */
 @Parcelize
 class Checkout private constructor(
     private val id: Long?,
     private val backing: Backing,
 ) : Parcelable {
+    /** Database identifier (PID) of the checkout session, or null if unpersisted. */
     fun id() = this.id
+
+    /** Associated backing entity containing payment action state. */
     fun backing() = this.backing
 
     @Parcelize

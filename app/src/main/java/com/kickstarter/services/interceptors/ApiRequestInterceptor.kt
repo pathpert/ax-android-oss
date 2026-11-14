@@ -1,6 +1,8 @@
 package com.kickstarter.services.interceptors
 
 import android.net.Uri
+import com.kickstarter.ax.safety.IdempotencyGuard
+import com.kickstarter.ax.types.RateLimitBackoff
 import com.kickstarter.libs.Build
 import com.kickstarter.libs.CurrentUserTypeV2
 import com.kickstarter.libs.FirebaseHelper
@@ -25,6 +27,13 @@ class ApiRequestInterceptor(
 
     override fun intercept(chain: Chain): Response {
         val response: Response = chain.proceed(request(chain.request()))
+        val pairs = response.headers.names().map { name -> name to (response.header(name) ?: "") }
+        val backoff = RateLimitBackoff.fromHeaders(pairs)
+        if (backoff.retryAfterSeconds != null && backoff.retryAfterSeconds > 0L) {
+            IdempotencyGuard.applyGlobalBackoff(backoff)
+        } else if (response.code == 429 || response.code == 503) {
+            IdempotencyGuard.applyGlobalBackoff(RateLimitBackoff(retryAfterSeconds = 5L))
+        }
         return response
     }
 

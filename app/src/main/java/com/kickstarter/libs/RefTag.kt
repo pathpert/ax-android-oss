@@ -37,56 +37,68 @@ class RefTag private constructor(
             return builder().tag(tag).build()
         }
 
+        /** RefTag for project navigation from activity feed. */
         fun activity(): RefTag {
             return builder().tag("activity").build()
         }
 
+        /** RefTag for project navigation from discovery activity sample. */
         fun activitySample(): RefTag {
             return builder().tag("discovery_activity_sample").build()
         }
 
+        /** RefTag for project navigation from category discovery. */
         @JvmStatic
         fun category(): RefTag {
             return builder().tag("category").build()
         }
 
+        /** RefTag for project navigation from sorted category discovery. */
         @JvmStatic
         fun category(sort: DiscoveryParams.Sort): RefTag {
             return builder().tag("category" + sort.refTagSuffix()).build()
         }
 
+        /** RefTag for project navigation from featured category hero card. */
         @JvmStatic
         fun categoryFeatured(): RefTag {
             return builder().tag("category_featured").build()
         }
 
+        /** RefTag for project navigation from city/location discovery. */
         fun city(): RefTag {
             return builder().tag("city").build()
         }
 
+        /** RefTag for project navigation from themed project collection. */
         @JvmStatic
         fun collection(tagId: Int): RefTag {
             return builder().tag("android_project_collection_tag_$tagId").build()
         }
 
+        /** RefTag for project navigation from creator dashboard. */
         @JvmStatic
         fun dashboard(): RefTag {
             return builder().tag("dashboard").build()
         }
 
+        /** RefTag for project navigation via incoming Android deep link. */
         fun deepLink(): RefTag {
             return builder().tag("android_deep_link").build()
         }
 
+        /** RefTag for project navigation from default discovery feed. */
         @JvmStatic
         fun discovery(): RefTag {
             return builder().tag("discovery").build()
         }
 
+        /** RefTag for project navigation from pledge info. */
         fun pledgeInfo(): RefTag {
             return builder().tag("pledge_info").build()
         }
 
+        /** RefTag for project navigation from in-app social share action. */
         fun projectShare(): RefTag {
             return builder().tag("android_project_share").build()
         }

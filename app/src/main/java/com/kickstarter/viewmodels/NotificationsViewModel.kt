@@ -16,6 +16,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
+    replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
+)
 interface NotificationsViewModel {
     interface Inputs {
 
@@ -74,6 +78,7 @@ interface NotificationsViewModel {
         fun notifyOfUpdates(checked: Boolean)
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
 
         /** Emission determines whether we should be hiding backings frequency emails settings.  */
@@ -86,6 +91,7 @@ interface NotificationsViewModel {
         fun user(): Observable<User>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Errors {
         fun unableToSavePreferenceError(): Observable<String>
     }
@@ -304,6 +310,7 @@ interface NotificationsViewModel {
         }
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class Factory(private val environment: Environment) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return NotificationsViewModel(environment) as T

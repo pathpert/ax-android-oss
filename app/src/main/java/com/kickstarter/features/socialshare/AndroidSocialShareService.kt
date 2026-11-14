@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import timber.log.Timber
 import android.graphics.Bitmap
 import android.net.Uri
 import com.kickstarter.features.socialshare.data.SocialShareData
@@ -75,6 +76,7 @@ class AndroidSocialShareService(
             pm.getPackageInfo(packageName, 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {
+            Timber.d("Package %s is not installed: %s", packageName, e.message)
             false
         }
     }

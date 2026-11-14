@@ -2,6 +2,12 @@ package com.kickstarter.features.projectstory.data
 
 import com.kickstarter.models.Project
 
+/**
+ * Project container with associated parsed rich text story.
+ *
+ * Negative constraints:
+ * - Do not pass unparsed or raw HTML strings; story components must be structured [RichTextItem]s.
+ */
 data class StoriedProject(
     val project: Project,
     val story: RichTextComponent?,
@@ -9,10 +15,22 @@ data class StoriedProject(
     val prelaunchStory: RichTextComponent? = null,
 )
 
+/**
+ * Parsed container of rich text elements.
+ *
+ * Negative constraints:
+ * - Do not mutate [items] list after instantiation.
+ */
 data class RichTextComponent(
     val items: List<RichTextItem>
 )
 
+/**
+ * Sealed interface representing rich text components for story rendering.
+ *
+ * Negative constraints:
+ * - Do not pass unescaped or raw HTML into text or URL fields.
+ */
 @Suppress("PropertyName")
 sealed interface RichTextItem {
     sealed interface Text : RichTextItem {

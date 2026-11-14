@@ -25,6 +25,10 @@ import io.reactivex.subjects.PublishSubject
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by CommentsFeatureViewModel under com.kickstarter.features.comments.viewmodel.",
+    replaceWith = ReplaceWith("CommentsFeatureViewModel", "com.kickstarter.features.comments.viewmodel.CommentsFeatureViewModel")
+)
 interface CommentsViewHolderViewModel {
     interface Inputs {
         /** Call when the user clicks learn more about comment guidelines. */
@@ -49,6 +53,7 @@ interface CommentsViewHolderViewModel {
         fun onShowCommentClicked()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the commentCardStatus */
         fun commentCardStatus(): Observable<CommentCardStatus>
@@ -104,6 +109,7 @@ interface CommentsViewHolderViewModel {
         fun authorBadge(): Observable<CommentCardBadge>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(environment: Environment) : Inputs, Outputs {
         private val commentInput = PublishSubject.create<CommentCardData>()
         private val onCommentGuideLinesClicked = PublishSubject.create<Unit>()

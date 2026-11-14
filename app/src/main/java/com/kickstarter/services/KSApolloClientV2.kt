@@ -89,12 +89,12 @@ class KSApolloClientV2(val service: ApolloClient, val gson: Gson) : ApolloClient
     // Domain facades
     val projectClient = ApolloProjectClient(service, disposables)
     val rewardClient = ApolloRewardClient(service, disposables)
-    val paymentClient = ApolloPaymentClient(service, disposables, createPaymentIntentGuard)
-    val checkoutClient = ApolloCheckoutClient(service, disposables, completeCheckoutGuard)
-    val backingMutationClient = ApolloBackingMutationClient(service, disposables, createBackingGuard, updateBackingGuard, cancelBackingGuard)
+    val paymentClient = ApolloPaymentClient(service, disposables, createPaymentIntentGuard, idempotencyGuard)
+    val checkoutClient = ApolloCheckoutClient(service, disposables, completeCheckoutGuard, idempotencyGuard)
+    val backingMutationClient = ApolloBackingMutationClient(service, disposables, createBackingGuard, updateBackingGuard, cancelBackingGuard, idempotencyGuard)
     val backingQueryClient = ApolloBackingQueryClient(service, disposables)
     val userClient = ApolloUserClient(service, disposables)
-    val commentClient = ApolloCommentClient(service, disposables)
+    val commentClient = ApolloCommentClient(service, disposables, idempotencyGuard)
     val discoveryClient = ApolloDiscoveryClient(service, disposables)
     val creatorSocialClient = ApolloCreatorSocialClient(service, gson, disposables)
 

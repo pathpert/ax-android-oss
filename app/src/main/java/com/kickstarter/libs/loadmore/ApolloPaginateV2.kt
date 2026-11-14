@@ -23,8 +23,8 @@ class ApolloPaginateV2<Data, Envelope : ApolloEnvelope, Params>(
 ) {
     private val _morePath = PublishSubject.create<String>()
     val isFetching = BehaviorSubject.create<Boolean>()
-    private lateinit var loadingPage: Observable<Int>
-    private lateinit var paginatedData: Observable<List<Data>>
+    private var loadingPage: Observable<Int>? = null
+    private var paginatedData: Observable<List<Data>>? = null
 
     val dummyObserver = BehaviorSubject.create<Boolean>()
     init {
@@ -41,10 +41,10 @@ class ApolloPaginateV2<Data, Envelope : ApolloEnvelope, Params>(
     }
 
     class Builder<Data, Envelope : ApolloEnvelope, Params> {
-        private lateinit var nextPage: Observable<Unit>
+        private var nextPage: Observable<Unit>? = null
         private var startOverWith: Observable<Params>? = null
-        private lateinit var envelopeToListOfData: Function<Envelope, List<Data>>
-        private lateinit var loadWithParams: Function<Pair<Params, String>, Observable<Envelope>>
+        private var envelopeToListOfData: Function<Envelope, List<Data>>? = null
+        private var loadWithParams: Function<Pair<Params, String>, Observable<Envelope>>? = null
         private var pageTransformation: Function<List<Data>, List<Data>> = Function<List<Data>, List<Data>> {
                 x: List<Data> ->
             x
@@ -140,34 +140,28 @@ class ApolloPaginateV2<Data, Envelope : ApolloEnvelope, Params>(
             return this
         }
 
-        @Throws(RuntimeException::class)
+        @Throws(IllegalStateException::class)
         fun build(): ApolloPaginateV2<Data, Envelope, Params> {
-            // Early error when required field is not set
-            if (nextPage == null) {
-                throw RuntimeException("`nextPage` is required")
+            val nextPageVal = checkNotNull(nextPage) {
+                "ApolloPaginateV2: `nextPage` is required before building paginator."
             }
-            if (envelopeToListOfData == null) {
-                throw RuntimeException("`envelopeToListOfData` is required")
+            val envelopeToList = checkNotNull(envelopeToListOfData) {
+                "ApolloPaginateV2: `envelopeToListOfData` is required before building paginator."
             }
-            if (loadWithParams == null) {
-                throw RuntimeException("`loadWithParams` is required")
-            }
-
-            // Default params for optional fields
-            if (startOverWith == null) {
-                startOverWith = Observable.just(null)
+            val loadParams = checkNotNull(loadWithParams) {
+                "ApolloPaginateV2: `loadWithParams` is required before building paginator."
             }
 
             return ApolloPaginateV2(
-                requireNotNull(nextPage),
-                requireNotNull(startOverWith),
-                requireNotNull(envelopeToListOfData),
-                requireNotNull(loadWithParams),
-                pageTransformation,
-                clearWhenStartingOver,
-                concater,
-                distinctUntilChanged,
-                isReversed
+                nextPage = nextPageVal,
+                startOverWith = startOverWith,
+                envelopeToListOfData = envelopeToList,
+                loadWithParams = loadParams,
+                pageTransformation = pageTransformation,
+                clearWhenStartingOver = clearWhenStartingOver,
+                concater = concater,
+                distinctUntilChanged = distinctUntilChanged,
+                isReversed = isReversed
             )
         }
     }
@@ -254,7 +248,7 @@ class ApolloPaginateV2<Data, Envelope : ApolloEnvelope, Params>(
         return paginatedData
     }
 
-    fun loadingPage(): Observable<Int> {
+    fun loadingPage(): Observable<Int>? {
         return loadingPage
     }
 }

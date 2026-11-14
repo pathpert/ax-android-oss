@@ -10,6 +10,10 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
+@Deprecated(
+    message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
+    replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
+)
 interface ExpandableHeaderViewHolderViewModel {
     interface Inputs {
         /**
@@ -21,6 +25,7 @@ interface ExpandableHeaderViewHolderViewModel {
         fun onCleared()
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     interface Outputs {
         /** Emits the String for amount already formatted with the currency of the reward */
         fun amountForSummary(): Observable<String>
@@ -29,6 +34,7 @@ interface ExpandableHeaderViewHolderViewModel {
         fun titleForSummary(): Observable<String>
     }
 
+    @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ViewModel(val environment: Environment) : Inputs, Outputs {
 
         private val projectAndReward = PublishSubject.create<Pair<Project, Reward>>()

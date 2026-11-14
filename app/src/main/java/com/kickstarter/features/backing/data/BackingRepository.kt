@@ -1,6 +1,7 @@
 package com.kickstarter.features.backing.data
 
 import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.models.Backing
 import com.kickstarter.models.Project
 import com.kickstarter.services.ApiClientTypeV2
@@ -24,7 +25,8 @@ interface BackingRepository {
 
 class BackingRepositoryImpl(
     private val apolloClient: ApolloClientTypeV2,
-    private val apiClient: ApiClientTypeV2
+    private val apiClient: ApiClientTypeV2,
+    private val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
 ) : BackingRepository {
 
     override fun getBackingInfo(projectData: ProjectData): Observable<BackingState> {
