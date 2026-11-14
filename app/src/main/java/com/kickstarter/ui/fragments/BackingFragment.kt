@@ -50,6 +50,8 @@ import com.kickstarter.viewmodels.BackingFragmentViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.backing")
 class BackingFragment : Fragment() {
 
     private var rewardsAndAddOnsAdapter = RewardAndAddOnsAdapter()

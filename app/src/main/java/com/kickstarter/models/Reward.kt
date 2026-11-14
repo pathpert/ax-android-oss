@@ -15,6 +15,8 @@ import org.joda.time.DateTime
  */
 @Parcelize
 @androidx.annotation.Keep
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.*")
 class Reward private constructor(
     private val backersCount: Int?,
     private val convertedMinimum: Double,

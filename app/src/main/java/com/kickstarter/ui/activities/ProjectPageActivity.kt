@@ -90,12 +90,20 @@ import kotlinx.coroutines.launch
 
 const val REFRESH = "refresh"
 
+@Deprecated("Legacy monolithic delegate replaced by com.kickstarter.features.projectpage")
 interface PledgeDelegate {
     fun pledgePaymentSuccessfullyUpdated()
     fun pledgeSuccessfullyCreated(checkoutDataAndPledgeData: Pair<CheckoutData, PledgeData>)
     fun pledgeSuccessfullyUpdated()
 }
 
+@Deprecated(
+    message = "Legacy monolithic Activity being strangler-figged by com.kickstarter.features.projectpage",
+    replaceWith = ReplaceWith(
+        "ProjectPageActivity",
+        "com.kickstarter.features.projectpage"
+    )
+)
 class ProjectPageActivity :
     AppCompatActivity(),
     CancelPledgeFragment.CancelPledgeDelegate,

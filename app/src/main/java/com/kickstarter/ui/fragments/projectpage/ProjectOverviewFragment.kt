@@ -68,6 +68,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTime
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.projectpage")
 class ProjectOverviewFragment : Fragment(), Configure {
 
     private lateinit var binding: FragmentProjectOverviewBinding

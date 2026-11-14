@@ -38,6 +38,7 @@ import org.junit.Ignore
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class RewardsSelectionViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var viewModel: RewardsSelectionViewModel

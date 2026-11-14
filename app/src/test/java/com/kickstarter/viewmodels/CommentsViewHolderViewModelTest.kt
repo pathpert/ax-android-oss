@@ -25,6 +25,7 @@ import org.junit.After
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class CommentsViewHolderViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var vm: CommentsViewHolderViewModel.ViewModel

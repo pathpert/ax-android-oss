@@ -25,6 +25,7 @@ import org.junit.After
 import org.junit.Test
 import java.util.Arrays
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class ProjectCardHolderViewModelTest : KSRobolectricTestCase() {
     private lateinit var vm: ProjectCardHolderViewModel.ViewModel
     private val backersCountTextViewText = TestSubscriber<String>()

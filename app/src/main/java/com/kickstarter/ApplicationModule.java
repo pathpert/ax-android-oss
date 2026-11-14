@@ -102,6 +102,10 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * @deprecated Legacy monolithic Dagger module. Feature dependencies should be provided by feature-scoped modules.
+ */
+@Deprecated
 @Module
 public class ApplicationModule {
   private final Application application;

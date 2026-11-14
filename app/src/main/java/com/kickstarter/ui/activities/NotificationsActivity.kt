@@ -24,6 +24,8 @@ import com.kickstarter.viewmodels.NotificationsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.notifications")
 class NotificationsActivity : ComponentActivity() {
 
     private val green = R.color.kds_create_700

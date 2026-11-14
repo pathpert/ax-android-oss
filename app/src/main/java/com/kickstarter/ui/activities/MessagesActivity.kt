@@ -42,6 +42,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import java.math.RoundingMode
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.messages")
 class MessagesActivity : AppCompatActivity() {
     private lateinit var ksCurrency: KSCurrency
     private lateinit var ksString: KSString

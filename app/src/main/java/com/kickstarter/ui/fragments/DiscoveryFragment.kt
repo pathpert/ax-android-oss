@@ -56,6 +56,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.launch
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.discovery")
 class DiscoveryFragment : Fragment() {
     private var heartsAnimation: AnimatorSet? = null
     private var recyclerViewPaginator: RecyclerViewPaginatorV2? = null

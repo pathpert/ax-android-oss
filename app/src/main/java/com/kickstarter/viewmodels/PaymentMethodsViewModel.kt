@@ -241,78 +241,44 @@ class PaymentMethodsViewModel(environment: Environment) : ViewModel(), PaymentMe
 
     private fun savePaymentMethod(it: SavePaymentMethodData) =
         this.apolloClient.savePaymentMethod(it)
-            .doOnSubscribe {
-                this.progressBarIsVisible.onNext(true)
-            }
-            .doAfterTerminate {
-                this.progressBarIsVisible.onNext(false)
-            }
+            .doOnSubscribe { this.progressBarIsVisible.onNext(true) }
+            .doAfterTerminate { this.progressBarIsVisible.onNext(false) }
             .materialize()
             .share()
 
-    private fun getListOfStoredCards(): Observable<List<StoredCard>> {
-        return this.apolloClient.getStoredCards()
+    private fun getListOfStoredCards(): Observable<List<StoredCard>> =
+        this.apolloClient.getStoredCards()
             .doOnSubscribe { this.progressBarIsVisible.onNext(true) }
             .doAfterTerminate { this.progressBarIsVisible.onNext(false) }
             .compose(neverErrorV2())
-    }
 
-    private fun deletePaymentSource(paymentSourceId: String): Observable<DeletePaymentSourceMutation.Data> {
-        return this.apolloClient.deletePaymentSource(paymentSourceId)
+    private fun deletePaymentSource(paymentSourceId: String): Observable<DeletePaymentSourceMutation.Data> =
+        this.apolloClient.deletePaymentSource(paymentSourceId)
             .doOnSubscribe { this.progressBarIsVisible.onNext(true) }
             .doAfterTerminate { this.progressBarIsVisible.onNext(false) }
-    }
 
-    private fun userEmail(): Observable<String> {
-        return this.apolloClient.userPrivacy()
-            .compose(neverErrorV2())
-            .map { it.email }
-    }
+    private fun userEmail(): Observable<String> =
+        this.apolloClient.userPrivacy().compose(neverErrorV2()).map { it.email }
 
     // - Inputs
     override fun newCardButtonClicked() = this.newCardButtonPressed.onNext(Unit)
-
     override fun savePaymentOption() = this.savePaymentOption.onNext(Unit)
-
-    override fun deleteCardButtonClicked(paymentMethodsViewHolder: PaymentMethodsViewHolder, paymentSourceId: String) {
-        deleteCardClicked(paymentSourceId)
-    }
-
-    @Override
-    override fun confirmDeleteCardClicked() =
-        this.confirmDeleteCardClicked.onNext(Unit)
-
+    override fun deleteCardButtonClicked(paymentMethodsViewHolder: PaymentMethodsViewHolder, paymentSourceId: String) = deleteCardClicked(paymentSourceId)
+    override fun confirmDeleteCardClicked() = this.confirmDeleteCardClicked.onNext(Unit)
     override fun deleteCardClicked(paymentSourceId: String) = this.deleteCardClicked.onNext(paymentSourceId)
-
     override fun refreshCards() = this.refreshCards.onNext(Unit)
-
     override fun confirmedLoading(isLoading: Boolean) = this.loadingConfirmed.onNext(isLoading)
 
     // - Outputs
     override fun cards(): Observable<List<StoredCard>> = this.cards
-
     override fun dividerIsVisible(): Observable<Boolean> = this.dividerIsVisible
-
     override fun error(): Observable<String> = this.error
-
     override fun progressBarIsVisible(): Observable<Boolean> = this.progressBarIsVisible.distinctUntilChanged()
-
     override fun showDeleteCardDialog(): Observable<Unit> = this.showDeleteCardDialog
-
     override fun successDeleting(): Observable<String> = this.successDeleting
-
-    @Override
-    override fun presentPaymentSheet(): Observable<Pair<String, String>> =
-        this.presentPaymentSheet
-
-    @Override
-    override fun showError(): Observable<String> =
-        this.showError
-
-    @Override
-    override fun successSaving(): Observable<String> =
-        this.successSaving
-
+    override fun presentPaymentSheet(): Observable<Pair<String, String>> = this.presentPaymentSheet
+    override fun showError(): Observable<String> = this.showError
+    override fun successSaving(): Observable<String> = this.successSaving
     override fun isPaymentSheetGooglePayEnabled(): Boolean =
         statsigClient.configReady.value && statsigClient.checkGate(StatsigGateKey.ANDROID_PAYMENTSHEET_GOOGLE_PAY.key)
 

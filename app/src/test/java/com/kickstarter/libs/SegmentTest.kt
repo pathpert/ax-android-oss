@@ -86,6 +86,7 @@ import org.joda.time.DateTime
 import org.junit.Test
 import com.kickstarter.libs.utils.EventContextValues.LocationContextName.VIDEO_FEED as VIDEO_FEED_LOCATION
 
+@Deprecated("Legacy monolithic analytics test suite being migrated to feature analytics trackers")
 class SegmentTest : KSRobolectricTestCase() {
 
     private val propertiesTest = BehaviorSubject.create<Map<String, Any>>()

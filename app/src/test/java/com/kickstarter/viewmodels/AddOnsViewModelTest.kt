@@ -35,6 +35,7 @@ import org.joda.time.DateTime
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class AddOnsViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var viewModel: AddOnsViewModel

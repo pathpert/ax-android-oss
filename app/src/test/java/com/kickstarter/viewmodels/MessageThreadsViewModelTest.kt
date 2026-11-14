@@ -30,6 +30,7 @@ import io.reactivex.subscribers.TestSubscriber
 import org.junit.After
 import org.junit.Test
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class MessageThreadsViewModelTest : KSRobolectricTestCase() {
     private lateinit var vm: MessageThreadsViewModel
 

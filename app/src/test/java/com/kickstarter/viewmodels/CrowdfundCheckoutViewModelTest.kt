@@ -60,6 +60,7 @@ import org.junit.Test
 import org.mockito.Mockito
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class CrowdfundCheckoutViewModelTest : KSRobolectricTestCase() {
     private lateinit var viewModel: CrowdfundCheckoutViewModel
 

@@ -2,55 +2,30 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.kickstarter.R
 import com.kickstarter.libs.AnalyticEvents
 import com.kickstarter.libs.utils.Clock
@@ -60,39 +35,10 @@ import com.kickstarter.libs.utils.EventContextValues.CtaContextName.DENY
 import com.kickstarter.libs.utils.SystemClock
 import com.kickstarter.ui.compose.designsystem.KSButton
 import com.kickstarter.ui.compose.designsystem.KSButtonType
-import com.kickstarter.ui.compose.designsystem.KSIconButton
 import com.kickstarter.ui.compose.designsystem.KSPrimaryBlackButton
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
-import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.ui.fragments.ConsentManagementDialogFragment
-
-enum class OnboardingPage(val analyticsSectionName: String) {
-    WELCOME("welcome"),
-    SAVE_PROJECTS("save_projects"),
-    ACTIVITY_TRACKING("activity_tracking"),
-    ENABLE_NOTIFICATIONS("enable_notifications"),
-    SIGNUP_LOGIN("signup_login"),
-}
-
-data class OnboardingPageData(
-    val page: OnboardingPage,
-    val title: String,
-    val description: String,
-    val animationRes: Int,
-    val buttonText: String,
-    val secondaryButtonText: String? = null
-)
-
-object OnboardingScreenTestTags {
-    const val CLOSE_BUTTON = "onboarding_close_button"
-    const val PAGE_TITLE = "onboarding_page_title"
-    const val PAGE_DESCRIPTION = "onboarding_page_description"
-    const val PAGE_ANIMATION = "onboarding_page_animation" // For the LottieAnimation
-    const val PRIMARY_BUTTON = "onboarding_primary_button"
-    const val SECONDARY_BUTTON = "onboarding_secondary_button"
-    const val PROGRESS_BAR = "onboarding_progress_bar"
-}
 
 @Composable
 @Preview
@@ -152,8 +98,7 @@ fun OnboardingScreen(
             secondaryButtonText = stringResource(R.string.Explore_the_app),
         )
     )
-    // If user is logged in, skip the last page prompting login/signup
-    // If user does not need notification permissions, skip the notifications page
+
     val filteredPages: List<OnboardingPageData> = initialPages.filterNot { pageData ->
         (isUserLoggedIn && pageData.page == OnboardingPage.SIGNUP_LOGIN) ||
             (!deviceNeedsNotificationPermissions && pageData.page == OnboardingPage.ENABLE_NOTIFICATIONS)
@@ -161,14 +106,12 @@ fun OnboardingScreen(
 
     var currentPage by remember { mutableStateOf(0) }
     LaunchedEffect(currentPage) {
-        // Launch Page Viewed analytics any time the currentPage changes
         analyticEvents?.trackOnboardingPageViewed(filteredPages[currentPage].page.analyticsSectionName)
     }
 
     val context = LocalContext.current
     val activity = context as? ComponentActivity
 
-    // Launcher for notification permission request
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -180,7 +123,6 @@ fun OnboardingScreen(
         if (currentPage < filteredPages.lastIndex) currentPage++
     }
 
-    // Fragment Manager for consent management dialog
     val fragmentManager = remember(context) {
         (context as? FragmentActivity)?.supportFragmentManager
     }
@@ -189,7 +131,7 @@ fun OnboardingScreen(
         val value = result.getString("result") ?: ""
         analyticEvents?.trackOnboardingAllowDenyPromptCTAClicked(ACTIVITY_TRACKING_PROMPT.contextName, value)
 
-        if (isUserLoggedIn) { // Skip signup/login page
+        if (isUserLoggedIn) {
             onboardingCompleted()
         } else {
             if (currentPage < filteredPages.lastIndex) currentPage++
@@ -200,7 +142,7 @@ fun OnboardingScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.borderAccentGreenSubtle)
-            .navigationBarsPadding() // fix bottom nav bar overlap
+            .navigationBarsPadding()
     ) {
         Image(
             painter = painterResource(id = R.drawable.bg_squiggle),
@@ -213,13 +155,10 @@ fun OnboardingScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            // Progress bar
             OnboardingProgressBar(currentPage, filteredPages.size.toFloat(), filteredPages, onboardingCancelled)
 
-            // Animated content spans the page vertically
             OnboardingPageAnimation(modifier = Modifier.weight(1.0f), pageData = filteredPages[currentPage])
 
-            // Buttons footer
             Column(
                 modifier = Modifier
                     .height(dimensions.footerHeight)
@@ -230,7 +169,7 @@ fun OnboardingScreen(
                     )
             ) {
                 var lastClickTime by remember { mutableStateOf(0L) }
-                val debounceInterval = 500L // milliseconds
+                val debounceInterval = 500L
 
                 KSPrimaryBlackButton(
                     text = filteredPages[currentPage].buttonText,
@@ -275,7 +214,7 @@ fun OnboardingScreen(
                         text = secondaryText,
                         onClickAction = {
                             analyticEvents?.trackOnboardingNextCTAClicked(filteredPages[currentPage].page.analyticsSectionName)
-                            if (currentPage < filteredPages.lastIndex) { // More pages remaining
+                            if (currentPage < filteredPages.lastIndex) {
                                 currentPage++
                             } else {
                                 onboardingCompleted()
@@ -288,114 +227,6 @@ fun OnboardingScreen(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun OnboardingProgressBar(currentPage: Int, totalPages: Float, filteredPages: List<OnboardingPageData>, onboardingCancelled: (OnboardingPage) -> Unit) {
-    val animatedProgress by animateFloatAsState(
-        targetValue = (currentPage + 1) / totalPages,
-        animationSpec = tween(durationMillis = 1000)
-    )
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(horizontal = dimensions.paddingLarge)
-            .padding(top = dimensions.paddingDoubleLarge, bottom = dimensions.paddingLarge)
-    ) {
-        LinearProgressIndicator(
-            progress = { animatedProgress },
-            color = colors.textAccentGreen,
-            trackColor = colors.kds_white,
-            strokeCap = StrokeCap.Round,
-            gapSize = 0.dp,
-            modifier = Modifier
-                .weight(1f)
-                .height(dimensions.paddingSmall)
-                .testTag(OnboardingScreenTestTags.PROGRESS_BAR)
-        )
-        KSIconButton(
-            modifier = Modifier
-                .testTag(OnboardingScreenTestTags.CLOSE_BUTTON),
-            onClick = { onboardingCancelled(filteredPages[currentPage].page) },
-            contentDescription = stringResource(R.string.Close),
-            imageVector = Icons.Filled.Close
-        )
-    }
-}
-
-@Composable
-fun OnboardingPageAnimation(modifier: Modifier, pageData: OnboardingPageData) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
-    ) {
-        // Vertical transition for text
-        AnimatedContent(
-            targetState = pageData,
-            transitionSpec = {
-                (fadeIn() + slideInVertically(animationSpec = tween(400), initialOffsetY = { it / 4 }))
-                    .togetherWith(fadeOut(animationSpec = tween(200)))
-            },
-            label = "TextTransition"
-        ) { targetPage ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimensions.paddingLarge),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = targetPage.title,
-                    style = typographyV2.heading2XL,
-                    color = colors.textPrimary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .testTag(OnboardingScreenTestTags.PAGE_TITLE)
-                )
-
-                Spacer(modifier = Modifier.height(dimensions.paddingMediumSmall))
-
-                Text(
-                    text = targetPage.description,
-                    style = typographyV2.bodyLG,
-                    color = colors.textPrimary,
-                    textAlign = TextAlign.Center,
-                    minLines = 4,
-                    modifier = Modifier
-                        .testTag(OnboardingScreenTestTags.PAGE_DESCRIPTION)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(dimensions.paddingMediumLarge))
-
-        // Horizontal transition for Lottie Animation
-        AnimatedContent(
-            targetState = pageData,
-            transitionSpec = {
-                (fadeIn(tween(2000)) + slideInHorizontally(initialOffsetX = { it })).togetherWith(
-                    fadeOut(tween(2000)) + slideOutHorizontally(targetOffsetX = { -it })
-                )
-            },
-            label = "ImageTransition"
-        ) { targetPage ->
-
-            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(targetPage.animationRes))
-            val progress by animateLottieCompositionAsState(
-                composition,
-                iterations = LottieConstants.IterateForever,
-            )
-            LottieAnimation(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(OnboardingScreenTestTags.PAGE_ANIMATION),
-                composition = composition,
-                progress = { progress },
-            )
         }
     }
 }

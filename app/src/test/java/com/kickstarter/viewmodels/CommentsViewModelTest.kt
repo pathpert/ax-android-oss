@@ -35,6 +35,7 @@ import org.junit.Test
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class CommentsViewModelTest : KSRobolectricTestCase() {
     private val closeCommentPage = TestSubscriber<Unit>()
     private val commentsList = TestSubscriber<List<CommentCardData>?>()

@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import com.kickstarter.libs.utils.extensions.isFalse
 import com.kickstarter.models.Category
 import com.kickstarter.models.Location
 import com.kickstarter.models.Tag
@@ -135,279 +134,33 @@ fun FilterPagerSheet(
             ),
         state = pagerState
     ) { page ->
-        when (page) {
-            FilterPages.MAIN_FILTER.ordinal -> FilterMenuSheet(
-                selectedLocation = currentLocation,
-                selectedPercentage = currentPercentage,
-                selectedProjectStatus = projectState.value,
-                selectedAmount = currentAmountRaised,
-                selectedCategory = currentCategory,
-                selectedRecommended = currentRecommended,
-                selectedProjectsLoved = currentProjectsLoved,
-                selectedSaved = currentSavedProjects,
-                selectedSocial = currentFollowing,
-                selectedGoal = currentGoal,
-                selectedOpenCallTag = openCallTag.value,
-                onDismiss = {
-                    onDismiss.invoke()
-                },
-                onApply = { selectedProjectState, selectedRecommended, selectedProjectsLoved, selectedSaved, selectedSocial, applyAndDismiss ->
-                    projectState.value = selectedProjectState
-                    currentRecommended.value = selectedRecommended
-                    currentProjectsLoved.value = selectedProjectsLoved
-                    currentSavedProjects.value = selectedSaved
-                    currentFollowing.value = selectedSocial
-
-                    if (applyAndDismiss != null) {
-                        if (applyAndDismiss.isFalse()) {
-                            category.value = null
-                            percentageBucket.value = null
-                            location.value = null
-                            amountRaised.value = null
-                            goal.value = null
-                            openCallTag.value = null
-                        }
-                        applyUserSelection(
-                            onApply = onApply,
-                            projectState = projectState.value,
-                            category = category.value,
-                            percentageRaisedBucket = percentageBucket.value,
-                            amountRaisedBucket = amountRaised.value,
-                            location = location.value,
-                            recommended = currentRecommended.value,
-                            projectsLoved = currentProjectsLoved.value,
-                            savedProjects = currentSavedProjects.value,
-                            social = currentFollowing.value,
-                            goalBucket = goal.value,
-                            openCallTag = openCallTag.value,
-                            updateSelectedCounts = updateSelectedCounts,
-                            onDismiss = onDismiss,
-                            shouldDismiss = applyAndDismiss,
-                        )
-                    }
-                },
-                onNavigate = { filterType ->
-                    if (filterType == FilterType.CATEGORIES) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(FilterPages.CATEGORIES.ordinal)
-                        }
-                    }
-
-                    if (filterType == FilterType.PERCENTAGE_RAISED) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(FilterPages.PERCENTAGE_RAISED.ordinal)
-                        }
-                    }
-
-                    if (filterType == FilterType.LOCATION) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(FilterPages.LOCATION.ordinal)
-                        }
-                    }
-
-                    if (filterType == FilterType.AMOUNT_RAISED) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(FilterPages.AMOUNT_RAISED.ordinal)
-                        }
-                    }
-                    if (filterType == FilterType.GOAL) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(FilterPages.GOAL.ordinal)
-                        }
-                    }
-                    if (filterType == FilterType.OPEN_CALLS) {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(FilterPages.OPEN_CALLS.ordinal)
-                        }
-                    }
-                },
-                availableFilters = FilterType.values().asList()
-                    .filter { shouldShowPhase || it != FilterType.OTHERS }
-                    .filter { isOpenCallsEnabled || it != FilterType.OPEN_CALLS }
-            )
-
-            FilterPages.CATEGORIES.ordinal -> CategorySelectionSheet(
-                onNavigate = {
-                    coroutineScope.launch { pagerState.animateScrollToPage(FilterPages.MAIN_FILTER.ordinal) }
-                },
-                currentCategory = category.value,
-                onDismiss = onDismiss,
-                categories = categories,
-                onApply = { selectedCategory, applyAndDismiss ->
-                    category.value = selectedCategory
-                    if (applyAndDismiss != null) {
-                        applyUserSelection(
-                            onApply = onApply,
-                            projectState = projectState.value,
-                            category = category.value,
-                            percentageRaisedBucket = percentageBucket.value,
-                            amountRaisedBucket = amountRaised.value,
-                            goalBucket = goal.value,
-                            location = location.value,
-                            recommended = currentRecommended.value,
-                            projectsLoved = currentProjectsLoved.value,
-                            savedProjects = currentSavedProjects.value,
-                            social = currentFollowing.value,
-                            openCallTag = openCallTag.value,
-                            updateSelectedCounts = updateSelectedCounts,
-                            onDismiss = onDismiss,
-                            shouldDismiss = applyAndDismiss
-                        )
-                    }
-                },
-                isLoading = false
-            )
-
-            FilterPages.LOCATION.ordinal -> LocationSheet(
-                selectedLocation = currentLocation,
-                onNavigate = {
-                    coroutineScope.launch { pagerState.animateScrollToPage(FilterPages.MAIN_FILTER.ordinal) }
-                },
-                onDismiss = onDismiss,
-                onApply = { selLocation, applyAndDismiss ->
-                    location.value = selLocation
-                    if (applyAndDismiss != null) {
-                        applyUserSelection(
-                            onApply = onApply,
-                            projectState = projectState.value,
-                            category = category.value,
-                            percentageRaisedBucket = percentageBucket.value,
-                            amountRaisedBucket = amountRaised.value,
-                            goalBucket = goal.value,
-                            location = location.value,
-                            recommended = currentRecommended.value,
-                            projectsLoved = currentProjectsLoved.value,
-                            savedProjects = currentSavedProjects.value,
-                            social = currentFollowing.value,
-                            openCallTag = openCallTag.value,
-                            updateSelectedCounts = updateSelectedCounts,
-                            onDismiss = onDismiss,
-                            shouldDismiss = applyAndDismiss
-                        )
-                    }
-                }
-            )
-
-            FilterPages.PERCENTAGE_RAISED.ordinal -> PercentageRaisedSheet(
-                currentPercentage = DiscoveryParams.RaisedBuckets.fromString(currentPercentage?.name),
-                onNavigate = {
-                    coroutineScope.launch { pagerState.animateScrollToPage(FilterPages.MAIN_FILTER.ordinal) }
-                },
-                onDismiss = onDismiss,
-                onApply = { selectedBucket, applyAndDismiss ->
-                    percentageBucket.value = selectedBucket
-                    if (applyAndDismiss != null) {
-                        applyUserSelection(
-                            onApply = onApply,
-                            projectState = projectState.value,
-                            category = category.value,
-                            percentageRaisedBucket = percentageBucket.value,
-                            amountRaisedBucket = amountRaised.value,
-                            goalBucket = goal.value,
-                            location = location.value,
-                            recommended = currentRecommended.value,
-                            projectsLoved = currentProjectsLoved.value,
-                            savedProjects = currentSavedProjects.value,
-                            social = currentFollowing.value,
-                            openCallTag = openCallTag.value,
-                            updateSelectedCounts = updateSelectedCounts,
-                            onDismiss = onDismiss,
-                            shouldDismiss = applyAndDismiss
-                        )
-                    }
-                }
-            )
-
-            FilterPages.AMOUNT_RAISED.ordinal -> AmountRaisedSheet(
-                currentBucket = DiscoveryParams.AmountBuckets.fromString(currentAmountRaised?.name),
-                onNavigate = {
-                    coroutineScope.launch { pagerState.animateScrollToPage(FilterPages.MAIN_FILTER.ordinal) }
-                },
-                onDismiss = onDismiss,
-                onApply = { selectedBucket, applyAndDismiss ->
-                    amountRaised.value = selectedBucket
-                    if (applyAndDismiss != null) {
-                        applyUserSelection(
-                            onApply = onApply,
-                            projectState = projectState.value,
-                            category = category.value,
-                            percentageRaisedBucket = percentageBucket.value,
-                            amountRaisedBucket = amountRaised.value,
-                            goalBucket = goal.value,
-                            location = location.value,
-                            recommended = currentRecommended.value,
-                            projectsLoved = currentProjectsLoved.value,
-                            savedProjects = currentSavedProjects.value,
-                            social = currentFollowing.value,
-                            openCallTag = openCallTag.value,
-                            updateSelectedCounts = updateSelectedCounts,
-                            onDismiss = onDismiss,
-                            shouldDismiss = applyAndDismiss
-                        )
-                    }
-                }
-            )
-
-            FilterPages.GOAL.ordinal -> GoalSheet(
-                currentGoalBucket = DiscoveryParams.GoalBuckets.fromString(currentGoal?.name),
-                onNavigate = {
-                    coroutineScope.launch { pagerState.animateScrollToPage(FilterPages.MAIN_FILTER.ordinal) }
-                },
-                onDismiss = onDismiss,
-                onApply = { selectedBucket, applyAndDismiss ->
-                    goal.value = selectedBucket
-                    if (applyAndDismiss != null) {
-                        applyUserSelection(
-                            onApply = onApply,
-                            projectState = projectState.value,
-                            category = category.value,
-                            percentageRaisedBucket = percentageBucket.value,
-                            amountRaisedBucket = amountRaised.value,
-                            goalBucket = goal.value,
-                            location = location.value,
-                            recommended = currentRecommended.value,
-                            projectsLoved = currentProjectsLoved.value,
-                            savedProjects = currentSavedProjects.value,
-                            social = currentFollowing.value,
-                            openCallTag = openCallTag.value,
-                            updateSelectedCounts = updateSelectedCounts,
-                            onDismiss = onDismiss,
-                            shouldDismiss = applyAndDismiss
-                        )
-                    }
-                }
-            )
-
-            FilterPages.OPEN_CALLS.ordinal -> OpenCallsSheet(
-                tags = tags,
-                currentTag = openCallTag.value,
-                onNavigate = {
-                    coroutineScope.launch { pagerState.animateScrollToPage(FilterPages.MAIN_FILTER.ordinal) }
-                },
-                onDismiss = onDismiss,
-                onApply = { selectedTag, applyAndDismiss ->
-                    openCallTag.value = selectedTag
-                    if (applyAndDismiss != null) {
-                        applyUserSelection(
-                            onApply = onApply,
-                            projectState = projectState.value,
-                            category = category.value,
-                            percentageRaisedBucket = percentageBucket.value,
-                            amountRaisedBucket = amountRaised.value,
-                            goalBucket = goal.value,
-                            location = location.value,
-                            recommended = currentRecommended.value,
-                            projectsLoved = currentProjectsLoved.value,
-                            savedProjects = currentSavedProjects.value,
-                            social = currentFollowing.value,
-                            openCallTag = openCallTag.value,
-                            updateSelectedCounts = updateSelectedCounts,
-                            onDismiss = onDismiss,
-                            shouldDismiss = applyAndDismiss
-                        )
-                    }
-                }
-            )
-        }
+        FilterPagerPageItem(
+            page = page,
+            coroutineScope = coroutineScope,
+            pagerState = pagerState,
+            currentLocation = currentLocation,
+            currentPercentage = currentPercentage,
+            currentAmountRaised = currentAmountRaised,
+            currentCategory = currentCategory,
+            currentGoal = currentGoal,
+            currentRecommended = currentRecommended,
+            currentProjectsLoved = currentProjectsLoved,
+            currentSavedProjects = currentSavedProjects,
+            currentFollowing = currentFollowing,
+            category = category,
+            projectState = projectState,
+            percentageBucket = percentageBucket,
+            location = location,
+            amountRaised = amountRaised,
+            goal = goal,
+            openCallTag = openCallTag,
+            categories = categories,
+            tags = tags,
+            isOpenCallsEnabled = isOpenCallsEnabled,
+            shouldShowPhase = shouldShowPhase,
+            onDismiss = onDismiss,
+            onApply = onApply,
+            updateSelectedCounts = updateSelectedCounts
+        )
     }
 }

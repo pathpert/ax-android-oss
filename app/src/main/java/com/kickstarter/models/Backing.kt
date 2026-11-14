@@ -16,6 +16,8 @@ import org.joda.time.DateTime
  */
 @Parcelize
 @androidx.annotation.Keep
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.backing.data.BackingState")
 class Backing private constructor(
     private val amount: Double,
     private val backer: User?,

@@ -26,6 +26,7 @@ import org.junit.Test
 import org.mockito.Mockito
 import java.math.RoundingMode
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class RewardViewHolderViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var vm: RewardViewHolderViewModel.ViewModel

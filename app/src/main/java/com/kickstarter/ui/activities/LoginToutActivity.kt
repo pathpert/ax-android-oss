@@ -46,6 +46,8 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.login")
 class LoginToutActivity : ComponentActivity() {
 
     private lateinit var ksString: KSString

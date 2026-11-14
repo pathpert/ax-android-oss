@@ -43,6 +43,8 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.PaymentSheetResultCallback
 import timber.log.Timber
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.checkout")
 class CrowdfundCheckoutFragment : Fragment() {
 
     private var binding: FragmentCrowdfundCheckoutBinding? = null

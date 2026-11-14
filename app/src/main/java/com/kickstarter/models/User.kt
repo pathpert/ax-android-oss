@@ -12,6 +12,7 @@ import kotlinx.parcelize.Parcelize
  * - Do not assume [email] is present for anonymous or public user cards.
  * - Do not confuse the integer [id] with GraphQL Relay global IDs.
  */
+@Deprecated("Legacy monolithic domain model. For new code, consume feature-scoped contracts in com.kickstarter.features.*")
 @Parcelize
 @androidx.annotation.Keep
 class User private constructor(

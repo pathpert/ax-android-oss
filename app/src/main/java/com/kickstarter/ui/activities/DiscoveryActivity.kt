@@ -46,6 +46,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.discovery")
 class DiscoveryActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var drawerAdapter: DiscoveryDrawerAdapter
     private lateinit var drawerLayoutManager: LinearLayoutManager

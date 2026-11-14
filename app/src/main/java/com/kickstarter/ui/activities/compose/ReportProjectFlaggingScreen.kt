@@ -1,6 +1,5 @@
 package com.kickstarter.ui.activities.compose
 
-import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,13 +31,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kickstarter.R
 import com.kickstarter.models.FlaggingOption
 import com.kickstarter.models.childrenOf
 import com.kickstarter.models.roots
-import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 
@@ -229,9 +226,7 @@ private val HTML_TAG_REGEX = Regex("<[^>]*>")
 private fun String.stripHtmlTags(): String = replace(HTML_TAG_REGEX, "")
 
 /**
- * Renders a server-provided string that may contain real `<a href="url">label</a>` anchors (zero, one, or
- * many). Anchors become green, underlined clickable spans that invoke [onOpenUrl]; any other HTML tags are
- * stripped and the remaining text renders plainly, so malformed server content never leaks as raw markup.
+ * Renders a server-provided string that may contain real `<a href="url">label</a>` anchors.
  */
 @Composable
 fun HtmlLinkText(
@@ -268,157 +263,4 @@ fun HtmlLinkText(
                 .firstOrNull()?.let { onOpenUrl(it.item) }
         }
     )
-}
-
-/**
- * Mock data provided for the compose preview
- */
-private fun sampleFlaggingOptions(): List<FlaggingOption> = listOf(
-    // our_rules (L1) → prohibited_items (L2) → vices (L3) → options (L4)
-    FlaggingOption(
-        id = "project/our_rules",
-        parentId = "project",
-        kind = null,
-        isGroup = true,
-        title = "This project breaks one of <a href=\"https://www.kickstarter.com/rules\">Our Rules</a>",
-        subtitle = "All projects on Kickstarter must create something to share with others. They can't offer " +
-            "<a href=\"https://www.kickstarter.com/rules/prohibited\">prohibited items</a> or offer funds to charity.",
-        placeholder = null
-    ),
-    FlaggingOption(
-        id = "project/our_rules/prohibited_items",
-        parentId = "project/our_rules",
-        kind = null,
-        isGroup = true,
-        title = "Prohibited items",
-        subtitle = "Projects may not offer items mentioned in our " +
-            "<a href=\"https://www.kickstarter.com/rules/prohibited\">prohibited items</a> list.",
-        placeholder = null
-    ),
-    FlaggingOption(
-        id = "project/our_rules/prohibited_items/vices",
-        parentId = "project/our_rules/prohibited_items",
-        kind = null,
-        isGroup = true,
-        title = "Drugs, alcohol or weapons",
-        subtitle = null,
-        placeholder = null
-    ),
-    FlaggingOption(
-        id = "project/our_rules/prohibited_items/vices/vices_drugs",
-        parentId = "project/our_rules/prohibited_items/vices",
-        kind = "VICES_DRUGS",
-        isGroup = false,
-        title = "Drugs, tobacco, vaporizers and paraphernalia",
-        subtitle = "Ex: CBD oil, hookah equipment, vape juice, glass pipes",
-        placeholder = "Please provide any additional context about your report that could be helpful."
-    ),
-    FlaggingOption(
-        id = "project/our_rules/prohibited_items/vices/vices_alcohol",
-        parentId = "project/our_rules/prohibited_items/vices",
-        kind = "VICES_ALCOHOL",
-        isGroup = false,
-        title = "Alcohol as a reward",
-        subtitle = "Ex: Bottles of beer, wine or liquor, growler fill-ups",
-        placeholder = "Please provide any additional context about your report that could be helpful."
-    ),
-    FlaggingOption(
-        id = "project/our_rules/prohibited_items/health_claims",
-        parentId = "project/our_rules/prohibited_items",
-        kind = null,
-        isGroup = true,
-        title = "Health claims or regulated items",
-        subtitle = null,
-        placeholder = null
-    ),
-    FlaggingOption(
-        id = "project/our_rules/prohibited_items/health_claims/health_claims",
-        parentId = "project/our_rules/prohibited_items/health_claims",
-        kind = "HEALTH_CLAIMS",
-        isGroup = false,
-        title = "Claims to cure, treat, or prevent an illness or condition",
-        subtitle = "Ex: Claims to treat symptoms of endometriosis, diagnose cancer, cure autism",
-        placeholder = "Please provide any additional context about your report that could be helpful."
-    ),
-    // our_rules (L1) → resale (L2) → option (L3)
-    FlaggingOption(
-        id = "project/our_rules/resale",
-        parentId = "project/our_rules",
-        kind = null,
-        isGroup = true,
-        title = "Copying, reselling or plagiarism",
-        subtitle = "Projects cannot plagiarize or offer items that aren't produced by the creator.",
-        placeholder = null
-    ),
-    FlaggingOption(
-        id = "project/our_rules/resale/reselling",
-        parentId = "project/our_rules/resale",
-        kind = "RESELLING",
-        isGroup = false,
-        title = "This project is reselling or repackaging an existing product.",
-        subtitle = null,
-        placeholder = "Please provide a URL(s) showing the reward currently available for purchase elsewhere."
-    ),
-    // community_guidelines (L1) → options (L2)
-    FlaggingOption(
-        id = "project/community_guidelines",
-        parentId = "project",
-        kind = null,
-        isGroup = true,
-        title = "Report spam or abusive behavior",
-        subtitle = "Our <a href=\"https://www.kickstarter.com/help/community\">Community Guidelines</a> prohibit spam.",
-        placeholder = null
-    ),
-    FlaggingOption(
-        id = "project/community_guidelines/guidelines_spam",
-        parentId = "project/community_guidelines",
-        kind = "GUIDELINES_SPAM",
-        isGroup = false,
-        title = "Spam",
-        subtitle = "Ex: Using email lists from outside sources, link bombing.",
-        placeholder = "Please provide additional context about this content or behavior."
-    ),
-    // intellectual_property_violation (L1) → option (L2)
-    FlaggingOption(
-        id = "project/intellectual_property_violation",
-        parentId = "project",
-        kind = null,
-        isGroup = true,
-        title = "Intellectual property violation",
-        subtitle = "A project is infringing on your copyright or trademark.",
-        placeholder = null
-    ),
-    FlaggingOption(
-        id = "project/intellectual_property_violation/copyright",
-        parentId = "project/intellectual_property_violation",
-        kind = "COPYRIGHT",
-        isGroup = false,
-        title = "Kickstarter takes claims of intellectual property infringement seriously. For more information, " +
-            "please visit our <a href=\"https://www.kickstarter.com/help/copyright\">Copyright Policy</a> and our " +
-            "<a href=\"https://www.kickstarter.com/help/trademark\">Trademark Policy</a>.",
-        subtitle = null,
-        placeholder = null
-    )
-)
-
-@Composable
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFF0EAE2,
-    name = "Light",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Preview(
-    showBackground = true,
-    backgroundColor = 0X00000000,
-    name = "Dark",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-fun ReportProjectFlaggingScreenPreview() {
-    KSTheme {
-        ReportProjectFlaggingScreen(
-            padding = PaddingValues(),
-            options = sampleFlaggingOptions()
-        )
-    }
 }

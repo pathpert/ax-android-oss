@@ -19,6 +19,7 @@ import org.joda.time.DateTime
  * - Do not confuse FX rate variants: [fxRate] is the project-to-USD conversion rate, [staticUsdRate] is the cached
  *   daily rate, and [usdExchangeRate] is the spot market rate.
  */
+@Deprecated("Legacy monolithic domain model. For new code, consume feature-scoped contracts in com.kickstarter.features.*")
 @Parcelize
 @androidx.annotation.Keep
 class Project private constructor(

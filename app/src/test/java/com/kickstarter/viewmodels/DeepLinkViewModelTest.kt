@@ -41,6 +41,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import java.util.Optional
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class DeepLinkViewModelTest : KSRobolectricTestCase() {
     lateinit var vm: SplashScreenViewModel.DeepLinkViewModel
     private val startBrowser = TestSubscriber<String>()

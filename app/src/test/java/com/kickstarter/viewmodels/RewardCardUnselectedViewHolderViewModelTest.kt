@@ -18,6 +18,7 @@ import org.junit.Test
 import java.util.Date
 import java.util.GregorianCalendar
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class RewardCardUnselectedViewHolderViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var vm: RewardCardUnselectedViewHolderViewModel.ViewModel

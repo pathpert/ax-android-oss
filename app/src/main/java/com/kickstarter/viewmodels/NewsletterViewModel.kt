@@ -189,75 +189,42 @@ interface NewsletterViewModel {
             super.onCleared()
         }
 
-        override fun sendAlumniNewsletter(checked: Boolean) {
+        private fun sendNewsletter(checked: Boolean, newsletter: Newsletter, update: User.Builder.() -> User.Builder) {
             this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().alumniNewsletter(checked).build())
+                userInput.onNext(this.toBuilder().update().build())
             }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.ALUMNI))
+            this.newsletterInput.onNext(Pair(checked, newsletter))
         }
 
-        override fun sendArtsNewsNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().artsCultureNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.ARTS))
-        }
+        override fun sendAlumniNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.ALUMNI) { alumniNewsletter(checked) }
 
-        override fun sendFilmsNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().filmNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.FILMS))
-        }
+        override fun sendArtsNewsNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.ARTS) { artsCultureNewsletter(checked) }
 
-        override fun sendGamesNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().gamesNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.GAMES))
-        }
+        override fun sendFilmsNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.FILMS) { filmNewsletter(checked) }
 
-        override fun sendHappeningNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().happeningNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.HAPPENING))
-        }
+        override fun sendGamesNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.GAMES) { gamesNewsletter(checked) }
 
-        override fun sendInventNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().inventNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.INVENT))
-        }
+        override fun sendHappeningNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.HAPPENING) { happeningNewsletter(checked) }
 
-        override fun sendMusicNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().musicNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.MUSIC))
-        }
+        override fun sendInventNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.INVENT) { inventNewsletter(checked) }
 
-        override fun sendPromoNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().promoNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.PROMO))
-        }
+        override fun sendMusicNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.MUSIC) { musicNewsletter(checked) }
 
-        override fun sendReadsNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().publishingNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.READS))
-        }
+        override fun sendPromoNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.PROMO) { promoNewsletter(checked) }
 
-        override fun sendWeeklyNewsletter(checked: Boolean) {
-            this.userOutput.value?.apply {
-                userInput.onNext(this.toBuilder().weeklyNewsletter(checked).build())
-            }
-            this.newsletterInput.onNext(Pair(checked, Newsletter.WEEKLY))
-        }
+        override fun sendReadsNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.READS) { publishingNewsletter(checked) }
+
+        override fun sendWeeklyNewsletter(checked: Boolean) =
+            sendNewsletter(checked, Newsletter.WEEKLY) { weeklyNewsletter(checked) }
 
         override fun showOptInPrompt(): Observable<Newsletter> = this.showOptInPrompt
 

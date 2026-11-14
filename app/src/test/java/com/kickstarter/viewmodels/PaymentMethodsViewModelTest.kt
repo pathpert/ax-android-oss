@@ -18,6 +18,7 @@ import org.junit.After
 import org.junit.Test
 import java.util.Collections
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class PaymentMethodsViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var vm: PaymentMethodsViewModel

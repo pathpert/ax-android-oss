@@ -37,6 +37,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class LatePledgeCheckoutViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var viewModel: LatePledgeCheckoutViewModel

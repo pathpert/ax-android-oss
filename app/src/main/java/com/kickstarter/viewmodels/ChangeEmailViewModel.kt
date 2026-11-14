@@ -213,72 +213,34 @@ interface ChangeEmailViewModel {
                 .addToDisposable(disposables)
         }
 
-        override fun email(email: String) {
-            this.email.onNext(email)
-        }
-
-        override fun emailFocus(hasFocus: Boolean) {
-            this.emailFocus.onNext(hasFocus)
-        }
-
-        override fun password(password: String) {
-            this.password.onNext(password)
-        }
-
-        override fun updateEmailClicked() {
-            this.updateEmailClicked.onNext(Unit)
-        }
-
-        override fun sendVerificationEmail() {
-            this.sendVerificationEmailClick.onNext(Unit)
-        }
+        override fun email(email: String) = this.email.onNext(email)
+        override fun emailFocus(hasFocus: Boolean) = this.emailFocus.onNext(hasFocus)
+        override fun password(password: String) = this.password.onNext(password)
+        override fun updateEmailClicked() = this.updateEmailClicked.onNext(Unit)
+        override fun sendVerificationEmail() = this.sendVerificationEmailClick.onNext(Unit)
 
         override fun currentEmail(): Observable<String> = this.currentEmail
-
         override fun emailErrorIsVisible(): Observable<Boolean> = this.emailErrorIsVisible
-
         override fun error(): Observable<String> = this.error
-
         override fun sendVerificationIsHidden(): Observable<Boolean> = this.sendVerificationIsHidden
-
         override fun progressBarIsVisible(): Observable<Boolean> = this.showProgressBar
-
         override fun saveButtonIsEnabled(): Observable<Boolean> = this.saveButtonIsEnabled
-
         override fun success(): Observable<Unit> = this.success
-
         override fun warningText(): Observable<Int> = this.warningText
-
         override fun warningTextColor(): Observable<Int> = this.warningTextColor
+        override fun verificationEmailButtonText(): Observable<Int> = this.verificationEmailButtonText
 
-        override fun verificationEmailButtonText(): Observable<Int> =
-            this.verificationEmailButtonText
+        private fun getWarningTextColor(isDeliverable: Boolean?): Int =
+            if (isDeliverable?.not() == true) R.color.kds_alert else R.color.kds_support_400
 
-        private fun getWarningTextColor(isDeliverable: Boolean?): Int {
-            return if (isDeliverable?.not() == true) {
-                R.color.kds_alert
-            } else {
-                R.color.kds_support_400
-            }
+        private fun getWarningText(isDeliverable: Boolean?, isVerified: Boolean?): Int = when {
+            isDeliverable?.not() == true -> R.string.We_ve_been_unable_to_send_email
+            isVerified?.not() == true -> R.string.Email_unverified
+            else -> 0
         }
 
-        private fun getWarningText(isDeliverable: Boolean?, isVerified: Boolean?): Int {
-            return if (isDeliverable?.not() == true) {
-                R.string.We_ve_been_unable_to_send_email
-            } else if (isVerified?.not() == true) {
-                R.string.Email_unverified
-            } else {
-                0
-            }
-        }
-
-        private fun getVerificationText(isCreator: Boolean?): Int {
-            return if (isCreator?.not() == true) {
-                R.string.Send_verfication_email
-            } else {
-                R.string.Resend_verification_email
-            }
-        }
+        private fun getVerificationText(isCreator: Boolean?): Int =
+            if (isCreator?.not() == true) R.string.Send_verfication_email else R.string.Resend_verification_email
 
         private fun sendEmailVerification(): Observable<SendEmailVerificationMutation.Data> {
             return this.apolloClient.sendVerificationEmail()

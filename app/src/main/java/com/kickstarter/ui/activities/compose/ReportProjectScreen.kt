@@ -1,6 +1,5 @@
 package com.kickstarter.ui.activities.compose
 
-import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,177 +25,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kickstarter.R
 import com.kickstarter.libs.utils.extensions.hrefUrlFromTranslation
 import com.kickstarter.libs.utils.extensions.parseHtmlTag
 import com.kickstarter.libs.utils.extensions.stringsFromHtmlTranslation
-import com.kickstarter.type.FlaggingKind
-import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.viewmodels.ReportProjectViewModel
-
-@Composable
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFF0EAE2,
-    name = "Light",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Preview(
-    showBackground = true,
-    backgroundColor = 0X00000000,
-    name = "Dark",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-fun PreviewTextLinks() {
-    KSTheme {
-        TextWithClickableLink(html = stringResource(id = R.string.Projects_may_not_offer))
-    }
-}
-
-@Composable
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFF0EAE2,
-    name = "Light",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Preview(
-    showBackground = true,
-    backgroundColor = 0X00000000,
-    name = "Dark",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-fun ReportProjectScreenPreview() {
-    KSTheme {
-        ReportProjectCategoryScreen(PaddingValues())
-    }
-}
-
-@Composable
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFF0EAE2,
-    name = "Light",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Preview(
-    showBackground = true,
-    backgroundColor = 0X00000000,
-    name = "Dark",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-fun CategoryRowPreview() {
-    KSTheme {
-        val list = rulesMap().values.first()
-        val list2 = rulesMap().keys.first()
-        CategoryRow(category = list2, rulesList = list)
-    }
-}
-
-@Composable
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFF0EAE2,
-    name = "Light",
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Preview(
-    showBackground = true,
-    backgroundColor = 0X00000000,
-    name = "Dark",
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-fun RulesListPreview() {
-    KSTheme {
-        val list = rulesMap().values.first()
-        RulesList(rulesList = list)
-    }
-}
-
-@Composable
-fun rulesMap(): Map<Triple<String, String, Boolean>, List<Triple<String, String, String>>> {
-
-    val projectCat = Triple(
-        stringResource(id = R.string.This_project_breaks),
-        stringResource(id = R.string.Projects_may_not_offer),
-        true // Do not  has link on the subtitle
-    )
-    val rulesListProject = listOf(
-        Triple(
-            stringResource(id = R.string.Prohibited_items),
-            stringResource(id = R.string.Projects_may_not_offer),
-            FlaggingKind.PROHIBITED_ITEMS.rawValue
-        ),
-        Triple(
-            stringResource(id = R.string.Copying_reselling),
-            stringResource(id = R.string.Projects_cannot_plagiarize),
-            FlaggingKind.RESALE.rawValue
-        ),
-        Triple(
-            stringResource(id = R.string.Prototype_misrepresentation),
-            stringResource(id = R.string.Creators_must_be_transparent),
-            FlaggingKind.PROTOTYPE_MISREPRESENTATION.rawValue
-        ),
-        Triple(
-            stringResource(id = R.string.Suspicious_creator_behavior),
-            stringResource(id = R.string.Project_creators_and_their),
-            FlaggingKind.POST_FUNDING_ISSUES.rawValue
-        ),
-        Triple(
-            stringResource(id = R.string.Not_raising_funds),
-            stringResource(id = R.string.Projects_on),
-            FlaggingKind.NOT_PROJECT_OTHER.rawValue
-        )
-    )
-
-    val spamCat = Triple(
-        stringResource(id = R.string.Report_spam),
-        stringResource(id = R.string.Our),
-        true // Do not  has link on the subtitle
-    )
-    val rulesListSpam = listOf(
-        Triple(
-            stringResource(id = R.string.Spam),
-            stringResource(id = R.string.Ex_using),
-            FlaggingKind.GUIDELINES_SPAM.rawValue
-        ),
-        Triple(
-            stringResource(id = R.string.Abuse),
-            stringResource(id = R.string.Ex_posting),
-            FlaggingKind.GUIDELINES_ABUSE.rawValue
-        ),
-    )
-
-    val intellectualCat = Triple(
-        stringResource(id = R.string.Intellectual_property_violation),
-        stringResource(id = R.string.A_project_is_infringing),
-        false // Do not  has link on the subtitle
-    )
-
-    val rulesListIntellectual = listOf(
-        Triple(
-            stringResource(id = R.string.Intellectual_property_violation),
-            stringResource(id = R.string.Kickstarter_takes_claims),
-            FlaggingKind.NOT_PROJECT.rawValue
-        ),
-    )
-
-    return mapOf(
-        Pair(projectCat, rulesListProject),
-        Pair(spamCat, rulesListSpam),
-        Pair(intellectualCat, rulesListIntellectual)
-    )
-}
 
 @Composable
 fun Rules(rule: Triple<String, String, String>, navigationAction: (String) -> Unit) {
@@ -244,7 +85,6 @@ fun RulesList(
     rulesList: List<Triple<String, String, String>>,
     navigationAction: (String) -> Unit = {}
 ) {
-    // - Do not use LazyColum, will conflict the scroll events with the parent LazyColumn
     Column {
         rulesList.map { rule ->
             Rules(rule = rule, navigationAction)
@@ -285,7 +125,7 @@ fun CategoryRow(
                         color = colors.kds_support_700
                     )
                 )
-                if (!category.third) { // Subtitles without links
+                if (!category.third) {
                     val text = category.second.parseHtmlTag()
                     Text(
                         text = text,
@@ -308,8 +148,7 @@ fun CategoryRow(
             ) {
                 Icon(
                     painter = painterResource(
-                        id =
-                        if (expanded.value) R.drawable.ic_arrow_up
+                        id = if (expanded.value) R.drawable.ic_arrow_up
                         else R.drawable.ic_arrow_down,
                     ),
                     contentDescription = null,
@@ -349,7 +188,6 @@ fun ReportProjectCategoryScreen(
             .padding(padding)
             .fillMaxSize()
     ) {
-
         val categories = rulesMap().keys.toList()
         Spacer(modifier = Modifier.padding(padding))
         LazyColumn(
@@ -371,7 +209,6 @@ fun TextWithClickableLink(
     html: String,
     onClickCallback: (String?) -> Unit = {}
 ) {
-
     val stringList = html.stringsFromHtmlTranslation()
     val annotation = html.hrefUrlFromTranslation()
     if (stringList.size == 3) {

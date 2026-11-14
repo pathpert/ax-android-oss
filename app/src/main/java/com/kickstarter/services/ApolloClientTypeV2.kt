@@ -66,6 +66,8 @@ const val APOLLO_REPLIES_PAGE_SIZE = 7
  * - Do not pass unvalidated or blank IDs, slugs, or tokens across this boundary.
  * - Do not swallow mutation or query errors; all responses are typed or wrapped in [Result].
  */
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.services.apollo.*")
 interface ApolloClientTypeV2 {
 
     /**

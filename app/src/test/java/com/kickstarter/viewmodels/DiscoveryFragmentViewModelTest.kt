@@ -48,6 +48,7 @@ import io.reactivex.subscribers.TestSubscriber
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class DiscoveryFragmentViewModelTest : KSRobolectricTestCase() {
     private lateinit var vm: DiscoveryFragmentViewModel.DiscoveryFragmentViewModel
     val testScheduler = TestScheduler()

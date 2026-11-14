@@ -266,21 +266,10 @@ interface MessageThreadsViewModel {
             unreadMessagesCountIsGone = mailbox
                 .map { m: Mailbox -> m == Mailbox.SENT }
         }
-        override fun mailbox(mailbox: Mailbox) {
-            this.mailbox.onNext(mailbox)
-        }
-
-        override fun nextPage() {
-            nextPage.onNext(Unit)
-        }
-
-        override fun onResume() {
-            onResume.onNext(Unit)
-        }
-
-        override fun swipeRefresh() {
-            swipeRefresh.onNext(Unit)
-        }
+        override fun mailbox(mailbox: Mailbox) = this.mailbox.onNext(mailbox)
+        override fun nextPage() = nextPage.onNext(Unit)
+        override fun onResume() = onResume.onNext(Unit)
+        override fun swipeRefresh() = swipeRefresh.onNext(Unit)
 
         override fun onCleared() {
             disposables.clear()

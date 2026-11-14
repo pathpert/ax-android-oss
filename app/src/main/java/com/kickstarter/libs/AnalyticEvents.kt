@@ -104,6 +104,8 @@ import com.kickstarter.ui.data.ProjectData
 import java.util.Locale
 import com.kickstarter.libs.utils.EventContextValues.LocationContextName.VIDEO_FEED as VIDEO_FEED_LOCATION
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.*.data.*Tracker")
 class AnalyticEvents(trackingClients: List<TrackingClientType?>) {
 
     private val client = ProxyClient(trackingClients)

@@ -22,6 +22,8 @@ import java.util.Locale
 import kotlin.jvm.JvmOverloads
 
 @Parcelize
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.discovery.data.DiscoveryQuery")
 class DiscoveryParams private constructor(
     private val backed: Int?,
     private val category: Category?,

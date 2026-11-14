@@ -42,6 +42,8 @@ import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
+
+@Deprecated("Legacy monolithic path replaced by com.kickstarter.features.comments")
 class CommentsActivity :
     AppCompatActivity(),
     CommentsAdapter.Delegate,

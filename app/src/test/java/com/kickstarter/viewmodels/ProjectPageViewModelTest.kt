@@ -69,6 +69,7 @@ import java.math.RoundingMode
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.projectpage")
 class ProjectPageViewModelTest : KSRobolectricTestCase() {
     private lateinit var vm: ProjectPageViewModel.ProjectPageViewModel
     private val backingDetailsIsVisible = TestSubscriber<Boolean>()

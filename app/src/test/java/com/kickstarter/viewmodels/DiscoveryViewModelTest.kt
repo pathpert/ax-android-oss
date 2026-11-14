@@ -41,6 +41,7 @@ import org.junit.After
 import org.junit.Test
 import org.mockito.Mockito
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class DiscoveryViewModelTest : KSRobolectricTestCase() {
     private lateinit var vm: DiscoveryViewModel.DiscoveryViewModel
     private val clearPages = TestSubscriber<List<Int>>()

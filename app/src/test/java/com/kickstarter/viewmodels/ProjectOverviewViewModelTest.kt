@@ -37,6 +37,7 @@ import org.junit.After
 import org.junit.Test
 import java.util.Arrays
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class ProjectOverviewViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var vm: ProjectOverviewViewModel

@@ -170,53 +170,36 @@ interface NotificationsViewModel {
                 .addToDisposable(disposables)
         }
 
-        override fun notifyMobileOfBackings(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfBackings(checked).build())
-            }
+        private fun updateUser(update: User.Builder.() -> User.Builder) {
+            this.userOutput.value?.let { this.userInput.onNext(it.toBuilder().update().build()) }
         }
 
-        override fun notifyMobileOfComments(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfComments(checked).build())
-            }
-        }
+        override fun notifyMobileOfBackings(checked: Boolean) =
+            updateUser { notifyMobileOfBackings(checked) }
 
-        override fun notifyMobileOfCreatorEdu(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfCreatorEdu(checked).build())
-            }
-        }
+        override fun notifyMobileOfComments(checked: Boolean) =
+            updateUser { notifyMobileOfComments(checked) }
 
-        override fun notifyMobileOfFollower(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfFollower(checked).build())
-            }
-        }
+        override fun notifyMobileOfCreatorEdu(checked: Boolean) =
+            updateUser { notifyMobileOfCreatorEdu(checked) }
 
-        override fun notifyMobileOfFriendActivity(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfFriendActivity(checked).build())
-            }
-        }
+        override fun notifyMobileOfFollower(checked: Boolean) =
+            updateUser { notifyMobileOfFollower(checked) }
 
-        override fun notifyMobileOfMessages(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfMessages(checked).build())
-            }
-        }
+        override fun notifyMobileOfFriendActivity(checked: Boolean) =
+            updateUser { notifyMobileOfFriendActivity(checked) }
 
-        override fun notifyMobileOfPostLikes(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfPostLikes(checked).build())
-            }
-        }
+        override fun notifyMobileOfMessages(checked: Boolean) =
+            updateUser { notifyMobileOfMessages(checked) }
 
-        override fun notifyMobileOfUpdates(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfUpdates(checked).build())
-            }
-        }
+        override fun notifyMobileOfPostLikes(checked: Boolean) =
+            updateUser { notifyMobileOfPostLikes(checked) }
+
+        override fun notifyMobileOfUpdates(checked: Boolean) =
+            updateUser { notifyMobileOfUpdates(checked) }
+
+        override fun notifyMobileOfMarketingUpdate(checked: Boolean) =
+            updateUser { notifyMobileOfMarketingUpdate(checked) }
 
         override fun notifyOfBackings(checked: Boolean) {
             this.userOutput.value?.let {
@@ -228,59 +211,29 @@ interface NotificationsViewModel {
             }
         }
 
-        override fun notifyMobileOfMarketingUpdate(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyMobileOfMarketingUpdate(checked).build())
-            }
-        }
+        override fun notifyOfComments(checked: Boolean) =
+            updateUser { notifyOfComments(checked) }
 
-        override fun notifyOfComments(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyOfComments(checked).build())
-            }
-        }
+        override fun notifyOfCommentReplies(checked: Boolean) =
+            updateUser { notifyOfCommentReplies(checked) }
 
-        override fun notifyOfCommentReplies(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyOfCommentReplies(checked).build())
-            }
-        }
+        override fun notifyOfCreatorDigest(checked: Boolean) =
+            updateUser { notifyOfCreatorDigest(checked) }
 
-        override fun notifyOfCreatorDigest(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyOfCreatorDigest(checked).build())
-            }
-        }
+        override fun notifyOfCreatorEdu(checked: Boolean) =
+            updateUser { notifyOfCreatorEdu(checked) }
 
-        override fun notifyOfCreatorEdu(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyOfCreatorEdu(checked).build())
-            }
-        }
+        override fun notifyOfFollower(checked: Boolean) =
+            updateUser { notifyOfFollower(checked) }
 
-        override fun notifyOfFollower(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyOfFollower(checked).build())
-            }
-        }
+        override fun notifyOfFriendActivity(checked: Boolean) =
+            updateUser { notifyOfFriendActivity(checked) }
 
-        override fun notifyOfFriendActivity(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyOfFriendActivity(checked).build())
-            }
-        }
+        override fun notifyOfMessages(checked: Boolean) =
+            updateUser { notifyOfMessages(checked) }
 
-        override fun notifyOfMessages(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyOfMessages(checked).build())
-            }
-        }
-
-        override fun notifyOfUpdates(checked: Boolean) {
-            this.userOutput.value?.let {
-                this.userInput.onNext(it.toBuilder().notifyOfUpdates(checked).build())
-            }
-        }
+        override fun notifyOfUpdates(checked: Boolean) =
+            updateUser { notifyOfUpdates(checked) }
 
         override fun creatorDigestFrequencyIsGone() = this.creatorDigestFrequencyIsGone
 

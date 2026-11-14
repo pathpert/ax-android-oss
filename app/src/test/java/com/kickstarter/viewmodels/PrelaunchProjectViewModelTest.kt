@@ -37,6 +37,7 @@ import org.mockito.Mockito
 import retrofit2.HttpException
 import java.util.concurrent.TimeUnit
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class PrelaunchProjectViewModelTest : KSRobolectricTestCase() {
     private lateinit var vm: PrelaunchProjectViewModel.PrelaunchProjectViewModel
 

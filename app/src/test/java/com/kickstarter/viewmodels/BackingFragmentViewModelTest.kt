@@ -40,6 +40,7 @@ import org.junit.After
 import org.junit.Test
 import java.math.RoundingMode
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class BackingFragmentViewModelTest : KSRobolectricTestCase() {
     private lateinit var vm: BackingFragmentViewModel.BackingFragmentViewModel
 

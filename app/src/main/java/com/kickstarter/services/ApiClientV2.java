@@ -56,6 +56,10 @@ import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
 
+/**
+ * @deprecated Legacy monolithic Retrofit API client. Use domain-specific clients or feature repositories.
+ */
+@Deprecated
 public final class ApiClientV2 implements ApiClientTypeV2 {
   private final ApiServiceV2 service;
   private final Gson gson;

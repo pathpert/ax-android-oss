@@ -31,6 +31,7 @@ import org.junit.Test
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
+@Deprecated("Legacy monolithic test suite strangler-figged by feature unit tests in com.kickstarter.features.*")
 class ThreadViewModelTest : KSRobolectricTestCase() {
 
     private lateinit var vm: ThreadViewModel.ThreadViewModel
