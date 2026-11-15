@@ -32,6 +32,12 @@ import androidx.preference.PreferenceManager;
 import dagger.Module;
 import dagger.Provides;
 
+/**
+ * Application component for AppAnalyticsModule.
+ *
+ * Negative constraints:
+ * - Do not mutate internal state directly from external callers.
+ */
 @Module
 public final class AppAnalyticsModule {
 
