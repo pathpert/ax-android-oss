@@ -20,6 +20,12 @@ import com.kickstarter.viewmodels.WebViewEvent
 import com.kickstarter.viewmodels.WebViewViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Activity displaying and coordinating user interactions for WebViewActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class WebViewActivity : ComponentActivity() {
     private lateinit var binding: WebViewLayoutBinding
     private lateinit var viewModelFactory: WebViewViewModel.Factory

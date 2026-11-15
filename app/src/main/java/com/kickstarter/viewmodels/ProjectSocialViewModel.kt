@@ -11,6 +11,12 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+/**
+ * ViewModel managing state transitions and user intents for ProjectSocialViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 @Deprecated(
     message = "Legacy monolithic path replaced by SocialShareViewModel under com.kickstarter.features.socialshare.viewmodel.",
     replaceWith = ReplaceWith("SocialShareViewModel", "com.kickstarter.features.socialshare.viewmodel.SocialShareViewModel")

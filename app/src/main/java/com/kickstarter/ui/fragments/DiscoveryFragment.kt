@@ -28,6 +28,12 @@ import com.kickstarter.viewmodels.DiscoveryFragmentViewModel
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
 
+/**
+ * Fragment presenting UI and collecting view states for DiscoveryFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.discovery")
 class DiscoveryFragment : Fragment() {
     private var heartsAnimation: AnimatorSet? = null

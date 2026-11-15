@@ -10,6 +10,12 @@ import com.kickstarter.viewmodels.ActivitySampleProjectViewHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for ActivitySampleProjectViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ActivitySampleProjectViewHolder(
     private val binding: ActivitySampleProjectViewBinding,
     private val delegate: Delegate

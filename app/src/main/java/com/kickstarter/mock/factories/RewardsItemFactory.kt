@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.models.RewardsItem
 import com.kickstarter.models.RewardsItem.Companion.builder
 
+/**
+ * Test mock implementation for RewardsItemFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object RewardsItemFactory {
     @JvmStatic
     fun rewardsItem(): RewardsItem {

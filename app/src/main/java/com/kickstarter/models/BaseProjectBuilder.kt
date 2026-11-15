@@ -3,6 +3,12 @@ package com.kickstarter.models
 import com.kickstarter.libs.Permission
 import org.joda.time.DateTime
 
+/**
+ * Domain data model representing BaseProjectBuilder.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Suppress("UNCHECKED_CAST")
 open class BaseProjectBuilder<T : BaseProjectBuilder<T>>(
     var availableCardTypes: List<String>? = null,

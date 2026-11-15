@@ -5,6 +5,12 @@ import com.kickstarter.libs.utils.Secrets;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * Library utility component for ApiEndpoint.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 public enum ApiEndpoint {
   PRODUCTION("Production", Secrets.Api.Endpoint.PRODUCTION),
   STAGING("Staging", Secrets.Api.Endpoint.STAGING),

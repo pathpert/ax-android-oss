@@ -7,6 +7,12 @@ import com.kickstarter.models.Reward.Companion.builder
 import com.kickstarter.models.SingleLocation
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for RewardFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object RewardFactory {
     val ESTIMATED_DELIVERY = DateTime.parse("2019-03-26T19:26:09Z")
 

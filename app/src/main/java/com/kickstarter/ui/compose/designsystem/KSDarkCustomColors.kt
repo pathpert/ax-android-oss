@@ -1,6 +1,12 @@
 package com.kickstarter.ui.compose.designsystem
 
 // TODO: Change colors to reflect actual dark theme when available
+/**
+ * UI component rendering KSDarkCustomColors.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 val KSDarkCustomColors = KSCustomColors(
     // New Colors
     // Text

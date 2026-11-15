@@ -36,6 +36,12 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 
+/**
+ * ViewModel managing state transitions and user intents for CrowdfundCheckoutViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 @Deprecated(
     message = "Legacy monolithic ViewModel replaced by CrowdfundCheckoutFeatureViewModel",
     replaceWith = ReplaceWith(

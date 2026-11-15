@@ -42,6 +42,12 @@ import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
+/**
+ * Utility and helper extensions for AnalyticEventsUtils.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 object AnalyticEventsUtils {
 
     @JvmOverloads
@@ -273,10 +279,8 @@ object AnalyticEventsUtils {
         val properties = MapUtils.prefixKeys(props, prefix)
         return properties
     }
-
     fun videoFeedItemProperties(item: VideoFeedItem, position: Int): Map<String, Any> =
         VideoAnalyticsUtils.videoFeedItemProperties(item, position)
-
     fun videoFeedPageViewedProperties(
         item: VideoFeedItem,
         toPosition: Int,

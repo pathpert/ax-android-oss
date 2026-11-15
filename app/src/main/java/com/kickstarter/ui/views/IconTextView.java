@@ -14,6 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 
+/**
+ * UI component rendering IconTextView.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 public class IconTextView extends AppCompatTextView {
   @Inject Font font;
 

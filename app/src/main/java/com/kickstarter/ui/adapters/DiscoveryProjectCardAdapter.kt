@@ -11,6 +11,12 @@ import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.viewholders.ProjectCardViewHolder
 
+/**
+ * UI binding component for DiscoveryProjectCardAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class DiscoveryProjectCardAdapter(private val delegate: Delegate) : KSListAdapter() {
     interface Delegate :
         ProjectCardViewHolder.Delegate

@@ -7,6 +7,12 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.annotation.NonNull;
 
+/**
+ * UI component rendering SortTabLayout.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 public final class SortTabLayout extends TabLayout {
 
   public SortTabLayout(final @NonNull Context context) {

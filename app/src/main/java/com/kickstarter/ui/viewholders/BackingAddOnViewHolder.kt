@@ -15,6 +15,12 @@ import com.kickstarter.viewmodels.BackingAddOnViewHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for BackingAddOnViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class BackingAddOnViewHolder(private val binding: ItemAddOnPledgeBinding, private val viewListener: ViewListener) : KSViewHolder(binding.root) {
 
     interface ViewListener {

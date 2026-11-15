@@ -18,6 +18,12 @@ import com.kickstarter.viewmodels.MessageHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for MessageViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class MessageViewHolder(private val binding: MessageViewBinding) : KSViewHolder(binding.root) {
     private val viewModel = MessageHolderViewModel.ViewModel(environment())
     private val disposables = CompositeDisposable()

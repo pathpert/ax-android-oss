@@ -32,6 +32,12 @@ import com.kickstarter.ui.viewholders.RewardShippedViewHolder
 import com.kickstarter.ui.viewholders.SurveyHeaderViewHolder
 import com.kickstarter.ui.viewholders.SurveyViewHolder
 
+/**
+ * UI binding component for ActivityFeedAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ActivityFeedAdapter(private val delegate: Delegate?) : KSAdapter() {
     interface Delegate :
         ErroredBackingViewHolder.Delegate,

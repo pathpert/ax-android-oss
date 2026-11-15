@@ -2,6 +2,12 @@ package com.kickstarter.libs.htmlparser
 
 import org.jsoup.nodes.Element
 
+/**
+ * Library utility component for ViewElement.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 interface ViewElement
 
 data class TextViewElement(var components: List<TextComponent>) : ViewElement

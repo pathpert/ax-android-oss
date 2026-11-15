@@ -29,6 +29,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
+/**
+ * Fragment presenting UI and collecting view states for ProjectCampaignFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class ProjectCampaignFragment :
     Fragment(),
     Configure,

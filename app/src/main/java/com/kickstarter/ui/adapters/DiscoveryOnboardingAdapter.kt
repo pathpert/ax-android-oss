@@ -8,6 +8,12 @@ import com.kickstarter.databinding.DiscoveryOnboardingViewBinding
 import com.kickstarter.ui.viewholders.DiscoveryOnboardingViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for DiscoveryOnboardingAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class DiscoveryOnboardingAdapter(private val delegate: Delegate) : KSListAdapter() {
     interface Delegate :
         DiscoveryOnboardingViewHolder.Delegate

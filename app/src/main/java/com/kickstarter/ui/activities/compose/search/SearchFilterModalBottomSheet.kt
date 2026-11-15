@@ -18,6 +18,12 @@ import com.kickstarter.models.Tag
 import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 
+/**
+ * Activity displaying and coordinating user interactions for SearchFilterModalBottomSheet.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchFilterModalBottomSheet(

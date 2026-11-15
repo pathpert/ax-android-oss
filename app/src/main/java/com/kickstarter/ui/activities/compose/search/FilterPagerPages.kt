@@ -11,6 +11,12 @@ import com.kickstarter.services.DiscoveryParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * Activity displaying and coordinating user interactions for FilterPagerPageItem.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun FilterPagerPageItem(
     page: Int,

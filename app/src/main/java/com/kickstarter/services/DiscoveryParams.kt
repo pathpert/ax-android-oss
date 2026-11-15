@@ -15,6 +15,12 @@ import com.kickstarter.models.User
 import kotlinx.parcelize.Parcelize
 import java.util.Locale
 
+/**
+ * Network or service component for DiscoveryParams.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.discovery.data.DiscoveryQuery")
 class DiscoveryParams private constructor(

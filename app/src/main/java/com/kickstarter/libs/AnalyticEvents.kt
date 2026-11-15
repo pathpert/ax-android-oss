@@ -38,6 +38,12 @@ import com.kickstarter.ui.data.CheckoutData
 import com.kickstarter.ui.data.PledgeData
 import com.kickstarter.ui.data.ProjectData
 
+/**
+ * Library utility component for AnalyticEvents.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.*.data.*Tracker")
 class AnalyticEvents(trackingClients: List<TrackingClientType?>) {
 
@@ -272,23 +278,17 @@ class AnalyticEvents(trackingClients: List<TrackingClientType?>) {
 
     fun trackSharePlatformCTAClicked(platform: SocialSharePlatform, contextPage: EventContextValues.ContextPageName) =
         projectEvents.trackSharePlatformCTAClicked(platform, contextPage)
-
     fun trackVideoFeedCTAClicked(project: Project, videoId: Long, ctaType: EventContextValues.CtaContextName, watchTimeAtClick: Long? = null) =
         projectEvents.trackVideoFeedCTAClicked(project, videoId, ctaType, watchTimeAtClick)
-
     fun reset() = client.reset()
-
     internal class ProxyClient(private val clients: List<TrackingClientType?>) {
         fun track(eventName: String) {
             clients.forEach { it?.track(eventName) }
         }
-
         fun track(eventName: String, additionalProperties: Map<String, Any>) {
             clients.forEach { it?.track(eventName, additionalProperties) }
         }
-
         fun reset() = clients.forEach { it?.reset() }
-
         fun loggedInUser(): User? = clients.firstOrNull()?.loggedInUser()
     }
 }

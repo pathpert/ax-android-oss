@@ -9,6 +9,12 @@ import com.kickstarter.viewmodels.ExpandableHeaderViewHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for ExpandableHeaderViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ExpandableHeaderViewHolder(private val binding: ExpandableHeaderItemBinding) : KSViewHolder(binding.root) {
     private var viewModel = ExpandableHeaderViewHolderViewModel.ViewModel(environment())
     private var disposables: CompositeDisposable = CompositeDisposable()

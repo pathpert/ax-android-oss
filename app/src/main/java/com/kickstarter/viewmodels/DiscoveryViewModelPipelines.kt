@@ -24,6 +24,12 @@ import com.kickstarter.ui.intentmappers.DiscoveryIntentMapper
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * ViewModel managing state transitions and user intents for DiscoveryViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal fun DiscoveryViewModel.DiscoveryViewModel.initPipelines(disposables: CompositeDisposable) {
     showActivityFeed = activityFeedClick
     showHelp = loggedOutHelpClick

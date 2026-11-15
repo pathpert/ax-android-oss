@@ -12,6 +12,12 @@ import com.kickstarter.models.ShippingRule
 import com.kickstarter.ui.viewholders.KSArrayViewHolder
 import com.kickstarter.ui.viewholders.ShippingRuleViewHolder
 
+/**
+ * UI binding component for ShippingRulesAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ShippingRulesAdapter(ctx: Context, private val resourceId: Int, val items: ArrayList<Pair<ShippingRule, Project>>, private val delegate: Delegate) : KSArrayAdapter<Pair<ShippingRule, Project>>(ctx, resourceId, items) {
 
     interface Delegate : ShippingRuleViewHolder.Delegate

@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.models.Video
 import com.kickstarter.models.Video.Companion.builder
 
+/**
+ * Test mock implementation for VideoFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object VideoFactory {
     fun video(): Video {
         return builder()

@@ -8,6 +8,12 @@ import com.kickstarter.databinding.ItemErrorPaginationBinding
 import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.viewholders.PaginationErrorViewHolder
 
+/**
+ * UI binding component for CommentPaginationErrorAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class CommentPaginationErrorAdapter(private val delegate: Delegate) : KSListAdapter() {
     interface Delegate : PaginationErrorViewHolder.ViewListener
 

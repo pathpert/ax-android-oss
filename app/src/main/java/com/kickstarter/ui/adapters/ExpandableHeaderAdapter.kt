@@ -13,6 +13,12 @@ import com.kickstarter.ui.viewholders.EmptyViewHolder
 import com.kickstarter.ui.viewholders.ExpandableHeaderViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for ExpandableHeaderAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ExpandableHeaderAdapter : KSAdapter() {
     init {
         insertSection(SECTION_REWARD_SUMMARY, emptyList<Pair<Project, Reward>>())

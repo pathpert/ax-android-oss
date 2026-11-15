@@ -31,6 +31,12 @@ import com.kickstarter.ui.data.PledgeReason
 import com.kickstarter.ui.data.ProjectData
 import com.kickstarter.viewmodels.projectpage.RewardsSelectionViewModel
 
+/**
+ * Fragment presenting UI and collecting view states for RewardsFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class RewardsFragment : Fragment() {
 
     private lateinit var dialog: AlertDialog

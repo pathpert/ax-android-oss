@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.models.ProjectFaq
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for ProjectFaqFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class ProjectFaqFactory private constructor() {
     companion object {
         fun getFaqs(): List<ProjectFaq> {

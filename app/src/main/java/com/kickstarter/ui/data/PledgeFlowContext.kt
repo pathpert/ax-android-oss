@@ -1,5 +1,11 @@
 package com.kickstarter.ui.data
 
+/**
+ * UI component for PledgeFlowContext.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 enum class PledgeFlowContext(val trackingString: String) {
     CHANGE_REWARD("change_reward"),
     FIX_ERRORED_PLEDGE("fix_errored_pledge"),

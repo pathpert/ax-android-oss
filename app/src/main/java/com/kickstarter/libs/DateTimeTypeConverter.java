@@ -13,6 +13,12 @@ import java.lang.reflect.Type;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Library utility component for DateTimeTypeConverter.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 public class DateTimeTypeConverter implements JsonSerializer<DateTime>, JsonDeserializer<DateTime> {
   @Override
   public JsonElement serialize(final @NonNull DateTime src, final @NonNull Type srcType,

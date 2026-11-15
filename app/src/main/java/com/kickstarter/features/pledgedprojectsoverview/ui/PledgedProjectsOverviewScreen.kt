@@ -72,6 +72,12 @@ import com.kickstarter.ui.toolbars.compose.TopToolBar
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
+/**
+ * Feature component for PledgedProjectsOverviewScreen in pledgedprojectsoverview module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PledgedProjectsOverviewScreen(
@@ -103,12 +109,10 @@ fun PledgedProjectsOverviewScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val pullRefreshState: PullToRefreshState = rememberPullToRefreshState()
-
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     var isSheetOpen by remember { mutableStateOf(false) }
-
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         snackbarHost = {
@@ -192,11 +196,9 @@ fun PledgedProjectsOverviewScreen(
                                 Spacer(modifier = Modifier.height(dimensions.paddingMedium))
                             }
                         }
-
                         items(
                             count = ppoCards.itemCount
                         ) { index ->
-
                             ppoCards[index]?.let { ppoData ->
                                 PPOCardView(
                                     viewType = ppoData.viewType() ?: PPOCardViewType.UNKNOWN,
@@ -244,7 +246,6 @@ fun PledgedProjectsOverviewScreen(
                                                 projectID = ppoData.projectId ?: ""
                                                 openConfirmAddressAlertDialog.value = true
                                             }
-
                                             else -> {
                                                 onPrimaryActionButtonClicked(ppoData)
                                             }
@@ -261,7 +262,6 @@ fun PledgedProjectsOverviewScreen(
                                 )
                             }
                         }
-
                         item {
                             Spacer(modifier = Modifier.height(dimensions.paddingDoubleLarge))
                         }
@@ -269,7 +269,6 @@ fun PledgedProjectsOverviewScreen(
                 }
             }
         }
-
         PPOConfirmAddressDialog(
             isOpen = openConfirmAddressAlertDialog.value,
             confirmedAddress = confirmedAddress,
@@ -281,7 +280,6 @@ fun PledgedProjectsOverviewScreen(
             }
         )
     }
-
     PPOBetaMessagingSheet(
         isOpen = isSheetOpen,
         sheetState = sheetState,
@@ -294,4 +292,3 @@ fun PledgedProjectsOverviewScreen(
         onSeeAllBackedProjectsClick = onSeeAllBackedProjectsClick
     )
 }
-

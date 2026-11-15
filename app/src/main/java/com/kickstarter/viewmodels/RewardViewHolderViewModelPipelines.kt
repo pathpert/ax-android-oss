@@ -22,6 +22,12 @@ import io.reactivex.Observable
 import org.joda.time.DateTime
 import java.math.RoundingMode
 
+/**
+ * ViewModel managing state transitions and user intents for RewardViewHolderViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal fun RewardViewHolderViewModel.ViewModel.initPipelines() {
     val reward = this.projectDataAndReward
         .map { it.second }

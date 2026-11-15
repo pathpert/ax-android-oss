@@ -4,6 +4,12 @@ import com.kickstarter.databinding.MessageCenterTimestampLayoutBinding
 import com.kickstarter.libs.utils.DateTimeUtils
 import org.joda.time.DateTime
 
+/**
+ * UI binding component for MessageCenterTimestampViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class MessageCenterTimestampViewHolder(private val binding: MessageCenterTimestampLayoutBinding) :
     KSViewHolder(binding.root) {
 

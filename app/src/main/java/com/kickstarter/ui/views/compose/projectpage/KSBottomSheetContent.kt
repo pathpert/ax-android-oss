@@ -26,6 +26,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 
+/**
+ * UI component rendering KSBottomSheetContentTestTag.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 enum class KSBottomSheetContentTestTag() {
     TITLE,
     BODY,

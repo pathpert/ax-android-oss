@@ -44,6 +44,12 @@ import com.stripe.android.paymentsheet.PaymentSheetResultCallback
 import timber.log.Timber
 
 
+/**
+ * Fragment presenting UI and collecting view states for CrowdfundCheckoutFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.checkout")
 class CrowdfundCheckoutFragment : Fragment() {
 

@@ -31,6 +31,12 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * ViewModel managing state transitions and user intents for ThanksViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal fun ThanksViewModel.ThanksViewModel.initPipelines(disposables: CompositeDisposable) {
     val project = intent()
         .filter { it.getParcelableExtra<Parcelable?>(IntentKey.PROJECT).isNotNull() }

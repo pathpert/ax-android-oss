@@ -7,6 +7,12 @@ import com.kickstarter.viewmodels.FrequentlyAskedQuestionsViewHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for FrequentlyAskedQuestionsViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class FrequentlyAskedQuestionsViewHolder(
     val binding: ItemFrequentlyAskedQuestionCardBinding
 ) : KSViewHolder(binding.root) {

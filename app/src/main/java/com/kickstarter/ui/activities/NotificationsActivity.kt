@@ -17,6 +17,12 @@ import com.kickstarter.viewmodels.NotificationsViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for NotificationsActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.notifications")
 class NotificationsActivity : ComponentActivity() {
 

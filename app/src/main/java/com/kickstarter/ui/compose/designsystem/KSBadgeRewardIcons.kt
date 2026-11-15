@@ -7,6 +7,12 @@ import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
+/**
+ * UI component rendering featuredRewardStar.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 val featuredRewardStar: ImageVector
     get() {
         val existing = _featuredRewardStar

@@ -7,6 +7,12 @@ import com.kickstarter.ui.adapters.data.NavigationDrawerData
 import com.kickstarter.ui.viewholders.KSViewHolder
 import timber.log.Timber
 
+/**
+ * UI binding component for ChildFilterViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ChildFilterViewHolder(
     private val binding: DiscoveryDrawerChildFilterViewBinding,
     private val delegate: Delegate

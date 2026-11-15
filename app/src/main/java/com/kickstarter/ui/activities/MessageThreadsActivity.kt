@@ -29,6 +29,12 @@ import com.kickstarter.viewmodels.MessageThreadsViewModel.MessageThreadsViewMode
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for MessageThreadsActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class MessageThreadsActivity : AppCompatActivity() {
     private lateinit var adapter: MessageThreadsAdapter
     private lateinit var ksString: KSString

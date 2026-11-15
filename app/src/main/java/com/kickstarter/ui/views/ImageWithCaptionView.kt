@@ -25,6 +25,12 @@ import com.kickstarter.ui.extensions.loadGifImage
 import com.kickstarter.ui.extensions.loadWebp
 import com.kickstarter.ui.extensions.makeLinks
 
+/**
+ * UI component rendering ImageWithCaptionView.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @SuppressLint("ClickableViewAccessibility")
 class ImageWithCaptionView @JvmOverloads constructor(
     context: Context,

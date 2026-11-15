@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.libs.EnvironmentalCommitmentCategories
 import com.kickstarter.models.EnvironmentalCommitment
 
+/**
+ * Test mock implementation for ProjectEnvironmentalCommitmentFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class ProjectEnvironmentalCommitmentFactory private constructor() {
     companion object {
         fun getEnvironmentalCommitments(): List<EnvironmentalCommitment> {

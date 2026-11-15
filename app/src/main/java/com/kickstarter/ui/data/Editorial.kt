@@ -5,6 +5,12 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.kickstarter.R
 
+/**
+ * UI component for Editorial.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 enum class Editorial(
     @StringRes val ctaTitle: Int,
     @StringRes val ctaDescription: Int,

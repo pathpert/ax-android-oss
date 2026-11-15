@@ -7,6 +7,12 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Test mock implementation for DiscoverEnvelopeFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 public final class DiscoverEnvelopeFactory {
   private DiscoverEnvelopeFactory() {}
 

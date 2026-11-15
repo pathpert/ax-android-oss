@@ -9,6 +9,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+/**
+ * UI binding component for ProjectSocialViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ProjectSocialViewHolder(private val binding: ProjectSocialViewBinding) : KSViewHolder(binding.root) {
     private var friendObserver = BehaviorSubject.create<User>()
     private val disposables = CompositeDisposable()

@@ -39,6 +39,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.viewmodels.ReportProjectViewModel
 
+/**
+ * Activity displaying and coordinating user interactions for Rules.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun Rules(rule: Triple<String, String, String>, navigationAction: (String) -> Unit) {
     Row(

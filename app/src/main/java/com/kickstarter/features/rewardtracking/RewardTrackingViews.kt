@@ -34,6 +34,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 
+/**
+ * Feature component for RewardTrackingActivityPreview in rewardtracking module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 @Composable
 @Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)

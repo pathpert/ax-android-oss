@@ -10,6 +10,12 @@ import com.kickstarter.ui.adapters.projectcampaign.ViewElementAdapter
 import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.views.WebChromeVideoFullScreenClient
 
+/**
+ * UI binding component for ExternalViewViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ExternalViewViewHolder(
     val binding: ViewElementExternalSourceFromHtmlBinding,
     private val fullScreenDelegate: ViewElementAdapter.FullScreenDelegate,

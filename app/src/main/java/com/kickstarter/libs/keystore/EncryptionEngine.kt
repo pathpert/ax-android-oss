@@ -16,6 +16,12 @@ import java.security.KeyStore
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
+/**
+ * Library utility component for KSKeyStore.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 interface KSKeyStore {
     var ksKeyStore: KeyStore?
     fun getSecretKey(keyAlias: String): Key? {

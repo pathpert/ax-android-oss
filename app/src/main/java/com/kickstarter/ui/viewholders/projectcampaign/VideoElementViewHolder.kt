@@ -19,6 +19,12 @@ import com.kickstarter.ui.adapters.projectcampaign.ViewElementAdapter
 import com.kickstarter.ui.extensions.loadImage
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for VideoElementViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 @UnstableApi
 class VideoElementViewHolder(
     val binding: ViewElementVideoFromHtmlBinding,

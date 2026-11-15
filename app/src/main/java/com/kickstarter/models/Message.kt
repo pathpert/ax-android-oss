@@ -4,6 +4,12 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
+/**
+ * Domain data model representing Message.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 class Message internal constructor(
     private val body: String,

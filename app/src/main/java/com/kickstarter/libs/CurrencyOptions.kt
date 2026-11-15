@@ -3,6 +3,12 @@ package com.kickstarter.libs
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Library utility component for CurrencyOptions.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 @Parcelize
 class CurrencyOptions internal constructor(
     private val country: String?,

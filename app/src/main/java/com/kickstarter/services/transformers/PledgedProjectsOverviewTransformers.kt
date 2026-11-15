@@ -22,6 +22,12 @@ import com.kickstarter.type.PledgeManagerStateEnum
 import com.kickstarter.type.PledgeProjectsOverviewSort
 import com.kickstarter.type.ShippingPreference
 
+/**
+ * Network or service component for getPledgedProjectsOverviewQuery.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 fun getPledgedProjectsOverviewQuery(queryInput: PledgedProjectsOverviewQueryData): PledgedProjectsOverviewQuery {
     val tierTypes =
         queryInput.tierTypes?.map { getPledgeTierType(it) }?.filter { it != PledgeProjectsOverviewSort.UNKNOWN__ }

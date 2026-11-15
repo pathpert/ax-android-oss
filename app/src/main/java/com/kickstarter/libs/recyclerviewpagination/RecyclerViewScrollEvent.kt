@@ -2,6 +2,12 @@ package com.kickstarter.libs.recyclerviewpagination
 
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * Library utility component for RecyclerViewScrollEvent.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class RecyclerViewScrollEvent private constructor(
     recyclerView: RecyclerView,
     private val dx: Int,

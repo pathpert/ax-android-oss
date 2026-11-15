@@ -9,6 +9,12 @@ import com.kickstarter.type.PaymentIncrementState
 import com.kickstarter.type.PaymentIncrementStateReason
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for PaymentIncrementFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class PaymentIncrementFactory {
     companion object {
 

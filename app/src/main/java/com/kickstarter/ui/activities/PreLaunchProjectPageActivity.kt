@@ -46,6 +46,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
+/**
+ * Activity displaying and coordinating user interactions for PreLaunchProjectPageActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class PreLaunchProjectPageActivity : ComponentActivity() {
 
     private lateinit var viewModelFactory: PrelaunchProjectViewModel.Factory

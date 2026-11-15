@@ -15,6 +15,12 @@ import com.kickstarter.models.Tag
 import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 
+/**
+ * Activity displaying and coordinating user interactions for rememberSearchFilterCounts.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun rememberSearchFilterCounts(): SnapshotStateMap<String, Int> {
     return remember {

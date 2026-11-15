@@ -6,6 +6,12 @@ import com.kickstarter.models.Category
 import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.data.Editorial
 
+/**
+ * ViewModel managing state transitions and user intents for ProjectCardHolderViewModelHelper.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal object ProjectCardHolderViewModelHelper {
 
     fun shouldShowLocationTag(params: DiscoveryParams?): Boolean {

@@ -1,5 +1,11 @@
 package com.kickstarter.libs.models
 
+/**
+ * Domain data model representing Country.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 enum class Country(
     val countryCode: String,
     val currencyCode: String,

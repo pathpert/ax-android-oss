@@ -25,6 +25,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.shapes
 import com.kickstarter.ui.views.compose.projectpage.KSBottomSheetContent
 
+/**
+ * UI component rendering KSBottomSheetDialogFragment.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class KSBottomSheetDialogFragment(
     val titleText: String,
     val bodyText: String,

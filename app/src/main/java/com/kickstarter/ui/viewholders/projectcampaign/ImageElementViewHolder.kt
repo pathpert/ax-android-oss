@@ -7,6 +7,12 @@ import com.kickstarter.libs.utils.ApplicationUtils
 import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.views.OnImageWithCaptionClickedListener
 
+/**
+ * UI binding component for ImageElementViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ImageElementViewHolder(
     val binding: ViewElementImageFromHtmlBinding
 ) : KSViewHolder(binding.root) {

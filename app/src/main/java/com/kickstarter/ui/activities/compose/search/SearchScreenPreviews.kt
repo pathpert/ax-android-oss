@@ -29,6 +29,12 @@ import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.compose.designsystem.KSTheme
 import io.reactivex.Observable
 
+/**
+ * Activity displaying and coordinating user interactions for PagerPreview.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)

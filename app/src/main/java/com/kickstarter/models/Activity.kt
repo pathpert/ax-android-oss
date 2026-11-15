@@ -8,6 +8,12 @@ import org.joda.time.DateTime
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
+/**
+ * Domain data model representing Activity.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 class Activity internal constructor(
     @Category

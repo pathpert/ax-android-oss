@@ -13,6 +13,12 @@ import com.kickstarter.ui.views.OnCommentCardClickedListener
 import com.kickstarter.viewmodels.CommentsViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for CommentCardViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class CommentCardViewHolder(
     val binding: ItemCommentCardBinding,
     val delegate: Delegate,

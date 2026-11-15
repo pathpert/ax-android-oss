@@ -31,6 +31,12 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * Spinner and list adapter displaying localized human-readable enum values.
+ *
+ * Negative constraints:
+ * - Do not mutate item lists after binding without notifying adapter.
+ */
 public class EnumAdapter<T extends Enum<T>> extends BindableAdapter<T> {
   private final T[] enumConstants;
   private final boolean showNull;

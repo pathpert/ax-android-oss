@@ -6,6 +6,12 @@ import com.kickstarter.libs.utils.extensions.addToDisposable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for State.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 enum class State {
     DEFAULT, LOADING
 }

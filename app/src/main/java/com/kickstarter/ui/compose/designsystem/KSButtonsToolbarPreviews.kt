@@ -24,6 +24,12 @@ import com.kickstarter.ui.compose.designsystem.videoplayer.icons.Play
 import com.kickstarter.ui.compose.designsystem.videoplayer.icons.Rewind
 import com.kickstarter.ui.compose.designsystem.videoplayer.icons.Share
 
+/**
+ * UI component rendering KSSearchToolbarButtons.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Composable
 @Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)

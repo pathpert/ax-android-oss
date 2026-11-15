@@ -13,6 +13,12 @@ import com.kickstarter.models.StoredCard
 import com.kickstarter.viewmodels.RewardCardUnselectedViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for RewardCardUnselectedViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class RewardCardUnselectedViewHolder(val binding: ItemRewardUnselectedCardBinding, val delegate: Delegate) : KSViewHolder(binding.root) {
 
     interface Delegate {

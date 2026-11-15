@@ -12,6 +12,12 @@ import com.kickstarter.utils.WindowInsetsUtil
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 
+/**
+ * Activity displaying and coordinating user interactions for HelpActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 open class HelpActivity : ComponentActivity() {
     @IntDef(
         HELP_TYPE_TERMS,

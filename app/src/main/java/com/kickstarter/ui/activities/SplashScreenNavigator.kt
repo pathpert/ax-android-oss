@@ -16,6 +16,12 @@ import com.kickstarter.ui.data.LoginReason
 import com.kickstarter.ui.extensions.startVideoFeed
 import com.kickstarter.ui.extensions.startWebViewActivity
 
+/**
+ * Activity displaying and coordinating user interactions for SplashScreenActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 internal fun SplashScreenActivity.projectIntent(uri: Uri): Intent {
     val projectIntent = Intent().getProjectIntent(this)
         .setData(uri)

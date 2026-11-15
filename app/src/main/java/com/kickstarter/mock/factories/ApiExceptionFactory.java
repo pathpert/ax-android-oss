@@ -12,6 +12,12 @@ import androidx.annotation.NonNull;
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 
+/**
+ * Test mock implementation for ApiExceptionFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 public final class ApiExceptionFactory {
   private ApiExceptionFactory() {}
 

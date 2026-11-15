@@ -28,6 +28,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.viewmodels.projectpage.ProjectAIViewModel
 
+/**
+ * Activity displaying and coordinating user interactions for TestTag.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 enum class TestTag {
     TILE_TAG,
     FOUNDING_SECTION_TITLE,

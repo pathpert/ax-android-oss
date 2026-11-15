@@ -10,6 +10,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Library utility component for DateAdapter.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class DateAdapter : Adapter<Date> {
 
     private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

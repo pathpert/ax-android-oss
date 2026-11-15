@@ -6,6 +6,12 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import com.kickstarter.R
 
+/**
+ * Utility and helper extensions for UrlUtils.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 object UrlUtils {
 
     private const val KEY_REF = "ref"

@@ -1,5 +1,11 @@
 package com.kickstarter.models
 
+/**
+ * Domain data model representing UserBuilderHelper.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 internal object UserBuilderHelper {
     fun build(b: BaseUserBuilder<*>): User = User(
         alumniNewsletter = b.alumniNewsletter,

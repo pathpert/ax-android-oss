@@ -13,6 +13,12 @@ import com.kickstarter.libs.utils.EventContextValues.CtaContextName.DENY
 import com.kickstarter.libs.utils.extensions.getEnvironment
 import com.kickstarter.viewmodels.ConsentManagementDialogFragmentViewModel
 
+/**
+ * Fragment presenting UI and collecting view states for ConsentManagementDialogFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class ConsentManagementDialogFragment : DialogFragment() {
 
     private lateinit var viewModelFactory: ConsentManagementDialogFragmentViewModel.Factory

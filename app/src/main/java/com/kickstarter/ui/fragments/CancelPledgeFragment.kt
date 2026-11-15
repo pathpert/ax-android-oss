@@ -23,6 +23,12 @@ import com.kickstarter.ui.extensions.snackbar
 import com.kickstarter.ui.extensions.text
 import kotlinx.coroutines.launch
 
+/**
+ * Fragment presenting UI and collecting view states for CancelPledgeFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class CancelPledgeFragment : Fragment() {
 
     interface CancelPledgeDelegate {

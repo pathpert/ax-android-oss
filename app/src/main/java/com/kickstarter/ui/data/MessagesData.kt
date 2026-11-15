@@ -6,6 +6,12 @@ import com.kickstarter.models.MessageThread
 import com.kickstarter.models.Project
 import com.kickstarter.models.User
 
+/**
+ * UI component for MessagesData.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 data class MessagesData(
     val backingOrThread: Either<Backing, MessageThread>,
     val project: Project,

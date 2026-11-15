@@ -9,6 +9,12 @@ import com.kickstarter.models.EnvironmentalCommitment
 import com.kickstarter.ui.viewholders.EnvironmentalCommitmentsViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for EnvironmentalCommitmentsAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class EnvironmentalCommitmentsAdapter : KSListAdapter() {
 
     init {

@@ -18,6 +18,12 @@ import com.kickstarter.models.extensions.replaceSmallImageWithMediumIfEmpty
 import io.reactivex.Observable
 import org.joda.time.DateTime
 
+/**
+ * ViewModel managing state transitions and user intents for ProjectCardHolderViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal fun ProjectCardHolderViewModel.ViewModel.initPipelines() {
     projectForDeadlineCountdownDetail = project
     backersCountTextViewText = project

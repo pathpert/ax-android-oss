@@ -30,6 +30,12 @@ import com.kickstarter.ui.extensions.finishWithAnimation
 import com.kickstarter.ui.toolbars.compose.TopToolBar
 import com.kickstarter.viewmodels.ReportProjectViewModel
 
+/**
+ * Activity displaying and coordinating user interactions for ReportProjectActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class ReportProjectActivity : ComponentActivity() {
 
     private lateinit var viewModelFactory: ReportProjectViewModel.Factory

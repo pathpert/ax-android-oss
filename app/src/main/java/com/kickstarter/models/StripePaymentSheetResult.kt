@@ -2,6 +2,12 @@ package com.kickstarter.models
 
 import com.stripe.android.paymentsheet.PaymentSheetResult
 
+/**
+ * Domain data model representing StripePaymentSheetResult.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 sealed class StripePaymentSheetResult {
     object Completed : StripePaymentSheetResult()
     object Canceled : StripePaymentSheetResult()

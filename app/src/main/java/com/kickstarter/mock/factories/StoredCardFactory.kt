@@ -4,6 +4,12 @@ import com.kickstarter.models.StoredCard
 import com.kickstarter.type.CreditCardTypes
 import java.util.Date
 
+/**
+ * Test mock implementation for StoredCardFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object StoredCardFactory {
 
     fun fromPaymentSheetCard(): StoredCard {

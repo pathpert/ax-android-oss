@@ -8,6 +8,12 @@ import com.kickstarter.models.Activity
 import com.kickstarter.models.Activity.Companion.builder
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for ActivityFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object ActivityFactory {
     @JvmStatic
     fun activity(): Activity {

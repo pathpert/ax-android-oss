@@ -16,6 +16,12 @@ import com.kickstarter.ui.data.ProjectData
 import com.kickstarter.viewmodels.BackingFragmentViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Fragment presenting UI and collecting view states for BackingFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.backing")
 class BackingFragment : Fragment() {
 

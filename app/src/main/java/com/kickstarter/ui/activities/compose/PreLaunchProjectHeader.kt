@@ -31,6 +31,12 @@ import com.kickstarter.ui.compose.TextH6ExtraBoldTitle
 import com.kickstarter.ui.compose.TextWithKdsSupport700Bg
 import com.kickstarter.ui.views.compose.KsCreatorLayout
 
+/**
+ * Activity displaying and coordinating user interactions for PreLaunchProjectHeader.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun PreLaunchProjectHeader(
     project: Project?,

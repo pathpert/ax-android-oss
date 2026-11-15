@@ -8,6 +8,12 @@ import com.kickstarter.models.Order
 import com.kickstarter.models.Project
 import com.kickstarter.models.Reward
 
+/**
+ * Utility and helper extensions for Backing.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 fun Backing.isBacked(reward: Reward): Boolean {
     val rewardId = this.rewardId() ?: return isNoReward(reward)
     return rewardId == reward.id()

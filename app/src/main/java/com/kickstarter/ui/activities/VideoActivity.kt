@@ -31,6 +31,12 @@ import com.kickstarter.viewmodels.VideoViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for VideoActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class VideoActivity : AppCompatActivity() {
 
     private lateinit var build: Build

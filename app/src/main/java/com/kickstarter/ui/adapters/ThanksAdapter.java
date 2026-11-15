@@ -22,6 +22,12 @@ import com.kickstarter.ui.viewholders.ThanksShareViewHolder;
 import java.util.Collections;
 
 
+/**
+ * UI binding component for ThanksAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 public final class ThanksAdapter extends KSAdapter {
   private static final int SECTION_SHARE_VIEW = 0;
   private static final int SECTION_RECOMMENDED_PROJECTS_VIEW = 1;

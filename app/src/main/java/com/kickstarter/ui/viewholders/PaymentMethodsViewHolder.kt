@@ -8,6 +8,12 @@ import com.kickstarter.models.StoredCard
 import com.kickstarter.viewmodels.PaymentMethodsViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for PaymentMethodsViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class PaymentMethodsViewHolder(private val binding: ItemPaymentMethodBinding, val delegate: Delegate) : KSViewHolder(binding.root) {
 
     private val ksString = requireNotNull(environment().ksString())

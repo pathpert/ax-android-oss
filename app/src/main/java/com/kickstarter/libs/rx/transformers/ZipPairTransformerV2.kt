@@ -6,6 +6,12 @@ import io.reactivex.ObservableSource
 import io.reactivex.ObservableTransformer
 import io.reactivex.functions.BiFunction
 
+/**
+ * Library utility component for ZipPairTransformerV2.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class ZipPairTransformerV2<T, R>(private val second: Observable<R>) : ObservableTransformer<T, Pair<T, R>> {
     override fun apply(upstream: Observable<T>): ObservableSource<Pair<T, R>> {
         return Observable.zip(

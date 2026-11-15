@@ -52,6 +52,12 @@ import com.kickstarter.ui.toolbars.compose.TopToolBar
 import com.kickstarter.viewmodels.projectpage.SimilarProjectsUiState
 import timber.log.Timber
 
+/**
+ * Activity displaying and coordinating user interactions for PreLaunchProjectPageScreenPreview.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 @Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)

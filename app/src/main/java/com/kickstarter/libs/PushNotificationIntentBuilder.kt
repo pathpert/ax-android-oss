@@ -16,6 +16,12 @@ import com.kickstarter.ui.activities.ProjectPageActivity
 import com.kickstarter.ui.activities.SurveyResponseActivity
 import com.kickstarter.ui.activities.UpdateActivity
 
+/**
+ * Library utility component for PushNotificationIntentBuilder.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 internal object PushNotificationIntentBuilder {
 
     fun friendFollowActivityIntent(context: Context, envelope: PushNotificationEnvelope): PendingIntent {

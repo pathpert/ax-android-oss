@@ -8,6 +8,12 @@ import com.stripe.android.googlepaylauncher.GooglePayRepository
 import kotlinx.coroutines.tasks.await
 import org.json.JSONObject
 
+/**
+ * Application component for GooglePayAvailabilityUtil.
+ *
+ * Negative constraints:
+ * - Do not mutate internal state directly from external callers.
+ */
 object GooglePayAvailabilityUtil {
     /* This is a workaround that allows Google Pay to work in `Test` mode, pulled directly from
      * the associated Issue in the Stripe SDK: https://github.com/stripe/stripe-android/issues/13968 */

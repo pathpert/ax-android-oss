@@ -4,6 +4,12 @@ import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.ObservableTransformer
 
+/**
+ * Library utility component for CombineLatestPairTransformerV2.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class CombineLatestPairTransformerV2<S, T>(private val second: Observable<T>) :
     ObservableTransformer<S, android.util.Pair<S, T>> {
     override fun apply(upstream: Observable<S>): ObservableSource<android.util.Pair<S, T>> {

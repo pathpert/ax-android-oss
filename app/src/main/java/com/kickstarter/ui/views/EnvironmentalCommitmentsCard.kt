@@ -9,6 +9,12 @@ import androidx.core.content.withStyledAttributes
 import com.kickstarter.R
 import com.kickstarter.databinding.EnvironmentalCommitmentsCardBinding
 
+/**
+ * UI component rendering EnvironmentalCommitmentsCard.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class EnvironmentalCommitmentsCard @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

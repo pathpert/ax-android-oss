@@ -8,6 +8,12 @@ import com.kickstarter.databinding.EmptyCommentsLayoutBinding
 import com.kickstarter.models.Project
 import com.kickstarter.models.User
 
+/**
+ * UI binding component for EmptyCommentsViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class EmptyCommentsViewHolder(private val binding: EmptyCommentsLayoutBinding, private val delegate: Delegate) : KSViewHolder(binding.root) {
     private var project: Project? = null
     private var user: User? = null

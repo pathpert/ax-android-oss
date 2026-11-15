@@ -2,8 +2,11 @@ package com.kickstarter.libs
 
 import com.kickstarter.R
 
-/*
- * describes the source of the referrer
+/**
+ * Describes the source of the referrer for project discovery and analytics.
+ *
+ * Negative constraints:
+ * - Do not pass arbitrary string constants; strictly consume [ReferrerType] instances.
  */
 enum class ReferrerType(val referrerType: String, val referrerColorId: Int) {
     CUSTOM("custom", R.color.kds_create_300),

@@ -6,6 +6,12 @@ import com.kickstarter.models.User
 import com.kickstarter.services.DiscoveryParams
 import kotlinx.parcelize.Parcelize
 
+/**
+ * UI binding component for NavigationDrawerData.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 @Parcelize
 class NavigationDrawerData private constructor(
     private val user: User?,

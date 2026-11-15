@@ -5,6 +5,12 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * Library utility component for SimpleDividerItemDecoration.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class SimpleDividerItemDecoration(private val divider: Drawable) : RecyclerView.ItemDecoration() {
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         val left: Int = parent.paddingLeft

@@ -14,6 +14,12 @@ import com.kickstarter.ui.adapters.ProjectPagerAdapter
 import com.kickstarter.ui.data.ManagePledgeMenuOptions
 import com.kickstarter.ui.data.ProjectData
 
+/**
+ * Activity displaying and coordinating user interactions for ProjectPageActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 internal fun ProjectPageActivity.setClickListeners() {
     binding.pledgeContainerLayout.pledgeActionButton.setOnClickListener {
         this.viewModel.inputs.nativeProjectActionButtonClicked()

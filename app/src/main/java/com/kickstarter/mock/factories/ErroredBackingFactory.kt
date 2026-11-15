@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.models.ErroredBacking
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for ErroredBackingFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object ErroredBackingFactory {
     @JvmStatic
     fun erroredBacking(): ErroredBacking {

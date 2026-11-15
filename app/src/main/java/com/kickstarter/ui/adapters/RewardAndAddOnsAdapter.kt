@@ -13,6 +13,12 @@ import com.kickstarter.ui.viewholders.AddOnViewHolder
 import com.kickstarter.ui.viewholders.EmptyViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for RewardAndAddOnsAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class RewardAndAddOnsAdapter : KSAdapter() {
 
     init {

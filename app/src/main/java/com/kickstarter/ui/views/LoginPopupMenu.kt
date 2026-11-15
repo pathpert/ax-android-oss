@@ -12,6 +12,12 @@ import com.kickstarter.libs.utils.Secrets
 import com.kickstarter.ui.activities.HelpActivity
 import com.kickstarter.ui.activities.HelpActivity.Terms
 
+/**
+ * UI component rendering LoginPopupMenu.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class LoginPopupMenu(context: Context, anchor: View) : PopupMenu(context, anchor) {
 
     init {

@@ -5,6 +5,12 @@ import android.content.Intent
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * UI component for ActivityResult.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 @Parcelize
 class ActivityResult(
     val requestCode: Int,

@@ -25,6 +25,12 @@ import com.kickstarter.utils.WindowInsetsUtil
 import com.kickstarter.viewmodels.ProfileViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for ProfileActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class ProfileActivity : ComponentActivity() {
     private lateinit var adapter: ProfileAdapter
     private lateinit var paginator: RecyclerViewPaginatorV2

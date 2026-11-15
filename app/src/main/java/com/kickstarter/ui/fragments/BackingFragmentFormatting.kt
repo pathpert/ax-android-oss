@@ -24,6 +24,12 @@ import com.kickstarter.ui.extensions.loadCircleImage
 import com.kickstarter.ui.extensions.showErrorToast
 import com.kickstarter.ui.extensions.startDisclaimerChromeTab
 
+/**
+ * Fragment presenting UI and collecting view states for BackingFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 internal fun BackingFragment.stylizedTextViews(it: String) {
     binding?.receivedSectionLayout?.estimatedDeliveryLabel?.apply {
         val totalCharacters = text.length

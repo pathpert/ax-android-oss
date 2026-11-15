@@ -4,6 +4,12 @@ import android.os.Parcelable
 import com.kickstarter.models.Category
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for CategoriesEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class CategoriesEnvelope private constructor(

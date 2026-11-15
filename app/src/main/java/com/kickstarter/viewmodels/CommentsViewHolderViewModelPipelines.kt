@@ -18,6 +18,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
+/**
+ * ViewModel managing state transitions and user intents for CommentsViewHolderViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal fun CommentsViewHolderViewModel.ViewModel.initPipelines(
     environment: Environment,
     disposables: CompositeDisposable

@@ -4,6 +4,12 @@ import com.kickstarter.models.PaymentIncrement
 import com.kickstarter.models.PaymentPlan
 import com.kickstarter.models.PaymentPlan.Companion.builder
 
+/**
+ * Test mock implementation for PaymentPlanFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class PaymentPlanFactory {
     companion object {
 

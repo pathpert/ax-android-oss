@@ -23,6 +23,12 @@ import com.kickstarter.ui.data.MessagesData
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
+/**
+ * ViewModel managing state transitions and user intents for MessagesViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal fun MessagesViewModel.MessagesViewModel.initPipelines() {
     val configData = intent()
         .map { i: Intent ->

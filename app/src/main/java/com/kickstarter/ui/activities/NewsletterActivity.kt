@@ -19,6 +19,12 @@ import com.kickstarter.viewmodels.NewsletterViewModel.NewsletterViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for Newsletter.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 enum class Newsletter {
     ALL, ALUMNI, ARTS, FILMS, GAMES, HAPPENING, INVENT, MUSIC, PROMO, READS, WEEKLY
 }

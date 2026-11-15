@@ -18,6 +18,12 @@ import com.kickstarter.ui.activities.ProjectSocialActivity
 import com.kickstarter.ui.extensions.loadCircleImage
 import org.joda.time.DateTime
 
+/**
+ * Fragment presenting UI and collecting view states for ProjectOverviewFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 internal fun ProjectOverviewFragment.setAvatar(url: String) {
     binding.avatar.loadCircleImage(url)
 }

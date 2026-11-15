@@ -25,6 +25,12 @@ import com.kickstarter.R
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 
+/**
+ * UI component rendering KSButtonType.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 enum class KSButtonType {
     FILLED,
     GREEN,

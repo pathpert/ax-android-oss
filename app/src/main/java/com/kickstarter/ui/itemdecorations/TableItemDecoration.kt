@@ -6,6 +6,12 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.kickstarter.R
 
+/**
+ * UI component for TableItemDecoration.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 class TableItemDecoration : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {

@@ -29,6 +29,12 @@ import com.kickstarter.viewmodels.UpdateViewModel
 import io.reactivex.disposables.CompositeDisposable
 import okhttp3.Request
 
+/**
+ * Activity displaying and coordinating user interactions for UpdateActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class UpdateActivity : AppCompatActivity() {
     private lateinit var ksString: KSString
     private lateinit var binding: UpdateLayoutBinding

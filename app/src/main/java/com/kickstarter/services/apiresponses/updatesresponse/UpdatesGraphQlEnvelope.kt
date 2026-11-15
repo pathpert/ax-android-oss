@@ -6,6 +6,12 @@ import com.kickstarter.models.Update
 import com.kickstarter.services.apiresponses.commentresponse.PageInfoEnvelope
 import kotlinx.android.parcel.Parcelize
 
+/**
+ * Network or service component for UpdatesGraphQlEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 class UpdatesGraphQlEnvelope(
     val updates: List<Update>?,

@@ -17,6 +17,12 @@ import com.kickstarter.ui.views.CommentComposerStatus
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * ViewModel managing state transitions and user intents for ThreadViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal fun ThreadViewModel.ThreadViewModel.initPipelines(disposables: CompositeDisposable) {
     val commentData = ThreadViewModelHelper.getCommentCardDataFromIntent(intent)
         .distinctUntilChanged()
@@ -277,11 +283,9 @@ internal fun ThreadViewModel.ThreadViewModel.loadCommentListFromProjectOrUpdate(
         }
         ?.subscribe { this.onCommentReplies.onNext(it) }
         ?.addToDisposable(disposables)
-
     this.internalError
         .subscribe { this.initialError.onNext(it) }
         .addToDisposable(disposables)
-
     this.onCommentReplies
         .compose(Transformers.takePairWhenV2(internalError))
         .filter { it.first.first.isNotEmpty() }

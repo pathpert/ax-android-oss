@@ -23,6 +23,12 @@ import com.kickstarter.ui.compose.TextCaptionStyle
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KsButton
 
+/**
+ * Activity displaying and coordinating user interactions for PreLaunchBottomBar.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun PreLaunchBottomBar(
     modifier: Modifier = Modifier,

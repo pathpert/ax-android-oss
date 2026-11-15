@@ -18,6 +18,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 
+/**
+ * Library utility component for PushNotifications.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.notifications")
 class PushNotifications(
     @field:ApplicationContext @param:ApplicationContext private val context: Context,

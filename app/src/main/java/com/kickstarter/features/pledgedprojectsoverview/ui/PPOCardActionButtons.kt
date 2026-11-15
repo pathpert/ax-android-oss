@@ -22,6 +22,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 
+/**
+ * Feature component for ConfirmAddressButtonsView in pledgedprojectsoverview module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 @Composable
 fun ConfirmAddressButtonsView(isConfirmButtonEnabled: Boolean, onConfirmAddressClicked: () -> Unit) {
     Row(

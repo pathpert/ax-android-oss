@@ -22,6 +22,12 @@ import com.kickstarter.services.apiresponses.OAuthTokenEnvelope
 import com.kickstarter.ui.data.MessageSubject
 import io.reactivex.Observable
 
+/**
+ * Network or service component for MockApiClientV2.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 open class MockApiClientV2 : BaseMockApiClientV2() {
 
     override fun loginWithFacebook(

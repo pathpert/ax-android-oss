@@ -55,6 +55,12 @@ import retrofit2.http.QueryMap;
 import retrofit2.http.Url;
 
 
+/**
+ * Network or service component for ApiServiceV2.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 public interface ApiServiceV2 {
   @GET("/v1/activities")
   Observable<Response<ActivityEnvelope>> activities(@NonNull @Query("categories[]") List<String> categories,

@@ -5,6 +5,12 @@ import com.kickstarter.models.ApolloEnvelope
 import com.kickstarter.models.Comment
 import kotlinx.android.parcel.Parcelize
 
+/**
+ * Network or service component for CommentEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class CommentEnvelope(

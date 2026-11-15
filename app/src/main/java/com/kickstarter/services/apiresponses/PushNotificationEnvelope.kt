@@ -6,6 +6,12 @@ import com.kickstarter.models.pushdata.Activity
 import com.kickstarter.models.pushdata.GCM
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for PushNotificationEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 data class PushNotificationEnvelope(

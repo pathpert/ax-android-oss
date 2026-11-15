@@ -14,6 +14,12 @@ import com.kickstarter.ui.viewholders.EmptyViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.viewholders.ProfileCardViewHolder
 
+/**
+ * UI binding component for ProfileAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ProfileAdapter(private val delegate: Delegate) : KSAdapter() {
 
     interface Delegate : ProfileCardViewHolder.Delegate, EmptyProfileViewHolder.Delegate

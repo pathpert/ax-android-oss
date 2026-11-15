@@ -35,6 +35,12 @@ import com.kickstarter.libs.utils.EventName.VIDEO_PLAYBACK_STARTED
 import com.kickstarter.models.Project
 import com.kickstarter.ui.data.ProjectData
 
+/**
+ * Library utility component for AnalyticEventsProject.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 internal class AnalyticEventsProject(private val client: AnalyticEvents.ProxyClient) {
 
     fun trackVideoStarted(project: Project, videoLength: Long, videoPosition: Long) {

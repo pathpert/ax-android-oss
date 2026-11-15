@@ -26,6 +26,12 @@ import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.compose.designsystem.KSSearchBottomSheetFooter
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 
+/**
+ * Activity displaying and coordinating user interactions for FilterMenuTestTags.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 object FilterMenuTestTags {
     const val SHEET = "filter_menu_sheet"
     const val LIST = "filters_list"

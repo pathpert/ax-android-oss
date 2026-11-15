@@ -1,6 +1,12 @@
 package com.kickstarter.mock.factories
 import com.kickstarter.models.ProjectNotification
 
+/**
+ * Test mock implementation for ProjectNotificationFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object ProjectNotificationFactory {
     @JvmStatic
     fun disabled(): ProjectNotification {

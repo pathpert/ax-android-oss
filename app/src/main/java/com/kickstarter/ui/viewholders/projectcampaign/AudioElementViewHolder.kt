@@ -17,6 +17,12 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.util.concurrent.TimeUnit
 
+/**
+ * UI binding component for AudioElementViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class AudioElementViewHolder(
     private val binding: ViewElementAudioFromHtmlBinding,
     lifecycleBehaviorSubject: BehaviorSubject<KSLifecycleEvent>

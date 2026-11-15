@@ -13,6 +13,12 @@ import com.kickstarter.R
 import com.kickstarter.databinding.CommentComposerViewBinding
 import com.kickstarter.ui.extensions.loadCircleImage
 
+/**
+ * UI component rendering CommentComposerView.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class CommentComposerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -6,6 +6,12 @@ import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * Utility and helper extensions for RewardItemDecorator.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 class RewardItemDecorator(private val divider: Drawable) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {

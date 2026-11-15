@@ -16,6 +16,12 @@ import com.kickstarter.ui.IntentKey
 import com.kickstarter.ui.activities.ProfileActivity
 import com.stripe.android.Stripe
 
+/**
+ * Feature component for Activity in pledgedprojectsoverview module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 fun Activity.openBackingDetailsWebView(
     url: String,
     toolbarTitle: Int,

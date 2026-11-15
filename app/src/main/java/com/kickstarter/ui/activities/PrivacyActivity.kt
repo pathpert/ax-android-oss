@@ -22,6 +22,12 @@ import com.kickstarter.viewmodels.PrivacyViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for PrivacyActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class PrivacyActivity : ComponentActivity() {
 
     private lateinit var viewModelFactory: PrivacyViewModel.Factory

@@ -47,6 +47,12 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 
+/**
+ * Activity displaying and coordinating user interactions for DiscoveryActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.discovery")
 class DiscoveryActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var drawerAdapter: DiscoveryDrawerAdapter

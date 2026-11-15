@@ -6,6 +6,12 @@ import java.io.InputStream;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Utility and helper extensions for IOUtils.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 public final class IOUtils {
   private IOUtils() {}
 

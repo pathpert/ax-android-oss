@@ -5,6 +5,12 @@ import java.util.regex.Pattern
 internal const val VERIFICATION = "/profile/verify_email"
 internal const val KSDOMAIN = "kickstarter.com"
 
+/**
+ * Utility and helper extensions for EMAIL_DOMAINS.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 internal val EMAIL_DOMAINS = Pattern.compile("\\A(?:me|ea|clicks|click|emails|email|e2|e3)\\.kickstarter\\.com\\z")
 
 // /projects/:creator_param/:project_param/checkouts/1/thanks

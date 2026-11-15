@@ -14,6 +14,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import kotlin.coroutines.EmptyCoroutineContext
 
+/**
+ * ViewModel managing state transitions and user intents for ParentUiState.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 data class ParentUiState(
     val scrollable: Boolean = true,
 )

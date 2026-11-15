@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.libs.Config
 import com.kickstarter.libs.Config.LaunchedCountry
 
+/**
+ * Test mock implementation for ConfigFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object ConfigFactory {
     @JvmStatic
     fun config(): Config {

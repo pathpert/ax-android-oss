@@ -6,6 +6,12 @@ import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 import java.util.Locale
 
+/**
+ * Network or service component for ProjectStatsEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 data class ProjectStatsEnvelope(

@@ -11,6 +11,12 @@ import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.activities.DiscoveryActivity
 import com.kickstarter.ui.extensions.presentSearchActivity
 
+/**
+ * UI component for DiscoveryToolbar.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 class DiscoveryToolbar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

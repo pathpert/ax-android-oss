@@ -6,6 +6,12 @@ import com.kickstarter.type.PaymentIncrementStateReason
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
+/**
+ * Domain data model representing PaymentIncrement.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 data class PaymentIncrement(
     val paymentIncrementAmount: PaymentIncrementAmount,

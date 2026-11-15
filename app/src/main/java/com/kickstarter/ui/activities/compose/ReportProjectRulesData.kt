@@ -5,6 +5,12 @@ import androidx.compose.ui.res.stringResource
 import com.kickstarter.R
 import com.kickstarter.type.FlaggingKind
 
+/**
+ * Activity displaying and coordinating user interactions for rulesMap.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun rulesMap(): Map<Triple<String, String, Boolean>, List<Triple<String, String, String>>> {
     val projectCat = Triple(

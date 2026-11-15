@@ -3,6 +3,12 @@ package com.kickstarter.services.apirequests
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for SignupBody.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 class SignupBody private constructor(
     private val name: String,

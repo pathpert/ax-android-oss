@@ -6,6 +6,12 @@ import com.kickstarter.libs.utils.extensions.isNonZero
 import com.kickstarter.libs.utils.extensions.isNull
 import com.kickstarter.models.User
 
+/**
+ * ViewModel managing state transitions and user intents for DiscoveryViewModelHelper.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal object DiscoveryViewModelHelper {
 
     fun currentDrawerMenuIcon(user: User?, isDarkTheme: Boolean): Int {

@@ -8,6 +8,12 @@ import android.widget.TextView
 import android.widget.Toast
 import com.kickstarter.R
 
+/**
+ * UI component for showErrorToast.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 fun showErrorToast(applicationContext: Context, root: ViewGroup, message: String) {
     val layout: ViewGroup = LayoutInflater.from(applicationContext).inflate(R.layout.toast_error, root, false) as ViewGroup
     val toastTextView: TextView = layout.findViewById(R.id.toast_text_view)

@@ -19,6 +19,12 @@ import com.kickstarter.viewmodels.MessageThreadHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTime
 
+/**
+ * UI binding component for MessageThreadViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class MessageThreadViewHolder(private val binding: MessageThreadViewBinding) : KSViewHolder(binding.root) {
     private val viewModel = MessageThreadHolderViewModel.ViewModel(environment())
     private val ksString = requireNotNull(environment().ksString())

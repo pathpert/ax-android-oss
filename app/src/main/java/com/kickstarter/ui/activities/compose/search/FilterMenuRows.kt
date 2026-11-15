@@ -33,6 +33,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 
+/**
+ * Activity displaying and coordinating user interactions for ProjectStatusRow.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ProjectStatusRow(

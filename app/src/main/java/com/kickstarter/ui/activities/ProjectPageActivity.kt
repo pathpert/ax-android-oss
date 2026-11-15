@@ -57,6 +57,12 @@ import io.reactivex.disposables.CompositeDisposable
 
 const val REFRESH = "refresh"
 
+/**
+ * Activity displaying and coordinating user interactions for PledgeDelegate.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Deprecated("Legacy monolithic delegate replaced by com.kickstarter.features.projectpage")
 interface PledgeDelegate {
     fun pledgePaymentSuccessfullyUpdated()

@@ -7,6 +7,12 @@ import com.kickstarter.libs.utils.extensions.isDiscoverScopePath
 import com.kickstarter.libs.utils.extensions.isDiscoverSortParam
 import com.kickstarter.libs.utils.extensions.toInteger
 
+/**
+ * Network or service component for DiscoveryParamsUriParser.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 internal object DiscoveryParamsUriParser {
 
     fun fromUri(uri: Uri): DiscoveryParams {

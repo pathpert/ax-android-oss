@@ -1,5 +1,11 @@
 package com.kickstarter.services
 
+/**
+ * Network or service component for DiscoveryParamsMerger.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 internal object DiscoveryParamsMerger {
 
     fun merge(base: DiscoveryParams.Builder, otherBuilder: DiscoveryParams.Builder): DiscoveryParams.Builder {

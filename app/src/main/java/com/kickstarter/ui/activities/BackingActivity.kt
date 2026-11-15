@@ -20,6 +20,12 @@ import com.kickstarter.viewmodels.BackingViewModel.BackingViewModel
 import com.kickstarter.viewmodels.BackingViewModel.Factory
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for BackingActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class BackingActivity : AppCompatActivity(), BackingDelegate {
 
     private val disposables = CompositeDisposable()

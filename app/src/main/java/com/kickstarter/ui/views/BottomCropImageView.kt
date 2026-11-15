@@ -5,6 +5,12 @@ import android.util.AttributeSet
 import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 
+/**
+ * UI component rendering BottomCropImageView.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class BottomCropImageView : AppCompatImageView {
 
     constructor(context: Context) : super(context) {

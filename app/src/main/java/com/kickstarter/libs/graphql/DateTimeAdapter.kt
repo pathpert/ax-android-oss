@@ -7,6 +7,12 @@ import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import java.text.ParseException
 
+/**
+ * Library utility component for DateTimeAdapter.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class DateTimeAdapter : Adapter<DateTime> {
 
     override fun fromJson(

@@ -4,6 +4,12 @@ import android.os.Parcelable
 import com.kickstarter.models.Activity
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for ActivityEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class ActivityEnvelope private constructor(

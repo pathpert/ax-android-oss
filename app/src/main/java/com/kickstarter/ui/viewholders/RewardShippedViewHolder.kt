@@ -7,6 +7,12 @@ import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.models.Activity
 import com.kickstarter.ui.compose.designsystem.KSTheme
 
+/**
+ * UI binding component for RewardShippedViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class RewardShippedViewHolder(
     private val binding: ActivityRewardShippedViewBinding,
     private val delegate: Delegate?

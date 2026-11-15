@@ -15,6 +15,12 @@ import com.kickstarter.models.User
 import com.kickstarter.ui.compose.designsystem.KSTheme
 import io.reactivex.Observable
 
+/**
+ * Activity displaying and coordinating user interactions for createMockFilterMenuViewModel.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 private fun createMockFilterMenuViewModel(isLoggedIn: Boolean = false): FilterMenuViewModel {
     val mockUser = object : CurrentUserTypeV2() {
         private var user = if (isLoggedIn) UserFactory.user() else null

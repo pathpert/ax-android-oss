@@ -8,6 +8,12 @@ import com.apollographql.apollo3.exception.JsonDataException
 import org.joda.time.DateTime
 import java.text.ParseException
 
+/**
+ * Library utility component for Iso8601DateTimeAdapter.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class Iso8601DateTimeAdapter : Adapter<DateTime> {
 
     override fun fromJson(

@@ -15,6 +15,12 @@ import com.kickstarter.services.apiresponses.commentresponse.PageInfoEnvelope
 import com.kickstarter.services.transformers.decodeRelayId
 import com.kickstarter.type.BadgeTypeEnum
 
+/**
+ * Network or service component for VideoFeedQuery.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 fun VideoFeedQuery.VideoFeed?.toVideoFeedEnvelope(): VideoFeedEnvelope {
     val items = this?.nodes?.mapNotNull { node ->
         node ?: return@mapNotNull null

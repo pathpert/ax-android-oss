@@ -30,6 +30,12 @@ import com.kickstarter.viewmodels.MessageCreatorViewModel.MessageCreatorViewMode
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for MessageCreatorActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class MessageCreatorActivity : AppCompatActivity() {
     private lateinit var ksString: KSString
     private lateinit var binding: ActivityMessageCreatorBinding

@@ -4,6 +4,12 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
+/**
+ * Domain data model representing SurveyResponse.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class SurveyResponse private constructor(

@@ -4,6 +4,12 @@ import android.os.Parcelable
 import com.kickstarter.type.CreditCardPaymentType
 import kotlinx.parcelize.Parcelize
 
+/**
+ * UI component for CheckoutData.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 @Parcelize
 class CheckoutData private constructor(
     private val amount: Double,

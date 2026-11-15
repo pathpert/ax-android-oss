@@ -8,6 +8,12 @@ import androidx.core.content.withStyledAttributes
 import com.kickstarter.R
 import com.kickstarter.databinding.AddOnTagBinding
 
+/**
+ * UI component rendering AddOnTagComponent.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class AddOnTagComponent @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

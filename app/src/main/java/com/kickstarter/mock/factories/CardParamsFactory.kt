@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.stripe.android.model.CardParams
 import java.util.Calendar
 
+/**
+ * Test mock implementation for CardParamsFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class CardParamsFactory {
 
     companion object {

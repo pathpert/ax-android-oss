@@ -15,6 +15,12 @@ import com.kickstarter.ui.viewholders.ActivitySampleProjectViewHolder
 import com.kickstarter.ui.viewholders.EmptyViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for DiscoveryActivitySampleAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class DiscoveryActivitySampleAdapter(private val delegate: Delegate) : KSListAdapter() {
     interface Delegate :
         ActivitySampleFriendFollowViewHolder.Delegate,

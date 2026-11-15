@@ -25,6 +25,12 @@ import com.kickstarter.ui.fragments.projectpage.ui.SimilarProjectsComponent
 import com.kickstarter.ui.views.KSBottomSheetDialogFragment
 import com.kickstarter.ui.views.compose.KSColorAccentedBanner
 
+/**
+ * Fragment presenting UI and collecting view states for ProjectOverviewFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 internal fun ProjectOverviewFragment.initComposeViews() {
     binding.composeViewBanner.setContent {
         KSTheme {

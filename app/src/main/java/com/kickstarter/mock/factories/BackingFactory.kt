@@ -12,6 +12,12 @@ import com.kickstarter.models.User
 import org.joda.time.DateTime
 import kotlin.jvm.JvmOverloads
 
+/**
+ * Test mock implementation for BackingFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object BackingFactory {
 
     @JvmStatic

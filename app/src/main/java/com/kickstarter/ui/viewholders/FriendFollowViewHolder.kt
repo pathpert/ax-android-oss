@@ -4,6 +4,12 @@ import com.kickstarter.R
 import com.kickstarter.databinding.ActivityFriendFollowViewBinding
 import com.kickstarter.ui.extensions.loadCircleImage
 
+/**
+ * UI binding component for FriendFollowViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class FriendFollowViewHolder(private val binding: ActivityFriendFollowViewBinding) :
     ActivityListViewHolder(binding.root) {
 

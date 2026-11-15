@@ -5,6 +5,12 @@ import com.kickstarter.databinding.DiscoveryDrawerParentFilterViewBinding
 import com.kickstarter.ui.adapters.data.NavigationDrawerData
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for ParentFilterViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ParentFilterViewHolder(
     private val binding: DiscoveryDrawerParentFilterViewBinding,
     private val delegate: Delegate

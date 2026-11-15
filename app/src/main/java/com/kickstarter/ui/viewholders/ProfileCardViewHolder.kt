@@ -8,6 +8,12 @@ import com.kickstarter.libs.utils.ProgressBarUtils
 import com.kickstarter.models.Project
 import com.kickstarter.ui.extensions.loadImage
 
+/**
+ * UI binding component for ProfileCardViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ProfileCardViewHolder(
     private val binding: ProfileCardViewBinding,
     private val delegate: Delegate

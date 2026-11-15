@@ -1,3 +1,9 @@
+/**
+ * Activity displaying and coordinating user interactions for OnboardingPage.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 enum class OnboardingPage(val analyticsSectionName: String) {
     WELCOME("welcome"),
     SAVE_PROJECTS("save_projects"),

@@ -34,6 +34,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.ui.views.compose.checkout.BonusSupportContainer
 import java.math.RoundingMode
 
+/**
+ * Activity displaying and coordinating user interactions for AddOnsScreen.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun AddOnsScreen(
     modifier: Modifier = Modifier,

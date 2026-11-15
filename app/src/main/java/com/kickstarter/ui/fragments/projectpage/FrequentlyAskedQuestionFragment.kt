@@ -30,6 +30,12 @@ import com.kickstarter.viewmodels.projectpage.FrequentlyAskedQuestionViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Fragment presenting UI and collecting view states for FrequentlyAskedQuestionFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class FrequentlyAskedQuestionFragment : Fragment(), Configure {
 
     private var binding: FragmentFrequentlyAskedQuestionBinding? = null

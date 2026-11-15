@@ -12,6 +12,12 @@ import com.kickstarter.ui.viewholders.MessageCenterTimestampViewHolder
 import com.kickstarter.ui.viewholders.MessageViewHolder
 import org.joda.time.DateTime
 
+/**
+ * UI binding component for MessagesAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class MessagesAdapter : KSAdapter() {
     private fun getLayoutId(sectionRow: SectionRow): Int {
         if (objectFromSectionRow(sectionRow) is DateTime) {

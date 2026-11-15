@@ -8,6 +8,12 @@ import com.kickstarter.ui.data.Editorial
 import com.kickstarter.ui.viewholders.EditorialViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for DiscoveryEditorialAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class DiscoveryEditorialAdapter(private val delegate: Delegate) : KSListAdapter() {
     interface Delegate : EditorialViewHolder.Delegate
 

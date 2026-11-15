@@ -27,6 +27,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
+/**
+ * Activity displaying and coordinating user interactions for PaymentMethodsSettingsActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class PaymentMethodsSettingsActivity : AppCompatActivity() {
 
     private lateinit var adapter: PaymentMethodsAdapter

@@ -7,6 +7,12 @@ import com.kickstarter.models.Activity
 import com.kickstarter.ui.extensions.loadCircleImage
 import com.kickstarter.ui.extensions.loadImage
 
+/**
+ * UI binding component for FriendBackingViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class FriendBackingViewHolder(
     private val binding: ActivityFriendBackingViewBinding,
     private val delegate: Delegate?

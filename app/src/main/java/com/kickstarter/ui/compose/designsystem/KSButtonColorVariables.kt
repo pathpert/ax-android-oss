@@ -4,6 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 
+/**
+ * UI component rendering ButtonColorVariables.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 data class ButtonColorVariables(
     val backgroundColor: Color,
     val pressedColor: Color,

@@ -5,6 +5,12 @@ import com.kickstarter.mock.factories.PaymentIncrementFactory
 import com.kickstarter.ui.compose.designsystem.KSTheme
 import org.joda.time.DateTime
 
+/**
+ * UI component rendering PreviewPledgeInFull.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Preview(name = "Light Mode - Pledge In Full", uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark Mode - Pledge In Full", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

@@ -48,6 +48,12 @@ import com.kickstarter.ui.compose.designsystem.KSDimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 
+/**
+ * Activity displaying and coordinating user interactions for MultiCategorySelectionSheet.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun MultiCategorySelectionSheet(
     categories: List<CategoryItem>,
@@ -230,7 +236,6 @@ fun MultiCategoryItemRow(
         )
     }
 }
-
 @Composable
 fun CustomSwitch(
     checked: Boolean,
@@ -248,7 +253,6 @@ fun CustomSwitch(
     val switchModifier = Modifier
         .size(width = trackWidth, height = trackHeight)
         .clip(CircleShape)
-
     Box(
         modifier = switchModifier
             .background(if (checked) checkedTrackColor else uncheckedTrackColor)
@@ -280,12 +284,10 @@ fun CustomSwitch(
         }
     }
 }
-
 data class CategoryItem(
     val name: String,
     val totalResults: Int,
 )
-
 enum class CategorySelectionSheetTestTag {
     APPLY_BUTTON,
     DISMISS_BUTTON

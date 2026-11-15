@@ -12,6 +12,12 @@ import com.kickstarter.viewmodels.RootCommentViewHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for RootCommentViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class RootCommentViewHolder(
     val binding: ItemRootCommentCardBinding
 ) : KSViewHolder(binding.root) {

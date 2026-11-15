@@ -4,6 +4,12 @@ import android.os.Parcelable
 import com.kickstarter.libs.utils.UrlUtils
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Domain data model representing Web.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 class Web private constructor(
     private val project: String,

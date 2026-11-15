@@ -1,5 +1,11 @@
 package com.kickstarter.ui
 
+/**
+ * UI component for ArgumentsKey.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 object ArgumentsKey {
     const val CANCEL_PLEDGE_PROJECT = "com.kickstarter.ui.fragments.CancelPledgeFragment.project"
     const val DISCOVERY_SORT_POSITION = "argument_discovery_position"

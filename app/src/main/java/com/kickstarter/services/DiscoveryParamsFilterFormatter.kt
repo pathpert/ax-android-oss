@@ -5,6 +5,12 @@ import com.kickstarter.R
 import com.kickstarter.libs.KSString
 import com.kickstarter.libs.utils.extensions.isTrue
 
+/**
+ * Network or service component for DiscoveryParamsFilterFormatter.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 internal object DiscoveryParamsFilterFormatter {
 
     fun filterString(

@@ -17,6 +17,12 @@ import com.kickstarter.utils.WindowInsetsUtil
 import com.kickstarter.viewmodels.EditorialViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for EditorialActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class EditorialActivity : AppCompatActivity() {
 
     private lateinit var factory: EditorialViewModel.Factory

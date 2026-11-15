@@ -17,6 +17,12 @@ import com.kickstarter.databinding.VideoPlayerLayoutBinding
 import com.kickstarter.libs.utils.extensions.initializeExoplayer
 import com.kickstarter.ui.data.VideoModelElement
 
+/**
+ * UI component rendering VideoPlayerViewer.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class VideoPlayerViewer @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

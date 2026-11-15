@@ -2,6 +2,12 @@ package com.kickstarter.mock.factories
 
 import com.kickstarter.models.PledgeManager
 
+/**
+ * Test mock implementation for PledgeManagerFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class PledgeManagerFactory {
     companion object {
         fun pledgeManagerAcceptsNetNewBackers(): PledgeManager {

@@ -5,6 +5,12 @@ import com.kickstarter.ui.adapters.RepliesAdapter
 import com.kickstarter.ui.adapters.RepliesStatusAdapter
 import com.kickstarter.viewmodels.ThreadViewModel
 
+/**
+ * Activity displaying and coordinating user interactions for ThreadAdapterDelegate.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class ThreadAdapterDelegate(
     private val viewModelProvider: () -> ThreadViewModel.ThreadViewModel
 ) : RepliesStatusAdapter.Delegate, RepliesAdapter.Delegate {

@@ -44,6 +44,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+/**
+ * Activity displaying and coordinating user interactions for UpdateSelectedCardIfNewCardAdded.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun UpdateSelectedCardIfNewCardAdded(
     index: MutableState<Int>,

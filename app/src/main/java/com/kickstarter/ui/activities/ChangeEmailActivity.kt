@@ -22,6 +22,12 @@ import com.kickstarter.viewmodels.ChangeEmailViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for ChangeEmailActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class ChangeEmailActivity : AppCompatActivity() {
 
     private lateinit var viewModelFactory: ChangeEmailViewModel.Factory

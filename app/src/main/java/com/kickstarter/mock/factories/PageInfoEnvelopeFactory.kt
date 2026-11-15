@@ -2,6 +2,12 @@ package com.kickstarter.mock.factories
 
 import com.kickstarter.services.apiresponses.commentresponse.PageInfoEnvelope
 
+/**
+ * Test mock implementation for PageInfoEnvelopeFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class PageInfoEnvelopeFactory {
 
     companion object {

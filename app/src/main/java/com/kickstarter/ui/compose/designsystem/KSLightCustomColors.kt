@@ -1,5 +1,11 @@
 package com.kickstarter.ui.compose.designsystem
 
+/**
+ * UI component rendering KSLightCustomColors.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 val KSLightCustomColors = KSCustomColors(
     // NEW COLORS    // Text
     textPrimary = grey_10,

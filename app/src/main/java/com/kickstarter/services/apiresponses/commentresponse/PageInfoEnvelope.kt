@@ -3,6 +3,12 @@ package com.kickstarter.services.apiresponses.commentresponse
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
+/**
+ * Network or service component for PageInfoEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class PageInfoEnvelope private constructor(

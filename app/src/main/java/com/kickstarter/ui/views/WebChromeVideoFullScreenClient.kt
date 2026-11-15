@@ -9,6 +9,12 @@ import android.widget.FrameLayout
 import androidx.fragment.app.FragmentActivity
 import com.kickstarter.ui.adapters.projectcampaign.ViewElementAdapter
 
+/**
+ * UI component rendering WebChromeVideoFullScreenClient.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class WebChromeVideoFullScreenClient(
     val requireActivity: FragmentActivity,
     private val fullScreenDelegate: ViewElementAdapter.FullScreenDelegate? = null,

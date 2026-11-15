@@ -4,6 +4,12 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 
+/**
+ * UI component rendering KSTypographyV2.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Immutable
 data class KSTypographyV2(
     val heading2XL: TextStyle = TextStyle.Default,

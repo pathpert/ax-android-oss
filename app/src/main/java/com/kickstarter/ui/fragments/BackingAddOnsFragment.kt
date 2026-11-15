@@ -30,6 +30,12 @@ import com.kickstarter.ui.extensions.showErrorToast
 import com.kickstarter.ui.extensions.startLoginActivity
 import com.kickstarter.viewmodels.projectpage.AddOnsViewModel
 
+/**
+ * Fragment presenting UI and collecting view states for BackingAddOnsFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class BackingAddOnsFragment : Fragment() {
     private var binding: FragmentBackingAddonsBinding? = null
 

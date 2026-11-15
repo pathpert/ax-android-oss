@@ -13,6 +13,12 @@ import com.kickstarter.services.ApiClientTypeV2
 import com.kickstarter.ui.IntentKey
 import javax.inject.Inject
 
+/**
+ * Network or service component for RegisterTokenWorker.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 class RegisterTokenWorker(@ApplicationContext applicationContext: Context, private val params: WorkerParameters) : Worker(applicationContext, params) {
 
     @Inject

@@ -2,6 +2,12 @@ package com.kickstarter.mock.factories
 
 import com.kickstarter.models.Tag
 
+/**
+ * Test mock implementation for TagFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object TagFactory {
     @JvmStatic
     fun tag(): Tag {

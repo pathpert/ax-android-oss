@@ -3,6 +3,12 @@ package com.kickstarter.services.apirequests
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for SettingsBody.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 class SettingsBody internal constructor(
     private val optedOutOfRecommendations: Int,

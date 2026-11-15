@@ -3,6 +3,12 @@ package com.kickstarter.ui.data
 import androidx.annotation.StringRes
 import com.kickstarter.R
 
+/**
+ * UI component for ResetPasswordScreenState.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 enum class ResetPasswordScreenState(
     @StringRes val title: Int,
     @StringRes val hint: Int?

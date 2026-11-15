@@ -7,6 +7,12 @@ import com.kickstarter.libs.htmlparser.TextViewElement
 import com.kickstarter.libs.htmlparser.getStyledComponents
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for TextElementViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class TextElementViewHolder(
     val binding: ViewElementTextFromHtmlBinding
 ) : KSViewHolder(binding.root) {

@@ -20,6 +20,12 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
+/**
+ * UI binding component for MessageThreadsAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 public final class MessageThreadsAdapter extends KSListAdapter {
   public MessageThreadsAdapter(final @NotNull DiffUtil.ItemCallback<Object> diffUtil) {
     super(diffUtil);

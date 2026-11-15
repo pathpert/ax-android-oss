@@ -11,6 +11,12 @@ import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.viewholders.ProjectContextViewHolder
 import com.kickstarter.ui.viewholders.ProjectSocialViewHolder
 
+/**
+ * UI binding component for ProjectSocialAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ProjectSocialAdapter : KSListAdapter() {
 
     override fun layout(sectionRow: SectionRow?): Int {

@@ -6,6 +6,12 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Interpolator
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * Utility and helper extensions for RewardDecoration.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 class RewardDecoration(
     private val margin: Int,
     val interpolator: Interpolator = AccelerateDecelerateInterpolator()

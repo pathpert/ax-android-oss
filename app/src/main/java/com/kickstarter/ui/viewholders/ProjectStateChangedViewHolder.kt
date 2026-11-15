@@ -5,6 +5,12 @@ import com.kickstarter.databinding.ActivityProjectStateChangedViewBinding
 import com.kickstarter.models.Activity
 import com.kickstarter.ui.extensions.loadImage
 
+/**
+ * UI binding component for ProjectStateChangedViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ProjectStateChangedViewHolder(
     private val binding: ActivityProjectStateChangedViewBinding,
     private val delegate: Delegate?

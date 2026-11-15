@@ -43,6 +43,12 @@ import io.reactivex.disposables.CompositeDisposable
 import java.math.RoundingMode
 
 
+/**
+ * Activity displaying and coordinating user interactions for MessagesActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.messages")
 class MessagesActivity : AppCompatActivity() {
     private lateinit var ksCurrency: KSCurrency

@@ -14,6 +14,12 @@ import com.kickstarter.models.Update
 import com.kickstarter.viewmodels.UpdateCardViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for UpdateCardViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class UpdateCardViewHolder(private val binding: ItemUpdateCardBinding, val delegate: Delegate?) : KSViewHolder(binding.root) {
 
     interface Delegate {

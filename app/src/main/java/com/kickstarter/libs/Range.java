@@ -3,6 +3,12 @@ package com.kickstarter.libs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * Library utility component for Range.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 public final class Range {
   public final int start;
   public final int length;

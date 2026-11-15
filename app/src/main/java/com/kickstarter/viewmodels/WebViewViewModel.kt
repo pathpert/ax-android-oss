@@ -15,6 +15,12 @@ import kotlinx.coroutines.plus
 import kotlinx.coroutines.rx2.asFlow
 import kotlin.coroutines.EmptyCoroutineContext
 
+/**
+ * ViewModel managing state transitions and user intents for WebViewEvent.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 enum class WebViewEvent {
     SHOW_LOGIN,
     LOAD_WEBVIEW

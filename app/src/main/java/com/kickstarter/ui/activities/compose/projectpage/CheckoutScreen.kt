@@ -54,6 +54,12 @@ import com.kickstarter.ui.activities.compose.projectpage.components.KSEstimatedS
 import com.kickstarter.ui.activities.compose.projectpage.components.TermsOfUseClickableText as ComponentsTermsOfUseClickableText
 import com.kickstarter.ui.activities.compose.projectpage.components.TextWithClickableAccountabilityLink as ComponentsTextWithClickableAccountabilityLink
 
+/**
+ * Activity displaying and coordinating user interactions for CheckoutScreen.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun CheckoutScreen(
     storedCards: List<StoredCard> = listOf(),

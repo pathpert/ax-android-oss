@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.models.Category
 import com.kickstarter.models.Category.Companion.builder
 
+/**
+ * Test mock implementation for CategoryFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object CategoryFactory {
     @JvmStatic
     fun category(): Category {

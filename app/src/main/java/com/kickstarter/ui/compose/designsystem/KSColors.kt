@@ -8,6 +8,12 @@ import androidx.compose.ui.graphics.Color
 // Kotlin data classes with many defaulted parameters generate synthetic constructors
 // that can exceed the 255-parameter JVM limit (ClassFormatError: Too many arguments).
 // Grouping component-specific colors reduces the parameter count on KSCustomColors.
+/**
+ * UI component rendering KSDiscoveryBannerColors.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Immutable
 data class KSDiscoveryBannerColors(
     val background: Color = Color.Unspecified,

@@ -16,6 +16,12 @@ import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import org.joda.time.DateTime
 
+/**
+ * ViewModel managing state transitions and user intents for ThreadViewModelHelper.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal object ThreadViewModelHelper {
 
     fun mapListToData(envelope: CommentEnvelope, project: Project, currentUser: User?): List<CommentCardData>? =

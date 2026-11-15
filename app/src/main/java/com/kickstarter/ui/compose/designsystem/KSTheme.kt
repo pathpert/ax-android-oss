@@ -7,6 +7,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
+/**
+ * UI component rendering KickstarterApp.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Composable
 fun KickstarterApp(
     backgroundColor: Color = KSTheme.colors.kds_support_100,

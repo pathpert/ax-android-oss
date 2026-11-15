@@ -16,6 +16,12 @@ import com.kickstarter.viewmodels.ProjectSocialViewModel.ProjectSocialViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for ProjectSocialActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class ProjectSocialActivity : AppCompatActivity() {
 
     private lateinit var binding: ProjectSocialLayoutBinding

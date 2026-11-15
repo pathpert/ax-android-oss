@@ -24,6 +24,12 @@ import com.kickstarter.ui.viewholders.DiscoveryOnboardingViewHolder
 import com.kickstarter.ui.viewholders.DiscoveryVideoFeedBannerViewHolder
 import io.reactivex.Observable
 
+/**
+ * ViewModel managing state transitions and user intents for DiscoveryFragmentViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 @Deprecated(
     message = "Legacy monolithic ViewModel replaced by DiscoveryFeatureViewModel",
     replaceWith = ReplaceWith(

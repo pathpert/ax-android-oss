@@ -25,6 +25,12 @@ import com.kickstarter.viewmodels.ProjectUpdatesViewModel.Factory
 import com.kickstarter.viewmodels.ProjectUpdatesViewModel.ProjectUpdatesViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for ProjectUpdatesActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class ProjectUpdatesActivity : AppCompatActivity(), UpdatesAdapter.Delegate {
     private val adapter: UpdatesAdapter = UpdatesAdapter(this)
     private lateinit var recyclerViewPaginator: RecyclerViewPaginatorV2

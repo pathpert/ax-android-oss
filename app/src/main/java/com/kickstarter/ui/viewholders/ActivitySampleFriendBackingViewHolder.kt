@@ -13,6 +13,12 @@ import com.kickstarter.viewmodels.ActivitySampleFriendBackingViewHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for ActivitySampleFriendBackingViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ActivitySampleFriendBackingViewHolder(
     private val binding: ActivitySampleFriendBackingViewBinding,
     private val delegate: Delegate

@@ -31,6 +31,12 @@ import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.data.ProjectData
 import java.util.Locale
 
+/**
+ * Library utility component for AnalyticEventsDiscovery.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 internal class AnalyticEventsDiscovery(private val client: AnalyticEvents.ProxyClient) {
 
     fun trackDiscoverSortCTA(currentSort: DiscoveryParams.Sort, discoverParams: DiscoveryParams) {

@@ -4,6 +4,12 @@ import com.kickstarter.databinding.ActivityNotificationsBinding
 import com.kickstarter.libs.utils.AnimationUtils
 import com.kickstarter.viewmodels.NotificationsViewModel
 
+/**
+ * Activity displaying and coordinating user interactions for NotificationsActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 internal fun NotificationsActivity.setUpClickListeners(
     binding: ActivityNotificationsBinding,
     viewModel: NotificationsViewModel.NotificationsViewModel

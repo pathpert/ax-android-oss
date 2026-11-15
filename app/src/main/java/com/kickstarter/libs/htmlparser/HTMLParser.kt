@@ -5,6 +5,12 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
 import org.jsoup.select.Elements
 
+/**
+ * Library utility component for HTMLParser.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class HTMLParser {
 
     fun parse(html: String): List<ViewElement> {

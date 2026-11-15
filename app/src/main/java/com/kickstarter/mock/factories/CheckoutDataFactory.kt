@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.type.CreditCardPaymentType
 import com.kickstarter.ui.data.CheckoutData
 
+/**
+ * Test mock implementation for CheckoutDataFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object CheckoutDataFactory {
     @JvmStatic
     fun checkoutData(shippingAmount: Double, totalAmount: Double): CheckoutData {

@@ -37,6 +37,12 @@ import com.kickstarter.R
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 
+/**
+ * Activity displaying and coordinating user interactions for SearchTopBar.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun SearchTopBar(
     modifier: Modifier = Modifier,

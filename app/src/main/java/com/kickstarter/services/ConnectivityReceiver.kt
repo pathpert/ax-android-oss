@@ -13,6 +13,12 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import java.lang.RuntimeException
 
+/**
+ * Network or service component for ConnectivityReceiver.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 class ConnectivityReceiver(
     private val connectivityReceiverListener: ConnectivityReceiverListener,
     private val context: Context

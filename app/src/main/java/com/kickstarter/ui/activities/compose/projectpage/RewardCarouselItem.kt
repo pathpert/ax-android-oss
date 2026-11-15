@@ -24,6 +24,12 @@ import com.kickstarter.models.ShippingRule
 import com.kickstarter.ui.compose.KSRewardCard
 import java.math.RoundingMode
 
+/**
+ * Activity displaying and coordinating user interactions for CarouselRewardItem.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun CarouselRewardItem(
     reward: Reward,

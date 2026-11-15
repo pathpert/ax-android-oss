@@ -18,6 +18,12 @@ import com.kickstarter.services.KSWebViewClient
 import com.kickstarter.services.RequestHandler
 import javax.inject.Inject
 
+/**
+ * UI component rendering KSWebView.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class KSWebView@JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

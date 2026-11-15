@@ -11,6 +11,12 @@ import com.kickstarter.services.apiresponses.MessageThreadEnvelope
 import com.kickstarter.ui.data.MessagesData
 import io.reactivex.Observable
 
+/**
+ * ViewModel managing state transitions and user intents for MessagesViewModelHelper.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal object MessagesViewModelHelper {
     fun projectAndBacker(envelopeAndData: Pair<MessageThreadEnvelope, MessagesData>): Pair<Project, User> {
         val project = envelopeAndData.second.project

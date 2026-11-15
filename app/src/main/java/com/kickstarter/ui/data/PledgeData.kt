@@ -5,6 +5,12 @@ import com.kickstarter.models.Reward
 import com.kickstarter.models.ShippingRule
 import kotlinx.parcelize.Parcelize
 
+/**
+ * UI component for PledgeData.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 @Parcelize
 class PledgeData private constructor(
     private val pledgeFlowContext: PledgeFlowContext,

@@ -42,6 +42,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.ui.compose.designsystem.KSWarningBadge
 import com.kickstarter.ui.compose.designsystem.shapes
 
+/**
+ * Feature component for ProjectPledgeSummaryView in pledgedprojectsoverview module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 @Composable
 fun ProjectPledgeSummaryView(
     projectName: String? = null,

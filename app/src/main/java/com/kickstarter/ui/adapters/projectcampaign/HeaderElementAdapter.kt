@@ -9,6 +9,12 @@ import com.kickstarter.ui.adapters.KSListAdapter
 import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.viewholders.projectcampaign.HeaderElementViewHolder
 
+/**
+ * UI binding component for HeaderElementAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class HeaderElementAdapter : KSListAdapter() {
     fun updateTitle(title: String) {
         addSection(listOf(title))

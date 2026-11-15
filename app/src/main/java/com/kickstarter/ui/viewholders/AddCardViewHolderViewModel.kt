@@ -5,6 +5,12 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.PublishSubject
 
+/**
+ * UI binding component for AddCardViewHolderViewModel.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 interface AddCardViewHolderViewModel {
 
     interface Inputs {

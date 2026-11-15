@@ -32,6 +32,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import java.util.concurrent.TimeUnit
 
+/**
+ * Activity displaying and coordinating user interactions for ThanksActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class ThanksActivity : AppCompatActivity() {
     private lateinit var factory: Factory
     private val viewModel: ThanksViewModel.ThanksViewModel by viewModels { factory }

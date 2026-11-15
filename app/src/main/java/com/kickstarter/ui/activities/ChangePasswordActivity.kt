@@ -23,6 +23,12 @@ import com.kickstarter.viewmodels.ChangePasswordViewModel
 import com.kickstarter.viewmodels.ChangePasswordViewModelFactory
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Activity displaying and coordinating user interactions for ChangePasswordActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class ChangePasswordActivity : ComponentActivity() {
 
     private var logout: Logout? = null

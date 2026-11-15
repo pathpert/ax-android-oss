@@ -1,5 +1,11 @@
 package com.kickstarter.models
 
+/**
+ * Domain data model representing UserEquality.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 internal object UserEquality {
     fun areEqual(first: User, other: Any?): Boolean {
         if (first === other) return true

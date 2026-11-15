@@ -8,6 +8,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.kickstarter.R
 import com.kickstarter.ui.compose.designsystem.KSTheme
 
+/**
+ * Activity displaying and coordinating user interactions for PreviewTextLinks.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 @Preview(
     showBackground = true,

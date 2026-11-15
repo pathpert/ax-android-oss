@@ -9,6 +9,12 @@ import com.kickstarter.models.ProjectFaq
 import com.kickstarter.ui.viewholders.FrequentlyAskedQuestionsViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for FrequentlyAskedQuestionsAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class FrequentlyAskedQuestionsAdapter : KSListAdapter() {
 
     init {

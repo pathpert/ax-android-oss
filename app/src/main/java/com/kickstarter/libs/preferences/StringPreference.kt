@@ -3,6 +3,12 @@ package com.kickstarter.libs.preferences
 import android.content.SharedPreferences
 import kotlin.jvm.JvmOverloads
 
+/**
+ * SharedPreferences preference accessor for StringPreference.
+ *
+ * Negative constraints:
+ * - Do not store unencrypted sensitive user tokens.
+ */
 class StringPreference @JvmOverloads constructor(
     private val sharedPreferences: SharedPreferences,
     private val key: String,

@@ -9,6 +9,12 @@ import com.kickstarter.libs.utils.extensions.toVisibility
 import com.kickstarter.viewmodels.PaginationErrorViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for PaginationErrorViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class PaginationErrorViewHolder(
     val binding: ItemErrorPaginationBinding,
     private val viewListener: ViewListener,

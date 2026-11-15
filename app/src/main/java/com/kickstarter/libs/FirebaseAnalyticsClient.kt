@@ -6,6 +6,12 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.kickstarter.models.User
 import com.kickstarter.ui.SharedPreferenceKey.CONSENT_MANAGEMENT_PREFERENCE
 
+/**
+ * Library utility component for FirebaseAnalyticsClientType.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 interface FirebaseAnalyticsClientType {
     fun isEnabled(): Boolean
 

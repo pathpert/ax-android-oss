@@ -25,6 +25,12 @@ import com.kickstarter.libs.utils.extensions.header
 import com.kickstarter.libs.utils.extensions.isKSApplication
 import com.kickstarter.libs.utils.extensions.userAgent
 
+/**
+ * UI component for ImageView.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 fun ImageView.loadCircleImage(url: String?) {
 
     url?.let {

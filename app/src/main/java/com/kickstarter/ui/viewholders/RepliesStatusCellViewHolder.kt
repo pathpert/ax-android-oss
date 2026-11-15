@@ -7,6 +7,12 @@ import com.kickstarter.libs.utils.extensions.toVisibility
 import com.kickstarter.viewmodels.RepliesStatusCellViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for RepliesStatusCellViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class RepliesStatusCellViewHolder(
     val binding: ItemShowMoreRepliesBinding,
     private val viewListener: ViewListener

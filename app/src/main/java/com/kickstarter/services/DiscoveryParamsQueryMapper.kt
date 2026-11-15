@@ -1,5 +1,11 @@
 package com.kickstarter.services
 
+/**
+ * Network or service component for DiscoveryParamsQueryMapper.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 internal object DiscoveryParamsQueryMapper {
 
     fun toQueryParams(params: DiscoveryParams): Map<String, String> {

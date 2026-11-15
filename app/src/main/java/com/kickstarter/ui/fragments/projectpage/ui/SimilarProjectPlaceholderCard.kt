@@ -23,6 +23,12 @@ import androidx.compose.ui.unit.dp
 import com.kickstarter.R
 import com.kickstarter.ui.compose.designsystem.KSTheme
 
+/**
+ * Fragment presenting UI and collecting view states for SimilarProjectPlaceholderCardPreview.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 @Preview(
     name = "Light",
     uiMode = Configuration.UI_MODE_NIGHT_NO,

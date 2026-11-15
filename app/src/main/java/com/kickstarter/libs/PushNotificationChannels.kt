@@ -6,6 +6,12 @@ import android.content.Context
 import com.kickstarter.R
 import com.kickstarter.libs.utils.extensions.isNotNull
 
+/**
+ * Library utility component for PushNotificationChannels.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 internal object PushNotificationChannels {
     const val CHANNEL_ERRORED_PLEDGES = "ERRORED_PLEDGES"
     const val CHANNEL_FOLLOWING = "FOLLOWING"

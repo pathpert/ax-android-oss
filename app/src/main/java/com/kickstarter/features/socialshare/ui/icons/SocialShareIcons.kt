@@ -16,6 +16,12 @@ import androidx.compose.ui.unit.dp
 // Previews
 // ---------------------------------------------------------------------------
 
+/**
+ * Feature component for Vector91 in socialshare module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 @Preview @Composable private fun CopyLinkPreview() { Box(Modifier.padding(12.dp)) { Image(SocialShareCopyLink, null) } }
 @Preview @Composable private fun InstagramPreview() { Box(Modifier.padding(12.dp)) { Image(SocialShareInstagram, null) } }
 @Preview @Composable private fun XPreview() { Box(Modifier.padding(12.dp)) { Image(SocialShareX, null) } }

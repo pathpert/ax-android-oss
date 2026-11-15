@@ -4,6 +4,12 @@ import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import androidx.annotation.NonNull;
 
+/**
+ * Library utility component for Font.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 public class Font {
   private Typeface materialIconsTypeface;
   private Typeface sansSerifLightTypeface;

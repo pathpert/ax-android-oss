@@ -18,6 +18,12 @@ import com.kickstarter.ui.compose.TextBody2Style
 import com.kickstarter.ui.compose.TextCaptionStyle
 import com.kickstarter.ui.compose.designsystem.KSTheme
 
+/**
+ * UI component rendering KsCreatorLayoutPreview.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2, name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(showBackground = true, backgroundColor = 0X00000000, name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)

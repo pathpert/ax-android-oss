@@ -9,6 +9,12 @@ import com.kickstarter.models.RewardsItem
 import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.viewholders.RewardsItemViewHolder
 
+/**
+ * UI binding component for RewardItemsAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class RewardItemsAdapter : KSAdapter() {
     fun rewardsItems(rewardsItems: List<RewardsItem?>) {
         setSection(0, rewardsItems)

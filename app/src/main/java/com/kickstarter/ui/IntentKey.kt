@@ -1,5 +1,11 @@
 package com.kickstarter.ui
 
+/**
+ * UI component for IntentKey.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 object IntentKey {
     /*
    * Names require package prefix:

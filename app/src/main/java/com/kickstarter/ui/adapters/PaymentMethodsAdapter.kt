@@ -11,6 +11,12 @@ import com.kickstarter.ui.viewholders.PaymentMethodsViewHolder
 
 const val SECTION_CARDS = 0
 
+/**
+ * UI binding component for PaymentMethodsAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class PaymentMethodsAdapter(private val delegate: PaymentMethodsViewHolder.Delegate, diffCallback: DiffUtil.ItemCallback<Any>) : KSListAdapter(diffCallback) {
 
     init {

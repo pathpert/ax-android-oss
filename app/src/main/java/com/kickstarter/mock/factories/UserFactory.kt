@@ -6,6 +6,12 @@ import com.kickstarter.mock.factories.LocationFactory.unitedStates
 import com.kickstarter.models.User
 import com.kickstarter.models.User.Companion.builder
 
+/**
+ * Test mock implementation for UserFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object UserFactory {
     @JvmStatic
     fun user(): User {

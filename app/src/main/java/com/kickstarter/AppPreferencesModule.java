@@ -27,6 +27,12 @@ import androidx.annotation.NonNull;
 import dagger.Module;
 import dagger.Provides;
 
+/**
+ * Application component for AppPreferencesModule.
+ *
+ * Negative constraints:
+ * - Do not mutate internal state directly from external callers.
+ */
 @Module
 public final class AppPreferencesModule {
 

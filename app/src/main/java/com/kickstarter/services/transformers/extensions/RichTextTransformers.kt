@@ -14,6 +14,12 @@ import com.kickstarter.models.Project
 import com.kickstarter.services.transformers.decodeRelayId
 import timber.log.Timber
 
+/**
+ * Network or service component for ProjectStoryFragment.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 fun ProjectStoryFragment?.toStoriedProject(): StoriedProject {
     Timber.d("transform()")
     val id = decodeRelayId(this?.id) ?: -1

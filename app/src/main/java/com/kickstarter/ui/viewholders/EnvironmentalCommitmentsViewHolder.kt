@@ -7,6 +7,12 @@ import com.kickstarter.viewmodels.EnvironmentalCommitmentsViewHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for EnvironmentalCommitmentsViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class EnvironmentalCommitmentsViewHolder(
     val binding: ItemEnvironmentalCommitmentsCardBinding,
 ) : KSViewHolder(binding.root) {

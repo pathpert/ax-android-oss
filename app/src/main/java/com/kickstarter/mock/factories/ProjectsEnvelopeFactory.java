@@ -7,6 +7,12 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Test mock implementation for ProjectsEnvelopeFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 final public class ProjectsEnvelopeFactory {
   private ProjectsEnvelopeFactory() {}
 

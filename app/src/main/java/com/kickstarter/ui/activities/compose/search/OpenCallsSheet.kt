@@ -25,6 +25,12 @@ import com.kickstarter.ui.compose.designsystem.KSSearchBottomSheetFooter
 import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 
+/**
+ * Activity displaying and coordinating user interactions for OpenCallsTestTags.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 object OpenCallsTestTags {
     const val SHEET = "open_calls_sheet"
     const val CHIPS = "open_calls_chips"

@@ -4,6 +4,12 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import java.math.RoundingMode
 
+/**
+ * Library utility component for NumberOptions.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 @Parcelize
 class NumberOptions private constructor(
     private val bucketAbove: Float?,

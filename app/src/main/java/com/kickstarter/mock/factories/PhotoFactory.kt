@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.models.Photo
 import com.kickstarter.models.Photo.Companion.builder
 
+/**
+ * Test mock implementation for PhotoFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object PhotoFactory {
     @JvmStatic
     fun photo(): Photo {

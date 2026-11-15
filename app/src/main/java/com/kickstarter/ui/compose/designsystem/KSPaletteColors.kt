@@ -4,6 +4,12 @@ import androidx.compose.ui.graphics.Color
 
 // OLD COLORS
 // GREENS
+/**
+ * UI component rendering kds_create_100.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 val kds_create_100 = Color(0xFFE6FAF1)
 val kds_create_300 = Color(0xFF9BEBC9)
 val kds_create_500 = Color(0xFF05CE78)

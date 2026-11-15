@@ -15,6 +15,12 @@ import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * Network or service component for UnregisterTokenWorker.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 class UnregisterTokenWorker(@ApplicationContext applicationContext: Context, private val params: WorkerParameters) : Worker(applicationContext, params) {
     @Inject
     lateinit var build: Build

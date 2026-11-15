@@ -8,6 +8,12 @@ import com.kickstarter.databinding.DiscoveryVideoFeedBannerViewBinding
 import com.kickstarter.ui.viewholders.DiscoveryVideoFeedBannerViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for DiscoveryVideoFeedBannerAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class DiscoveryVideoFeedBannerAdapter(private val delegate: Delegate) : KSListAdapter() {
     interface Delegate :
         DiscoveryVideoFeedBannerViewHolder.Delegate

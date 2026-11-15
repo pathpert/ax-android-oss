@@ -47,6 +47,12 @@ import com.kickstarter.ui.compose.designsystem.kds_white
 import com.kickstarter.viewmodels.ReportProjectViewModel
 import io.reactivex.Observable
 
+/**
+ * Activity displaying and coordinating user interactions for FormularyScreenPreview.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 @Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)

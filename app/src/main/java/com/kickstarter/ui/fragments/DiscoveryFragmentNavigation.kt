@@ -29,6 +29,12 @@ import com.kickstarter.ui.data.LoginReason
 import com.kickstarter.ui.extensions.startVideoFeed
 import com.kickstarter.ui.viewholders.EditorialViewHolder
 
+/**
+ * Fragment presenting UI and collecting view states for DiscoveryFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 internal fun DiscoveryFragment.createHeartCrossFadeAnimation(binding: FragmentDiscoveryBinding?): AnimatorSet? {
     val outline = binding?.discoveryEmptyHeartOutline ?: return null
     val filled = binding?.discoveryEmptyHeartFilled ?: return null

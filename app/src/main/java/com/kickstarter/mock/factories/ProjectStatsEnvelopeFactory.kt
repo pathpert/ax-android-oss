@@ -10,6 +10,12 @@ import com.kickstarter.services.apiresponses.ProjectStatsEnvelope.RewardStats
 import com.kickstarter.services.apiresponses.ProjectStatsEnvelope.VideoStats
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for ProjectStatsEnvelopeFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object ProjectStatsEnvelopeFactory {
     @JvmStatic
     fun projectStatsEnvelope(): ProjectStatsEnvelope {

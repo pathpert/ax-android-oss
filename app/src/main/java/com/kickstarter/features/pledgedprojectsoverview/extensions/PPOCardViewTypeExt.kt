@@ -2,6 +2,12 @@ package com.kickstarter.features.pledgedprojectsoverview.extensions
 
 import com.kickstarter.features.pledgedprojectsoverview.ui.PPOCardViewType
 
+/**
+ * Feature component for PPOCardViewType in pledgedprojectsoverview module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 fun PPOCardViewType.isTier1Alert(): Boolean {
     return when (this) {
         PPOCardViewType.CONFIRM_ADDRESS, PPOCardViewType.AUTHENTICATE_CARD, PPOCardViewType.OPEN_SURVEY, PPOCardViewType.FIX_PAYMENT -> true

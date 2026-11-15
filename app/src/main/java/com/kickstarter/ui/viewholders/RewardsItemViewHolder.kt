@@ -3,6 +3,12 @@ package com.kickstarter.ui.viewholders
 import com.kickstarter.databinding.RewardsItemViewBinding
 import com.kickstarter.models.RewardsItem
 
+/**
+ * UI binding component for RewardsItemViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class RewardsItemViewHolder(private val binding: RewardsItemViewBinding) : KSViewHolder(binding.root) {
     private val ksString = requireNotNull(environment().ksString())
     @Throws(Exception::class)

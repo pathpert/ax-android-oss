@@ -13,6 +13,12 @@ import com.kickstarter.models.Project
 import com.kickstarter.models.Reward
 import com.kickstarter.ui.views.compose.checkout.ItemizedRewardListContainer
 
+/**
+ * Activity displaying and coordinating user interactions for CheckoutRewardSummarySection.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun CheckoutRewardSummarySection(
     environment: Environment,

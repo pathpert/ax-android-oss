@@ -6,6 +6,12 @@ import com.kickstarter.mock.factories.UserFactory.user
 import com.kickstarter.services.apiresponses.MessageThreadEnvelope
 import com.kickstarter.services.apiresponses.MessageThreadEnvelope.Companion.builder
 
+/**
+ * Test mock implementation for MessageThreadEnvelopeFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object MessageThreadEnvelopeFactory {
     @JvmStatic
     fun empty(): MessageThreadEnvelope {

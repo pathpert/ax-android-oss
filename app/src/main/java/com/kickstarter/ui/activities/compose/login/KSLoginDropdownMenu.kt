@@ -11,6 +11,12 @@ import androidx.compose.ui.res.stringResource
 import com.kickstarter.R
 import com.kickstarter.ui.compose.designsystem.KSTheme
 
+/**
+ * Activity displaying and coordinating user interactions for LoginDropdownTestTag.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 enum class LoginDropdownTestTag {
     OPTIONS_MENU,
     OPTIONS_TERMS,

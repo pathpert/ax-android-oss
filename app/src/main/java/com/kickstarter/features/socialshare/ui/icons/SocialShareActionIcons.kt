@@ -7,6 +7,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
+/**
+ * Feature component for SocialShareMore in socialshare module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 val SocialShareMore: ImageVector
     get() {
         _SocialShareMore?.let { return it }

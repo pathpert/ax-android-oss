@@ -42,6 +42,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 
+/**
+ * UI component rendering VideoSurfaceView.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Composable
 internal fun VideoSurfaceView(
     hideUi: Boolean,

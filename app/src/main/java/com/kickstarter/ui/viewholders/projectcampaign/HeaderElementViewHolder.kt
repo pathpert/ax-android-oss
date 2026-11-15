@@ -4,6 +4,12 @@ import android.widget.TextView
 import com.kickstarter.databinding.ViewElementHeaderBinding
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for HeaderElementViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class HeaderElementViewHolder(
     val binding: ViewElementHeaderBinding
 ) : KSViewHolder(binding.root) {

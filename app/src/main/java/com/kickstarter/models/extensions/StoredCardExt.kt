@@ -10,6 +10,12 @@ import com.kickstarter.models.StoredCard
 import com.kickstarter.services.mutations.CreateBackingData
 import com.kickstarter.type.CreditCardTypes
 
+/**
+ * Domain data model representing StoredCard.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 fun StoredCard.getCardTypeDrawable(): Int {
     val cardType = this.type() ?: CreditCardTypes.UNKNOWN__
     val resourceId = this.expiration()?.let {

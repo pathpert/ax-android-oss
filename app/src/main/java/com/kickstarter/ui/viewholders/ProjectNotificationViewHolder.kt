@@ -11,6 +11,12 @@ import com.kickstarter.viewmodels.ProjectNotificationViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for ProjectNotificationViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ProjectNotificationViewHolder(binding: ProjectNotificationViewBinding) :
     KSViewHolder(binding.root) {
     private val viewModel: ProjectNotificationViewModel.ViewModel = ProjectNotificationViewModel.ViewModel(environment())

@@ -5,6 +5,12 @@ import com.kickstarter.libs.utils.extensions.isBacked
 import com.kickstarter.models.Project
 import com.kickstarter.models.Reward
 
+/**
+ * ViewModel managing state transitions and user intents for RewardViewHolderViewModelHelper.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 internal object RewardViewHolderViewModelHelper {
 
     fun shouldContinueFlow(project: Project, rw: Reward): Boolean {

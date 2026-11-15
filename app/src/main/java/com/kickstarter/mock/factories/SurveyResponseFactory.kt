@@ -4,6 +4,12 @@ import com.kickstarter.mock.factories.ProjectFactory.allTheWayProject
 import com.kickstarter.models.SurveyResponse
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for SurveyResponseFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object SurveyResponseFactory {
     @JvmStatic
     fun surveyResponse(): SurveyResponse {

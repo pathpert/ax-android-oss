@@ -23,6 +23,12 @@ import com.kickstarter.ui.extensions.startActivityWithTransition
 import com.kickstarter.ui.fragments.ConsentManagementDialogFragment
 import com.kickstarter.viewmodels.OnboardingFlowViewModel
 
+/**
+ * Activity displaying and coordinating user interactions for OnboardingFlowActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class OnboardingFlowActivity : AppCompatActivity() {
     private lateinit var viewModelFactory: OnboardingFlowViewModel.Factory
     private val viewModel: OnboardingFlowViewModel by viewModels {

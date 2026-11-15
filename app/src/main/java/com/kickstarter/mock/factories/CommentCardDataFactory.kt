@@ -2,6 +2,12 @@ package com.kickstarter.mock.factories
 
 import com.kickstarter.ui.data.CommentCardData
 
+/**
+ * Test mock implementation for CommentCardDataFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class CommentCardDataFactory {
     companion object {
         fun commentCardDataBacked(): CommentCardData = CommentCardData.builder()

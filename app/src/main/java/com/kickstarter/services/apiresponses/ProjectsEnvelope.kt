@@ -4,6 +4,12 @@ import android.os.Parcelable
 import com.kickstarter.models.Project
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for ProjectsEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class ProjectsEnvelope private constructor(

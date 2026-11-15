@@ -1,5 +1,11 @@
 package com.kickstarter.models
 
+/**
+ * Domain data model representing ProjectBuilderHelper.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 internal object ProjectBuilderHelper {
     fun build(b: BaseProjectBuilder<*>): Project = Project(
         availableCardTypes = b.availableCardTypes,

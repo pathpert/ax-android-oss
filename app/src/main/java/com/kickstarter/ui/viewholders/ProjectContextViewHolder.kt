@@ -11,6 +11,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
+/**
+ * UI binding component for ProjectContextViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ProjectContextViewHolder(
     private val binding: ProjectContextViewBinding
 ) : KSViewHolder(binding.root) {

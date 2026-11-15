@@ -11,6 +11,12 @@ import com.kickstarter.libs.utils.extensions.isTrue
 import com.kickstarter.models.User
 import com.kickstarter.viewmodels.NotificationsViewModel
 
+/**
+ * Activity displaying and coordinating user interactions for NotificationsActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 internal fun NotificationsActivity.displayPreferences(
     user: User,
     binding: ActivityNotificationsBinding,

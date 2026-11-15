@@ -42,6 +42,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.data.PledgeReason
 import com.kickstarter.ui.toolbars.compose.TopToolBar
 
+/**
+ * Activity displaying and coordinating user interactions for ProjectPledgeButtonAndFragmentContainer.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProjectPledgeButtonAndFragmentContainer(

@@ -1,5 +1,11 @@
 package com.kickstarter.ui
 
+/**
+ * UI component for SharedPreferenceKey.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 object SharedPreferenceKey {
     const val ACCESS_TOKEN = "access_token"
     const val CONFIG = "config"

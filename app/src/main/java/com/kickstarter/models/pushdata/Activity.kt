@@ -4,6 +4,12 @@ import android.os.Parcelable
 import com.kickstarter.models.Activity.Category
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Domain data model representing Activity.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 class Activity private constructor(
     @Category

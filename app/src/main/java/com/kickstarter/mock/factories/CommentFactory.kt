@@ -6,6 +6,12 @@ import com.kickstarter.models.User
 import com.kickstarter.ui.data.CommentCardData
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for CommentFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class CommentFactory {
 
     companion object {

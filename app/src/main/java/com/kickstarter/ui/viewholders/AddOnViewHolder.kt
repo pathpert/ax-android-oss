@@ -28,6 +28,12 @@ import com.kickstarter.viewmodels.AddOnViewHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for AddOnViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class AddOnViewHolder(private val binding: ItemAddOnBinding) : KSViewHolder(binding.root) {
 
     private var viewModel = AddOnViewHolderViewModel.ViewModel(environment())

@@ -11,6 +11,12 @@ import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.viewmodels.ProjectCardHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for ProjectCardViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 internal fun ProjectCardViewHolder.bindOutputs(
     binding: ProjectCardViewBinding,
     viewModel: ProjectCardHolderViewModel.ViewModel,

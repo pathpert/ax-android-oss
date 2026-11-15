@@ -15,6 +15,12 @@ import com.kickstarter.ui.extensions.loadCircleImage
 import com.kickstarter.viewmodels.SurveyHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for SurveyViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class SurveyViewHolder(private val binding: ActivitySurveyViewBinding) :
     KSViewHolder(binding.root) {
     private val ksString = requireNotNull(environment().ksString())

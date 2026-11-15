@@ -26,6 +26,12 @@ import com.kickstarter.libs.utils.extensions.isRewardFulfilledDl
 import com.kickstarter.libs.utils.extensions.isSettingsUrl
 import com.kickstarter.libs.utils.extensions.isVideoFeedUri
 
+/**
+ * Feature component for Uri in splash module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 fun Uri.isEligibleForProjectPage(webEndpoint: String): Boolean =
     isNotNull() &&
         !isProjectSaveUri(webEndpoint) &&

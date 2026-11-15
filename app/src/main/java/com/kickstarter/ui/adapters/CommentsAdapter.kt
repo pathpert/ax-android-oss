@@ -9,6 +9,12 @@ import com.kickstarter.ui.data.CommentCardData
 import com.kickstarter.ui.viewholders.CommentCardViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for CommentsAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class CommentsAdapter(private val delegate: Delegate) : KSListAdapter() {
     interface Delegate : CommentCardViewHolder.Delegate
 

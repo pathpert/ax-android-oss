@@ -1,5 +1,11 @@
 package com.kickstarter.libs
 
+/**
+ * Library utility component for ActivityRequestCodes.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 object ActivityRequestCodes {
     const val LOGIN_FLOW = 5921
     const val RESET_FLOW = 5922

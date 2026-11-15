@@ -23,6 +23,12 @@ package com.kickstarter.libs.preferences
 import android.content.SharedPreferences
 import kotlin.jvm.JvmOverloads
 
+/**
+ * SharedPreferences wrapper for persistent integer values.
+ *
+ * Negative constraints:
+ * - Do not store sensitive credentials or tokens in unencrypted integer preferences.
+ */
 class IntPreference @JvmOverloads constructor(
     private val sharedPreferences: SharedPreferences,
     private val key: String,

@@ -13,6 +13,12 @@ import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * Network or service component for ResetDeviceIdWorker.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 class ResetDeviceIdWorker(@ApplicationContext applicationContext: Context, params: WorkerParameters) : Worker(applicationContext, params) {
     @Inject
     lateinit var build: Build

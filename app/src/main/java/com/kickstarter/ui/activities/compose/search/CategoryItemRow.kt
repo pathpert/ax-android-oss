@@ -32,6 +32,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 
+/**
+ * Activity displaying and coordinating user interactions for CategoryItemRowTestTags.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 object CategoryItemRowTestTags {
     const val ROOTCATEGORY_TITLE = "rowcategory_title"
     const val RADIO_BUTTON = "radio_button"

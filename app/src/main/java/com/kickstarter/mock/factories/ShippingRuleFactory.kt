@@ -2,6 +2,12 @@ package com.kickstarter.mock.factories
 
 import com.kickstarter.models.ShippingRule
 
+/**
+ * Test mock implementation for ShippingRuleFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object ShippingRuleFactory {
     @JvmStatic
     fun usShippingRule(): ShippingRule {

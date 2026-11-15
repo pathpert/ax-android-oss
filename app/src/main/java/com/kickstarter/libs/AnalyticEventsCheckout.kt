@@ -39,6 +39,12 @@ import com.kickstarter.ui.data.CheckoutData
 import com.kickstarter.ui.data.PledgeData
 import com.kickstarter.ui.data.ProjectData
 
+/**
+ * Library utility component for AnalyticEventsCheckout.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 internal class AnalyticEventsCheckout(private val client: AnalyticEvents.ProxyClient) {
 
     fun trackPledgedProjectsOverviewPageViewed(ppoCards: List<PPOCard>, totalCount: Int) {

@@ -6,6 +6,12 @@ import com.stripe.android.model.CardBrand
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 
+/**
+ * Domain data model representing StoredCard.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 class StoredCard private constructor(
     private val id: String?,

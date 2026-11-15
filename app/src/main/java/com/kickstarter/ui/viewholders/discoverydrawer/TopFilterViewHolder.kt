@@ -6,6 +6,12 @@ import com.kickstarter.databinding.DiscoveryDrawerTopFilterViewBinding
 import com.kickstarter.ui.adapters.data.NavigationDrawerData
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for TopFilterViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class TopFilterViewHolder(
     private val binding: DiscoveryDrawerTopFilterViewBinding,
     private val delegate: Delegate

@@ -39,6 +39,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import org.joda.time.DateTime
 
+/**
+ * UI component rendering CollectionPlanTestTags.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 enum class CollectionPlanTestTags {
     OPTION_PLEDGE_IN_FULL,
     OPTION_PLEDGE_OVER_TIME,

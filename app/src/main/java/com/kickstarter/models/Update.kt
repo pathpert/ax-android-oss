@@ -5,6 +5,12 @@ import android.text.Html
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
+/**
+ * Domain data model representing Update.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 class Update private constructor(
     private val body: String?,

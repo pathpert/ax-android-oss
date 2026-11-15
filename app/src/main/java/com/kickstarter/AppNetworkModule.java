@@ -44,6 +44,12 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * Application component for AppNetworkModule.
+ *
+ * Negative constraints:
+ * - Do not mutate internal state directly from external callers.
+ */
 @Module
 public final class AppNetworkModule {
 

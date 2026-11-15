@@ -12,6 +12,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * Library utility component for FirebaseHelper.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class FirebaseHelper(context: Context, ffClient: FeatureFlagClientType, callback: () -> Boolean) {
 
     companion object {

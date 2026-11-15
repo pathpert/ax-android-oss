@@ -3,6 +3,12 @@ package com.kickstarter.models.pushdata
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Domain data model representing GCM.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Parcelize
 class GCM private constructor(
     private val alert: String,

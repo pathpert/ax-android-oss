@@ -2,6 +2,12 @@ package com.kickstarter.libs.utils
 
 import com.kickstarter.libs.Build
 
+/**
+ * Utility and helper extensions for WebUtils.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 object WebUtils {
     fun userAgent(build: Build): String {
         return StringBuilder()

@@ -3,6 +3,12 @@ package com.kickstarter.ui.viewholders.discoverydrawer
 import com.kickstarter.databinding.DiscoveryDrawerLoggedOutViewBinding
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for LoggedOutViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class LoggedOutViewHolder(private val binding: DiscoveryDrawerLoggedOutViewBinding, private val delegate: Delegate) : KSViewHolder(binding.root) {
     interface Delegate {
         fun loggedOutViewHolderActivityClick(viewHolder: LoggedOutViewHolder)

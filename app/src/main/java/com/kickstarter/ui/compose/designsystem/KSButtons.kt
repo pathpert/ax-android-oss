@@ -72,6 +72,12 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.HazeTint
 import dev.chrisbanes.haze.hazeEffect
 
+/**
+ * UI component rendering KSPrimaryGreenButton.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Composable
 fun KSPrimaryGreenButton(
     modifier: Modifier = Modifier,

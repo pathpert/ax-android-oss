@@ -18,6 +18,12 @@ import com.kickstarter.models.ShippingRule
 import com.kickstarter.ui.compose.designsystem.KSTheme
 import kotlinx.coroutines.launch
 
+/**
+ * Activity displaying and coordinating user interactions for ProjectPledgeButtonAndContainerPreview.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview(name = "Light", uiMode = Configuration.UI_MODE_NIGHT_NO)

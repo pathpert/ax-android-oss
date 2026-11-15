@@ -14,6 +14,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
+/**
+ * Fragment presenting UI and collecting view states for DiscoveryFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 internal fun DiscoveryFragment.setupSwipeRefresh(
     binding: FragmentDiscoveryBinding?,
     viewModel: DiscoveryFragmentViewModel.DiscoveryFragmentViewModel,

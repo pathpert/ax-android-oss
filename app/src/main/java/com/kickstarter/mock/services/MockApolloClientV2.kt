@@ -39,6 +39,12 @@ import com.kickstarter.services.mutations.UpdateBackerCompletedData
 import io.reactivex.Observable
 import java.util.Collections
 
+/**
+ * Network or service component for MockApolloClientV2.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 open class MockApolloClientV2 : BaseMockApolloClientV2() {
 
     override fun getProjectUpdates(

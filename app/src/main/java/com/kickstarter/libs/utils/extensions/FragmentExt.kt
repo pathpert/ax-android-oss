@@ -7,6 +7,12 @@ import com.kickstarter.ui.data.PledgeData
 import com.kickstarter.ui.data.PledgeReason
 import com.kickstarter.ui.fragments.CrowdfundCheckoutFragment
 
+/**
+ * Utility and helper extensions for Fragment.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 fun Fragment.selectPledgeFragment(
     pledgeData: PledgeData,
     pledgeReason: PledgeReason

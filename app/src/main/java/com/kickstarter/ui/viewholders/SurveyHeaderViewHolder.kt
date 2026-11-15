@@ -2,6 +2,12 @@ package com.kickstarter.ui.viewholders
 
 import com.kickstarter.databinding.ActivitySurveyHeaderViewBinding
 
+/**
+ * UI binding component for SurveyHeaderViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class SurveyHeaderViewHolder(private val binding: ActivitySurveyHeaderViewBinding) :
     KSViewHolder(binding.root) {
     private val ksString = requireNotNull(environment().ksString())

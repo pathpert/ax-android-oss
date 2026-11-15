@@ -20,6 +20,12 @@ import com.kickstarter.viewmodels.projectpage.ProjectOverviewViewModel.ProjectOv
 import com.kickstarter.viewmodels.projectpage.SimilarProjectsViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Fragment presenting UI and collecting view states for ProjectOverviewFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.projectpage")
 class ProjectOverviewFragment : Fragment(), Configure {
 

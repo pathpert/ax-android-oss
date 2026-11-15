@@ -4,6 +4,12 @@ import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.ObservableTransformer
 
+/**
+ * Library utility component for IncrementalCountTransformerV2.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class IncrementalCountTransformerV2<T> : ObservableTransformer<T, Int> {
     private val firstPage: Int
 

@@ -7,6 +7,12 @@ import java.security.MessageDigest
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 
+/**
+ * Utility and helper extensions for String.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 fun String.encrypt(secretKey: Key?): String? {
     return try {
         val cipher = Cipher.getInstance("AES/CBC/PKCS7PADDING")

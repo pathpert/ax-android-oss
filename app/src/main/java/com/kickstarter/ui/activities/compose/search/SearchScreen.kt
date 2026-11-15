@@ -41,6 +41,12 @@ import com.kickstarter.ui.compose.designsystem.KSSnackbarTypes
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 
+/**
+ * Activity displaying and coordinating user interactions for SearchScreenTestTag.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 enum class SearchScreenTestTag {
     BACK_BUTTON,
     SEARCH_TEXT_INPUT,
@@ -128,7 +134,6 @@ fun SearchScreen(
     )
 
     val isSheetOpen = remember { mutableStateOf(false) }
-
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         snackbarHost = {
@@ -181,7 +186,6 @@ fun SearchScreen(
                         selectedFilterCounts[rowPillType.name] = if (value) 1 else 0
                         val total = selectedFilterCounts[FilterRowPillType.FILTER.name] ?: 0
                         selectedFilterCounts[FilterRowPillType.FILTER.name] = if (value) total + 1 else total - 1
-
                         when (rowPillType) {
                             FilterRowPillType.RECOMMENDED -> currentRecommended.value = value
                             FilterRowPillType.PROJECTS_LOVED -> currentStaffPicked.value = value
@@ -246,7 +250,6 @@ fun SearchScreen(
                     onItemClicked = onItemClicked
                 )
             }
-
             if (isLoading && itemsList.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -260,7 +263,6 @@ fun SearchScreen(
             }
         }
     }
-
     SearchFilterModalBottomSheet(
         isSheetOpen = isSheetOpen,
         sheetState = sheetState,

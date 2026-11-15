@@ -27,6 +27,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.ui.compose.designsystem.KSVideoFeedBanner
 
+/**
+ * Activity displaying and coordinating user interactions for SearchResultsList.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 fun SearchResultsList(
     modifier: Modifier = Modifier,

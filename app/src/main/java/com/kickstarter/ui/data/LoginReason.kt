@@ -1,5 +1,11 @@
 package com.kickstarter.ui.data
 
+/**
+ * UI component for LoginReason.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 enum class LoginReason {
     DEFAULT,
     ACTIVITY_FEED,

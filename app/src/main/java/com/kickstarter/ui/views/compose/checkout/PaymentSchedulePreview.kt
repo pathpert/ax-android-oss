@@ -11,6 +11,12 @@ import com.kickstarter.mock.factories.ConfigFactory
 import com.kickstarter.mock.factories.PaymentIncrementFactory
 import com.kickstarter.ui.compose.designsystem.KSTheme
 
+/**
+ * UI component rendering PreviewCollapsedPaymentScheduleWhite.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Preview(
     name = "Dark Collapsed State", uiMode = Configuration.UI_MODE_NIGHT_YES,
 )

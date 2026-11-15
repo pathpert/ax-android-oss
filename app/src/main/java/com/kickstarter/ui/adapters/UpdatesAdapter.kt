@@ -14,6 +14,12 @@ import com.kickstarter.ui.viewholders.KSViewHolder
 import com.kickstarter.ui.viewholders.UpdateCardViewHolder
 import io.reactivex.Observable
 
+/**
+ * UI binding component for UpdatesAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class UpdatesAdapter(private val delegate: Delegate) : KSAdapter() {
 
     interface Delegate : UpdateCardViewHolder.Delegate

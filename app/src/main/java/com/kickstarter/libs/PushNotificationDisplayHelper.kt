@@ -27,6 +27,12 @@ import com.kickstarter.services.apiresponses.PushNotificationEnvelope
 import com.kickstarter.ui.IntentKey
 import java.util.concurrent.ExecutionException
 
+/**
+ * Library utility component for PushNotificationDisplayHelper.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 internal object PushNotificationDisplayHelper {
 
     fun displayNotificationFromErroredPledge(context: Context, envelope: PushNotificationEnvelope) {

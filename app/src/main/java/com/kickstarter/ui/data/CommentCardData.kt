@@ -5,6 +5,12 @@ import com.kickstarter.models.Comment
 import com.kickstarter.models.Project
 import kotlinx.android.parcel.Parcelize
 
+/**
+ * UI component for CommentCardData.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 @Parcelize
 class CommentCardData(
     val comment: Comment?,

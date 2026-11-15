@@ -23,6 +23,12 @@ import com.kickstarter.ui.extensions.parseAndSpanHtmlTag
 import com.kickstarter.ui.extensions.parseHtmlTag
 import com.kickstarter.ui.extensions.urlSpanWithoutUnderlines
 
+/**
+ * UI component rendering CommentCard.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class CommentCard @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -236,43 +242,34 @@ class CommentCard @JvmOverloads constructor(
     fun setCommentUserName(username: String) {
         binding.commentUserName.text = username
     }
-
     fun hideReplyButton() {
         binding.replyButton.isVisible = false
     }
-
     fun setCommentPostTime(time: String) {
         binding.commentPostTime.text = time
     }
-
     fun setCommentBody(comment: String) {
         binding.commentBody.text = comment
         Linkify.addLinks(binding.commentBody, Linkify.WEB_URLS)
         binding.commentBody.urlSpanWithoutUnderlines()
     }
-
     fun setRemovedMessage(message: String) {
         binding.removedMessage.text = message
         bindCommunityGuidelines(binding.removedMessage, onCommentCardClickedListener)
     }
-
     fun setFlaggedMessage(message: String) {
         bindFlaggedCommunityGuidelines(message, binding.flaggedMessage, onCommentCardClickedListener)
     }
-
     fun setCancelPledgeMessage(message: String) {
         binding.canceledPledgeMessage.text = message
         bindCancelPledgeMessage()
     }
-
     fun setCommentCardClickedListener(onCommentCardClickedListener: OnCommentCardClickedListener?) {
         this.onCommentCardClickedListener = onCommentCardClickedListener
     }
-
     fun setAvatarUrl(url: String?) {
         binding.avatar.loadCircleImage(url)
     }
-
     fun setCommentBadge(badge: CommentCardBadge?) {
         when (badge) {
             CommentCardBadge.NO_BADGE -> setBadgesVisibility(false, false, false)
@@ -283,7 +280,6 @@ class CommentCard @JvmOverloads constructor(
             else -> {}
         }
     }
-
     private fun setBadgesVisibility(
         isYouBadgeVisible: Boolean,
         isSuperBackerBadgeVisible: Boolean,

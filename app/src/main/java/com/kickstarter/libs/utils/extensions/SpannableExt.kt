@@ -13,6 +13,12 @@ import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 
+/**
+ * Utility and helper extensions for Spannable.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 fun Spannable.size(size: Int) {
     val span = AbsoluteSizeSpan(size)
     this.setSpan(span, 0, this.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)

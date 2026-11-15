@@ -12,6 +12,12 @@ import com.kickstarter.models.StoredCard
 import com.kickstarter.viewmodels.RewardCardSelectedViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for RewardCardSelectedViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class RewardCardSelectedViewHolder(val binding: ItemRewardSelectedCardBinding) : KSViewHolder(binding.root) {
 
     private val creditCardExpirationString = this.context().getString(R.string.Credit_card_expiration)

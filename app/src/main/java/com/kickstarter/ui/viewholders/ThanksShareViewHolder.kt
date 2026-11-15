@@ -17,6 +17,12 @@ import com.kickstarter.viewmodels.ThanksShareHolderViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for ThanksShareViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ThanksShareViewHolder(private val binding: ThanksShareViewBinding) : KSViewHolder(binding.root) {
     private val viewModel = ThanksShareHolderViewModel.ThanksShareViewHolderViewModel(environment())
     private val ksString = requireNotNull(environment().ksString())

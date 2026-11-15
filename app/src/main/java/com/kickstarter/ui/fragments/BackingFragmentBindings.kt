@@ -19,6 +19,12 @@ import com.kickstarter.ui.extensions.showSnackbar
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Fragment presenting UI and collecting view states for BackingFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 internal fun BackingFragment.initViewModelSubscriptions(
     env: Environment?,
     binding: FragmentBackingBinding,
@@ -268,25 +274,20 @@ internal fun BackingFragment.initViews(
             }
         }
     }
-
     binding.backingSwipeRefreshLayout.setColorSchemeResources(
         R.color.kds_create_700,
         R.color.kds_create_500,
         R.color.kds_create_300
     )
-
     binding.backingSwipeRefreshLayout.setOnRefreshListener {
         this.viewModel.inputs.refreshProject()
     }
-
     binding.fixPaymentMethodButton.setOnClickListener {
         this.viewModel.inputs.fixPaymentMethodButtonClicked()
     }
-
     binding.receivedSectionLayout.estimatedDeliveryCheckbox.apply {
         viewModel.inputs.receivedCheckboxToggled(this.isChecked)
     }
-
     binding.receivedSectionLayout.estimatedDeliveryCheckbox.setOnCheckedChangeListener { _, isChecked ->
         viewModel.inputs.receivedCheckboxToggled(isChecked)
     }

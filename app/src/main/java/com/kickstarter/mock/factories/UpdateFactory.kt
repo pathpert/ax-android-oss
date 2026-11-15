@@ -5,6 +5,12 @@ import com.kickstarter.mock.factories.UserFactory.creator
 import com.kickstarter.models.Update
 import com.kickstarter.models.Update.Companion.builder
 
+/**
+ * Test mock implementation for UpdateFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object UpdateFactory {
     @JvmStatic
     fun update(): Update {

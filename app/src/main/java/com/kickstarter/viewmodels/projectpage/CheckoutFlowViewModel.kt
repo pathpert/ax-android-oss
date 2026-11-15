@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 
+/**
+ * ViewModel managing state transitions and user intents for FlowUIState.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 data class FlowUIState(
     val currentPage: Int = 0,
     val expanded: Boolean = false

@@ -36,6 +36,12 @@ import com.kickstarter.viewmodels.usecases.TPEventInputData
 import io.reactivex.Observable
 import java.util.Collections
 
+/**
+ * Network or service component for BaseMockApolloClientV2.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 abstract class BaseMockApolloClientV2 : ApolloClientTypeV2 {
 
     override suspend fun getRewardsFromProject(

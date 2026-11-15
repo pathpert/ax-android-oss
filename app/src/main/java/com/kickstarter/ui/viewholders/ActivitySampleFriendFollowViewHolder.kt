@@ -10,6 +10,12 @@ import com.kickstarter.ui.extensions.loadCircleImage
 import com.kickstarter.viewmodels.ActivitySampleFriendFollowViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for ActivitySampleFriendFollowViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ActivitySampleFriendFollowViewHolder(
     private val binding: ActivitySampleFriendFollowViewBinding,
     private val delegate: Delegate

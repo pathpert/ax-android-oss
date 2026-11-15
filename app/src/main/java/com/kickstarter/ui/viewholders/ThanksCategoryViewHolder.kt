@@ -9,6 +9,12 @@ import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.models.Category
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for ThanksCategoryViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ThanksCategoryViewHolder(
     private val binding: ThanksCategoryViewBinding,
     delegate: Delegate

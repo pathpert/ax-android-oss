@@ -5,6 +5,12 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.kickstarter.libs.featureflag.FeatureFlagClientType
 import com.kickstarter.libs.featureflag.FlagKey
 
+/**
+ * Test mock implementation for MockFeatureFlagClient.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 open class MockFeatureFlagClient : FeatureFlagClientType {
     override fun initialize(config: FirebaseRemoteConfig?) {}
 

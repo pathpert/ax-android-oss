@@ -6,6 +6,12 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 import okhttp3.Request;
 
+/**
+ * Network or service component for RequestHandler.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 public final class RequestHandler {
   private final RequestHandler.Matcher matcher;
   private final RequestHandler.Action action;

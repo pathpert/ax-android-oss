@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel managing state transitions and user intents for BackingDetailsViewModel.
+ *
+ * Negative constraints:
+ * - For new code, consume corresponding feature contracts in com.kickstarter.features.*; do not mutate state directly.
+ */
 @Deprecated(
     message = "Legacy monolithic path replaced by BackingFeatureViewModel under com.kickstarter.features.backing.viewmodel.",
     replaceWith = ReplaceWith("BackingFeatureViewModel", "com.kickstarter.features.backing.viewmodel.BackingFeatureViewModel")

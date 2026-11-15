@@ -12,6 +12,12 @@ import retrofit2.Response
 import timber.log.Timber
 import javax.inject.Inject
 
+/**
+ * Network or service component for TrackingWorker.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 abstract class TrackingWorker(@ApplicationContext applicationContext: Context, private val params: WorkerParameters) : Worker(applicationContext, params) {
     @Inject
     lateinit var build: Build

@@ -5,6 +5,12 @@ import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.ObservableTransformer
 
+/**
+ * Library utility component for TakePairWhenTransformerV2.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 class TakePairWhenTransformerV2<S, T>(private val `when`: Observable<T>) :
     ObservableTransformer<S, Pair<S, T>> {
 

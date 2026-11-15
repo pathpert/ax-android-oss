@@ -2,6 +2,12 @@ package com.kickstarter.libs.utils
 
 import java.util.Objects
 
+/**
+ * Utility and helper extensions for KsOptional.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 class KsOptional<T> {
     private var value: T?
 

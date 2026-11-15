@@ -2,6 +2,12 @@ package com.kickstarter.libs;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Library utility component for FormContents.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing this utility.
+ */
 public class FormContents {
   private final String serialized;
   private final String method;

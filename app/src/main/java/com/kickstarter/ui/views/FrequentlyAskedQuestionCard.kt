@@ -13,6 +13,12 @@ import androidx.transition.TransitionManager
 import com.kickstarter.R
 import com.kickstarter.databinding.FrequentlyAskedQuestionCardBinding
 
+/**
+ * UI component rendering FrequentlyAskedQuestionCard.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 class FrequentlyAskedQuestionCard @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

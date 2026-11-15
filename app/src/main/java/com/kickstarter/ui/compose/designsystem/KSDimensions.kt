@@ -5,6 +5,12 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/**
+ * UI component rendering KSDimensions.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Immutable
 data class KSDimensions(
     val strokeWidth: Dp = Dp.Unspecified,

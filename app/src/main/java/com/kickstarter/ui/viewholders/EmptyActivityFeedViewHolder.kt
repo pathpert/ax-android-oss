@@ -4,6 +4,12 @@ import android.view.View
 import com.kickstarter.databinding.EmptyActivityFeedViewBinding
 import com.kickstarter.libs.utils.extensions.isTrue
 
+/**
+ * UI binding component for EmptyActivityFeedViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class EmptyActivityFeedViewHolder(
     private val binding: EmptyActivityFeedViewBinding,
     private val delegate: Delegate?

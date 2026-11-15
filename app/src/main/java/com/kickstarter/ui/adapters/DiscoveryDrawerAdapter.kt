@@ -23,6 +23,12 @@ import com.kickstarter.ui.viewholders.discoverydrawer.ParentFilterViewHolder
 import com.kickstarter.ui.viewholders.discoverydrawer.TopFilterViewHolder
 import java.util.ArrayList
 
+/**
+ * UI binding component for DiscoveryDrawerAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class DiscoveryDrawerAdapter(
     private val delegate: Delegate,
 ) : KSAdapter() {

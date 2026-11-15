@@ -4,6 +4,12 @@ import com.kickstarter.models.PaymentSource
 import com.kickstarter.type.CreditCardPaymentType
 import java.util.Date
 
+/**
+ * Test mock implementation for PaymentSourceFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class PaymentSourceFactory private constructor() {
     companion object {
         fun visa(): PaymentSource {

@@ -7,6 +7,12 @@ import com.kickstarter.models.Activity
 import com.kickstarter.ui.extensions.loadImage
 import org.joda.time.DateTime
 
+/**
+ * UI binding component for ProjectUpdateViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ProjectUpdateViewHolder(
     private val binding: ActivityProjectUpdateViewBinding,
     private val delegate: Delegate?

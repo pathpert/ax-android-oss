@@ -16,6 +16,12 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 
+/**
+ * Network or service component for ApiRequestInterceptor.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 class ApiRequestInterceptor(
     private val clientId: String,
     private val currentUser: CurrentUserTypeV2,

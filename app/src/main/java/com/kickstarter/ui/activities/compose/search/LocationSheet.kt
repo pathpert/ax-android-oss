@@ -35,6 +35,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 
+/**
+ * Activity displaying and coordinating user interactions for LocationTestTags.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 object LocationTestTags {
     const val DEFAULT_LOCATION_LIST = "default_location_list"
     const val SUGGESTED_LOCATIONS_LIST = "suggested_location_list"

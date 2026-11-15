@@ -11,6 +11,12 @@ import com.kickstarter.viewmodels.ErroredBackingViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 import org.joda.time.DateTime
 
+/**
+ * UI binding component for ErroredBackingViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class ErroredBackingViewHolder(private val binding: ItemErroredBackingBinding, val delegate: Delegate?) : KSViewHolder(binding.root) {
 
     interface Delegate {

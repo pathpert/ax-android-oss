@@ -9,6 +9,12 @@ import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
+/**
+ * Feature component for SocialShareWhatsApp in socialshare module.
+ *
+ * Negative constraints:
+ * - Do not bypass feature-scoped boundary contracts or leak internal UI state.
+ */
 val SocialShareWhatsApp: ImageVector
     get() {
         _SocialShareWhatsApp?.let { return it }

@@ -8,6 +8,12 @@ import android.view.inputmethod.InputMethodManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * Utility and helper extensions for InputUtils.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 public final class InputUtils {
   private InputUtils() {}
 

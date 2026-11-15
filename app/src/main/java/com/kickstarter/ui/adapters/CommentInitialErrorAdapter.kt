@@ -8,6 +8,12 @@ import com.kickstarter.databinding.CommentInitialLoadErrorLayoutBinding
 import com.kickstarter.ui.viewholders.EmptyViewHolder
 import com.kickstarter.ui.viewholders.KSViewHolder
 
+/**
+ * UI binding component for CommentInitialErrorAdapter.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class CommentInitialErrorAdapter : KSListAdapter() {
 
     init {

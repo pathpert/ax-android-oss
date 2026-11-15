@@ -22,6 +22,12 @@ import com.kickstarter.ui.data.ProjectData
 import com.kickstarter.viewmodels.projectpage.ProjectAIViewModel
 import com.kickstarter.viewmodels.projectpage.ProjectAIViewModel.Event
 
+/**
+ * Fragment presenting UI and collecting view states for ProjectAIFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class ProjectAIFragment :
     Fragment(),
     Configure {

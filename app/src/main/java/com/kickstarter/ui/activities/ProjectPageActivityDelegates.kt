@@ -16,6 +16,12 @@ import com.kickstarter.viewmodels.projectpage.PagerTabConfig
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.model.PaymentOption
 
+/**
+ * Activity displaying and coordinating user interactions for ProjectPageActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 internal fun ProjectPageActivity.showSocialShareSheet(project: Project) =
     socialShareComposeHost.showSocialShareSheet(project)
 

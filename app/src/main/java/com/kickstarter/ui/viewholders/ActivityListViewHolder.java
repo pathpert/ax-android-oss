@@ -9,6 +9,12 @@ import androidx.annotation.Nullable;
 import com.kickstarter.libs.utils.extensions.AnyExtKt;
 import com.kickstarter.models.Activity;
 
+/**
+ * UI binding component for ActivityListViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 public abstract class ActivityListViewHolder extends KSViewHolder {
   private Activity activity;
 

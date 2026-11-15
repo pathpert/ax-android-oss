@@ -18,6 +18,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.kickstarter.R
 
+/**
+ * UI component rendering KSImageTextBannerPreview.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Preview
 @Composable
 fun KSImageTextBannerPreview() {

@@ -40,6 +40,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.fragments.ConsentManagementDialogFragment
 
+/**
+ * Activity displaying and coordinating user interactions for OnboardingScreenPreview.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 @Composable
 @Preview
 fun OnboardingScreenPreview() {

@@ -24,6 +24,12 @@ import com.kickstarter.ui.compose.designsystem.KSSecretRewardBadge
 import com.kickstarter.ui.compose.designsystem.KSTheme
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 
+/**
+ * UI component rendering KSRewardCard.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 @Composable
 fun KSRewardCard(
     modifier: Modifier = Modifier,

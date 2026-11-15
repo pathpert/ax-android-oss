@@ -38,6 +38,12 @@ import com.kickstarter.ui.views.compose.checkout.ShippingSelector
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 
+/**
+ * Activity displaying and coordinating user interactions for RewardCarouselTestTag.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 enum class RewardCarouselTestTag(val tag: String) {
     REWARD_CAROUSEL("REWARD_CAROUSEL"),
     REWARD_CARD("REWARD_CARD_"), // Use with ID

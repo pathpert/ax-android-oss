@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.models.Location
 import com.kickstarter.models.Location.Companion.builder
 
+/**
+ * Test mock implementation for LocationFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 object LocationFactory {
     @JvmStatic
     fun germany(): Location {

@@ -25,6 +25,12 @@ import com.kickstarter.viewmodels.projectpage.ProjectRiskViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Fragment presenting UI and collecting view states for ProjectRiskFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class ProjectRiskFragment :
     Fragment(),
     Configure {

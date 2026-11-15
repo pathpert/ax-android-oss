@@ -3,6 +3,12 @@ package com.kickstarter.services.apirequests
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for PushTokenBody.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 class PushTokenBody private constructor(
     private val pushServer: String?,

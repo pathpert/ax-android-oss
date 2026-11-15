@@ -25,6 +25,12 @@ import com.kickstarter.ui.compose.designsystem.KSIconPillButton
 import com.kickstarter.ui.compose.designsystem.KSPillButton
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 
+/**
+ * Activity displaying and coordinating user interactions for PillBarTestTags.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 object PillBarTestTags {
     fun pillTag(state: FilterRowPillType) = "pill_${state.name}"
 }
@@ -164,7 +170,6 @@ fun PillBar(
                 }
             )
         }
-
         KSPillButton(
             shouldShowTrailingIcon = true,
             modifier = Modifier.testTag(pillTag(FilterRowPillType.PERCENTAGE_RAISED)),
@@ -180,7 +185,6 @@ fun PillBar(
             ),
             onClick = { onPillPressed(FilterRowPillType.PERCENTAGE_RAISED) }
         )
-
         KSPillButton(
             shouldShowTrailingIcon = true,
             modifier = Modifier.testTag(pillTag(FilterRowPillType.AMOUNT_RAISED)),
@@ -196,7 +200,6 @@ fun PillBar(
             ),
             onClick = { onPillPressed(FilterRowPillType.AMOUNT_RAISED) }
         )
-
         if (shouldShowPhase) {
             KSPillButton(
                 shouldShowLeadingIcon = true,
@@ -230,7 +233,6 @@ fun PillBar(
                 ),
                 onClick = { onPillPressed(FilterRowPillType.GOAL) }
             )
-
             if (loggedInUser) {
                 KSPillButton(
                     modifier = Modifier.testTag(pillTag(FilterRowPillType.SAVED)),
@@ -266,7 +268,6 @@ fun PillBar(
                 )
             }
         }
-
         // - Manual entry surfaces the Open Calls pill last, after Following.
         if (isOpenCallsEnabled && !isFromDeepLink) {
             OpenCallsPill(
@@ -277,7 +278,6 @@ fun PillBar(
         }
     }
 }
-
 @Composable
 private fun OpenCallsPill(
     text: String,
@@ -292,5 +292,3 @@ private fun OpenCallsPill(
         onClick = onClick
     )
 }
-
-

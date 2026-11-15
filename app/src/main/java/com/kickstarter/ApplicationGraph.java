@@ -9,6 +9,12 @@ import com.kickstarter.services.firebase.UnregisterTokenWorker;
 import com.kickstarter.ui.views.IconTextView;
 import com.kickstarter.ui.views.KSWebView;
 
+/**
+ * Application component for ApplicationGraph.
+ *
+ * Negative constraints:
+ * - Do not mutate internal state directly from external callers.
+ */
 public interface ApplicationGraph {
   Environment environment();
   void inject(ApplicationLifecycleUtil __);

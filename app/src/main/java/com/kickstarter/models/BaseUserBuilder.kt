@@ -1,5 +1,11 @@
 package com.kickstarter.models
 
+/**
+ * Domain data model representing BaseUserBuilder.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated or null values across feature boundaries; consume feature contracts.
+ */
 @Suppress("UNCHECKED_CAST")
 open class BaseUserBuilder<T : BaseUserBuilder<T>>(
     var alumniNewsletter: Boolean = false,

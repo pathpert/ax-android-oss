@@ -6,6 +6,12 @@ import android.view.View
 import com.kickstarter.R
 import com.kickstarter.ui.views.LoginPopupMenu
 
+/**
+ * UI component for LoginToolbar.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 class LoginToolbar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

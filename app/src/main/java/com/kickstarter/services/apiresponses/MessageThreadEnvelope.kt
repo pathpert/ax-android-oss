@@ -6,6 +6,12 @@ import com.kickstarter.models.MessageThread
 import com.kickstarter.models.User
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for MessageThreadEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class MessageThreadEnvelope private constructor(

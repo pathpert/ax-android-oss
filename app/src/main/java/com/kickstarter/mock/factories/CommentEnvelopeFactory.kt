@@ -3,6 +3,12 @@ package com.kickstarter.mock.factories
 import com.kickstarter.services.apiresponses.commentresponse.CommentEnvelope
 import org.joda.time.DateTime
 
+/**
+ * Test mock implementation for CommentEnvelopeFactory.
+ *
+ * Negative constraints:
+ * - Do not use in production runtime code; strictly for test suites.
+ */
 class CommentEnvelopeFactory {
 
     companion object {

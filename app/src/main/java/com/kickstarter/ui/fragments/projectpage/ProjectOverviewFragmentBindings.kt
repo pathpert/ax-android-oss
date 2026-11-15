@@ -15,6 +15,12 @@ import com.kickstarter.ui.extensions.startReportProjectActivity
 import com.kickstarter.ui.extensions.startRootCommentsActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 
+/**
+ * Fragment presenting UI and collecting view states for ProjectOverviewFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 internal fun ProjectOverviewFragment.initViewModelSubscriptions() {
     viewModel.outputs.avatarPhotoUrl()
         .observeOn(AndroidSchedulers.mainThread())
@@ -249,42 +255,36 @@ internal fun ProjectOverviewFragment.initViewModelSubscriptions() {
             activity?.startProjectUpdatesActivity(it)
         }
         .addToDisposable(disposables)
-
     viewModel.outputs.startCreatorView()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
             activity?.startCreatorBioWebViewActivity(it.project())
         }
         .addToDisposable(disposables)
-
     viewModel.outputs.startReportProjectView()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
             activity?.startReportProjectActivity(it.project(), startForResult)
         }
         .addToDisposable(disposables)
-
     viewModel.outputs.startLoginView()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
             activity?.startLoginActivity()
         }
         .addToDisposable(disposables)
-
     viewModel.outputs.shouldShowReportProject()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
             binding.projectCreatorInfoLayout.reportProject.isGone = !it
         }
         .addToDisposable(disposables)
-
     viewModel.outputs.shouldShowProjectFlagged()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
             binding.projectCreatorInfoLayout.projectFlagged.isGone = !it
         }
         .addToDisposable(disposables)
-
     viewModel.outputs.openExternallyWithUrl()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {

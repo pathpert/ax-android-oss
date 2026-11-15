@@ -5,6 +5,12 @@ import com.kickstarter.models.Project
 import com.kickstarter.models.User
 import kotlinx.parcelize.Parcelize
 
+/**
+ * Network or service component for StarEnvelope.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 @Parcelize
 @androidx.annotation.Keep
 class StarEnvelope private constructor(

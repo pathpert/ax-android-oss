@@ -10,6 +10,12 @@ import android.view.animation.Animation
 import android.view.animation.Interpolator
 import android.widget.ImageButton
 
+/**
+ * Utility and helper extensions for AnimationUtils.
+ *
+ * Negative constraints:
+ * - Do not bypass domain validation when utilizing these helper methods.
+ */
 object AnimationUtils {
 
     const val ALPHA = "alpha"

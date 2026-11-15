@@ -10,6 +10,12 @@ import com.kickstarter.features.socialshare.ui.SocialShareComposeHost
 import com.kickstarter.ui.extensions.finishWithAnimation
 import com.stripe.android.paymentsheet.PaymentSheet
 
+/**
+ * Activity displaying and coordinating user interactions for ProjectPageActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 internal fun ProjectPageActivity.initControllers() {
     flowController = PaymentSheet.FlowController.create(
         activity = this,

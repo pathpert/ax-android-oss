@@ -3,6 +3,12 @@ package com.kickstarter.ui
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
+/**
+ * UI component for DiscoveryFilterStyle.
+ *
+ * Negative constraints:
+ * - Do not invoke business logic directly; delegate to ViewModel.
+ */
 @Parcelize
 class DiscoveryFilterStyle private constructor(
     private val light: Boolean,

@@ -22,6 +22,12 @@ import com.kickstarter.viewmodels.projectpage.ProjectEnvironmentalCommitmentsVie
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * Fragment presenting UI and collecting view states for ProjectEnvironmentalCommitmentsFragment.
+ *
+ * Negative constraints:
+ * - Do not execute network calls directly; collect state flows from ViewModel.
+ */
 class ProjectEnvironmentalCommitmentsFragment :
     Fragment(),
     Configure {

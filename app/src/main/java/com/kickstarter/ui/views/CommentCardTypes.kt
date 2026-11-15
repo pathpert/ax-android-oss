@@ -2,6 +2,12 @@ package com.kickstarter.ui.views
 
 import android.view.View
 
+/**
+ * UI component rendering OnCommentCardClickedListener.
+ *
+ * Negative constraints:
+ * - Do not perform unmanaged side-effects directly in composition; hoist state to caller.
+ */
 interface OnCommentCardClickedListener {
     fun onRetryViewClicked(view: View)
     fun onReplyButtonClicked(view: View)

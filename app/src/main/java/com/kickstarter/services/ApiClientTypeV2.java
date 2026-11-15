@@ -34,6 +34,12 @@ import java.util.List;
 
 import io.reactivex.Observable;
 
+/**
+ * Network or service component for ApiClientTypeV2.
+ *
+ * Negative constraints:
+ * - Do not perform blocking network calls on the main thread.
+ */
 public interface ApiClientTypeV2 {
   @NonNull
   Observable<Config> config();

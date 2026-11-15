@@ -7,6 +7,12 @@ import com.kickstarter.ui.data.Editorial
 import com.kickstarter.viewmodels.EditorialViewHolderViewModel
 import io.reactivex.disposables.CompositeDisposable
 
+/**
+ * UI binding component for EditorialViewHolder.
+ *
+ * Negative constraints:
+ * - Do not mutate domain models directly within UI adapters or view holders.
+ */
 class EditorialViewHolder(
     val binding: ItemLightsOnBinding,
     val delegate: Delegate

@@ -26,6 +26,12 @@ import io.reactivex.disposables.CompositeDisposable
 import okhttp3.Request
 import java.util.Arrays
 
+/**
+ * Activity displaying and coordinating user interactions for SurveyResponseActivity.
+ *
+ * Negative constraints:
+ * - Do not execute network calls or business logic directly within Activity; delegate to ViewModel.
+ */
 class SurveyResponseActivity : ComponentActivity() {
 
     private lateinit var binding: SurveyResponseLayoutBinding
