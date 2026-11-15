@@ -23,6 +23,9 @@ import com.kickstarter.features.socialshare.data.SocialSharePlatform
  * - Messages (SMS): [Intent.ACTION_SENDTO] + `smsto:` cannot carry attachments; MMS would
  *   require [Intent.ACTION_SEND] and losing the ability to pre-fill the SMS body reliably.
  *   Text-only is intentional here.
+ *
+ * Negative constraints:
+ * - Do not pass blank URLs or null project names.
  */
 object SocialShareIntentBuilder {
 

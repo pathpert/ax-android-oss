@@ -16,6 +16,9 @@ import com.kickstarter.features.socialshare.data.SocialSharePlatform
  *
  * This ensures the ViewModel does not hold a reference to any Activity or
  * UI-scoped context by interacting only with this interface.
+ *
+ * Negative constraints:
+ * - Do not pass Activity context; use Application context to prevent memory leaks.
  */
 interface SocialShareService {
 
@@ -57,8 +60,8 @@ interface SocialShareService {
 /**
  * Production implementation of [SocialShareService] that delegates to real Android APIs.
  *
- * **Important:** always pass [Context.getApplicationContext] — never an Activity context.
- * Application context is safe to hold indefinitely and cannot cause a memory leak.
+ * Negative constraints:
+ * - Always pass [Context.getApplicationContext] — never an Activity context.
  */
 class AndroidSocialShareService(
     private val context: Context

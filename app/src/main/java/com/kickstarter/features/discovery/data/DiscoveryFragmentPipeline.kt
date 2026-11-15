@@ -29,6 +29,10 @@ import kotlinx.coroutines.rx2.asObservable
 
 /**
  * Reactive pipeline managing project pagination, activity sampling, and interactions for Discovery.
+ *
+ * Negative constraints:
+ * - Do not trigger concurrent overlapping pagination requests.
+ * - Clean disposables upon lifecycle tear-down to avoid memory leaks.
  */
 class DiscoveryFragmentPipeline(environment: Environment) {
     private val apiClient = requireNotNull(environment.apiClientV2())

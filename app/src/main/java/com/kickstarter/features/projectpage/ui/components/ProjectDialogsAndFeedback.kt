@@ -18,6 +18,9 @@ import com.kickstarter.ui.extensions.showSnackbar
 
 /**
  * Handles presentation of success dialogs, star confirmation toasts, error alerts, and snackbars.
+ *
+ * Negative constraints:
+ * - Do not invoke on background threads; UI dialogs and toasts require main thread execution.
  */
 class ProjectDialogsAndFeedback(
     private val activity: Activity,

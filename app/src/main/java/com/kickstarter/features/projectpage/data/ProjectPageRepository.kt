@@ -36,6 +36,10 @@ import kotlinx.coroutines.rx2.asFlow
 /**
  * Repository coordinating remote Apollo GraphQL calls, project updates,
  * cookie ref-tags, and 3rd party attribution events.
+ *
+ * Negative constraints:
+ * - Do not run network mutations directly without single-flight protection.
+ * - Always clean disposables upon ViewModel teardown.
  */
 class ProjectPageRepository(
     private val environment: Environment,

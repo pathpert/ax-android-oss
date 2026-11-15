@@ -44,6 +44,12 @@ data class PaymentMethodCard(
  * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
  * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
  * - Do not pass mutable lists into [cards].
+ *
+ * @property cards List of user's saved payment method cards.
+ * @property isLoading Whether cards are actively being fetched or mutated.
+ * @property isDividerVisible Whether to display UI divider below cards.
+ * @property pendingDeleteCard Card awaiting deletion confirmation.
+ * @property problem Structured RFC 9457 error details if an operation failed.
  */
 data class PaymentMethodsUiState(
     val cards: List<PaymentMethodCard> = emptyList(),
@@ -60,8 +66,35 @@ data class PaymentMethodsUiState(
  * - Do not emit events for blank IDs or empty client secrets.
  */
 sealed interface PaymentMethodsEvent {
+    /**
+     * Trigger Stripe payment sheet display.
+     *
+     * Negative constraints:
+     * - Do not pass blank setup client secret or empty email.
+     *
+     * @property setupClientId Stripe setup intent client secret.
+     * @property userEmail User email associated with payment intent.
+     */
     data class PresentPaymentSheet(val setupClientId: String, val userEmail: String) : PaymentMethodsEvent
+
+    /**
+     * Action success confirmation message banner.
+     *
+     * Negative constraints:
+     * - Do not pass unlocalized strings.
+     *
+     * @property message Localized confirmation message.
+     */
     data class SuccessMessage(val message: String) : PaymentMethodsEvent
+
+    /**
+     * Prompt user to confirm card deletion.
+     *
+     * Negative constraints:
+     * - Do not display confirmation for invalid cards.
+     *
+     * @property card Card model to delete.
+     */
     data class ShowDeleteConfirmation(val card: PaymentMethodCard) : PaymentMethodsEvent
 }
 
@@ -84,6 +117,9 @@ interface PaymentMethodsRepository {
 
 /**
  * Boundary mapper normalizing legacy [StoredCard] models into [PaymentMethodCard].
+ *
+ * Negative constraints:
+ * - Do not pass null cards or cards with blank IDs.
  */
 object PaymentMethodBoundaryMapper {
 
@@ -114,6 +150,9 @@ object PaymentMethodBoundaryMapper {
 
 /**
  * Apollo-backed implementation of [PaymentMethodsRepository] with idempotency guards and RFC 9457 mapping.
+ *
+ * Negative constraints:
+ * - Do not instantiate directly in UI classes; inject via ViewModel Factory.
  */
 class ApolloPaymentMethodsRepository(
     private val apolloClient: ApolloClientTypeV2,

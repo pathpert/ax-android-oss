@@ -30,6 +30,12 @@ import com.kickstarter.ui.extensions.startPreLaunchProjectActivity
 import com.kickstarter.ui.extensions.startProjectActivity
 import com.kickstarter.ui.extensions.startShareIntent
 
+/**
+ * Activity hosting Jetpack Compose vertical short-form video feed.
+ *
+ * Negative constraints:
+ * - Do not place playback business logic directly in Activity; delegate to [VideoFeedViewModel].
+ */
 class VideoFeedActivity : ComponentActivity() {
 
     private lateinit var videoFeedFactory: VideoFeedViewModel.Factory

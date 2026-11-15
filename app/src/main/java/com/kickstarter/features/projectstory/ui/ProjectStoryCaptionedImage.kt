@@ -47,6 +47,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.grey_04
 import org.joda.time.DateTime
 
+/**
+ * Test tags identifying Compose nodes in [ProjectStoryCaptionedImage].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class ProjectStoryCaptionedImageTestTag {
     IMAGE, CAPTION, LOADING_INDICATOR
 }

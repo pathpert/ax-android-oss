@@ -45,6 +45,12 @@ import com.stripe.android.Stripe
 import com.stripe.android.StripeIntentResult
 import kotlinx.coroutines.launch
 
+/**
+ * Activity hosting the Pledged Projects Overview screen.
+ *
+ * Negative constraints:
+ * - Do not place business logic directly in this Activity; delegate to [PledgedProjectsOverviewViewModel].
+ */
 class PledgedProjectsOverviewActivity : AppCompatActivity() {
 
     private lateinit var viewModelFactory: PledgedProjectsOverviewViewModel.Factory

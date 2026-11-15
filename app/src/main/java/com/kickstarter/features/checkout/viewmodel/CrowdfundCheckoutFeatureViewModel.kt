@@ -38,6 +38,18 @@ import kotlin.coroutines.EmptyCoroutineContext
  * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
  * - Do not pass floating-point amounts; use [CheckoutAmounts] with integer minor units.
  * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
+ *
+ * @property storedCards Saved payment cards for the current backer.
+ * @property userEmail Contact email of the current user.
+ * @property isLoading Whether checkout mutation or fetch is in progress.
+ * @property selectedRewards List of rewards and add-ons in this checkout.
+ * @property amounts Shipping, bonus, and total monetary amounts in integer minor units.
+ * @property selectedPaymentMethod Currently selected payment method.
+ * @property shippingRule Selected shipping location and rule.
+ * @property paymentPlan Optional installment payment plan for PLOT.
+ * @property isIncrementalPledge Whether this is an incremental pledge update.
+ * @property isPledgeButtonEnabled Whether pledge action button can be tapped.
+ * @property problem Structured RFC 9457 error details if checkout failed.
  */
 data class CrowdfundCheckoutUiState(
     val storedCards: List<StoredCard> = emptyList(),
@@ -60,8 +72,35 @@ data class CrowdfundCheckoutUiState(
  * - Do not emit events with invalid or negative checkout IDs.
  */
 sealed interface CrowdfundCheckoutEvent {
+    /**
+     * Backing successfully created.
+     *
+     * Negative constraints:
+     * - Do not pass invalid or non-positive checkout IDs.
+     *
+     * @property checkoutId Positive checkout confirmation identifier.
+     */
     data class BackingCreated(val checkoutId: Long) : CrowdfundCheckoutEvent
+
+    /**
+     * Backing successfully updated.
+     *
+     * Negative constraints:
+     * - Do not pass invalid or non-positive checkout IDs.
+     *
+     * @property checkoutId Positive checkout confirmation identifier.
+     */
     data class BackingUpdated(val checkoutId: Long) : CrowdfundCheckoutEvent
+
+    /**
+     * Trigger Stripe payment sheet display.
+     *
+     * Negative constraints:
+     * - Do not pass blank setup client secret or empty email.
+     *
+     * @property setupClientId Stripe setup intent client secret.
+     * @property userEmail User email associated with payment intent.
+     */
     data class PresentPaymentSheet(val setupClientId: String, val userEmail: String) : CrowdfundCheckoutEvent
 }
 

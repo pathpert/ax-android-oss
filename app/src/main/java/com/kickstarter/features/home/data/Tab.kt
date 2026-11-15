@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Defines wrapper for visual assets
- *  Static: Given icon (human,search,home ...)
+ *  Static: Given icon (human, search, home ...)
  *  Dynamic: Url string of Image
  *  Resource: Local resource
  *
@@ -18,20 +18,72 @@ import androidx.compose.ui.unit.dp
  * - Do not pass blank URLs to [Dynamic] or invalid resource IDs to [Resource].
  */
 sealed interface TabIcon {
+    /**
+     * Statically rendered Compose [ImageVector] icon.
+     *
+     * Negative constraints:
+     * - Do not pass un-themed vector assets.
+     *
+     * @property vector Vector graphic drawn on the tab.
+     */
     data class Static(val vector: ImageVector) : TabIcon
+
+    /**
+     * Dynamically loaded remote image icon (e.g. user avatar).
+     *
+     * Negative constraints:
+     * - Do not pass empty or invalid URLs.
+     *
+     * @property url Valid remote image URL string.
+     */
     data class Dynamic(val url: String) : TabIcon
-    data class Resource(@DrawableRes val id: Int) : TabIcon // - Resource type not used as of today but seems likely to happen
+
+    /**
+     * Local Android drawable resource ID icon.
+     *
+     * Negative constraints:
+     * - Do not pass invalid or non-existent drawable resource identifiers.
+     *
+     * @property id Drawable resource integer ID.
+     */
+    data class Resource(@DrawableRes val id: Int) : TabIcon
 }
 
 /**
- * Defines logical unit for Bottom Navigation tab Item
+ * Defines logical unit for Bottom Navigation tab Item.
+ *
+ * Negative constraints:
+ * - Do not construct tabs with blank routes or null icons.
+ *
+ * @property route Unique navigation destination route key.
+ * @property icon Icon asset representation for the tab.
  */
 sealed class Tab(
     val route: String,
     val icon: TabIcon
 ) {
+    /**
+     * Home tab destination.
+     *
+     * Negative constraints:
+     * - Do not use outside main bottom navigation container.
+     */
     data object Home : Tab("home", TabIcon.Static(home))
+
+    /**
+     * Search and discovery tab destination.
+     *
+     * Negative constraints:
+     * - Do not use outside main bottom navigation container.
+     */
     data object Search : Tab("search", TabIcon.Static(search))
+
+    /**
+     * Login / authentication tab destination.
+     *
+     * Negative constraints:
+     * - Do not display if user is already authenticated; display Profile tab instead.
+     */
     data object LogIn : Tab("login", TabIcon.Static(human))
 
     /**

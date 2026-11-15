@@ -35,6 +35,15 @@ data class RedemptionRewardItem(
  * - Do not construct directly from unvalidated `Bundle` extras or pass raw `com.kickstarter.models.Project`
  *   into ViewModel state reducers; always normalize through [PledgeRedemptionIntentMapper].
  * - Do not pass floating-point currency amounts.
+ *
+ * @property projectId Validated non-blank project ID.
+ * @property projectName Display name of the backed project.
+ * @property backingId Validated non-blank backing ID.
+ * @property shippingAmount Shipping fee in integer minor units.
+ * @property totalAmount Total pledge amount in integer minor units.
+ * @property bonusAmount Bonus amount in integer minor units.
+ * @property rewardLines Line items representing rewards and add-ons.
+ * @property userEmail Contact email of the redeeming user.
  */
 data class PledgeRedemptionArgs(
     val projectId: NonBlankId,
@@ -53,6 +62,10 @@ data class PledgeRedemptionArgs(
  *
  * Negative constraints:
  * - Do not pass unvalidated or null project, reward, or shipping rule instances.
+ *
+ * @property project Legacy Project Parcelable model.
+ * @property selectedReward Legacy Reward Parcelable model.
+ * @property shippingRule Legacy ShippingRule Parcelable model.
  */
 @Deprecated(
     message = "Legacy UI bridge for CheckoutScreen; remove once CheckoutScreen accepts PledgeRedemptionArgs directly."
@@ -70,14 +83,37 @@ data class PledgeRedemptionLegacySnapshot(
  * - Do not expose raw unhandled exceptions; all failures MUST resolve to [ProblemDetails].
  */
 sealed interface PledgeRedemptionUiState {
+    /**
+     * Arguments extraction and validation in progress.
+     *
+     * Negative constraints:
+     * - Do not render checkout form while in loading state.
+     */
     data object Loading : PledgeRedemptionUiState
 
+    /**
+     * Arguments validated and ready to display redemption checkout screen.
+     *
+     * Negative constraints:
+     * - Do not emit with invalid or negative currency amounts.
+     *
+     * @property args Normalized domain redemption arguments.
+     * @property legacySnapshot Legacy UI snapshot bridge.
+     */
     data class Ready(
         val args: PledgeRedemptionArgs,
         @Suppress("DEPRECATION")
         val legacySnapshot: PledgeRedemptionLegacySnapshot
     ) : PledgeRedemptionUiState
 
+    /**
+     * Actionable error state with RFC 9457 details.
+     *
+     * Negative constraints:
+     * - Do not omit suggested remediation actions.
+     *
+     * @property problem Structured actionable error details.
+     */
     data class Error(val problem: ProblemDetails) : PledgeRedemptionUiState
 }
 
@@ -107,12 +143,7 @@ object PledgeRedemptionIntentMapper {
                     detail = "PledgeRedemptionActivity was launched without Intent extras.",
                     suggestedAction = "Launch PledgeRedemptionActivity using Intent.getPledgeRedemptionIntent(context, project) with a backed project.",
                     isRetriable = false,
-                    invalidParams = listOf(
-                        ProblemDetails.InvalidParam(
-                            name = IntentKey.PROJECT,
-                            reason = "Required Parcelable Project extra is missing."
-                        )
-                    )
+                    invalidParams = listOf(ProblemDetails.InvalidParam(IntentKey.PROJECT, "Required Parcelable Project extra is missing."))
                 )
             )
         }
@@ -126,12 +157,7 @@ object PledgeRedemptionIntentMapper {
                     detail = "Required Intent extra '${IntentKey.PROJECT}' is missing or has an unexpected type.",
                     suggestedAction = "Pass a valid backed Project via IntentKey.PROJECT.",
                     isRetriable = false,
-                    invalidParams = listOf(
-                        ProblemDetails.InvalidParam(
-                            name = IntentKey.PROJECT,
-                            reason = "Must be a non-null Project Parcelable."
-                        )
-                    )
+                    invalidParams = listOf(ProblemDetails.InvalidParam(IntentKey.PROJECT, "Must be a non-null Project Parcelable."))
                 )
             )
 

@@ -268,6 +268,12 @@ open class CommentsFeatureViewModel(
         super.onCleared()
     }
 
+    /**
+     * Factory producing [CommentsFeatureViewModel] instances with injected environment and repository.
+     *
+     * Negative constraints:
+     * - Do not instantiate without a valid [Environment].
+     */
     class Factory(
         private val environment: Environment,
         private val intent: Intent? = null,

@@ -63,9 +63,18 @@ private fun SocialShareProjectCardPreview() {
     }
 }
 
+/**
+ * Test tags identifying Compose components in [SocialShareProjectCard].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class SocialShareProjectCardTestTag {
+    /** Test tag for project title text node. */
     PROJECT_NAME,
+    /** Test tag for creator attribution text node. */
     CREATOR_NAME,
+    /** Test tag for Kickstarter branding logo icon node. */
     KS_LOGO
 }
 

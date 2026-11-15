@@ -18,6 +18,9 @@ import com.kickstarter.ui.compose.designsystem.KickstarterApp
 
 /**
  * Encapsulates the Compose host view and ViewModel lifecycle for in-app social sharing bottom sheets.
+ *
+ * Negative constraints:
+ * - Do not instantiate outside Activity or Fragment view lifecycle.
  */
 class SocialShareComposeHost(
     private val composeView: ComposeView,

@@ -54,7 +54,14 @@ private fun SocialSharePlatformGridPreview() {
     }
 }
 
+/**
+ * Test tags identifying Compose components in [SocialSharePlatformGrid].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class SocialSharePlatformGridTestTag {
+    /** Test tag for the platform grid container. */
     GRID
 }
 

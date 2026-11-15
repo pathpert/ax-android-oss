@@ -23,6 +23,12 @@ interface CommentsRepository {
     fun cleanDisposables()
 }
 
+/**
+ * Apollo GraphQL implementation of [CommentsRepository].
+ *
+ * Negative constraints:
+ * - Do not instantiate directly in UI classes; inject via ViewModel Factory.
+ */
 class CommentsRepositoryImpl(
     private val apolloClient: ApolloClientTypeV2
 ) : CommentsRepository {

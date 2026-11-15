@@ -54,6 +54,11 @@ import kotlinx.coroutines.rx2.asFlow
  * Negative constraints:
  * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
  * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
+ *
+ * @property isLoading Whether initial alerts or card data is actively fetching.
+ * @property isErrored Flag indicating network or server failure.
+ * @property totalAlerts Total count of urgent actionable alerts.
+ * @property problem Structured RFC 9457 error details if an operation failed.
  */
 data class PledgedProjectsOverviewUIState(
     val isLoading: Boolean = false,
@@ -62,12 +67,16 @@ data class PledgedProjectsOverviewUIState(
     val problem: ProblemDetails? = null
 )
 
+/**
+ * Modern ViewModel managing Pledged Projects Overview feed, address confirmations, and actions.
+ *
+ * Negative constraints:
+ * - Do not mutate internal state flows directly; observe [ppoUIState].
+ */
 class PledgedProjectsOverviewViewModel(
     environment: Environment,
     private val ioDispatcher: CoroutineDispatcher,
-    private val repository: PledgedProjectsRepository = ApolloPledgedProjectsRepository(
-        requireNotNull(environment.apolloClientV2())
-    )
+    private val repository: PledgedProjectsRepository = ApolloPledgedProjectsRepository(requireNotNull(environment.apolloClientV2()))
 ) : ViewModel() {
 
     private val mutablePpoCards = MutableStateFlow<PagingData<PPOCard>>(PagingData.empty())
@@ -208,12 +217,7 @@ class PledgedProjectsOverviewViewModel(
 
     fun onMessageCreatorClicked(projectName: String, projectId: String, creatorID: String, ppoCards: List<PPOCard?>, totalAlerts: Int) {
         viewModelScope.launch(ioDispatcher) {
-            analyticEvents.trackPPOMessageCreatorCTAClicked(
-                projectID = projectId,
-                ppoCards = ppoCards,
-                totalCount = totalAlerts,
-                creatorID = creatorID
-            )
+            analyticEvents.trackPPOMessageCreatorCTAClicked(projectId, ppoCards, totalAlerts, creatorID)
             emitCurrentState(isLoading = true)
             when (val result = repository.fetchProjectBySlug(projectName)) {
                 is DomainResult.Success -> {
@@ -242,22 +246,15 @@ class PledgedProjectsOverviewViewModel(
         problem: ProblemDetails? = null
     ) {
         mutablePPOUIState.emit(
-            PledgedProjectsOverviewUIState(
-                isLoading = isLoading,
-                isErrored = isErrored,
-                totalAlerts = totalAlerts,
-                problem = problem
-            )
+            PledgedProjectsOverviewUIState(isLoading = isLoading, isErrored = isErrored, totalAlerts = totalAlerts, problem = problem)
         )
     }
 
     private fun getAllowedTierTypes(): List<PledgeTierType> {
         val list = PledgeTierType.values().toMutableList()
         list.remove(PledgeTierType.REWARD_RECEIVED)
-
         if (isV1Enabled.isFalse()) list.removeAll { it.isTier1Type() }
         if (isV2Enabled.isFalse()) list.removeAll { it.isTier2Type() }
-
         return list
     }
 
@@ -270,13 +267,15 @@ class PledgedProjectsOverviewViewModel(
     }
 
     fun sendFinalizePledgeCTAEvent(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) {
-        this@PledgedProjectsOverviewViewModel.analyticEvents.trackPPOFinalizePledgeCTAClicked(
-            projectID = projectID,
-            ppoCards = ppoCards,
-            totalCount = totalCount
-        )
+        this@PledgedProjectsOverviewViewModel.analyticEvents.trackPPOFinalizePledgeCTAClicked(projectID, ppoCards, totalCount)
     }
 
+    /**
+     * Factory producing [PledgedProjectsOverviewViewModel] with environment dependencies.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment,
         private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO

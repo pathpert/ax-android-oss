@@ -7,9 +7,13 @@ import kotlinx.parcelize.Parcelize
 /**
  * Paginated API envelope encapsulating the list of PPO cards and cursor pagination metadata.
  *
- * ### Negative Constraints:
+ * Negative constraints:
  * - Do not pass negative integers to [totalCount].
  * - Do not treat [ppoCards] as a mutable list.
+ *
+ * @property ppoCards List of project cards on current page.
+ * @property pageInfoEnvelope Pagination cursors and page indicators.
+ * @property totalCount Total number of backed projects across all pages.
  */
 @Parcelize
 class PledgedProjectsOverviewEnvelope private constructor(
@@ -21,6 +25,13 @@ class PledgedProjectsOverviewEnvelope private constructor(
     fun pledges() = this.ppoCards
     fun pageInfoEnvelope() = this.pageInfoEnvelope
     fun totalCount() = this.totalCount
+
+    /**
+     * Builder for [PledgedProjectsOverviewEnvelope].
+     *
+     * Negative constraints:
+     * - Do not construct with negative total counts.
+     */
     @Parcelize
     data class Builder(
         var ppoCards: List<PPOCard>? = null,

@@ -228,7 +228,15 @@ private fun SocialShareDragHandle() {
     }
 }
 
+/**
+ * Test tags identifying Compose components in [SocialShareSheet].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class SocialShareSheetTestTag {
+    /** Test tag for social platforms grid. */
     PLATFORM_GRID,
+    /** Test tag for shared project preview card. */
     PROJECT_CARD
 }

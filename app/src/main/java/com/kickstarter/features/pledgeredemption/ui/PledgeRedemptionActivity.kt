@@ -30,6 +30,12 @@ import com.kickstarter.ui.activities.compose.projectpage.CheckoutScreen
 import com.kickstarter.ui.compose.designsystem.KickstarterApp
 import com.kickstarter.ui.data.PledgeReason
 
+/**
+ * Activity hosting Jetpack Compose pledge redemption screen.
+ *
+ * Negative constraints:
+ * - Do not place business logic directly in this Activity; delegate to [PledgeRedemptionViewModel].
+ */
 class PledgeRedemptionActivity : ComponentActivity() {
     private lateinit var viewModelFactory: PledgeRedemptionViewModel.Factory
     private val viewModel: PledgeRedemptionViewModel by viewModels { viewModelFactory }

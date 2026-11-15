@@ -40,6 +40,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.typographyV2
 import com.kickstarter.ui.compose.designsystem.KSVideoProgressIndicator
 import com.kickstarter.ui.compose.designsystem.videoplayer.icons.Check
 
+/**
+ * Test tags identifying Compose nodes in [KSVideoCampaignCard].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class KSVideoCampaignCardTestTag {
     CARD_CONTAINER,
     TITLE_SUBTITLE_CONTAINER,

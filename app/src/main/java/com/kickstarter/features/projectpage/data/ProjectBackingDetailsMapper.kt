@@ -20,6 +20,9 @@ import java.math.RoundingMode
 
 /**
  * Boundary mapper for project backing details, contextual flow, and UI state resolution.
+ *
+ * Negative constraints:
+ * - Do not pass unvalidated projects or floating-point currency doubles without localized formatting.
  */
 object ProjectBackingDetailsMapper {
 

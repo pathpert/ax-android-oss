@@ -35,6 +35,9 @@ data class AddOnContract(
  *
  * Negative constraints:
  * - Do not pass blank strings to [endCursor] when [hasNextPage] is true.
+ *
+ * @property endCursor Opaque pagination cursor for fetching next page.
+ * @property hasNextPage Whether more pages exist.
  */
 data class CursorPageContract(
     val endCursor: String? = null,
@@ -46,6 +49,9 @@ data class CursorPageContract(
  *
  * Negative constraints:
  * - Do not mutate [items] list after instantiation.
+ *
+ * @property items List of validated add-on contracts.
+ * @property pageInfo Pagination cursor and next page indicator.
  */
 data class AddOnsPageContract(
     val items: List<AddOnContract>,

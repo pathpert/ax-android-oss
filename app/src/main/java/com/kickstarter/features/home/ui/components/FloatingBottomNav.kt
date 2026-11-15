@@ -77,6 +77,12 @@ fun FloatingBottomNavLoggedInPreview() {
     }
 }
 
+/**
+ * Test tags identifying Compose nodes in [FloatingBottomNav] during UI testing.
+ *
+ * Negative constraints:
+ * - Do not hardcode test tag strings in UI tests; reference constants from this object.
+ */
 object FloatingBottomNavTestTags {
     fun tabTag(tab: Tab) = "tab_route${tab.route} tab_icon${tab.icon}"
     const val SLIDING_INDICATOR = "sliding_indicator"

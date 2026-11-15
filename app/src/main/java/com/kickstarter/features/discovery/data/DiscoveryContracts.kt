@@ -49,6 +49,15 @@ data class DiscoveryQuery(
  *
  * Negative constraints:
  * - Do not pass raw floating-point currency; currency is represented via [MinorCurrencyAmount].
+ *
+ * @property id Valid non-blank project identifier.
+ * @property name Project title/name.
+ * @property blurb Short descriptive summary of the project.
+ * @property photoUrl Optional project thumbnail/cover photo URL.
+ * @property pledgedAmount Pledged amount in integer minor currency units.
+ * @property goalAmount Funding goal in integer minor currency units.
+ * @property percentFunded Percentage of goal funded (0-100+).
+ * @property creatorName Name of the project creator.
  */
 data class DiscoveryProjectCard(
     val id: NonBlankId,
@@ -67,6 +76,10 @@ data class DiscoveryProjectCard(
  * Negative constraints:
  * - Do not mutate [projects] list after construction.
  * - Do not pass a blank string to [endCursor] when more pages exist.
+ *
+ * @property projects List of discovery project cards on this page.
+ * @property endCursor Opaque pagination cursor for fetching next page.
+ * @property hasMorePages True if subsequent pages are available.
  */
 data class DiscoveryEnvelopeContract(
     val projects: List<DiscoveryProjectCard>,
@@ -76,6 +89,9 @@ data class DiscoveryEnvelopeContract(
 
 /**
  * Strictly-typed repository boundary for project discovery.
+ *
+ * Negative constraints:
+ * - Do not bypass error mapping into [DomainResult].
  */
 interface DiscoveryRepository {
     suspend fun getProjects(query: DiscoveryQuery): DomainResult<DiscoveryEnvelopeContract>
@@ -84,6 +100,9 @@ interface DiscoveryRepository {
 
 /**
  * Apollo-backed implementation of [DiscoveryRepository] mapping queries into [DomainResult].
+ *
+ * Negative constraints:
+ * - Do not instantiate directly in UI layers; inject via ViewModel Factory.
  */
 class ApolloDiscoveryRepository(
     private val apolloClient: ApolloClientTypeV2

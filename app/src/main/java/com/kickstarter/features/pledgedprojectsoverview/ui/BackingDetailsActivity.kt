@@ -22,6 +22,12 @@ import kotlinx.coroutines.launch
 
 const val REFRESH = "refresh"
 
+/**
+ * Activity hosting backing details screen.
+ *
+ * Negative constraints:
+ * - Do not place business logic directly in Activity; delegate to ViewModel.
+ */
 class BackingDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBackingDetailsBinding

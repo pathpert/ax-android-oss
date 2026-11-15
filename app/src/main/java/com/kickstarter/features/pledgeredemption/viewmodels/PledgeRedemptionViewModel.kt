@@ -58,6 +58,12 @@ class PledgeRedemptionViewModel(
         }
     }
 
+    /**
+     * Factory producing [PledgeRedemptionViewModel] with injected environment and launch bundle.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment?,
         private val bundle: Bundle? = null

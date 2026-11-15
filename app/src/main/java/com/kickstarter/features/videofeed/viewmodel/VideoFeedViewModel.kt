@@ -28,6 +28,10 @@ import kotlin.coroutines.EmptyCoroutineContext
  * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
  * - Do not pass mutable lists into [items].
  * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
+ * @property items List of video items in feed.
+ * @property isLoading True when page is loading.
+ * @property hasMore True if subsequent pages are available.
+ * @property problem RFC 9457 actionable error details.
  */
 data class VideoFeedUIState(
     val items: List<VideoFeedItem> = emptyList(),
@@ -36,6 +40,12 @@ data class VideoFeedUIState(
     val problem: ProblemDetails? = null
 )
 
+/**
+ * Modern ViewModel managing infinite video feed playback, pagination, and interaction tracking.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; observe [videoFeedUIState] Flow.
+ */
 class VideoFeedViewModel(
     private val environment: Environment,
     private val entrySurface: String,
@@ -182,6 +192,12 @@ class VideoFeedViewModel(
         }
     }
 
+    /**
+     * Factory producing [VideoFeedViewModel] instances with injected environment and entry surface.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment,
         private val entrySurface: String,

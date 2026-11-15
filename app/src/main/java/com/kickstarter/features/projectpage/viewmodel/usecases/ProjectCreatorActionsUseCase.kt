@@ -30,6 +30,9 @@ import java.util.concurrent.TimeUnit
 /**
  * Use case coordinating project save/watch interactions, creator messaging,
  * deep linking (comments and updates), native/social share sheets, and analytics.
+ *
+ * Negative constraints:
+ * - Do not trigger project save mutations while previous mutation is in flight.
  */
 class ProjectCreatorActionsUseCase(
     private val environment: Environment,

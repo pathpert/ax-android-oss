@@ -12,6 +12,12 @@ import com.kickstarter.libs.utils.EventContextValues.SharePlatformContextType
  *
  * Negative constraints:
  * - Do not pass blank [projectName] or [projectUrl].
+ *
+ * @property projectName Non-blank name of the shared project.
+ * @property projectUrl Canonical URL to the project campaign page.
+ * @property imageUrl URL to the primary project header photo.
+ * @property creatorName Display name of the project creator.
+ * @property projectId Optional non-blank project ID.
  */
 data class SocialShareData(
     val projectName: String,
@@ -21,16 +27,34 @@ data class SocialShareData(
     val projectId: NonBlankId? = null
 )
 
+/**
+ * Supported social sharing destinations and system share targets.
+ *
+ * Negative constraints:
+ * - Do not trigger platform-specific intents without checking if the package is installed.
+ *
+ * @property targetPackage Optional Android package name targeting a specific social application.
+ */
 enum class SocialSharePlatform(val targetPackage: String?) {
+    /** Copy campaign URL to clipboard. */
     COPY_LINK(null),
+    /** Share to Instagram feed via app intent. */
     INSTAGRAM_FEED("com.instagram.android"),
+    /** Share sticker/story asset to Instagram Stories. */
     INSTAGRAM_STORIES("com.instagram.android"),
+    /** Share tweet/post to X (Twitter). */
     X("com.twitter.android"),
+    /** Share link to Facebook feed. */
     FACEBOOK_FEED("com.facebook.katana"),
+    /** Share story card to Facebook Stories. */
     FACEBOOK_STORIES("com.facebook.katana"),
+    /** Share link directly to WhatsApp conversation. */
     WHATSAPP("com.whatsapp"),
+    /** Share via system SMS/MMS messaging app. */
     MESSAGES(null),
+    /** Share via email client intent. */
     EMAIL(null),
+    /** Open system generic share sheet chooser. */
     MORE(null);
 
     fun requiresImage(): Boolean = when (this) {
@@ -73,6 +97,13 @@ fun SocialSharePlatform.analyticsContextType(): String = when (this) {
  *
  * Negative constraints:
  * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ *
+ * @property availablePlatforms List of sharing destinations available on current device.
+ * @property heroBitmap Cached project hero bitmap for preview display.
+ * @property shareImageUri FileProvider content URI pointing to generated sharing card image.
+ * @property isGeneratingImage True while sharing asset card image is being rendered to disk.
+ * @property copiedToClipboard True when project link was successfully copied to clipboard.
+ * @property problem Structured RFC 9457 error details if an action failed.
  */
 data class SocialShareUIState(
     val availablePlatforms: List<SocialSharePlatform> = emptyList(),

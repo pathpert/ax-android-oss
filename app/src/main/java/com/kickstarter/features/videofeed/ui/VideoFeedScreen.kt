@@ -39,6 +39,12 @@ import com.kickstarter.ui.compose.designsystem.KSVideoFeedSnackbar
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 
+/**
+ * Test tags identifying Compose components in [VideoFeedScreen].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class VideoFeedScreenTestTag {
     VIDEO_FEED_PAGER,
     VIDEO_FEED_OVERLAY_CONTAINER,

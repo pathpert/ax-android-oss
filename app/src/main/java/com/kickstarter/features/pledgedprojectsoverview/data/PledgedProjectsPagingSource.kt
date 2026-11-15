@@ -17,6 +17,10 @@ internal const val PPO_PAGE_LIMIT = 10
  *
  * Extracted from `PledgedProjectsOverviewViewModel` to keep file size concise and map
  * paging failures into structured [ProblemException] instances.
+ *
+ * Negative constraints:
+ * - Do not swallow exceptions; map through [ProblemDetailsMapper].
+ * - Do not instantiate directly in UI layers; provide via [PledgedProjectsRepository].
  */
 class PledgedProjectsPagingSource(
     private val apolloClient: ApolloClientTypeV2,

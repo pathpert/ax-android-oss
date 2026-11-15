@@ -20,6 +20,9 @@ import io.reactivex.Observable
 /**
  * Handler coordinating project page pledge sheet navigation, back stack
  * transitions, scrim visibility, and pledge flow continuation.
+ *
+ * Negative constraints:
+ * - Do not trigger navigation without an initialized [ProjectPageStateHolder].
  */
 class ProjectPledgeNavigationHandler(
     private val environment: Environment,

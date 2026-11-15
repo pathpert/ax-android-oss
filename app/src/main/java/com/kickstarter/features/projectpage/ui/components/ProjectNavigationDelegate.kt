@@ -23,6 +23,9 @@ import com.kickstarter.ui.extensions.startDisclaimerChromeTab
 
 /**
  * Handles external navigation and intents from the project page (social share, login, messages, custom tabs).
+ *
+ * Negative constraints:
+ * - Do not trigger navigation without an active Activity context.
  */
 class ProjectNavigationDelegate(
     private val activity: Activity,

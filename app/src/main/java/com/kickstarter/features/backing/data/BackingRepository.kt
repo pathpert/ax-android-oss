@@ -23,6 +23,12 @@ interface BackingRepository {
     fun cleanDisposables()
 }
 
+/**
+ * Default Apollo GraphQL and Retrofit implementation of [BackingRepository].
+ *
+ * Negative constraints:
+ * - Do not instantiate directly in UI layers; inject via ViewModel Factory.
+ */
 class BackingRepositoryImpl(
     private val apolloClient: ApolloClientTypeV2,
     private val apiClient: ApiClientTypeV2,

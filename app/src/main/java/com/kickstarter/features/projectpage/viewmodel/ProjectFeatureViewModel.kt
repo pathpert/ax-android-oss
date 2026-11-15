@@ -18,6 +18,9 @@ import io.reactivex.Observable
 /**
  * Modern Feature ViewModel for the Project Page, delegating specialized
  * operations to autonomous use cases while managing lifecycle and state dispatch.
+ *
+ * Negative constraints:
+ * - Do not mutate internal subjects directly; interact through [ProjectPageInputs] and [ProjectPageOutputs].
  */
 open class ProjectFeatureViewModel(
     environment: Environment

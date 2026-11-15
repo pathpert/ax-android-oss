@@ -159,6 +159,12 @@ fun BetaMessagingBottomSheet(
     }
 }
 
+/**
+ * Test tags identifying Compose nodes in [BetaMessagingBottomSheet].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class BetaMessagingBottomSheetTestTag {
     BACKED_PROJECTS_BUTTON
 }

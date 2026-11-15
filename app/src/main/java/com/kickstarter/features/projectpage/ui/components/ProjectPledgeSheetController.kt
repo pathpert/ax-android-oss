@@ -24,6 +24,9 @@ import com.kickstarter.ui.fragments.RewardsFragment
 
 /**
  * Manages pledge sheet expand/collapse animations, scrim transitions, and fragment stack navigation.
+ *
+ * Negative constraints:
+ * - Do not trigger animations while fragment transaction is currently committing.
  */
 class ProjectPledgeSheetController(
     private val activity: Activity,

@@ -56,6 +56,7 @@ abstract class KSRobolectricTestCase : TestCase() {
     public override fun setUp() {
         // - clean subscriptions
         disposables.clear()
+        com.kickstarter.ax.safety.IdempotencyGuard.resetGlobalCooldown()
         super.setUp()
 
         val mockApolloClientV2 = MockApolloClientV2()
@@ -89,6 +90,7 @@ abstract class KSRobolectricTestCase : TestCase() {
     @After
     @Throws(Exception::class)
     public override fun tearDown() {
+        com.kickstarter.ax.safety.IdempotencyGuard.resetGlobalCooldown()
         super.tearDown()
         DateTimeUtils.setCurrentMillisSystem()
     }

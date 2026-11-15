@@ -5,12 +5,18 @@ import com.kickstarter.ax.errors.ProblemDetails
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class IdempotencyGuardTest {
+
+    @After
+    fun tearDown() {
+        IdempotencyGuard.resetGlobalCooldown()
+    }
 
     @Test
     fun `IdempotencyKey rejects blank input`() {

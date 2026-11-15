@@ -53,6 +53,12 @@ import com.kickstarter.ui.extensions.transition
 import kotlin.getValue
 import kotlin.random.Random
 
+/**
+ * Main application hub activity hosting modern Compose bottom navigation.
+ *
+ * Negative constraints:
+ * - Do not place business logic directly in this Activity; delegate to [HomeScreenViewModel].
+ */
 class HomeActivity : ComponentActivity() {
 
     private lateinit var environment: Environment

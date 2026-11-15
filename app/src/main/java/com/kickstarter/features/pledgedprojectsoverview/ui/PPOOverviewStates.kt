@@ -107,6 +107,12 @@ fun PPOScreenErrorState() {
     }
 }
 
+/**
+ * Test tags identifying Compose nodes on the Pledged Projects Overview screen.
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class PledgedProjectsOverviewScreenTestTag {
     BACK_BUTTON,
     INFO_BUTTON,

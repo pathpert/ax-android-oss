@@ -31,6 +31,10 @@ import kotlin.coroutines.EmptyCoroutineContext
  * - Single-flight guards and idempotency on deletion and setup intent mutations.
  * - Actionable RFC 9457 ProblemDetails error states.
  * - Concise, testable coroutines architecture (< 300 lines).
+ *
+ * Negative constraints:
+ * - Do not mutate state directly from outside callers; collect [uiState] and [events] flows.
+ * - Do not trigger duplicate concurrent delete or setup mutations.
  */
 class PaymentMethodsFeatureViewModel(
     private val repository: PaymentMethodsRepository,
@@ -167,6 +171,12 @@ class PaymentMethodsFeatureViewModel(
         _uiState.update { it.copy(problem = null) }
     }
 
+    /**
+     * Factory producing [PaymentMethodsFeatureViewModel] with environment dependencies.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

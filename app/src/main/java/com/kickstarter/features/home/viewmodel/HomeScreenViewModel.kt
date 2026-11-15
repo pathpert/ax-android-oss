@@ -24,12 +24,28 @@ import kotlin.coroutines.EmptyCoroutineContext
  * Negative constraints:
  * - Do not pass blank avatar URLs when [isLoggedInUser] is true.
  */
+/**
+ * UI state for HomeScreen bottom navigation and user authentication status.
+ *
+ * Negative constraints:
+ * - Do not pass blank avatar URLs when [isLoggedInUser] is true.
+ *
+ * @property isLoggedInUser Whether a user session is active.
+ * @property userAvatarUrl Remote URL for user profile avatar image.
+ * @property problem Structured actionable error details, or null.
+ */
 data class HomeScreenUIState(
     val isLoggedInUser: Boolean = false,
     val userAvatarUrl: String = "",
     val problem: ProblemDetails? = null
 )
 
+/**
+ * ViewModel managing Home Screen bottom navigation tabs and current user profile session.
+ *
+ * Negative constraints:
+ * - Do not mutate UI state directly from external callers; collect [homeUIState].
+ */
 @OptIn(FlowPreview::class)
 class HomeScreenViewModel(
     private val environment: Environment,
@@ -77,6 +93,12 @@ class HomeScreenViewModel(
         }
     }
 
+    /**
+     * Factory producing [HomeScreenViewModel] with injected environment and test dispatcher.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

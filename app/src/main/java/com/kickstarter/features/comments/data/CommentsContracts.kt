@@ -26,13 +26,45 @@ value class CommentBody(val value: String) {
 /**
  * Sealed UI and loading state representation for the Comments feature.
  *
- * Negative Constraints:
- * - Do NOT expose raw exceptions; map errors to [ProblemDetails].
+ * Negative constraints:
+ * - Do not expose raw exceptions; map errors to [ProblemDetails].
  */
 sealed interface CommentsUIState {
+    /**
+     * Initial comment list loading state.
+     *
+     * Negative constraints:
+     * - Do not render empty or loaded state views while loading.
+     */
     data object Loading : CommentsUIState
+
+    /**
+     * Non-empty comment list loaded successfully.
+     *
+     * Negative constraints:
+     * - Do not use for empty comment lists; emit [Empty] instead.
+     *
+     * @property comments Non-empty list of formatted comment cards.
+     */
     data class Loaded(val comments: List<CommentCardData>) : CommentsUIState
+
+    /**
+     * Project or update has zero comments.
+     *
+     * Negative constraints:
+     * - Do not display retry or error controls in empty state.
+     */
     data object Empty : CommentsUIState
+
+    /**
+     * Actionable error encountered while loading or posting comments.
+     *
+     * Negative constraints:
+     * - Do not pass uncontextualized errors without suggested action.
+     *
+     * @property problem Structured RFC 9457 error details.
+     * @property throwable Underlying exception cause.
+     */
     data class Error(val problem: ProblemDetails, val throwable: Throwable = Exception(problem.detail)) : CommentsUIState
 }
 

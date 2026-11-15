@@ -22,6 +22,7 @@ import java.math.RoundingMode
  * @property projectId Positive project identifier.
  * @property projectName Non-blank display name of the backed project.
  * @property backingId Positive backing identifier (`> 0`).
+ * @property backingNumericId Numeric primitive backing ID for GraphQL mutation variables.
  * @property pledgeAmount Monetary pledge amount in integer minor currency units.
  * @property formattedPledgeAmount Localized currency string formatted for display.
  */
@@ -40,6 +41,13 @@ data class CancelPledgeTarget(
  * Negative constraints:
  * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
  * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
+ *
+ * @property formattedPledgeAmount Formatted pledge currency string.
+ * @property projectName Display name of the backed project.
+ * @property isSubmitting Flag indicating cancellation mutation in flight.
+ * @property isCancelButtonVisible Whether the confirmation button is displayed.
+ * @property isReady Whether data is ready for user interaction.
+ * @property problem Structured actionable error details if operation failed.
  */
 data class CancelPledgeUiState(
     val formattedPledgeAmount: String = "",
@@ -52,9 +60,25 @@ data class CancelPledgeUiState(
 
 /**
  * One-shot navigation/completion events emitted by `CancelPledgeFeatureViewModel`.
+ *
+ * Negative constraints:
+ * - Do not use for continuous UI state; handle via one-shot SharedFlow.
  */
 sealed interface CancelPledgeEvent {
+    /**
+     * Request to dismiss the cancellation dialog/screen.
+     *
+     * Negative constraints:
+     * - Do not trigger navigation without popping the backstack.
+     */
     data object Dismiss : CancelPledgeEvent
+
+    /**
+     * Successfully cancelled the pledge on the server.
+     *
+     * Negative constraints:
+     * - Do not trigger before mutation confirmation is received from the server.
+     */
     data object Succeeded : CancelPledgeEvent
 }
 

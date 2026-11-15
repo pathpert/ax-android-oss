@@ -82,12 +82,34 @@ data class ProblemDetails(
  * - Do not swallow failures by returning `null` or `DomainResult.Success(Unit)` when an error occurred.
  */
 sealed interface DomainResult<out T> {
+    /**
+     * Successful domain operation outcome carrying [value].
+     *
+     * Negative constraints:
+     * - Do not wrap null or unvalidated error models in [Success].
+     *
+     * @property value Successful result payload.
+     */
     data class Success<T>(val value: T) : DomainResult<T>
+
+    /**
+     * Failed domain operation outcome carrying structured [problem].
+     *
+     * Negative constraints:
+     * - Do not pass uncontextualized errors without suggested action.
+     *
+     * @property problem Structured RFC 9457 actionable error details.
+     */
     data class Failure(val problem: ProblemDetails) : DomainResult<Nothing>
 }
 
 /**
  * Exception carrier used when bridging [ProblemDetails] through legacy RxJava or throwing APIs.
+ *
+ * Negative constraints:
+ * - Do not swallow the underlying problem details or strip remediation instructions.
+ *
+ * @property problem Structured RFC 9457 error details.
  */
 class ProblemException(val problem: ProblemDetails, cause: Throwable? = null) :
     RuntimeException(problem.detail, cause)

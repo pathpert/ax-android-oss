@@ -29,6 +29,10 @@ import kotlin.coroutines.EmptyCoroutineContext
  *
  * Negative constraints:
  * - Do not mutate lists directly; emit new immutable state instances.
+ *
+ * @property isLoading Whether categories and tags are actively loading.
+ * @property categoriesList Available project categories for filtering.
+ * @property tagsList Available project discovery tags.
  */
 data class FilterMenuUIState(
     val isLoading: Boolean = false,
@@ -41,6 +45,10 @@ data class FilterMenuUIState(
  *
  * Negative constraints:
  * - Do not pass mutable collections into [nearLocations] or [searchedLocations].
+ *
+ * @property isLoading Whether location search results are loading.
+ * @property nearLocations List of locations near the user.
+ * @property searchedLocations List of locations matching the user's search text.
  */
 data class LocationsUIState(
     val isLoading: Boolean = false,
@@ -48,6 +56,12 @@ data class LocationsUIState(
     val searchedLocations: List<Location> = emptyList()
 )
 
+/**
+ * ViewModel managing search filter menu selections (categories, tags, locations).
+ *
+ * Negative constraints:
+ * - Do not mutate filter state directly from outside callers; observe [filterMenuUIState] and [locationsUIState].
+ */
 open class FilterMenuViewModel(
     private val environment: Environment,
     private val testDispatcher: CoroutineDispatcher? = null
@@ -202,6 +216,12 @@ open class FilterMenuViewModel(
         )
     }
 
+    /**
+     * Factory producing [FilterMenuViewModel] instances.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

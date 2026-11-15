@@ -21,6 +21,12 @@ val LocalFilterMenuViewModel = staticCompositionLocalOf<FilterMenuViewModel> {
     error("No FilterMenuViewModel provided")
 }
 
+/**
+ * Activity hosting the Jetpack Compose search and filter screen.
+ *
+ * Negative constraints:
+ * - Do not place business logic directly in this Activity; delegate to [SearchAndFilterViewModel].
+ */
 class SearchAndFilterActivity : ComponentActivity() {
 
     private lateinit var viewModelFactory: SearchAndFilterViewModel.Factory

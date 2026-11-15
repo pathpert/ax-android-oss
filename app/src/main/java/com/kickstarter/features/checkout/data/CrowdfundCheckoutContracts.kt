@@ -74,6 +74,9 @@ data class CheckoutAmounts(
  *
  * Negative constraints:
  * - Do not pass negative installment counts or unvalidated payment increments.
+ *
+ * @property isPledgeOverTimeEligible Whether this pledge is eligible for installment payments.
+ * @property paymentIncrements List of scheduled installment payments.
  */
 data class CheckoutPaymentPlan(
     val isPledgeOverTimeEligible: Boolean,
@@ -85,6 +88,8 @@ data class CheckoutPaymentPlan(
  *
  * Negative constraints:
  * - Do not construct with negative or zero [checkoutId].
+ *
+ * @property checkoutId Non-zero positive checkout confirmation identifier.
  */
 data class CheckoutBackingResult(
     val checkoutId: Long
@@ -122,6 +127,9 @@ interface CrowdfundCheckoutRepository {
 /**
  * Apollo-backed implementation of [CrowdfundCheckoutRepository] enforcing single-flight execution
  * and RFC 9457 error normalization.
+ *
+ * Negative constraints:
+ * - Do not instantiate directly in UI classes; inject via ViewModel Factory.
  */
 class ApolloCrowdfundCheckoutRepository(
     private val apolloClient: ApolloClientTypeV2,

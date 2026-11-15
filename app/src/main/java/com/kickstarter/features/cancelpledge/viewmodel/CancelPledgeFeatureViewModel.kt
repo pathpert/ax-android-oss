@@ -33,6 +33,9 @@ import kotlin.coroutines.EmptyCoroutineContext
  * - Validated [CancelPledgeTarget] extraction via [CancelPledgeBundleMapper].
  * - Single-flight + rate-limit protection via [IdempotencyGuard].
  * - Structured RFC 9457 [ProblemDetails] instead of raw strings or opaque `Unit` server errors.
+ * Negative constraints:
+ * - Do not mutate UI state directly from external callers; collect [uiState] and [events] flows.
+ * - Do not bypass [IdempotencyGuard] when triggering cancellations.
  */
 class CancelPledgeFeatureViewModel(
     private val repository: CancelPledgeRepository,
@@ -167,6 +170,12 @@ class CancelPledgeFeatureViewModel(
         }
     }
 
+    /**
+     * Factory producing [CancelPledgeFeatureViewModel] with arguments extraction and environment dependencies.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment?,
         private val bundle: Bundle? = null,

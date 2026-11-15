@@ -25,6 +25,12 @@ import com.kickstarter.ui.compose.designsystem.videoplayer.icons.BookmarkFilled
 import com.kickstarter.ui.compose.designsystem.videoplayer.icons.Ellipsis
 import com.kickstarter.ui.compose.designsystem.videoplayer.icons.Share
 
+/**
+ * Test tags identifying Compose action buttons in [KSVideoActionsColumn].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class KSVideoActionsColumnTestTag {
     COLUMN_CONTAINER,
     PROFILE_BUTTON,

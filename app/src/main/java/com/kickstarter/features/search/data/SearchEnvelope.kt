@@ -9,6 +9,10 @@ import com.kickstarter.services.apiresponses.commentresponse.PageInfoEnvelope
  * Negative constraints:
  * - Do not mutate [projectList] after creation.
  * - Do not pass negative values for [totalCount].
+ *
+ * @property projectList List of search result projects for the current query page.
+ * @property pageInfo Pagination cursor and next page indicator metadata.
+ * @property totalCount Non-negative total number of projects matching the search criteria.
  */
 data class SearchEnvelope(
     val projectList: List<Project> = emptyList(),

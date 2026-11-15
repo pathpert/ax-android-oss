@@ -41,6 +41,9 @@ private fun Constraints.toSizeOrNull(): Size? {
 
 /**
  * A [SizeResolver] that computes the size from the constraints passed during the layout phase.
+ *
+ * Negative constraints:
+ * - Do not pass unbounded zero-size constraints to image loaders.
  */
 class ConstraintsSizeResolver : SizeResolver, LayoutModifier {
 

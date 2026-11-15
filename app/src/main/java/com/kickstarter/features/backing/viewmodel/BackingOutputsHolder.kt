@@ -15,6 +15,9 @@ import io.reactivex.subjects.PublishSubject
 
 /**
  * Holder class providing reactive subject infrastructure and output dispatching for the Backing feature.
+ *
+ * Negative constraints:
+ * - Do not mutate protected subjects directly from external callers; expose read-only Observables via [BackingFeatureOutputs].
  */
 abstract class BackingOutputsHolder : ViewModel(), BackingFeatureOutputs {
 

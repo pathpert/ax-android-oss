@@ -20,6 +20,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.shapes
 
+/**
+ * Visual card layout presentation style for PPO project cards.
+ *
+ * Negative constraints:
+ * - Do not use [UNKNOWN] in user-facing production UI.
+ */
 enum class PPOCardViewType {
     CONFIRM_ADDRESS,
     FIX_PAYMENT,
@@ -37,6 +43,12 @@ enum class PPOCardViewType {
     UNKNOWN,
 }
 
+/**
+ * Test tags identifying Compose nodes in [PPOCardView].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class PPOCardViewTestTag {
     SHIPPING_ADDRESS_VIEW,
     CONFIRM_ADDRESS_BUTTONS_VIEW,

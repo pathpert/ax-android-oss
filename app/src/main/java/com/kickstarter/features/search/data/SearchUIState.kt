@@ -8,9 +8,15 @@ import com.kickstarter.models.Project
  *
  * Encapsulates loading flags, popular projects for empty queries, and paginated search results.
  *
- * ### Negative Constraints:
+ * Negative constraints:
  * - Do not pass mutable lists into [popularProjectsList] or [searchList].
  * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
+ *
+ * @property isLoading Whether a search query or pagination request is in progress.
+ * @property popularProjectsList Curated default projects displayed when query is empty.
+ * @property searchList List of projects matching active query and filter criteria.
+ * @property hasMore Indicates if additional pages can be fetched.
+ * @property problem Structured actionable error details, or null if operation succeeded.
  */
 data class SearchUIState(
     val isLoading: Boolean = false,

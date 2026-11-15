@@ -41,6 +41,12 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
+/**
+ * Modern ViewModel managing backing retrieval, reward state presentation, and status updates.
+ *
+ * Negative constraints:
+ * - Do not expose mutable subjects directly; callers must observe via [BackingFeatureOutputs].
+ */
 open class BackingFeatureViewModel(
     val environment: Environment,
     customRepository: BackingRepository? = null
@@ -260,6 +266,12 @@ open class BackingFeatureViewModel(
         super.onCleared()
     }
 
+    /**
+     * Factory producing [BackingFeatureViewModel] instances with injected environment and repository.
+     *
+     * Negative constraints:
+     * - Do not instantiate without a valid [Environment].
+     */
     class Factory(
         private val environment: Environment,
         private val repository: BackingRepository? = null

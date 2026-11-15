@@ -18,6 +18,10 @@ import kotlinx.coroutines.rx2.awaitFirstOrNull
  *
  * Validates identifiers with [NonBlankId], prevents duplicate mutation execution via
  * [IdempotencyGuard], and normalizes failures into RFC 9457 [ProblemDetails].
+ *
+ * Negative constraints:
+ * - Do not invoke mutations without valid non-blank identifiers.
+ * - Do not swallow errors; map through [DomainResult].
  */
 interface PledgedProjectsRepository {
     suspend fun confirmAddress(addressId: String, backingId: String): DomainResult<Unit>
@@ -25,6 +29,12 @@ interface PledgedProjectsRepository {
     suspend fun fetchProjectBySlug(slug: String): DomainResult<Project>
 }
 
+/**
+ * Apollo GraphQL implementation of [PledgedProjectsRepository].
+ *
+ * Negative constraints:
+ * - Do not instantiate directly in UI classes; inject via ViewModel Factory.
+ */
 class ApolloPledgedProjectsRepository(
     private val apolloClient: ApolloClientTypeV2,
     private val addressGuard: IdempotencyGuard = IdempotencyGuard(),

@@ -28,6 +28,9 @@ import io.reactivex.Observable
 /**
  * Use case coordinating pledge call-to-actions, reward options,
  * backing status details, and payment update/fix interactions.
+ *
+ * Negative constraints:
+ * - Do not invoke [wire] with unbound observables.
  */
 class ProjectPledgeCtaUseCase(
     private val environment: Environment,

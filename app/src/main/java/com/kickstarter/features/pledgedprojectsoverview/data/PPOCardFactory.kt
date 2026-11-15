@@ -3,6 +3,12 @@ package com.kickstarter.features.pledgedprojectsoverview.data
 import com.kickstarter.features.pledgedprojectsoverview.ui.PPOCardViewType
 import com.kickstarter.type.CurrencyCode
 
+/**
+ * Factory creating pre-configured [PPOCard] and [DeliveryAddress] instances for tests and mock environments.
+ *
+ * Negative constraints:
+ * - Do not use mock card factory in production runtime code; use repository mappers.
+ */
 class PPOCardFactory private constructor() {
     companion object {
 

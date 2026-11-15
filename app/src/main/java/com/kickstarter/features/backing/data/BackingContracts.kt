@@ -12,17 +12,40 @@ import io.reactivex.Observable
 /**
  * Sealed UI and loading state representation for backing management.
  *
- * Negative Constraints:
- * - Do NOT pass raw unhandled exceptions into the UI; errors MUST be normalized into [ProblemDetails].
- * - Do NOT instantiate [Success] with an empty or unvalidated [Backing] instance.
+ * Negative constraints:
+ * - Do not pass raw unhandled exceptions into the UI; errors MUST be normalized into [ProblemDetails].
+ * - Do not instantiate [Success] with an empty or unvalidated [Backing] instance.
  */
 sealed interface BackingState {
+    /**
+     * Initial or ongoing network fetch state.
+     *
+     * Negative constraints:
+     * - Do not render pledge details while in loading state.
+     */
     data object Loading : BackingState
 
+    /**
+     * Successfully loaded backing details.
+     *
+     * Negative constraints:
+     * - Do not pass an unvalidated backing instance without a valid ID.
+     *
+     * @property backing Non-null validated domain backing entity.
+     */
     data class Success(
         val backing: Backing
     ) : BackingState
 
+    /**
+     * Actionable error state during backing retrieval or update.
+     *
+     * Negative constraints:
+     * - Do not pass generic uncontextualized errors without suggested action.
+     *
+     * @property problem Structured RFC 9457 actionable error details.
+     * @property throwable Underlying exception cause.
+     */
     data class Error(
         val problem: ProblemDetails,
         val throwable: Throwable = Exception(problem.detail)

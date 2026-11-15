@@ -33,6 +33,13 @@ import kotlin.Pair
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.text.isNotBlank
 
+/**
+ * Modern ViewModel managing project search, live filtering, and pagination.
+ *
+ * Negative constraints:
+ * - Do not mutate search query directly; dispatch through [updateSearchTerm].
+ * - Do not expose mutable state flows directly to UI layers.
+ */
 @OptIn(FlowPreview::class)
 class SearchAndFilterViewModel(
     private val environment: Environment,
@@ -46,11 +53,7 @@ class SearchAndFilterViewModel(
 
     /**
      * Whether the video feed banner should show, derived from the [StatsigGateKey.ANDROID_VIDEO_FEED]
-     * gate. It is recomputed whenever gate values settle for the current user (the client's
-     * `configReady`) rather than on the one-shot `isReady`, so the gate is never read mid user-reload
-     * (login/logout) where it returns `Loading:Unrecognized`/`false`. While values are (re)loading, or
-     * come back unrecognized, the banner keeps its current state instead of flipping to hidden and
-     * logging a phantom exposure.
+     * gate. It is recomputed whenever gate values settle for the current user.
      */
     private val _isVideoFeedBannerVisible = MutableStateFlow(false)
     val isVideoFeedBannerVisible: StateFlow<Boolean> = _isVideoFeedBannerVisible.asStateFlow()
@@ -64,13 +67,11 @@ class SearchAndFilterViewModel(
 
     private val _searchUIState = MutableStateFlow(SearchUIState())
     val searchUIState: StateFlow<SearchUIState>
-        get() = _searchUIState
-            .asStateFlow()
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.WhileSubscribed(),
-                initialValue = SearchUIState()
-            )
+        get() = _searchUIState.asStateFlow().stateIn(
+            scope = scope,
+            started = SharingStarted.WhileSubscribed(),
+            initialValue = SearchUIState()
+        )
 
     // - Popular projects sorting selection
     private val firstLoadParams = DiscoveryParams.builder().sort(DiscoveryParams.Sort.MAGIC).build()
@@ -156,23 +157,16 @@ class SearchAndFilterViewModel(
         val update = params.value.toBuilder()
             .apply {
                 this.category(category)
-                this.sort(projectSort)
-                this.state(projectState)
-                this.raisedBucket(percentageBucket)
-                this.location(location)
-                this.amountBucket(amountBucket)
-                this.goalBucket(goalBucket)
-                this.recommended(if (recommended) true else null)
-                this.staffPicks(if (projectsLoved) true else null)
-                this.starred(if (savedProjects) 1 else null)
-                this.social(if (social) 1 else null)
-                this.tagId(tagId)
-            }
-            .build()
+                sort(projectSort).state(projectState).raisedBucket(percentageBucket)
+                location(location).amountBucket(amountBucket).goalBucket(goalBucket)
+                recommended(if (recommended) true else null)
+                staffPicks(if (projectsLoved) true else null)
+                starred(if (savedProjects) 1 else null)
+                social(if (social) 1 else null)
+                tagId(tagId)
+            }.build()
 
-        scope.launch {
-            _params.emit(update)
-        }
+        scope.launch { _params.emit(update) }
     }
 
     fun loadMore() {
@@ -262,11 +256,7 @@ class SearchAndFilterViewModel(
      * @param selectedProject   The project selected by the user.
      * @return The project and its appropriate ref tag.
      */
-    private fun projectAndRefTag(
-        searchTerm: String,
-        projects: List<Project>,
-        selectedProject: Project
-    ): Pair<Project, RefTag> {
+    private fun projectAndRefTag(searchTerm: String, projects: List<Project>, selectedProject: Project): Pair<Project, RefTag> {
         val isFirstResult = if (projects.isEmpty()) false else selectedProject === projects[0]
         val tag = if (searchTerm.isEmpty()) {
             if (isFirstResult) RefTag.searchPopularFeatured() else RefTag.searchPopular()
@@ -277,9 +267,7 @@ class SearchAndFilterViewModel(
     }
 
     fun updateSearchTerm(searchTerm: String) {
-        scope.launch {
-            _searchTerm.emit(searchTerm)
-        }
+        scope.launch { _searchTerm.emit(searchTerm) }
     }
 
     fun getProjectAndRefTag(project: Project): Pair<Project, RefTag> {
@@ -287,6 +275,12 @@ class SearchAndFilterViewModel(
         return projectAndRefTag(searchTerm.value, allProjectsList, project)
     }
 
+    /**
+     * Factory producing [SearchAndFilterViewModel] with environment dependencies.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

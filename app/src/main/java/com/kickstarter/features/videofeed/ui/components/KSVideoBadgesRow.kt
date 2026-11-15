@@ -27,6 +27,12 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.dimensions
 import com.kickstarter.ui.compose.designsystem.KSTrendingVideoBadge
 import dev.chrisbanes.haze.HazeState
 
+/**
+ * Test tags identifying Compose badge containers in [KSVideoBadgesRow].
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class KSVideoBadgesRowTestTag {
     BADGES_ROW_CONTAINER
 }

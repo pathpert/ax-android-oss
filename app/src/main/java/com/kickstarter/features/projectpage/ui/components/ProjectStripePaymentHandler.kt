@@ -19,6 +19,9 @@ import timber.log.Timber
 
 /**
  * Handles Stripe payment sheet flow controller operations, 3DS verification, and payment options callbacks.
+ *
+ * Negative constraints:
+ * - Do not invoke payment confirmation without a valid Stripe flow controller initialization.
  */
 class ProjectStripePaymentHandler(
     private val activity: ComponentActivity,

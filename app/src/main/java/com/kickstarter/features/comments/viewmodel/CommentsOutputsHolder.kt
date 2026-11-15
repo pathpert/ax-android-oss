@@ -14,6 +14,9 @@ import org.joda.time.DateTime
 
 /**
  * Holder class providing reactive subject infrastructure and input/output dispatching for the Comments feature.
+ *
+ * Negative constraints:
+ * - Do not mutate protected subjects directly from external callers; expose read-only Observables via [CommentsFeatureOutputs].
  */
 abstract class CommentsOutputsHolder : ViewModel(), CommentsFeatureInputs, CommentsFeatureOutputs {
 

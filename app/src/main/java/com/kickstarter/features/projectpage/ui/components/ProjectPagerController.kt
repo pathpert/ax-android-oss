@@ -13,6 +13,9 @@ import com.kickstarter.viewmodels.projectpage.PagerTabConfig
 
 /**
  * Encapsulates dynamic tab configuration and ViewPager2 attachment for the project detail tabs.
+ *
+ * Negative constraints:
+ * - Do not mutate pager adapter list outside lifecycle initialization.
  */
 class ProjectPagerController(
     private val context: Context,

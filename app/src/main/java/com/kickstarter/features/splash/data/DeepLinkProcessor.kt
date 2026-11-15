@@ -43,6 +43,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 import java.util.Optional
 
+/**
+ * Exception raised during deep link intent classification or redirection failures.
+ *
+ * Negative constraints:
+ * - Do not expose to end users; normalize via ProblemDetailsMapper.
+ */
 class ProcessIntentException(message: String) : Exception(message)
 
 /**

@@ -35,19 +35,53 @@ data class PagerTabConfig(
  * Sealed hierarchy representing explicit UI/domain action states for the project page,
  * ensuring in-band actionable errors conforming to RFC 9457 problem details.
  *
- * Negative Constraints:
+ * Negative constraints:
  * - Do not throw bare exceptions across feature boundaries.
  * - Do not pass untyped generic error messages without actionable remediation advice.
  */
 sealed interface ProjectPageActionState {
+    /**
+     * Idle state before any user action is triggered.
+     *
+     * Negative constraints:
+     * - Do not render error or loading states when idle.
+     */
     object Idle : ProjectPageActionState
+
+    /**
+     * Action is actively executing.
+     *
+     * Negative constraints:
+     * - Do not allow repeated duplicate action clicks while in loading state.
+     */
     object Loading : ProjectPageActionState
+
+    /**
+     * Action completed successfully.
+     *
+     * Negative constraints:
+     * - Do not pass unvalidated project models.
+     *
+     * @property project Updated project entity.
+     */
     data class Success(val project: Project) : ProjectPageActionState
+
+    /**
+     * Action failed with RFC 9457 problem details.
+     *
+     * Negative constraints:
+     * - Do not pass empty details or blank suggested actions.
+     *
+     * @property problem Structured actionable error details.
+     */
     data class Failure(val problem: ProblemDetails) : ProjectPageActionState
 }
 
 /**
  * UI and external action inputs contract for the Project Page feature.
+ *
+ * Negative constraints:
+ * - Do not invoke with unvalidated Intent extras.
  */
 interface ProjectPageInputs {
     fun configureWith(intent: Intent)
@@ -80,6 +114,9 @@ interface ProjectPageInputs {
 
 /**
  * Reactive state and UI event outputs contract for the Project Page feature.
+ *
+ * Negative constraints:
+ * - Do not emit raw unformatted currency values.
  */
 interface ProjectPageOutputs {
     fun backingDetailsIsVisible(): Observable<Boolean>

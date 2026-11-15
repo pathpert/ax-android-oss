@@ -15,6 +15,10 @@ import kotlinx.coroutines.rx2.awaitFirstOrNull
  * Isolates the untyped `Observable<Any>` contract of [ApolloClientTypeV2.cancelBacking] at the
  * adapter boundary, normalizing `Boolean`, `String`, `Throwable`, and empty completions into
  * deterministic [DomainResult] outcomes.
+ *
+ * Negative constraints:
+ * - Do not instantiate directly in UI layers; pass via dependency injection or ViewModel Factory.
+ * - Do not bypass error mapping into [ProblemDetails].
  */
 class ApolloCancelPledgeRepository(
     private val apolloClient: ApolloClientTypeV2

@@ -33,6 +33,9 @@ import kotlinx.coroutines.launch
 
 /**
  * Encapsulates the Compose host view setup and state observation for the late pledges checkout flow.
+ *
+ * Negative constraints:
+ * - Do not instantiate outside Activity lifecycle scope.
  */
 class LatePledgesComposeHost(
     private val composeView: ComposeView,

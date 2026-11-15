@@ -37,11 +37,29 @@ import com.kickstarter.ui.compose.designsystem.KSTheme.colors
 import com.kickstarter.ui.compose.designsystem.kds_create_700
 import timber.log.Timber
 
+/**
+ * Test tags identifying Compose nodes in project story components.
+ *
+ * Negative constraints:
+ * - Do not hardcode tag strings in UI tests; reference constants from this enum.
+ */
 enum class ProjectStoryComponentTestTag {
     TEXT, PHOTO, WEBVIEW
 }
 
+/**
+ * Typography and styling tokens for rendering project story rich text.
+ *
+ * Negative constraints:
+ * - Do not mutate typography styles at runtime.
+ */
 object StoryTheme {
+    /**
+     * Typography styles for project story headings and paragraphs.
+     *
+     * Negative constraints:
+     * - Do not apply directly outside project story rendering.
+     */
     object Typography {
         val paragraph = TextStyle.Default.merge(fontSize = 16.sp)
         val heading1 = TextStyle.Default.merge(fontSize = 32.sp)
@@ -50,6 +68,12 @@ object StoryTheme {
         val heading4 = TextStyle.Default.merge(fontSize = 20.sp)
     }
 
+    /**
+     * Inline text spans for links and styling.
+     *
+     * Negative constraints:
+     * - Do not use for external non-story components.
+     */
     object InlineStyles {
         val link = SpanStyle(color = kds_create_700, textDecoration = TextDecoration.Underline)
     }

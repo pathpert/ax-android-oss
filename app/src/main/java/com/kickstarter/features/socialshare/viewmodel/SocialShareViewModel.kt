@@ -41,6 +41,9 @@ import kotlin.coroutines.EmptyCoroutineContext
  *   corresponds to one sharing session for a specific project.
  * @param contextPage The screen from which the share sheet was opened, used as the
  *   analytics context_page property.
+ *
+ * Negative constraints:
+ * - Do not mutate state directly; observe [uiState] Flow.
  */
 class SocialShareViewModel(
     private val environment: Environment,
@@ -153,6 +156,12 @@ class SocialShareViewModel(
         }
     }
 
+    /**
+     * Factory producing [SocialShareViewModel] instances with injected environment and share payload.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment,
         private val service: SocialShareService,

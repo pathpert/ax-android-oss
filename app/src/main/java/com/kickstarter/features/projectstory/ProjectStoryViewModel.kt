@@ -24,6 +24,11 @@ import kotlin.coroutines.EmptyCoroutineContext
  *
  * Negative constraints:
  * - Do not pass unhandled errors without an actionable RFC 9457 [problem].
+ *
+ * @property isLoading Whether the project story is actively loading from the API.
+ * @property error Optional raw failure throwable for backward compatibility.
+ * @property storiedProject Project entity and parsed rich text elements, or null.
+ * @property problem Structured RFC 9457 actionable error details.
  */
 data class ProjectStoryUiState(
     val isLoading: Boolean = false,
@@ -33,6 +38,13 @@ data class ProjectStoryUiState(
 )
 
 private object StatsigGateException : Exception()
+
+/**
+ * ViewModel responsible for fetching and parsing project campaign story content.
+ *
+ * Negative constraints:
+ * - Do not mutate [projectStoryUiState] directly from external callers.
+ */
 class ProjectStoryViewModel(
     private val environment: Environment,
     testDispatcher: CoroutineDispatcher? = null
@@ -113,6 +125,12 @@ class ProjectStoryViewModel(
         }
     }
 
+    /**
+     * Factory producing [ProjectStoryViewModel] with environment dependencies.
+     *
+     * Negative constraints:
+     * - Do not instantiate for unsupported ViewModel classes.
+     */
     class Factory(
         private val environment: Environment,
         private val testDispatcher: CoroutineDispatcher? = null

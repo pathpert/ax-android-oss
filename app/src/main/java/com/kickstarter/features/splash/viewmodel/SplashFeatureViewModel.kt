@@ -160,6 +160,12 @@ open class SplashFeatureViewModel(
     override fun startPreLaunchProjectActivity() = deepLinkProcessor.startPreLaunchProjectActivity()
     override fun startVideoFeedActivity() = deepLinkProcessor.startVideoFeedActivity()
 
+    /**
+     * Factory producing [SplashFeatureViewModel] instances with injected environment and intent extras.
+     *
+     * Negative constraints:
+     * - Do not instantiate without [APPLICATION_KEY] present in [CreationExtras].
+     */
     class Factory(
         private val environment: Environment,
         private val intent: Intent? = null,

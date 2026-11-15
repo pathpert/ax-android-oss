@@ -32,6 +32,9 @@ import java.io.FileOutputStream
  *    [Intent.FLAG_GRANT_READ_URI_PERMISSION][android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION]
  *    on the outgoing intent then gives the target app (Instagram, Facebook, etc.) temporary
  *    read access to that single file.
+ *
+ * Negative constraints:
+ * - Do not invoke on the main thread; disk and network I/O must execute on IO dispatcher.
  */
 object ShareImageCache {
 

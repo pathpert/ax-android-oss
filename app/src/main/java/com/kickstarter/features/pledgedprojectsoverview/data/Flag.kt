@@ -9,9 +9,13 @@ import kotlinx.parcelize.Parcelize
  * Provides visual cues (warning, action required, reminder) to backers regarding pending surveys,
  * address confirmation deadlines, or payment failure alerts.
  *
- * ### Negative Constraints:
+ * Negative constraints:
  * - Do not pass unlocalized raw backend error strings directly into [message]; map to localized UI strings.
  * - Do not use for non-PPO banner messaging; use core alert/banner components instead.
+ *
+ * @property icon Name/URL of the banner icon asset.
+ * @property message Display message text in the flag banner.
+ * @property type Categorical flag type identifier.
  */
 @Parcelize
 class Flag private constructor(
@@ -23,6 +27,13 @@ class Flag private constructor(
     fun icon() = this.icon
     fun message() = this.message
     fun type() = this.type
+
+    /**
+     * Builder for [Flag] instances.
+     *
+     * Negative constraints:
+     * - Do not construct with unlocalized strings.
+     */
     @Parcelize
     data class Builder(
         var icon: String? = null,

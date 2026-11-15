@@ -27,6 +27,9 @@ import io.reactivex.subjects.PublishSubject
 /**
  * State holder managing reactive subjects and dispatching inputs/outputs
  * for the Project Page feature.
+ *
+ * Negative constraints:
+ * - Do not expose internal subjects directly; callers must observe via [ProjectPageOutputs].
  */
 abstract class ProjectPageStateHolder(val environment: Environment) :
     ViewModel(),

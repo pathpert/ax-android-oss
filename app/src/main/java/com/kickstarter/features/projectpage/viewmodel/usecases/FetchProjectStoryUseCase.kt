@@ -19,6 +19,9 @@ import java.util.concurrent.TimeUnit
 /**
  * Use case managing project story elements, photo and video media playback,
  * fullscreen transitions, and dynamic pager tabs (AI Disclosure & Environment).
+ *
+ * Negative constraints:
+ * - Do not invoke [wire] multiple times with the same observables.
  */
 class FetchProjectStoryUseCase(
     private val environment: Environment,

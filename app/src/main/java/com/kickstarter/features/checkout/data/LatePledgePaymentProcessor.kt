@@ -32,6 +32,10 @@ import kotlinx.coroutines.rx2.asFlow
  *
  * Extracted from [com.kickstarter.viewmodels.projectpage.LatePledgeCheckoutViewModel]
  * to adhere to AX Component-Local Modularization (Rule 2) and file-size constraints (< 300 LOC).
+ *
+ * Negative constraints:
+ * - Do not invoke payment mutations without verifying required billing and shipping parameters.
+ * - Do not run network calls on the main thread.
  */
 class LatePledgePaymentProcessor(
     private val apolloClient: ApolloClientTypeV2,
