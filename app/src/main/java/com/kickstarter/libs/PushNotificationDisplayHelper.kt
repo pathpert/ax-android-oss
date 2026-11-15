@@ -14,6 +14,8 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.PushNotificationChannels.CHANNEL_FOLLOWING
 import com.kickstarter.libs.PushNotificationChannels.CHANNEL_MESSAGES
 import com.kickstarter.libs.PushNotificationChannels.CHANNEL_PLEDGE_REDEMPTION
@@ -201,12 +203,12 @@ internal object PushNotificationDisplayHelper {
                 return squareRoundCorners.get()
             }
         } catch (e: ExecutionException) {
-            val error = Throwable(url, e)
-            FirebaseCrashlytics.getInstance().recordException(error)
+            val problem = ProblemDetailsMapper.fromThrowable(e, "load push notification image")
+            FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, e))
             return BitmapFactory.decodeResource(context.resources, R.drawable.logo)
         } catch (e: InterruptedException) {
-            val error = Throwable(url, e)
-            FirebaseCrashlytics.getInstance().recordException(error)
+            val problem = ProblemDetailsMapper.fromThrowable(e, "load push notification image")
+            FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, e))
             return BitmapFactory.decodeResource(context.resources, R.drawable.logo)
         }
     }

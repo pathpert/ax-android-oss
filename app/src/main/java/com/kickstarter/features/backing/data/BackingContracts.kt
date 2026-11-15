@@ -43,7 +43,7 @@ sealed interface BackingState {
      * Negative constraints:
      * - Do not pass generic uncontextualized errors without suggested action.
      *
-     * @property problem Structured RFC 9457 actionable error details.
+     * @property problem Structured RFC 9457 actionable error details carrying suggestedAction and isRetriable flag.
      * @property throwable Underlying exception cause.
      */
     data class Error(

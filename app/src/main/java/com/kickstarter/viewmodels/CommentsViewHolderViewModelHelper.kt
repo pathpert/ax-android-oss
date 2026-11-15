@@ -1,6 +1,8 @@
 package com.kickstarter.viewmodels
 
 import android.util.Pair
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.utils.extensions.userIsCreator
 import com.kickstarter.models.Comment
 import com.kickstarter.models.User
@@ -88,6 +90,9 @@ internal object CommentsViewHolderViewModelHelper {
         errorObservable: BehaviorSubject<Throwable>
     ): Observable<Comment> =
         apolloClient.createComment(postCommentData)
-            .doOnError { errorObservable.onNext(it) }
+            .doOnError {
+                val problem = ProblemDetailsMapper.fromThrowable(it, "post comment")
+                errorObservable.onNext(ProblemException(problem, it))
+            }
             .onErrorResumeNext(Observable.empty())
 }

@@ -103,7 +103,7 @@ fun SocialSharePlatform.analyticsContextType(): String = when (this) {
  * @property shareImageUri FileProvider content URI pointing to generated sharing card image.
  * @property isGeneratingImage True while sharing asset card image is being rendered to disk.
  * @property copiedToClipboard True when project link was successfully copied to clipboard.
- * @property problem Structured RFC 9457 error details if an action failed.
+ * @property problem Structured RFC 9457 error details carrying suggestedAction and isRetriable flag if an action failed.
  */
 data class SocialShareUIState(
     val availablePlatforms: List<SocialSharePlatform> = emptyList(),

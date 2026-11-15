@@ -58,7 +58,7 @@ import kotlinx.coroutines.rx2.asFlow
  * @property isLoading Whether initial alerts or card data is actively fetching.
  * @property isErrored Flag indicating network or server failure.
  * @property totalAlerts Total count of urgent actionable alerts.
- * @property problem Structured RFC 9457 error details if an operation failed.
+ * @property problem Structured RFC 9457 error details carrying suggestedAction and isRetriable flag.
  */
 data class PledgedProjectsOverviewUIState(
     val isLoading: Boolean = false,
@@ -167,8 +167,9 @@ class PledgedProjectsOverviewViewModel(
                         mutablePpoCards.value = pagingData
                         emitCurrentState()
                     }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
             } catch (e: Exception) {
-                if (e is CancellationException) throw e
                 emitCurrentState(
                     isErrored = true,
                     problem = ProblemDetailsMapper.fromThrowable(

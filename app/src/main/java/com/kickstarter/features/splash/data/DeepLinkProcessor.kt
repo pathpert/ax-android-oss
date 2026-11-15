@@ -47,7 +47,7 @@ import java.util.Optional
  * Exception raised during deep link intent classification or redirection failures.
  *
  * Negative constraints:
- * - Do not expose to end users; normalize via ProblemDetailsMapper.
+ * - Do not expose to end users; normalize via ProblemDetailsMapper with suggestedAction and isRetriable.
  */
 class ProcessIntentException(message: String) : Exception(message)
 

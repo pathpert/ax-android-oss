@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.CodeVerifier
 import com.kickstarter.libs.utils.PKCE
@@ -180,7 +181,12 @@ class OAuthViewModel(
             val genericError = throwable.response().message()
             "$genericError / $apiError"
         } else {
-            throwable.message ?: "Unknown OAuth Error"
+            val problem = ProblemDetailsMapper.fromThrowable(throwable, "authenticate oauth session")
+            if (problem.isRetriable) {
+                "${problem.suggestedAction} (Please retry)"
+            } else {
+                problem.suggestedAction.ifBlank { problem.detail }
+            }
         }
 
         return message

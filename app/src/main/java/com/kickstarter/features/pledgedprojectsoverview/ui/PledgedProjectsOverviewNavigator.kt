@@ -8,6 +8,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
 import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.RefTag
 import com.kickstarter.libs.utils.TransitionUtils
 import com.kickstarter.libs.utils.extensions.getProjectIntent
@@ -69,17 +71,9 @@ fun ComponentActivity.stripeNextAction(it: String, stripe: Stripe): DomainResult
         }
         DomainResult.Success(Unit)
     } catch (exception: Exception) {
-        FirebaseCrashlytics.getInstance().recordException(exception)
-        DomainResult.Failure(
-            ProblemDetails(
-                type = ProblemDetails.TYPE_UNEXPECTED,
-                title = "Stripe Next Action Failed",
-                status = 500,
-                detail = exception.message ?: "Failed to execute Stripe next action.",
-                suggestedAction = "Verify payment details and try again.",
-                isRetriable = true
-            )
-        )
+        val problem = ProblemDetailsMapper.fromThrowable(exception, "execute Stripe next action")
+        FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, exception))
+        DomainResult.Failure(problem)
     }
 }
 

@@ -9,6 +9,8 @@ import com.google.firebase.analytics.analytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.kickstarter.KSApplication
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Build
 import com.kickstarter.libs.qualifiers.ApplicationContext
 import timber.log.Timber
@@ -46,9 +48,10 @@ class UnregisterTokenWorker(@ApplicationContext applicationContext: Context, pri
     }
 
     private fun logError(ioException: IOException) {
+        val problem = ProblemDetailsMapper.fromThrowable(ioException, "unregister push token")
         if (this.build.isDebug) {
-            Timber.e(ioException.localizedMessage)
+            Timber.e("${problem.title}: ${problem.detail}")
         }
-        FirebaseCrashlytics.getInstance().recordException(ioException)
+        FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, ioException))
     }
 }

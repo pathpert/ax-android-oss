@@ -3,6 +3,8 @@ package com.kickstarter.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.libs.Environment
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
@@ -26,7 +28,19 @@ data class UpdatePasswordUIState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val email: String? = null
-)
+) {
+    var problem: ProblemDetails? = null
+        private set
+
+    constructor(
+        isLoading: Boolean = false,
+        errorMessage: String? = null,
+        email: String? = null,
+        problem: ProblemDetails?
+    ) : this(isLoading, errorMessage, email) {
+        this.problem = problem
+    }
+}
 @Deprecated(
     message = "Legacy monolithic path replaced by HomeScreenViewModel under com.kickstarter.features.home.viewmodel.",
     replaceWith = ReplaceWith("HomeScreenViewModel", "com.kickstarter.features.home.viewmodel.HomeScreenViewModel")
@@ -58,7 +72,14 @@ class ChangePasswordViewModel(val environment: Environment) : ViewModel() {
                     mutableUIState.emit(UpdatePasswordUIState(isLoading = false, email = it.updateUserAccount?.user?.email ?: ""))
                 }
                 .catch {
-                    mutableUIState.emit(UpdatePasswordUIState(errorMessage = it.message ?: "", isLoading = false))
+                    val problem = ProblemDetailsMapper.fromThrowable(it, "update password")
+                    mutableUIState.emit(
+                        UpdatePasswordUIState(
+                            errorMessage = it.message ?: problem.detail,
+                            isLoading = false,
+                            problem = problem
+                        )
+                    )
                 }
                 .collect()
         }

@@ -5,6 +5,8 @@ import com.apollographql.apollo3.exception.ApolloException
 import com.apollographql.apollo3.exception.ApolloHttpException
 import com.apollographql.apollo3.exception.ApolloNetworkException
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.fragment.PageInfo
 import com.kickstarter.models.Project
 import com.kickstarter.services.KSApolloClientV2.KSApolloClientV2Exception
@@ -62,11 +64,13 @@ suspend fun <T> executeForResult(block: suspend () -> T): Result<T> =
         throw cancellationException
     } catch (apolloException: ApolloException) {
         val exception = apolloException.toClientException()
-        FirebaseCrashlytics.getInstance().recordException(exception)
-        Result.failure(exception)
+        val problem = ProblemDetailsMapper.fromThrowable(exception, "execute apollo query")
+        FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, exception))
+        Result.failure(ProblemException(problem, exception))
     } catch (e: Exception) {
-        FirebaseCrashlytics.getInstance().recordException(e)
-        Result.failure(e)
+        val problem = ProblemDetailsMapper.fromThrowable(e, "execute apollo query")
+        FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, e))
+        Result.failure(ProblemException(problem, e))
     }
 
 fun <T : Any> emitAsObservable(block: suspend () -> T): Observable<T> =

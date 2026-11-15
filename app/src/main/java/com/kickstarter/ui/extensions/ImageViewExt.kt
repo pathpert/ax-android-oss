@@ -21,9 +21,23 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.utils.extensions.header
 import com.kickstarter.libs.utils.extensions.isKSApplication
 import com.kickstarter.libs.utils.extensions.userAgent
+
+private fun ImageView.handleImageLoadError(e: Exception, operation: String, url: String?) {
+    val problem = ProblemDetailsMapper.fromThrowable(e, operation)
+    this.setImageResource(R.drawable.image_placeholder)
+    val crashlytics = FirebaseCrashlytics.getInstance()
+    crashlytics.setCustomKey("error_type", problem.type)
+    crashlytics.setCustomKey("error_title", problem.title)
+    crashlytics.setCustomKey("error_action", problem.suggestedAction)
+    crashlytics.setCustomKey("error_retriable", problem.isRetriable)
+    crashlytics.setCustomKey("ImageView.$operation", "url: $url, detail: ${problem.detail}")
+    crashlytics.recordException(ProblemException(problem, e))
+}
 
 /**
  * UI component for ImageView.
@@ -55,10 +69,7 @@ fun ImageView.loadCircleImage(url: String?) {
                     .into(this)
             }
         } catch (e: Exception) {
-            // - Empty by default in case or error
-            this.setImageResource(R.drawable.image_placeholder)
-            FirebaseCrashlytics.getInstance().setCustomKey("ImageView.loadCircleImage", " with url: $it ${e.message ?: ""}")
-            FirebaseCrashlytics.getInstance().recordException(e)
+            handleImageLoadError(e, "loadCircleImage", it)
         }
     }
 }
@@ -78,9 +89,7 @@ fun ImageView.loadImage(url: String?) {
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(this)
         } catch (e: Exception) {
-            this.setImageResource(R.drawable.image_placeholder)
-            FirebaseCrashlytics.getInstance().setCustomKey("ImageView.loadImage", " with url: $it ${e.message ?: ""}")
-            FirebaseCrashlytics.getInstance().recordException(e)
+            handleImageLoadError(e, "loadImage", it)
         }
     }
 }
@@ -107,9 +116,7 @@ fun ImageView.loadImageWithResize(
                 .placeholder(placeholder)
                 .into(this)
         } catch (e: Exception) {
-            this.setImageResource(R.drawable.image_placeholder)
-            FirebaseCrashlytics.getInstance().setCustomKey("ImageView.loadImageWithResize", " with url: $it ${e.message ?: ""}")
-            FirebaseCrashlytics.getInstance().recordException(e)
+            handleImageLoadError(e, "loadImageWithResize", it)
         }
     }
 }
@@ -154,9 +161,7 @@ fun ImageView.loadImage(url: String?, context: Context, imageZoomablePlaceholder
                     .load(url)
                     .into(this)
             } catch (e: Exception) {
-                this.setImageResource(R.drawable.image_placeholder)
-                FirebaseCrashlytics.getInstance().setCustomKey("ImageView.loadImageWithResize", " with url: $it ${e.message ?: ""}")
-                FirebaseCrashlytics.getInstance().recordException(e)
+                handleImageLoadError(e, "loadImageWithContext", it)
             }
         } else {
             this.setImageResource(R.drawable.image_placeholder)
@@ -183,9 +188,7 @@ fun ImageView.loadWebp(url: String?, context: Context) {
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .into(this)
         } catch (e: Exception) {
-            this.setImageResource(R.drawable.image_placeholder)
-            FirebaseCrashlytics.getInstance().setCustomKey("ImageView.loadImageWithResize", " with url: $url ${e.message ?: ""}")
-            FirebaseCrashlytics.getInstance().recordException(e)
+            handleImageLoadError(e, "loadWebp", url)
         }
     }
 }
@@ -208,9 +211,7 @@ fun ImageView.loadGifImage(url: String?, context: Context) {
                     .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .into(this)
             } catch (e: Exception) {
-                this.setImageResource(R.drawable.image_placeholder)
-                FirebaseCrashlytics.getInstance().setCustomKey("ImageView.loadImageWithResize", " with url: $url ${e.message ?: ""}")
-                FirebaseCrashlytics.getInstance().recordException(e)
+                handleImageLoadError(e, "loadGifImage", url)
             }
         } else {
             this.setImageResource(R.drawable.image_placeholder)

@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.kickstarter.BuildConfig;
+import com.kickstarter.ax.errors.ProblemDetails;
+import com.kickstarter.ax.errors.ProblemDetailsMapper;
+import com.kickstarter.ax.errors.ProblemException;
 import com.kickstarter.libs.utils.ExceptionUtils;
 import com.kickstarter.ui.viewholders.KSViewHolder;
 
@@ -85,11 +88,12 @@ public abstract class KSAdapter extends RecyclerView.Adapter<KSViewHolder> {
       viewHolder.bindData(data);
       viewHolder.onBind();
     } catch (final Exception e) {
+      final ProblemDetails problem = ProblemDetailsMapper.INSTANCE.fromThrowable(e, "bind view holder data");
       if (BuildConfig.DEBUG) {
-        ExceptionUtils.rethrowAsRuntimeException(e);
+        ExceptionUtils.rethrowAsRuntimeException(new ProblemException(problem, e));
       } else {
-        // TODO: alter the exception message to say we are just reporting it and it's not a real crash.
-        FirebaseCrashlytics.getInstance().recordException(e);
+        FirebaseCrashlytics.getInstance().setCustomKey("KSAdapter_bind", problem.getTitle() + ": " + problem.getDetail());
+        FirebaseCrashlytics.getInstance().recordException(new ProblemException(problem, e));
       }
     }
   }

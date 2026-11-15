@@ -1,6 +1,8 @@
 package com.kickstarter.libs
 
 import android.util.Pair
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.rx.transformers.Transformers
 import com.kickstarter.libs.utils.ListUtils
 import io.reactivex.Observable
@@ -242,9 +244,11 @@ class ApiPaginatorV2<Data, Envelope : Any, Params : Any> private constructor(
             val url = URL(envelopeToMoreUrl.apply(envelope))
             _morePath.onNext(pathAndQueryFromURL(url))
         } catch (e: MalformedURLException) {
-            timber.log.Timber.w(e, "ApiPaginatorV2: Malformed pagination URL dropped")
+            val problem = ProblemDetailsMapper.fromDomainMessage("Malformed pagination URL: ${e.message}", "parse pagination URL", status = 400)
+            timber.log.Timber.w(ProblemException(problem, e), "ApiPaginatorV2: Malformed pagination URL dropped: %s", problem.detail)
         } catch (e: Exception) {
-            timber.log.Timber.w(e, "ApiPaginatorV2: Exception parsing pagination URL")
+            val problem = ProblemDetailsMapper.fromThrowable(e, "parse pagination URL")
+            timber.log.Timber.w(ProblemException(problem, e), "ApiPaginatorV2: Exception parsing pagination URL: %s", problem.detail)
         }
     }
 

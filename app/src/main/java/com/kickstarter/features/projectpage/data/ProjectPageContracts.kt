@@ -72,7 +72,7 @@ sealed interface ProjectPageActionState {
      * Negative constraints:
      * - Do not pass empty details or blank suggested actions.
      *
-     * @property problem Structured actionable error details.
+     * @property problem Structured actionable error details carrying suggestedAction and isRetriable flag.
      */
     data class Failure(val problem: ProblemDetails) : ProjectPageActionState
 }

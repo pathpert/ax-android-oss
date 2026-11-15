@@ -2,6 +2,8 @@ package com.kickstarter.libs
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.braze.BrazeClient
 import com.kickstarter.libs.utils.Secrets
 import com.kickstarter.libs.utils.extensions.isKSApplication
@@ -81,7 +83,9 @@ open class SegmentTrackingClient(
         if (isEnabled())
             Analytics.with(context).analyticsContext.traits().anonymousId()
         else null
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        val problem = ProblemDetailsMapper.fromThrowable(e, "retrieve anonymous tracking ID")
+        Timber.w(ProblemException(problem, e), "Failed to retrieve anonymous tracking ID: %s", problem.detail)
         null
     }
 

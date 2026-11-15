@@ -1,5 +1,6 @@
 package com.kickstarter.features.checkout.data
 
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.libs.CurrentUserTypeV2
 import com.kickstarter.libs.utils.RewardUtils
 import com.kickstarter.libs.utils.extensions.checkoutTotalAmount
@@ -144,7 +145,8 @@ class LatePledgePaymentProcessor(
                 .map { checkoutPayment -> onSuccess(checkoutPayment) }
                 .catch { throwable ->
                     Timber.w(throwable, "Failed to create checkout")
-                    onFailure(throwable.message)
+                    val problem = ProblemDetailsMapper.fromThrowable(throwable, "create late pledge checkout")
+                    onFailure(if (problem.isRetriable) "${problem.suggestedAction} (Please retry)" else problem.suggestedAction.ifBlank { problem.detail })
                 }
                 .onCompletion { onComplete() }
                 .collect()
@@ -202,7 +204,8 @@ class LatePledgePaymentProcessor(
             }
             .catch { throwable ->
                 Timber.w(throwable, "Failed to validate and confirm payment")
-                onValidationFailure(throwable.message)
+                val problem = ProblemDetailsMapper.fromThrowable(throwable, "validate and confirm payment")
+                onValidationFailure(problem.suggestedAction.ifBlank { problem.detail })
             }
             .onCompletion { onComplete() }
             .collect()

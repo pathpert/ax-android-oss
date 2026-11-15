@@ -10,6 +10,7 @@ import com.kickstarter.features.checkout.data.CheckoutAnalyticsTracker
 import com.kickstarter.features.checkout.data.CheckoutBackingDataFactory
 import com.kickstarter.features.checkout.data.ExtractedPledgeInfo
 import com.kickstarter.features.checkout.data.PledgeInfoExtractor
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.RefTag
 import com.kickstarter.libs.featureflag.StatsigGateKey
@@ -74,10 +75,8 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
         this.scope = scope
         this.dispatcher = dispatcher
     }
-
     fun getPledgeData() = this.pledgeData
     fun getPledgeReason() = this.pledgeReason
-
     fun provideBundle(arguments: Bundle?) {
         val pData = arguments?.getParcelable(ArgumentsKey.PLEDGE_PLEDGE_DATA) as? PledgeData
         pledgeReason = arguments?.getSerializable(ArgumentsKey.PLEDGE_PLEDGE_REASON) as? PledgeReason
@@ -122,7 +121,7 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
             apolloClient.buildPaymentPlan(BuildPaymentPlanData(slug, total)).asFlow()
                 .onStart { emitCurrentState(isLoading = true) }
                 .catch {
-                    errorAction.invoke(it.message)
+                    handleCheckoutError(it, "build payment plan")
                     emitCurrentState(isLoading = false)
                 }
                 .collectLatest {
@@ -138,19 +137,24 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
         this.errorAction = errorAction
     }
 
+    private fun handleCheckoutError(throwable: Throwable, operation: String) {
+        val problem = ProblemDetailsMapper.fromThrowable(throwable, operation)
+        errorAction.invoke(throwable.message ?: problem.suggestedAction.ifBlank { problem.detail })
+    }
+
     private fun collectUserInformation() {
         scope.launch(dispatcher) {
             emitCurrentState(isLoading = true)
             currentUser.combine(apolloClient.userPrivacy().asFlow()) { cUser, privacy ->
                 cUser.toBuilder().email(privacy.email).name(privacy.name).build()
             }.catch {
-                errorAction.invoke(it.message)
+                handleCheckoutError(it, "fetch user privacy")
                 emitCurrentState(isLoading = false)
             }.combine(apolloClient.getStoredCards().asFlow()) { updatedUser, cards ->
                 user = updatedUser
                 storedCards = cards
             }.catch {
-                errorAction.invoke(it.message)
+                handleCheckoutError(it, "fetch stored cards")
                 emitCurrentState(isLoading = false)
             }.collectLatest {
                 emitCurrentState(isLoading = false)
@@ -216,7 +220,7 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
         this.apolloClient.createBacking(backingData).asFlow()
             .onStart { emitCurrentState(isLoading = true) }
             .catch {
-                errorAction.invoke(it.message)
+                handleCheckoutError(it, "create backing")
                 emitCurrentState(isLoading = false)
             }
             .collectLatest {
@@ -235,7 +239,7 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
                 apolloClient.updateBacking(it).asFlow()
                     .onStart { emitCurrentState(isLoading = true) }
                     .catch {
-                        errorAction.invoke(it.message)
+                        handleCheckoutError(it, "update backing")
                         emitCurrentState(isLoading = false)
                     }
                     .collectLatest {
@@ -260,7 +264,7 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
                 .onStart { emitCurrentState(isLoading = true) }
                 .catch {
                     emitCurrentState(isLoading = false)
-                    errorAction.invoke(it.message)
+                    handleCheckoutError(it, "create setup intent")
                 }
                 .collectLatest { _presentPaymentSheet.emit(PaymentSheetPresenterState(it)) }
         }

@@ -2,6 +2,8 @@ package com.kickstarter.libs
 
 import android.content.res.AssetManager
 import com.google.gson.Gson
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.preferences.StringPreferenceType
 import com.kickstarter.libs.rx.transformers.Transformers
 import com.kickstarter.libs.utils.extensions.isNotNull
@@ -94,8 +96,8 @@ class CurrentConfigV2(
             input.close()
             return String(buffer)
         } catch (e: IOException) {
-            Timber.e(e)
-            // TODO: This should probably be fatal?
+            val problem = ProblemDetailsMapper.fromThrowable(e, "read server config asset")
+            Timber.e(ProblemException(problem, e), "Failed to read server config asset: %s", problem.detail)
         }
         return "{}"
     }

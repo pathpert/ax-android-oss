@@ -2,6 +2,8 @@ package com.kickstarter.models
 
 import android.os.Parcelable
 import android.text.Html
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
@@ -192,7 +194,8 @@ class Update private constructor(
             }
             return str
         } catch (e: NullPointerException) {
-            timber.log.Timber.w(e, "Update.truncatedBody: body was null")
+            val problem = ProblemDetailsMapper.fromThrowable(e, "truncate update body")
+            timber.log.Timber.w(ProblemException(problem, e), "Update.truncatedBody: body was null (%s)", problem.detail)
         }
         return ""
     }

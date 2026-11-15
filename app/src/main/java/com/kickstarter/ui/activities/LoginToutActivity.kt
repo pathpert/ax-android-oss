@@ -15,6 +15,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.ActivityRequestCodes
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.KSString
@@ -215,7 +217,8 @@ class LoginToutActivity : ComponentActivity() {
                     oAuthViewModel.produceState(intent = intent, uri)
             }
         } catch (error: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(OAuthException(error))
+            val problem = ProblemDetailsMapper.fromThrowable(error, "handle oauth redirection")
+            FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, error))
         }
     }
 

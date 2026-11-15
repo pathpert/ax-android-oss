@@ -8,6 +8,8 @@ import android.text.TextUtils
 import android.util.Patterns
 import com.braze.support.emptyToNull
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import org.jsoup.Jsoup
 import java.text.NumberFormat
 import java.util.Locale
@@ -104,6 +106,8 @@ fun String?.parseToDouble(): Double {
             return number?.toDouble() ?: 0.0
         } ?: return 0.0
     } catch (t: Throwable) {
+        val problem = ProblemDetailsMapper.fromThrowable(t, "parse string to double")
+        timber.log.Timber.w(ProblemException(problem, t), "Failed to parse string to double: %s", problem.detail)
         return 0.0
     }
 }
@@ -194,6 +198,8 @@ fun String?.toInteger(): Int? {
         try {
             this.toInt()
         } catch (e: NumberFormatException) {
+            val problem = ProblemDetailsMapper.fromDomainMessage("String is not a valid integer: $this", "parse string to integer", status = 400)
+            timber.log.Timber.w(ProblemException(problem, e), "Failed to parse string to integer: %s", problem.detail)
             null
         }
     } else null

@@ -39,6 +39,7 @@ import kotlin.text.isNotBlank
  * Negative constraints:
  * - Do not mutate search query directly; dispatch through [updateSearchTerm].
  * - Do not expose mutable state flows directly to UI layers.
+ * - Map search failures to [ProblemDetails] carrying suggestedAction and isRetriable flag.
  */
 @OptIn(FlowPreview::class)
 class SearchAndFilterViewModel(

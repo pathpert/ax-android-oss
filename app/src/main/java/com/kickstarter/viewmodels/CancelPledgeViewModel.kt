@@ -23,7 +23,7 @@ import java.math.RoundingMode
 
 @Deprecated(
     message = "Replaced by com.kickstarter.features.cancelpledge.viewmodel.CancelPledgeFeatureViewModel " +
-        "with validated contracts, ProblemDetails error mapping, and IdempotencyGuard.",
+        "with validated contracts, ProblemDetails error mapping (carrying suggestedAction and isRetriable), and IdempotencyGuard.",
     replaceWith = ReplaceWith(
         "CancelPledgeFeatureViewModel",
         "com.kickstarter.features.cancelpledge.viewmodel.CancelPledgeFeatureViewModel"

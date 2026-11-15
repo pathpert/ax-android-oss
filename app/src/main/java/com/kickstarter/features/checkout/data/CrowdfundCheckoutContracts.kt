@@ -167,8 +167,9 @@ class ApolloCrowdfundCheckoutRepository(
                     )
                 )
             }
+        } catch (cancellationException: CancellationException) {
+            throw cancellationException
         } catch (e: Throwable) {
-            if (e is CancellationException) throw e
             DomainResult.Failure(ProblemDetailsMapper.fromThrowable(e, "build payment plan"))
         }
     }
@@ -195,8 +196,9 @@ class ApolloCrowdfundCheckoutRepository(
                         )
                     )
                 }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
             } catch (e: Throwable) {
-                if (e is CancellationException) throw e
                 DomainResult.Failure(ProblemDetailsMapper.fromThrowable(e, "create backing"))
             }
         }
@@ -224,8 +226,9 @@ class ApolloCrowdfundCheckoutRepository(
                         )
                     )
                 }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
             } catch (e: Throwable) {
-                if (e is CancellationException) throw e
                 DomainResult.Failure(ProblemDetailsMapper.fromThrowable(e, "update backing"))
             }
         }
@@ -252,8 +255,9 @@ class ApolloCrowdfundCheckoutRepository(
                         )
                     )
                 }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
             } catch (e: Throwable) {
-                if (e is CancellationException) throw e
                 DomainResult.Failure(ProblemDetailsMapper.fromThrowable(e, "create setup intent"))
             }
         }

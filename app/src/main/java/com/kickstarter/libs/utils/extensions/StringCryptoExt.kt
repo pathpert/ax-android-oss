@@ -1,6 +1,8 @@
 package com.kickstarter.libs.utils.extensions
 
 import android.util.Base64
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import java.nio.charset.StandardCharsets
 import java.security.Key
 import java.security.MessageDigest
@@ -23,6 +25,8 @@ fun String.encrypt(secretKey: Key?): String? {
 
         "$cipherText.$iv"
     } catch (e: Exception) {
+        val problem = ProblemDetailsMapper.fromThrowable(e, "encrypt string")
+        timber.log.Timber.w(ProblemException(problem, e), "String.encrypt failed: %s", problem.detail)
         null
     }
 }
@@ -41,6 +45,8 @@ fun String.decrypt(secretKey: Key?): String? {
 
         String(clearText, 0, clearText.size, StandardCharsets.UTF_8)
     } catch (e: Exception) {
+        val problem = ProblemDetailsMapper.fromThrowable(e, "decrypt string")
+        timber.log.Timber.w(ProblemException(problem, e), "String.decrypt failed: %s", problem.detail)
         null
     }
 }

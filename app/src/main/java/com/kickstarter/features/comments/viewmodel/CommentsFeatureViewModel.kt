@@ -5,6 +5,8 @@ import android.util.Pair
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.features.comments.data.CommentsFeatureInputs
 import com.kickstarter.features.comments.data.CommentsFeatureOutputs
 import com.kickstarter.features.comments.data.CommentsIntentProcessor
@@ -259,7 +261,10 @@ open class CommentsFeatureViewModel(
             it.commentableId?.let { comId -> commentableId.onNext(comId) } ?: commentableId.onNext("")
             this.displayPaginationError.onNext(false)
             this.displayInitialError.onNext(false)
-        }.doOnError { this.internalError.onNext(it) }.onErrorResumeNext(Observable.empty())
+        }.doOnError {
+            val problem = ProblemDetailsMapper.fromThrowable(it, "load comments")
+            this.internalError.onNext(ProblemException(problem, it))
+        }.onErrorResumeNext(Observable.empty())
     }
 
     override fun onCleared() {

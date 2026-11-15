@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Pair
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.CurrentUserTypeV2
 import com.kickstarter.libs.CurrentConfigTypeV2
 import com.kickstarter.libs.RefTag
@@ -85,7 +87,8 @@ internal object PrelaunchProjectHelper {
         currentUser: CurrentUserTypeV2
     ): Observable<Project> = ProjectIntentMapper
         .project(intent, apolloClient).doOnError {
-            // TODO Show Retry layout
+            val problem = ProblemDetailsMapper.fromThrowable(it, "load prelaunch project")
+            timber.log.Timber.w(ProblemException(problem, it), "Failed to load prelaunch project: %s", problem.detail)
         }
         .onErrorResumeNext(Observable.empty())
         .withLatestFrom(

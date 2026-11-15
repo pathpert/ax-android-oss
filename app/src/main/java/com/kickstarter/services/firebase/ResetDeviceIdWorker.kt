@@ -6,6 +6,8 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.KSApplication
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Build
 import com.kickstarter.libs.FirebaseHelper
 import com.kickstarter.libs.qualifiers.ApplicationContext
@@ -45,10 +47,11 @@ class ResetDeviceIdWorker(@ApplicationContext applicationContext: Context, param
     }
 
     private fun logError(ioException: IOException) {
+        val problem = ProblemDetailsMapper.fromThrowable(ioException, "reset firebase device id")
         if (this.build.isDebug) {
-            Timber.e(ioException.localizedMessage)
+            Timber.e("${problem.title}: ${problem.detail}")
         }
-        FirebaseCrashlytics.getInstance().recordException(ioException)
+        FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, ioException))
     }
 
     companion object {

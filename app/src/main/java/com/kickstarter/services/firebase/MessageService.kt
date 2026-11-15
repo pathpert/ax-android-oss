@@ -7,6 +7,8 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import com.kickstarter.KSApplication
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.PushNotifications
 import com.kickstarter.libs.braze.RemotePushClientType
 import com.kickstarter.models.pushdata.Activity
@@ -31,12 +33,15 @@ interface RefreshPushToken {
             val message = "$OK_MESSAGE $response"
             successCallback.invoke(message)
         } catch (t: Throwable) {
+            val problem = ProblemDetailsMapper.fromThrowable(t, "register push token")
             if (t is ApiException) {
                 val errorMessage = "$KO_MESSAGE ${
                 t.errorEnvelope().errorMessage()
                 }"
                 if (t.errorEnvelope().httpCode() != 401) // else OAuth token not authorized
                     errorCallback.invoke(errorMessage)
+            } else {
+                errorCallback.invoke("${problem.title}: ${problem.detail}")
             }
         }
     }
@@ -64,7 +69,14 @@ class MessageService : FirebaseMessagingService() {
             newToken = s,
             gson = gson,
             successCallback = { message -> FirebaseCrashlytics.getInstance().log(message) },
-            errorCallback = { errorMessage -> FirebaseCrashlytics.getInstance().recordException(Exception(errorMessage)) }
+            errorCallback = { errorMessage ->
+                val problem = ProblemDetailsMapper.fromDomainMessage(
+                    rawMessage = errorMessage,
+                    operation = "register push token",
+                    status = null
+                )
+                FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, Exception(errorMessage)))
+            }
         )
     }
 
@@ -96,34 +108,40 @@ class MessageService : FirebaseMessagingService() {
 
             val data = remoteMessage.data
 
-            val envelope = builder()
-                .activity(
-                    gson.fromJson(
-                        data["activity"], Activity::class.java
+            try {
+                val envelope = builder()
+                    .activity(
+                        gson.fromJson(
+                            data["activity"], Activity::class.java
+                        )
                     )
-                )
-                .erroredPledge(gson.fromJson(data["errored_pledge"], ErroredPledge::class.java))
-                .gcm(gson.fromJson(data["gcm"], GCM::class.java))
-                .message(
-                    gson.fromJson(
-                        data["message"], PushNotificationEnvelope.Message::class.java
+                    .erroredPledge(gson.fromJson(data["errored_pledge"], ErroredPledge::class.java))
+                    .gcm(gson.fromJson(data["gcm"], GCM::class.java))
+                    .message(
+                        gson.fromJson(
+                            data["message"], PushNotificationEnvelope.Message::class.java
+                        )
                     )
-                )
-                .project(
-                    gson.fromJson(
-                        data["project"], PushNotificationEnvelope.Project::class.java
+                    .project(
+                        gson.fromJson(
+                            data["project"], PushNotificationEnvelope.Project::class.java
+                        )
                     )
-                )
-                .survey(gson.fromJson(data["survey"], Survey::class.java))
-                .pledgeRedemption(
-                    gson.fromJson(
-                        data["order"], PushNotificationEnvelope.PledgeRedemption::class.java
+                    .survey(gson.fromJson(data["survey"], Survey::class.java))
+                    .pledgeRedemption(
+                        gson.fromJson(
+                            data["order"], PushNotificationEnvelope.PledgeRedemption::class.java
+                        )
                     )
-                )
-                .build()
+                    .build()
 
-            Timber.d("Received message: %s", envelope.toString())
-            pushNotifications.add(envelope)
+                Timber.d("Received message: %s", envelope.toString())
+                pushNotifications.add(envelope)
+            } catch (e: Exception) {
+                val problem = ProblemDetailsMapper.fromThrowable(e, "parse push notification payload")
+                Timber.e("${problem.title}: ${problem.detail}")
+                FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, e))
+            }
         }
     }
 }

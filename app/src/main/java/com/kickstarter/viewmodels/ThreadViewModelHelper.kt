@@ -2,6 +2,8 @@ package com.kickstarter.viewmodels
 
 import android.content.Intent
 import android.util.Pair
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.utils.extensions.toCommentCardList
 import com.kickstarter.libs.utils.extensions.userIsCreator
 import com.kickstarter.models.Comment
@@ -39,7 +41,8 @@ internal object ThreadViewModelHelper {
                 if (cursor.isNullOrEmpty()) null else cursor
             )
         }.doOnError {
-            internalError.onNext(it)
+            val problem = ProblemDetailsMapper.fromThrowable(it, "load comment replies")
+            internalError.onNext(ProblemException(problem, it))
         }.onErrorResumeNext(Observable.empty())
     }
 

@@ -32,7 +32,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  *
  * @property isLoggedInUser Whether a user session is active.
  * @property userAvatarUrl Remote URL for user profile avatar image.
- * @property problem Structured actionable error details, or null.
+ * @property problem Structured actionable error details with suggestedAction and isRetriable flag, or null.
  */
 data class HomeScreenUIState(
     val isLoggedInUser: Boolean = false,

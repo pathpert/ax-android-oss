@@ -28,6 +28,7 @@ interface BackingRepository {
  *
  * Negative constraints:
  * - Do not instantiate directly in UI layers; inject via ViewModel Factory.
+ * - Map all failures through [ProblemDetailsMapper] with actionable suggestedAction and isRetriable flag.
  */
 class BackingRepositoryImpl(
     private val apolloClient: ApolloClientTypeV2,

@@ -11,6 +11,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import com.kickstarter.KSApplication
 import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.features.splash.data.CustomNetworkClient
 import com.kickstarter.features.splash.data.DeepLinkProcessor
 import com.kickstarter.features.splash.data.InitializationState
@@ -118,16 +119,10 @@ open class SplashFeatureViewModel(
                             application.mutableInitializationState.value = InitializationState.FINISHED
                             processIntent()
                         }
+                    } catch (cancellationException: CancellationException) {
+                        throw cancellationException
                     } catch (e: Exception) {
-                        if (e is CancellationException) throw e
-                        val problem = ProblemDetails(
-                            type = ProblemDetails.TYPE_UNEXPECTED,
-                            title = "Startup Initialization Error",
-                            status = 500,
-                            detail = e.message ?: "Unexpected startup initialization error.",
-                            suggestedAction = "Retry app cold-start.",
-                            isRetriable = true
-                        )
+                        val problem = ProblemDetailsMapper.fromThrowable(e, "startup initialization")
                         mutableUiState.emit(SplashUIState.Failed(problem))
                         application.mutableInitializationState.value = InitializationState.FINISHED
                         processIntent()

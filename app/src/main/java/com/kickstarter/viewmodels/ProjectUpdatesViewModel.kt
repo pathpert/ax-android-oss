@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import android.util.Pair
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.loadmore.ApolloPaginateV2
 import com.kickstarter.libs.rx.transformers.Transformers
@@ -21,6 +23,7 @@ import com.kickstarter.ui.data.ProjectData
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
+import timber.log.Timber
 import java.net.CookieManager
 
 @Deprecated(
@@ -155,6 +158,10 @@ interface ProjectUpdatesViewModel {
         ): Observable<UpdatesGraphQlEnvelope> {
             return project.switchMap {
                 return@switchMap client.getProjectUpdates(it.slug() ?: "", cursor)
+                    .doOnError { error ->
+                        val problem = ProblemDetailsMapper.fromThrowable(error, "load project updates")
+                        Timber.w(ProblemException(problem, error), "Failed to load project updates: %s", problem.detail)
+                    }
             }.onErrorResumeNext(Observable.empty())
         }
         override fun nextPage() {

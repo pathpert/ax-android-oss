@@ -16,7 +16,7 @@ import com.kickstarter.models.Project
  * @property popularProjectsList Curated default projects displayed when query is empty.
  * @property searchList List of projects matching active query and filter criteria.
  * @property hasMore Indicates if additional pages can be fetched.
- * @property problem Structured actionable error details, or null if operation succeeded.
+ * @property problem Structured actionable error details carrying suggestedAction and isRetriable flag, or null if operation succeeded.
  */
 data class SearchUIState(
     val isLoading: Boolean = false,

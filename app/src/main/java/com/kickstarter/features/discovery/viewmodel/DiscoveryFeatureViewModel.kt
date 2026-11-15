@@ -25,7 +25,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  * Negative constraints:
  * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
  * - Do not pass mutable lists into [projects] or [categories].
- * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
+ * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails] with suggestedAction and isRetriable flag.
  */
 data class DiscoveryUiState(
     val projects: List<DiscoveryProjectCard> = emptyList(),

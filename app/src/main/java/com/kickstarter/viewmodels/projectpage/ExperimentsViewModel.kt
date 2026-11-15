@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.featureflag.StatsigExperiments
 import kotlinx.coroutines.CoroutineDispatcher
@@ -86,7 +88,8 @@ class ExperimentsViewModel(
             } catch (cancellationException: CancellationException) {
                 throw cancellationException
             } catch (exception: Exception) {
-                FirebaseCrashlytics.getInstance().recordException(ExperimentsException(exception))
+                val problem = ProblemDetailsMapper.fromThrowable(exception, "evaluate experiments")
+                FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, exception))
             }
         }
     }

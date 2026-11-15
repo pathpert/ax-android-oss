@@ -49,7 +49,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  * @property paymentPlan Optional installment payment plan for PLOT.
  * @property isIncrementalPledge Whether this is an incremental pledge update.
  * @property isPledgeButtonEnabled Whether pledge action button can be tapped.
- * @property problem Structured RFC 9457 error details if checkout failed.
+ * @property problem Structured RFC 9457 error details carrying suggestedAction and isRetriable flag if checkout failed.
  */
 data class CrowdfundCheckoutUiState(
     val storedCards: List<StoredCard> = emptyList(),

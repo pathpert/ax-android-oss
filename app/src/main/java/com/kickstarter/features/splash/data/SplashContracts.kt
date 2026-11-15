@@ -73,7 +73,7 @@ sealed class SplashUIState {
      * Negative constraints:
      * - Do not pass blank detail or suggested actions.
      *
-     * @property problem Structured actionable failure description.
+     * @property problem Structured actionable failure description carrying suggestedAction and isRetriable flag.
      */
     data class Failed(val problem: ProblemDetails) : SplashUIState()
 }

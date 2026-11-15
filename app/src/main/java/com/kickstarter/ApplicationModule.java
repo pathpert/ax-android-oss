@@ -8,7 +8,11 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.gson.Gson;
+import com.kickstarter.ax.errors.ProblemDetails;
+import com.kickstarter.ax.errors.ProblemDetailsMapper;
+import com.kickstarter.ax.errors.ProblemException;
 import com.kickstarter.libs.AnalyticEvents;
 import com.kickstarter.libs.ApiEndpoint;
 import com.kickstarter.libs.AttributionEvents;
@@ -233,8 +237,10 @@ public class ApplicationModule {
     try {
       return application.getPackageManager().getPackageInfo(application.getPackageName(), 0);
     } catch (PackageManager.NameNotFoundException e) {
-      e.printStackTrace();
-      throw new RuntimeException();
+      final ProblemDetails problem = ProblemDetailsMapper.INSTANCE.fromThrowable(e, "retrieve package info");
+      FirebaseCrashlytics.getInstance().setCustomKey("ApplicationModule_packageInfo", problem.getTitle() + ": " + problem.getDetail());
+      FirebaseCrashlytics.getInstance().recordException(new ProblemException(problem, e));
+      throw new RuntimeException(problem.getTitle() + ": " + problem.getDetail(), e);
     }
   }
 

@@ -21,6 +21,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.text.TextUtils
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import timber.log.Timber
 
 /**
@@ -121,7 +123,8 @@ object ChromeTabsHelper {
                 return true
             }
         } catch (e: RuntimeException) {
-            Timber.e("%sRuntime exception while getting specialized handlers", TAG)
+            val problem = ProblemDetailsMapper.fromThrowable(e, "query specialized handlers")
+            Timber.e(ProblemException(problem, e), "%sRuntime exception while getting specialized handlers: %s", TAG, problem.detail)
         }
 
         return false

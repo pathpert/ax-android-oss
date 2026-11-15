@@ -1,6 +1,8 @@
 package com.kickstarter.libs.loadmore
 
 import android.util.Pair
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.rx.transformers.Transformers
 import com.kickstarter.models.ApolloEnvelope
 import io.reactivex.Observable
@@ -241,7 +243,8 @@ class ApolloPaginateV2<Data, Envelope : ApolloEnvelope, Params>(
                 )
             }
         } catch (e: MalformedURLException) {
-            timber.log.Timber.w(e, "ApolloPaginateV2: Failed to parse pagination cursor")
+            val problem = ProblemDetailsMapper.fromDomainMessage("Malformed pagination cursor: ${e.message}", "parse pagination cursor", status = 400)
+            timber.log.Timber.w(ProblemException(problem, e), "ApolloPaginateV2: Failed to parse pagination cursor: %s", problem.detail)
         }
     }
     fun paginatedData(): Observable<List<Data>>? {

@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.BuildConfig
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.utils.ExceptionUtils
 import com.kickstarter.ui.viewholders.KSViewHolder
 import java.util.ArrayList
@@ -94,9 +96,11 @@ abstract class KSListAdapter(
             if (BuildConfig.DEBUG) {
                 ExceptionUtils.rethrowAsRuntimeException(e)
             } else {
-                // TODO: alter the exception message to say we are just reporting it and it's not a real crash.
-                FirebaseCrashlytics.getInstance().setCustomKey("KSListAdapter", this::class.java.simpleName)
-                FirebaseCrashlytics.getInstance().recordException(e)
+                val problem = ProblemDetailsMapper.fromThrowable(e, "bind view holder data")
+                val crashlytics = FirebaseCrashlytics.getInstance()
+                crashlytics.setCustomKey("KSListAdapter", this::class.java.simpleName)
+                crashlytics.setCustomKey("error_action", problem.suggestedAction)
+                crashlytics.recordException(ProblemException(problem, e))
             }
         }
     }

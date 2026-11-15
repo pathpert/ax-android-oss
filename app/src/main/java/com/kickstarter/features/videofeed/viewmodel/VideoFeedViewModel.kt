@@ -31,7 +31,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  * @property items List of video items in feed.
  * @property isLoading True when page is loading.
  * @property hasMore True if subsequent pages are available.
- * @property problem RFC 9457 actionable error details.
+ * @property problem RFC 9457 actionable error details carrying suggestedAction and isRetriable flag.
  */
 data class VideoFeedUIState(
     val items: List<VideoFeedItem> = emptyList(),

@@ -19,7 +19,7 @@ internal const val PPO_PAGE_LIMIT = 10
  * paging failures into structured [ProblemException] instances.
  *
  * Negative constraints:
- * - Do not swallow exceptions; map through [ProblemDetailsMapper].
+ * - Do not swallow exceptions; map through [ProblemDetailsMapper] with actionable suggestedAction and isRetriable flag.
  * - Do not instantiate directly in UI layers; provide via [PledgedProjectsRepository].
  */
 class PledgedProjectsPagingSource(

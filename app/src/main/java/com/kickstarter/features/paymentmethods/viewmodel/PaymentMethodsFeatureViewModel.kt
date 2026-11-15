@@ -29,7 +29,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  *
  * Enforces:
  * - Single-flight guards and idempotency on deletion and setup intent mutations.
- * - Actionable RFC 9457 ProblemDetails error states.
+ * - Actionable RFC 9457 ProblemDetails error states carrying suggestedAction and isRetriable flag.
  * - Concise, testable coroutines architecture (< 300 lines).
  *
  * Negative constraints:

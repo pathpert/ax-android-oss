@@ -11,6 +11,8 @@ import android.net.NetworkRequest
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import java.lang.RuntimeException
 
 /**
@@ -56,8 +58,9 @@ class ConnectivityReceiver(
 
             cm.registerNetworkCallback(networkRequest, networkCallback)
         } catch (exception: RuntimeException) {
-            FirebaseCrashlytics.getInstance().setCustomKey(this.javaClass.name, exception.message ?: "")
-            FirebaseCrashlytics.getInstance().recordException(exception)
+            val problem = ProblemDetailsMapper.fromThrowable(exception, "register network callback")
+            FirebaseCrashlytics.getInstance().setCustomKey(this.javaClass.name, "${problem.title}: ${problem.detail}")
+            FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, exception))
         }
     }
 
@@ -66,8 +69,9 @@ class ConnectivityReceiver(
             val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             cm.unregisterNetworkCallback(networkCallback)
         } catch (exception: IllegalArgumentException) {
-            FirebaseCrashlytics.getInstance().setCustomKey(this.javaClass.name, exception.message ?: "")
-            FirebaseCrashlytics.getInstance().recordException(exception)
+            val problem = ProblemDetailsMapper.fromThrowable(exception, "unregister network callback")
+            FirebaseCrashlytics.getInstance().setCustomKey(this.javaClass.name, "${problem.title}: ${problem.detail}")
+            FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, exception))
         }
     }
 

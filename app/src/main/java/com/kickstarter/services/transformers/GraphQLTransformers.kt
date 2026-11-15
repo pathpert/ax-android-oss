@@ -1,7 +1,10 @@
 package com.kickstarter.services.transformers
 
 import com.google.android.gms.common.util.Base64Utils
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.FlaggingOptionsQuery
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.models.AiDisclosure
 import com.kickstarter.models.Category
 import com.kickstarter.models.EnvironmentalCommitment
@@ -28,6 +31,13 @@ fun decodeRelayId(encodedRelayId: String?): Long? {
                 .absoluteValue
         }
     } catch (e: Exception) {
+        val problem = ProblemDetailsMapper.fromThrowable(e, "decode relay id")
+        try {
+            FirebaseCrashlytics.getInstance().setCustomKey("decodeRelayId", "${problem.title}: ${problem.detail}")
+            FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, e))
+        } catch (_: Exception) {
+            // Unit tests without Firebase initialization
+        }
         null
     }
 }

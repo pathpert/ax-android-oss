@@ -5,6 +5,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import timber.log.Timber
 import android.graphics.Bitmap
 import android.net.Uri
@@ -79,7 +81,8 @@ class AndroidSocialShareService(
             pm.getPackageInfo(packageName, 0)
             true
         } catch (e: PackageManager.NameNotFoundException) {
-            Timber.d("Package %s is not installed: %s", packageName, e.message)
+            val problem = ProblemDetailsMapper.fromDomainMessage("Package $packageName is not installed: ${e.message}", "check package installed", status = 404)
+            Timber.d(ProblemException(problem, e), "Package %s is not installed: %s", packageName, problem.detail)
             false
         }
     }

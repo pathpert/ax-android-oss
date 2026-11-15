@@ -5,8 +5,8 @@ import com.apollographql.apollo3.api.CustomScalarAdapters
 import com.apollographql.apollo3.api.json.JsonReader
 import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.exception.JsonDataException
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import org.joda.time.DateTime
-import java.text.ParseException
 
 /**
  * Library utility component for Iso8601DateTimeAdapter.
@@ -23,7 +23,8 @@ class Iso8601DateTimeAdapter : Adapter<DateTime> {
         try {
             return DateTime.parse(reader.nextString())
         } catch (exception: Exception) {
-            throw JsonDataException("Failed to parse ISO-8601 DateTime scalar from JSON value: ${exception.message}")
+            val problem = ProblemDetailsMapper.fromDomainMessage("Failed to parse ISO-8601 DateTime scalar: ${exception.message}", "parse iso8601 datetime scalar", status = 422)
+            throw JsonDataException("${problem.title}: ${problem.detail} (${problem.suggestedAction})")
         }
     }
 

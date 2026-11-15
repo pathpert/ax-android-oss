@@ -139,8 +139,9 @@ class ApolloDiscoveryRepository(
                     )
                 )
             }
+        } catch (cancellationException: CancellationException) {
+            throw cancellationException
         } catch (e: Throwable) {
-            if (e is CancellationException) throw e
             DomainResult.Failure(ProblemDetailsMapper.fromThrowable(e, "load discovery projects"))
         }
     }
@@ -149,8 +150,9 @@ class ApolloDiscoveryRepository(
         return try {
             val categories = apolloClient.fetchCategories().awaitFirstOrNull() ?: emptyList()
             DomainResult.Success(categories)
+        } catch (cancellationException: CancellationException) {
+            throw cancellationException
         } catch (e: Throwable) {
-            if (e is CancellationException) throw e
             DomainResult.Failure(ProblemDetailsMapper.fromThrowable(e, "fetch discovery categories"))
         }
     }

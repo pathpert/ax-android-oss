@@ -1,6 +1,8 @@
 package com.kickstarter.libs.rx.operators
 
 import com.google.gson.Gson
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.services.ApiException
 import com.kickstarter.services.ResponseException
 import com.kickstarter.services.apiresponses.ErrorEnvelope
@@ -35,6 +37,8 @@ class ApiErrorOperatorV2<T>(private val gson: Gson?) : ObservableOperator<T, Res
                     val envelope: ErrorEnvelope? = try {
                         gson?.fromJson(response.errorBody()?.string(), ErrorEnvelope::class.java)
                     } catch (e: Exception) {
+                        val problem = ProblemDetailsMapper.fromThrowable(e, "parse error body envelope")
+                        timber.log.Timber.w(ProblemException(problem, e), "Failed to parse error body: %s", problem.detail)
                         null
                     }
                     envelope?.let {

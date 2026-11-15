@@ -9,6 +9,7 @@ import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -99,19 +100,12 @@ object ShareImageCache {
                         )
                     )
                 }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
             } catch (e: Exception) {
-                if (e is CancellationException) throw e
                 Timber.e(e, "Failed to write share image to cache")
-                DomainResult.Failure(
-                    ProblemDetails(
-                        type = ProblemDetails.TYPE_UNEXPECTED,
-                        title = "Cache Bitmap Failed",
-                        status = 500,
-                        detail = e.message ?: "Failed to write share image to cache.",
-                        suggestedAction = "Check cache directory permissions and retry.",
-                        isRetriable = true
-                    )
-                )
+                val problem = ProblemDetailsMapper.fromThrowable(e, "write share image to cache")
+                DomainResult.Failure(problem)
             }
         }
 

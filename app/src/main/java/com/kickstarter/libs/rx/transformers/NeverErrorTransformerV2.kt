@@ -1,5 +1,7 @@
 package com.kickstarter.libs.rx.transformers
 
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
 import io.reactivex.ObservableTransformer
@@ -25,7 +27,8 @@ open class NeverErrorTransformerV2<T> : ObservableTransformer<T, T> {
     override fun apply(upstream: Observable<T>): ObservableSource<T> {
         return upstream
             .doOnError { e: Throwable ->
-                errorAction?.accept(e)
+                val problem = ProblemDetailsMapper.fromThrowable(e, "reactive stream")
+                errorAction?.accept(ProblemException(problem, e))
             }
             .onErrorResumeNext(Observable.empty())
     }

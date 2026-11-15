@@ -3,6 +3,8 @@ package com.kickstarter.libs.featureflag
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.kickstarter.KSApplication
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Build
 import com.kickstarter.libs.CurrentUserTypeV2
 import com.kickstarter.libs.SegmentTrackingClient
@@ -187,7 +189,8 @@ open class StatsigClient @JvmOverloads constructor(
                     errorCallback.invoke(Throwable(details?.failureDetails?.exception))
                 }
             } catch (e: Exception) {
-                errorCallback.invoke(e)
+                val problem = ProblemDetailsMapper.fromThrowable(e, "initialize Statsig SDK")
+                errorCallback.invoke(ProblemException(problem, e))
             }
         }
     }
@@ -262,7 +265,8 @@ open class StatsigClient @JvmOverloads constructor(
                 Timber.d("- JSON: ${it.getInitializeResponseJSON()}")
             }
         } catch (e: Exception) {
-            Timber.d(e)
+            val problem = ProblemDetailsMapper.fromThrowable(e, "update Statsig user")
+            Timber.w(ProblemException(problem, e), "Failed to update Statsig user: %s", problem.detail)
         }
     }
 

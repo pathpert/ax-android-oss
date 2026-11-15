@@ -11,6 +11,8 @@ import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.BuildConfig
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.qualifiers.ApplicationContext
 import com.kickstarter.libs.utils.WebUtils
 import com.kickstarter.libs.utils.extensions.currentVariants
@@ -47,10 +49,11 @@ abstract class TrackingClient(
                     Timber.d("Queued ${type().tag} $eventName event: $dataForLogs")
                 }
             } catch (e: JSONException) {
+                val problem = ProblemDetailsMapper.fromThrowable(e, "encode tracking event")
                 if (this.build.isDebug) {
-                    Timber.e("Failed to encode ${type().tag} event: $eventName")
+                    Timber.e(ProblemException(problem, e), "Failed to encode ${type().tag} event: $eventName")
                 }
-                FirebaseCrashlytics.getInstance().log("E/${TrackingClient::class.java.simpleName}: Failed to encode ${type().tag} event: $eventName")
+                FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, e))
             }
         }
     }

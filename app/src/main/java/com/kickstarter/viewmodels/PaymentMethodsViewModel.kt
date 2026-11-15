@@ -76,7 +76,7 @@ interface Outputs {
 
 @Deprecated(
     message = "Replaced by com.kickstarter.features.paymentmethods.viewmodel.PaymentMethodsFeatureViewModel " +
-        "with strictly-typed PaymentMethodCard, IdempotencyGuard, and RFC 9457 ProblemDetails.",
+        "with strictly-typed PaymentMethodCard, IdempotencyGuard, and RFC 9457 ProblemDetails (carrying suggestedAction and isRetriable).",
     replaceWith = ReplaceWith(
         "PaymentMethodsFeatureViewModel",
         "com.kickstarter.features.paymentmethods.viewmodel.PaymentMethodsFeatureViewModel"

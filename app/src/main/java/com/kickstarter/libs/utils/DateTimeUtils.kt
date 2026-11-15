@@ -4,6 +4,8 @@ import android.content.Context
 import android.util.Pair
 import androidx.annotation.VisibleForTesting
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.KSString
 import com.kickstarter.libs.NumberOptions
 import com.kickstarter.libs.RelativeDateTimeOptions
@@ -54,8 +56,8 @@ object DateTimeUtils {
         return try {
             dateTime.toString(DateTimeFormat.fullDate().withLocale(locale).withZoneUTC())
         } catch (e: IllegalArgumentException) {
-            // JodaTime doesn't support the 'cccc' pattern, triggered by fullDate and fullDateTime. See: https://github.com/dlew/joda-time-android/issues/30
-            // Instead just return a medium date.
+            val problem = ProblemDetailsMapper.fromDomainMessage("JodaTime fullDate pattern unsupported for locale $locale: ${e.message}", "format full date", status = 422)
+            timber.log.Timber.w(ProblemException(problem, e), "DateTimeUtils: %s, falling back to mediumDate", problem.detail)
             mediumDate(dateTime, locale)
         }
     }

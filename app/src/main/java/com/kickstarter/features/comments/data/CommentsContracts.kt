@@ -62,7 +62,7 @@ sealed interface CommentsUIState {
      * Negative constraints:
      * - Do not pass uncontextualized errors without suggested action.
      *
-     * @property problem Structured RFC 9457 error details.
+     * @property problem Structured RFC 9457 error details carrying suggestedAction and isRetriable flag.
      * @property throwable Underlying exception cause.
      */
     data class Error(val problem: ProblemDetails, val throwable: Throwable = Exception(problem.detail)) : CommentsUIState

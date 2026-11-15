@@ -3,7 +3,10 @@ package com.kickstarter.ui.viewholders.projectcampaign
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.widget.SeekBar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.databinding.ViewElementAudioFromHtmlBinding
 import com.kickstarter.libs.KSLifecycleEvent
 import com.kickstarter.libs.htmlparser.AudioViewElement
@@ -159,6 +162,8 @@ class AudioElementViewHolder(
             mediaPlayer.setDataSource(url)
             mediaPlayer.prepareAsync()
         } catch (e: Exception) {
+            val problem = ProblemDetailsMapper.fromThrowable(e, "initialize audio player")
+            FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, e))
             isPrepared = false
             mediaPlayer.release()
         }

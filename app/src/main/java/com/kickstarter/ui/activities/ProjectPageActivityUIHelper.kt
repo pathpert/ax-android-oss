@@ -8,6 +8,8 @@ import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Either
 import com.kickstarter.ui.IntentKey
 import com.kickstarter.ui.adapters.ProjectPagerAdapter
@@ -141,7 +143,8 @@ internal fun ProjectPageActivity.updateFragments(projectData: ProjectData) {
             renderProject(backingFragment, rewardsFragment, projectData)
         }
     } catch (e: IllegalStateException) {
-        FirebaseCrashlytics.getInstance().recordException(e)
+        val problem = ProblemDetailsMapper.fromThrowable(e, "commit fragment transaction")
+        FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, e))
     }
 }
 

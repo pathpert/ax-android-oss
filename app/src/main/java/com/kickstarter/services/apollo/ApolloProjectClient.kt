@@ -28,6 +28,9 @@ import kotlinx.coroutines.CancellationException
 
 /**
  * Apollo GraphQL domain client for project retrieval, story, watching, and similar projects.
+ *
+ * Negative constraints:
+ * - Do not swallow mutation errors; map to [ProblemDetails] carrying suggestedAction and isRetriable flag.
  */
 class ApolloProjectClient(
     private val service: ApolloClient,

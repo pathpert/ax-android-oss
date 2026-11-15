@@ -3,6 +3,8 @@ package com.kickstarter.features.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.models.Category
@@ -113,7 +115,8 @@ open class FilterMenuViewModel(
         scope.launch {
             currentUserObservable.observable().asFlow()
                 .catch {
-                    errorAction.invoke(null)
+                    val problem = ProblemDetailsMapper.fromThrowable(it, "observe current user")
+                    errorAction.invoke(it.message ?: problem.suggestedAction.ifBlank { problem.detail })
                 }
                 .collectLatest { user ->
                     user.getValue()?.let {
