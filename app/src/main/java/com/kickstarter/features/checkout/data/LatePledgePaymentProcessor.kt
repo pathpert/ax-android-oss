@@ -17,6 +17,7 @@ import com.kickstarter.ui.data.PledgeData
 import com.stripe.android.Stripe
 import com.stripe.android.confirmPaymentIntent
 import com.stripe.android.model.ConfirmPaymentIntentParams
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.catch
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.rx2.asFlow
+import timber.log.Timber
 
 /**
  * Handles late pledge checkout network calls, Apollo mutations, and Stripe payment confirmation.
@@ -63,7 +65,10 @@ class LatePledgePaymentProcessor(
 
                 onSuccess(privacy.email, cards)
             }
-        } catch (_: Throwable) {
+        } catch (cancellationException: CancellationException) {
+            throw cancellationException
+        } catch (throwable: Throwable) {
+            Timber.e(throwable, "Failed to load user info for late pledge checkout")
             onError()
         }
     }
@@ -79,7 +84,10 @@ class LatePledgePaymentProcessor(
             .asFlow()
             .onStart { onStart() }
             .map { clientSecret -> onSuccess(clientSecret) }
-            .catch { onFailure() }
+            .catch { throwable ->
+                Timber.w(throwable, "Failed to create setup intent")
+                onFailure()
+            }
             .onCompletion { onComplete() }
             .collect()
     }
@@ -99,7 +107,10 @@ class LatePledgePaymentProcessor(
                 val cards = apolloClient.getStoredCards().asFlow().first()
                 onSuccess(cards)
             }
-            .catch { onFailure() }
+            .catch { throwable ->
+                Timber.w(throwable, "Failed to save payment method")
+                onFailure()
+            }
             .onCompletion { onComplete() }
             .collect()
     }
@@ -131,7 +142,10 @@ class LatePledgePaymentProcessor(
             ).asFlow()
                 .onStart { onStart() }
                 .map { checkoutPayment -> onSuccess(checkoutPayment) }
-                .catch { onFailure(it.message) }
+                .catch { throwable ->
+                    Timber.w(throwable, "Failed to create checkout")
+                    onFailure(throwable.message)
+                }
                 .onCompletion { onComplete() }
                 .collect()
         } else {
@@ -156,7 +170,10 @@ class LatePledgePaymentProcessor(
             )
         ).asFlow()
             .map { clientSecret -> onSuccess(clientSecret) }
-            .catch { onFailure() }
+            .catch { throwable ->
+                Timber.w(throwable, "Failed to save payment method")
+                onFailure()
+            }
             .collect()
     }
 
@@ -183,7 +200,10 @@ class LatePledgePaymentProcessor(
                     onValidationFailure(error)
                 }
             }
-            .catch { onValidationFailure(null) }
+            .catch { throwable ->
+                Timber.w(throwable, "Failed to validate and confirm payment")
+                onValidationFailure(throwable.message)
+            }
             .onCompletion { onComplete() }
             .collect()
     }
@@ -232,7 +252,10 @@ class LatePledgePaymentProcessor(
                     onPledgeSuccess()
                 }
             }
-            .catch { onFailure() }
+            .catch { throwable ->
+                Timber.w(throwable, "Failed to save payment method")
+                onFailure()
+            }
             .onCompletion { onComplete() }
             .collect()
     }

@@ -240,8 +240,8 @@ class ApolloPaginateV2<Data, Envelope : ApolloEnvelope, Params>(
                     it
                 )
             }
-        } catch (ignored: MalformedURLException) {
-            ignored.printStackTrace()
+        } catch (e: MalformedURLException) {
+            timber.log.Timber.w(e, "ApolloPaginateV2: Failed to parse pagination cursor")
         }
     }
     fun paginatedData(): Observable<List<Data>>? {

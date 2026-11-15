@@ -10,6 +10,7 @@ import com.kickstarter.UpdateUserEmailMutation
 import com.kickstarter.UpdateUserPasswordMutation
 import com.kickstarter.UserPrivacyQuery
 import com.kickstarter.libs.utils.extensions.addToDisposable
+import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.models.UserPrivacy
 import com.kickstarter.services.transformers.userPrivacyTransformer
 import com.kickstarter.type.CurrencyCode
@@ -22,7 +23,8 @@ import io.reactivex.subjects.PublishSubject
  */
 class ApolloUserClient(
     private val service: ApolloClient,
-    private val disposables: CompositeDisposable
+    private val disposables: CompositeDisposable,
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
 ) {
     fun userPrivacy(): Observable<UserPrivacy> {
         return Observable.defer {

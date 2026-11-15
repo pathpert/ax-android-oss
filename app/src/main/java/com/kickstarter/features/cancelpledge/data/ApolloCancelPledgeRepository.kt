@@ -3,6 +3,7 @@ package com.kickstarter.features.cancelpledge.data
 import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.ax.safety.IdempotencyKey
 import com.kickstarter.models.Backing
 import com.kickstarter.services.ApolloClientTypeV2
@@ -21,7 +22,8 @@ import kotlinx.coroutines.rx2.awaitFirstOrNull
  * - Do not bypass error mapping into [ProblemDetails].
  */
 class ApolloCancelPledgeRepository(
-    private val apolloClient: ApolloClientTypeV2
+    private val apolloClient: ApolloClientTypeV2,
+    private val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
 ) : CancelPledgeRepository {
 
     override suspend fun cancelBacking(
@@ -29,23 +31,25 @@ class ApolloCancelPledgeRepository(
         note: String,
         idempotencyKey: IdempotencyKey
     ): DomainResult<Unit> {
-        val legacyBacking = Backing.builder()
-            .id(target.backingNumericId)
-            .build()
+        return idempotencyGuard.runSingleFlight("cancel pledge", idempotencyKey) {
+            val legacyBacking = Backing.builder()
+                .id(target.backingNumericId)
+                .build()
 
-        return try {
-            val rawResponse = apolloClient.cancelBacking(legacyBacking, note.trim())
-                .awaitFirstOrNull()
-            mapRawResponse(rawResponse)
-        } catch (cancellationException: CancellationException) {
-            throw cancellationException
-        } catch (throwable: Throwable) {
-            DomainResult.Failure(
-                ProblemDetailsMapper.fromThrowable(
-                    throwable = throwable,
-                    operation = "cancel pledge"
+            try {
+                val rawResponse = apolloClient.cancelBacking(legacyBacking, note.trim())
+                    .awaitFirstOrNull()
+                mapRawResponse(rawResponse)
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
+            } catch (throwable: Throwable) {
+                DomainResult.Failure(
+                    ProblemDetailsMapper.fromThrowable(
+                        throwable = throwable,
+                        operation = "cancel pledge"
+                    )
                 )
-            )
+            }
         }
     }
 

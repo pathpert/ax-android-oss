@@ -185,7 +185,8 @@ class Update private constructor(
                 str = str.substring(0, TRUNCATED_BODY_LENGTH - 1) + "\u2026"
             }
             return str
-        } catch (ignore: NullPointerException) {
+        } catch (e: NullPointerException) {
+            timber.log.Timber.w(e, "Update.truncatedBody: body was null")
         }
         return ""
     }

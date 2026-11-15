@@ -23,6 +23,7 @@ import com.kickstarter.services.KSWebViewClient;
 import com.kickstarter.services.interceptors.ApiRequestInterceptor;
 import com.kickstarter.services.interceptors.GraphQLInterceptor;
 import com.kickstarter.services.interceptors.KSRequestInterceptor;
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor;
 import com.kickstarter.services.interceptors.WebRequestInterceptor;
 import com.kickstarter.type.Date;
 
@@ -50,11 +51,13 @@ public final class AppNetworkModule {
   @Singleton
   @NonNull
   static ApolloClient provideApolloClient(final @NonNull Build build, final @NonNull HttpLoggingInterceptor httpLoggingInterceptor,
-    final @NonNull GraphQLInterceptor graphQLInterceptor, @NonNull @WebEndpoint final String webEndpoint, final @NonNull KSRequestInterceptor ksRequestInterceptor) {
+    final @NonNull GraphQLInterceptor graphQLInterceptor, @NonNull @WebEndpoint final String webEndpoint,
+    final @NonNull KSRequestInterceptor ksRequestInterceptor, final @NonNull RateLimitBackoffInterceptor rateLimitBackoffInterceptor) {
 
     final OkHttpClient.Builder builder = new OkHttpClient.Builder()
       .addInterceptor(graphQLInterceptor)
-      .addInterceptor(ksRequestInterceptor);
+      .addInterceptor(ksRequestInterceptor)
+      .addInterceptor(rateLimitBackoffInterceptor);
 
     if (build.isDebug()) {
       builder.addInterceptor(httpLoggingInterceptor);
@@ -77,7 +80,8 @@ public final class AppNetworkModule {
   @NonNull
   static OkHttpClient provideOkHttpClient(final @NonNull ApiRequestInterceptor apiRequestInterceptor, final @NonNull CookieJar cookieJar,
     final @NonNull HttpLoggingInterceptor httpLoggingInterceptor, final @NonNull KSRequestInterceptor ksRequestInterceptor,
-    final @NonNull Build build, final @NonNull WebRequestInterceptor webRequestInterceptor) {
+    final @NonNull Build build, final @NonNull WebRequestInterceptor webRequestInterceptor,
+    final @NonNull RateLimitBackoffInterceptor rateLimitBackoffInterceptor) {
 
     final OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
@@ -89,6 +93,7 @@ public final class AppNetworkModule {
       .addInterceptor(apiRequestInterceptor)
       .addInterceptor(webRequestInterceptor)
       .addInterceptor(ksRequestInterceptor)
+      .addInterceptor(rateLimitBackoffInterceptor)
       .cookieJar(cookieJar)
       .build();
   }
@@ -150,6 +155,13 @@ public final class AppNetworkModule {
   @NonNull
   static KSRequestInterceptor provideKSRequestInterceptor(final @NonNull Build build) {
     return new KSRequestInterceptor(build);
+  }
+
+  @Provides
+  @Singleton
+  @NonNull
+  static RateLimitBackoffInterceptor provideRateLimitBackoffInterceptor() {
+    return new RateLimitBackoffInterceptor();
   }
 
   @Provides

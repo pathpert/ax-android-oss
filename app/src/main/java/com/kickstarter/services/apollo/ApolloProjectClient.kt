@@ -9,6 +9,10 @@ import com.kickstarter.FetchProjectStoryQuery
 import com.kickstarter.FetchSimilarProjectsQuery
 import com.kickstarter.UnwatchProjectMutation
 import com.kickstarter.WatchProjectMutation
+import com.kickstarter.ax.errors.DomainResult
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
+import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.features.projectstory.data.StoriedProject
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.hasValidRelayId
@@ -20,13 +24,15 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import kotlinx.coroutines.CancellationException
 
 /**
  * Apollo GraphQL domain client for project retrieval, story, watching, and similar projects.
  */
 class ApolloProjectClient(
     private val service: ApolloClient,
-    private val disposables: CompositeDisposable
+    private val disposables: CompositeDisposable,
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
 ) {
     fun getProject(project: Project): Observable<Project> {
         return getProject(project.slug() ?: "")
@@ -109,13 +115,24 @@ class ApolloProjectClient(
         if (!project.hasValidRelayId()) {
             return Result.failure(invalidProjectException(project, "watchProjectSuspend"))
         }
-        return executeForResult {
-            val mutation = WatchProjectMutation(id = encodeRelayId(project))
-            val response = service.mutation(mutation).execute()
-            if (response.hasErrors()) {
-                throw buildClientException(response.errors)
+        val domainResult = idempotencyGuard.runSingleFlight("watch project") {
+            try {
+                val mutation = WatchProjectMutation(id = encodeRelayId(project))
+                val response = service.mutation(mutation).execute()
+                if (response.hasErrors()) {
+                    DomainResult.Failure(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "watch project"))
+                } else {
+                    DomainResult.Success(projectTransformer(response.data?.watchProject?.project?.fullProject))
+                }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
+            } catch (throwable: Throwable) {
+                DomainResult.Failure(ProblemDetailsMapper.fromThrowable(throwable, "watch project"))
             }
-            projectTransformer(response.data?.watchProject?.project?.fullProject)
+        }
+        return when (domainResult) {
+            is DomainResult.Success -> Result.success(domainResult.value)
+            is DomainResult.Failure -> Result.failure(ProblemException(domainResult.problem))
         }
     }
 
@@ -123,13 +140,24 @@ class ApolloProjectClient(
         if (!project.hasValidRelayId()) {
             return Result.failure(invalidProjectException(project, "unWatchProjectSuspend"))
         }
-        return executeForResult {
-            val mutation = UnwatchProjectMutation(id = encodeRelayId(project))
-            val response = service.mutation(mutation).execute()
-            if (response.hasErrors()) {
-                throw buildClientException(response.errors)
+        val domainResult = idempotencyGuard.runSingleFlight("unwatch project") {
+            try {
+                val mutation = UnwatchProjectMutation(id = encodeRelayId(project))
+                val response = service.mutation(mutation).execute()
+                if (response.hasErrors()) {
+                    DomainResult.Failure(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "unwatch project"))
+                } else {
+                    DomainResult.Success(projectTransformer(response.data?.watchProject?.project?.fullProject))
+                }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
+            } catch (throwable: Throwable) {
+                DomainResult.Failure(ProblemDetailsMapper.fromThrowable(throwable, "unwatch project"))
             }
-            projectTransformer(response.data?.watchProject?.project?.fullProject)
+        }
+        return when (domainResult) {
+            is DomainResult.Success -> Result.success(domainResult.value)
+            is DomainResult.Failure -> Result.failure(ProblemException(domainResult.problem))
         }
     }
 
@@ -164,16 +192,29 @@ class ApolloProjectClient(
     suspend fun addUserToSecretRewardGroup(
         project: Project,
         secretRewardToken: String
-    ): Result<Project> = executeForResult {
-        val mutation = AddUserToSecretRewardGroupMutation(
-            projectId = encodeRelayId(project).toString(),
-            secretRewardToken = secretRewardToken
-        )
-        val response = service.mutation(mutation).execute()
-        if (response.hasErrors()) {
-            throw buildClientException(response.errors)
+    ): Result<Project> {
+        val domainResult = idempotencyGuard.runSingleFlight("add user to secret reward group") {
+            try {
+                val mutation = AddUserToSecretRewardGroupMutation(
+                    projectId = encodeRelayId(project).toString(),
+                    secretRewardToken = secretRewardToken
+                )
+                val response = service.mutation(mutation).execute()
+                if (response.hasErrors()) {
+                    DomainResult.Failure(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "add user to secret reward group"))
+                } else {
+                    val updatedProject = response.data?.addUserToSecretRewardGroup?.project
+                    DomainResult.Success(projectTransformer(updatedProject))
+                }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
+            } catch (throwable: Throwable) {
+                DomainResult.Failure(ProblemDetailsMapper.fromThrowable(throwable, "add user to secret reward group"))
+            }
         }
-        val updatedProject = response.data?.addUserToSecretRewardGroup?.project
-        projectTransformer(updatedProject)
+        return when (domainResult) {
+            is DomainResult.Success -> Result.success(domainResult.value)
+            is DomainResult.Failure -> Result.failure(ProblemException(domainResult.problem))
+        }
     }
 }

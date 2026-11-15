@@ -241,9 +241,10 @@ class ApiPaginatorV2<Data, Envelope : Any, Params : Any> private constructor(
         try {
             val url = URL(envelopeToMoreUrl.apply(envelope))
             _morePath.onNext(pathAndQueryFromURL(url))
-        } catch (ignored: MalformedURLException) {
-        } catch (ignored: Exception) {
-            // Silently drop malformed pagination URLs instead of crashing with bare RuntimeException
+        } catch (e: MalformedURLException) {
+            timber.log.Timber.w(e, "ApiPaginatorV2: Malformed pagination URL dropped")
+        } catch (e: Exception) {
+            timber.log.Timber.w(e, "ApiPaginatorV2: Exception parsing pagination URL")
         }
     }
 

@@ -90,7 +90,7 @@ fun SocialShareSheet(
     LaunchedEffect(Unit) {
         viewModel.provideErrorAction { message ->
             coroutineScope.launch {
-                snackbarHostState.showSnackbar(message ?: "Something went wrong")
+                snackbarHostState.showSnackbar(message ?: "Unable to share content. Please try again.")
             }
         }
         viewModel.provideIntentLaunchAction { intent -> onIntentReady(intent) }
