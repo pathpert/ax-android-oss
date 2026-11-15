@@ -210,9 +210,7 @@ class Reward private constructor(
         fun minimum(minimum: Double?) = apply { this.minimum = minimum ?: 0.0 }
         fun pledgeAmount(pledgeAmount: Double?) = apply { this.pledgeAmount = pledgeAmount ?: 0.0 }
         fun latePledgeAmount(latePledgeAmount: Double?) = apply { this.latePledgeAmount = latePledgeAmount ?: 0.0 }
-        fun estimatedDeliveryOn(estimatedDeliveryOn: DateTime?) = apply {
-            this.estimatedDeliveryOn = estimatedDeliveryOn
-        }
+        fun estimatedDeliveryOn(estimatedDeliveryOn: DateTime?) = apply { this.estimatedDeliveryOn = estimatedDeliveryOn }
         fun remaining(remaining: Int?) = apply { this.remaining = remaining }
         fun rewardsItems(rewardsItems: List<RewardsItem>?) = apply { this.rewardsItems = rewardsItems ?: emptyList() }
         fun shippingPreference(shippingPreference: String?) = apply { this.shippingPreference = shippingPreference }
@@ -230,40 +228,19 @@ class Reward private constructor(
         fun isSecretReward(isSecretReward: Boolean?) = apply { this.isSecretReward = isSecretReward ?: false }
         fun isFeatured(isFeatured: Boolean?) = apply { this.isFeatured = isFeatured ?: false }
         fun build() = Reward(
-            backersCount = backersCount,
-            convertedMinimum = convertedMinimum,
-            description = description,
-            endsAt = endsAt,
-            startsAt = startsAt,
-            id = id,
-            image = image,
-            limit = limit,
-            minimum = minimum,
-            pledgeAmount = pledgeAmount,
-            latePledgeAmount = latePledgeAmount,
-            estimatedDeliveryOn = estimatedDeliveryOn,
-            remaining = remaining,
-            rewardsItems = rewardsItems,
-            shippingPreference = shippingPreference,
-            shippingSingleLocation = shippingSingleLocation,
-            shippingType = shippingType,
-            title = title,
-            isAddOn = isAddOn,
-            addOnsItems = addOnsItems,
-            quantity = quantity,
-            hasAddons = hasAddons,
-            shippingRules = shippingRules,
-            shippingPreferenceType = shippingPreferenceType,
-            isAvailable = isAvailable,
-            localReceiptLocation = localReceiptLocation,
-            isSecretReward = isSecretReward,
-            isFeatured = isFeatured
+            backersCount = backersCount, convertedMinimum = convertedMinimum, description = description,
+            endsAt = endsAt, startsAt = startsAt, id = id, image = image, limit = limit, minimum = minimum,
+            pledgeAmount = pledgeAmount, latePledgeAmount = latePledgeAmount, estimatedDeliveryOn = estimatedDeliveryOn,
+            remaining = remaining, rewardsItems = rewardsItems, shippingPreference = shippingPreference,
+            shippingSingleLocation = shippingSingleLocation, shippingType = shippingType, title = title,
+            isAddOn = isAddOn, addOnsItems = addOnsItems, quantity = quantity, hasAddons = hasAddons,
+            shippingRules = shippingRules, shippingPreferenceType = shippingPreferenceType, isAvailable = isAvailable,
+            localReceiptLocation = localReceiptLocation, isSecretReward = isSecretReward, isFeatured = isFeatured
         )
     }
 
     companion object {
-        @JvmStatic
-        fun builder() = Builder()
+        @JvmStatic fun builder() = Builder()
         const val SHIPPING_TYPE_ANYWHERE = "anywhere"
         const val SHIPPING_TYPE_MULTIPLE_LOCATIONS = "multiple_locations"
         const val SHIPPING_TYPE_NO_SHIPPING = "no_shipping"
@@ -272,74 +249,19 @@ class Reward private constructor(
     }
 
     fun toBuilder() = Builder(
-        backersCount = backersCount,
-        convertedMinimum = convertedMinimum,
-        description = description,
-        endsAt = endsAt,
-        startsAt = startsAt,
-        id = id,
-        image = image,
-        limit = limit,
-        minimum = minimum,
-        pledgeAmount = pledgeAmount,
-        latePledgeAmount = latePledgeAmount,
-        estimatedDeliveryOn = estimatedDeliveryOn,
-        remaining = remaining,
-        rewardsItems = rewardsItems,
-        shippingPreference = shippingPreference,
-        shippingSingleLocation = shippingSingleLocation,
-        shippingType = shippingType,
-        title = title,
-        isAddOn = isAddOn,
-        addOnsItems = addOnsItems,
-        quantity = quantity,
-        hasAddons = hasAddons,
-        shippingRules = shippingRules,
-        shippingPreferenceType = shippingPreferenceType,
-        isAvailable = isAvailable,
-        localReceiptLocation = localReceiptLocation,
-        isSecretReward = isSecretReward,
-        isFeatured = isFeatured
+        backersCount = backersCount, convertedMinimum = convertedMinimum, description = description,
+        endsAt = endsAt, startsAt = startsAt, id = id, image = image, limit = limit, minimum = minimum,
+        pledgeAmount = pledgeAmount, latePledgeAmount = latePledgeAmount, estimatedDeliveryOn = estimatedDeliveryOn,
+        remaining = remaining, rewardsItems = rewardsItems, shippingPreference = shippingPreference,
+        shippingSingleLocation = shippingSingleLocation, shippingType = shippingType, title = title,
+        isAddOn = isAddOn, addOnsItems = addOnsItems, quantity = quantity, hasAddons = hasAddons,
+        shippingRules = shippingRules, shippingPreferenceType = shippingPreferenceType, isAvailable = isAvailable,
+        localReceiptLocation = localReceiptLocation, isSecretReward = isSecretReward, isFeatured = isFeatured
     )
 
-    override fun equals(other: Any?): Boolean {
-        var equals = super.equals(other)
-        if (other is Reward) {
-            equals = backersCount() == other.backersCount() &&
-                convertedMinimum() == other.convertedMinimum() &&
-                description() == other.description() &&
-                endsAt() == other.endsAt() &&
-                startsAt() == other.startsAt() &&
-                id() == other.id() &&
-                image() == other.image() &&
-                limit() == other.limit() &&
-                minimum() == other.minimum() &&
-                pledgeAmount() == other.pledgeAmount() &&
-                latePledgeAmount() == other.latePledgeAmount() &&
-                estimatedDeliveryOn() == other.estimatedDeliveryOn() &&
-                remaining() == other.remaining() &&
-                rewardsItems() == other.rewardsItems() &&
-                shippingPreference() == other.shippingPreference() &&
-                shippingSingleLocation() == other.shippingSingleLocation() &&
-                shippingType() == other.shippingType() &&
-                title() == other.title() &&
-                isAddOn() == other.isAddOn() &&
-                addOnsItems() == other.addOnsItems() &&
-                quantity() == other.quantity() &&
-                hasAddons() == other.hasAddons() &&
-                shippingRules() == other.shippingRules() &&
-                shippingPreferenceType() == other.shippingPreferenceType() &&
-                isAvailable() == other.isAvailable() &&
-                localReceiptLocation() == other.localReceiptLocation() &&
-                isSecretReward() == other.isSecretReward() &&
-                isFeatured() == other.isFeatured()
-        }
-        return equals
-    }
+    override fun equals(other: Any?): Boolean = RewardEqualityHelper.areEqual(this, other)
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
+    override fun hashCode(): Int = RewardEqualityHelper.hash(this)
 
     @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     @StringDef(

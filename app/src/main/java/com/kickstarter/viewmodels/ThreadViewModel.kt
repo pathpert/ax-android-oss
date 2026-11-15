@@ -6,22 +6,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.kickstarter.libs.Environment
-import com.kickstarter.libs.loadmore.ApolloPaginateV2
-import com.kickstarter.libs.rx.transformers.Transformers
-import com.kickstarter.libs.utils.extensions.addToDisposable
-import com.kickstarter.libs.utils.extensions.isNotNull
-import com.kickstarter.libs.utils.extensions.toCommentCardList
-import com.kickstarter.libs.utils.extensions.userIsCreator
 import com.kickstarter.models.Comment
 import com.kickstarter.models.Project
 import com.kickstarter.models.User
-import com.kickstarter.models.extensions.updateCanceledPledgeComment
-import com.kickstarter.models.extensions.updateCommentAfterSuccessfulPost
-import com.kickstarter.models.extensions.updateCommentFailedToPost
-import com.kickstarter.services.apiresponses.commentresponse.CommentEnvelope
-import com.kickstarter.ui.IntentKey
 import com.kickstarter.ui.data.CommentCardData
-import com.kickstarter.ui.views.CommentCardStatus
 import com.kickstarter.ui.views.CommentComposerStatus
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -81,421 +69,58 @@ interface ThreadViewModel {
 
     @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ThreadViewModel(val environment: Environment) : ViewModel(), Inputs, Outputs {
-        private val apolloClient = requireNotNull(environment.apolloClientV2())
-        private val currentUserStream = requireNotNull(environment.currentUserV2())
-        private val analyticEvents = requireNotNull(environment.analytics())
-        private val nextPage = PublishSubject.create<Unit>()
-        private val onLoadingReplies = PublishSubject.create<Unit>()
-        private val insertNewReplyToList = PublishSubject.create<Pair<String, DateTime>>()
-        private val onShowGuideLinesLinkClicked = PublishSubject.create<Unit>()
-        private val failedCommentCardToRefresh = PublishSubject.create<Pair<Comment, Int>>()
-        private val successfullyPostedCommentCardToRefresh =
+        internal val apolloClient = requireNotNull(environment.apolloClientV2())
+        internal val currentUserStream = requireNotNull(environment.currentUserV2())
+        internal val analyticEvents = requireNotNull(environment.analytics())
+        internal val nextPage = PublishSubject.create<Unit>()
+        internal val onLoadingReplies = PublishSubject.create<Unit>()
+        internal val insertNewReplyToList = PublishSubject.create<Pair<String, DateTime>>()
+        internal val onShowGuideLinesLinkClicked = PublishSubject.create<Unit>()
+        internal val failedCommentCardToRefresh = PublishSubject.create<Pair<Comment, Int>>()
+        internal val successfullyPostedCommentCardToRefresh =
             PublishSubject.create<Pair<Comment, Int>>()
-        private val checkIfThereAnyPendingComments = PublishSubject.create<Unit>()
-        private val backPressed = PublishSubject.create<Unit>()
-        private val showCanceledPledgeComment = PublishSubject.create<Comment>()
+        internal val checkIfThereAnyPendingComments = PublishSubject.create<Unit>()
+        internal val backPressed = PublishSubject.create<Unit>()
+        internal val showCanceledPledgeComment = PublishSubject.create<Comment>()
 
-        private val rootComment = BehaviorSubject.create<CommentCardData>()
-        private val focusOnCompose = BehaviorSubject.create<Boolean>()
-        private val currentUserAvatar = BehaviorSubject.create<String?>()
-        private val replyComposerStatus = BehaviorSubject.create<CommentComposerStatus>()
-        private val showReplyComposer = BehaviorSubject.create<Boolean>()
-        private val scrollToBottom = BehaviorSubject.create<Unit>()
-        private val isFetchingReplies = BehaviorSubject.create<Boolean>()
-        private val hasPreviousElements = BehaviorSubject.create<Boolean>()
-        private val refresh = PublishSubject.create<Unit>()
-        private val loadMoreReplies = PublishSubject.create<Unit>()
-        private val displayPaginationError = BehaviorSubject.create<Boolean>()
-        private val initialLoadCommentsError = BehaviorSubject.create<Boolean>()
-        private val showGuideLinesLink = BehaviorSubject.create<Unit>()
-        private val hasPendingComments = BehaviorSubject.create<Boolean>()
-        private val closeThreadActivity = BehaviorSubject.create<Unit>()
+        internal val rootComment = BehaviorSubject.create<CommentCardData>()
+        internal val focusOnCompose = BehaviorSubject.create<Boolean>()
+        internal val currentUserAvatar = BehaviorSubject.create<String?>()
+        internal val replyComposerStatus = BehaviorSubject.create<CommentComposerStatus>()
+        internal val showReplyComposer = BehaviorSubject.create<Boolean>()
+        internal val scrollToBottom = BehaviorSubject.create<Unit>()
+        internal val isFetchingReplies = BehaviorSubject.create<Boolean>()
+        internal val hasPreviousElements = BehaviorSubject.create<Boolean>()
+        internal val refresh = PublishSubject.create<Unit>()
+        internal val loadMoreReplies = PublishSubject.create<Unit>()
+        internal val displayPaginationError = BehaviorSubject.create<Boolean>()
+        internal val initialLoadCommentsError = BehaviorSubject.create<Boolean>()
+        internal val showGuideLinesLink = BehaviorSubject.create<Unit>()
+        internal val hasPendingComments = BehaviorSubject.create<Boolean>()
+        internal val closeThreadActivity = BehaviorSubject.create<Unit>()
 
-        private val intent = PublishSubject.create<Intent>()
+        internal val intent = PublishSubject.create<Intent>()
 
-        private val disposables = CompositeDisposable()
+        internal val disposables = CompositeDisposable()
 
-        private val onCommentReplies =
+        internal val onCommentReplies =
             BehaviorSubject.create<Pair<List<CommentCardData>, Boolean>>()
-        private var project: Project? = null
-        private var currentUser: User? = null
+        internal var project: Project? = null
+        internal var currentUser: User? = null
 
-        val inputs = this
-        val outputs = this
+        val inputs: Inputs = this
+        val outputs: Outputs = this
 
-        // - Error observables to handle the 3 different use cases
-        private val internalError = BehaviorSubject.create<Throwable>()
-        private val initialError = BehaviorSubject.create<Throwable>()
-        private val paginationError = BehaviorSubject.create<Throwable>()
+        internal val internalError = BehaviorSubject.create<Throwable>()
+        internal val initialError = BehaviorSubject.create<Throwable>()
+        internal val paginationError = BehaviorSubject.create<Throwable>()
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val newlyPostedRepliesList = mutableListOf<CommentCardData>()
 
         init {
-
-            val commentData = getCommentCardDataFromIntent()
-                .distinctUntilChanged()
-                .filter { it.isNotNull() }
-                .map { it }
-
-            intent
-                .map { it.getBooleanExtra(IntentKey.REPLY_EXPAND, false) }
-                .distinctUntilChanged()
-                .subscribe { this.focusOnCompose.onNext(it) }
-                .addToDisposable(disposables)
-
-            val comment =
-                getCommentCardDataFromIntent().map { it.comment }.map { it }
-
-            val project = commentData
-                .filter { it.project.isNotNull() }
-                .map { requireNotNull(it.project) }
-
-            project.take(1)
-                .subscribe {
-                    this.project = it
-                }
-                .addToDisposable(disposables)
-
-            currentUserStream
-                .observable()
-                .take(1)
-                .subscribe { this.currentUser = it.getValue() }
-                .addToDisposable(disposables)
-
-            loadCommentListFromProjectOrUpdate(comment)
-
-            this.insertNewReplyToList
-                .distinctUntilChanged()
-                .withLatestFrom(this.currentUserStream.loggedInUser()) { comment, user ->
-                    Pair(comment, user)
-                }
-                .withLatestFrom(commentData) { reply, parent ->
-                    Pair(reply, parent)
-                }
-                .map {
-                    Pair(
-                        it.second,
-                        buildReplyBody(Pair(Pair(it.second, it.first.second), it.first.first))
-                    )
-                }
-                .map {
-                    CommentCardData.builder()
-                        .comment(it.second)
-                        .project(it.first.project)
-                        .commentableId(it.first.commentableId)
-                        .commentCardState(CommentCardStatus.TRYING_TO_POST.commentCardStatus)
-                        .build()
-                }
-                .withLatestFrom(this.onCommentReplies) { reply, pair ->
-                    Pair(
-                        pair.first.toMutableList().apply {
-                            newlyPostedRepliesList.add(0, reply)
-                            /** bind new reply at the top of list to as list is reversed  **/
-                            add(0, reply)
-                        }.toList(),
-                        pair.second
-                    )
-                }
-                .subscribe {
-                    onCommentReplies.onNext(it)
-                    scrollToBottom.onNext(Unit)
-                }
-                .addToDisposable(disposables)
-
-            commentData
-                .subscribe {
-                    this.rootComment.onNext(it)
-                }
-                .addToDisposable(disposables)
-
-            val loggedInUser = this.currentUserStream.loggedInUser()
-                .map { it }
-
-            loggedInUser
-                .subscribe {
-                    currentUserAvatar.onNext(it.avatar().small())
-                }
-                .addToDisposable(disposables)
-
-            loggedInUser
-                .subscribe {
-                    showReplyComposer.onNext(true)
-                }
-                .addToDisposable(disposables)
-
-            project
-                .compose(Transformers.combineLatestPair(currentUserStream.observable()))
-                .subscribe {
-                    val composerStatus =
-                        getCommentComposerStatus(Pair(it.first, it.second.getValue()))
-                    showReplyComposer.onNext(composerStatus != CommentComposerStatus.GONE)
-                    replyComposerStatus.onNext(composerStatus)
-                }
-                .addToDisposable(disposables)
-
-            project
-                .compose(Transformers.combineLatestPair(this.getProjectUpdateId()))
-                .compose(Transformers.combineLatestPair(comment))
-                .distinctUntilChanged()
-                .subscribe {
-                    analyticEvents.trackThreadCommentPageViewed(
-                        it.first.first,
-                        it.second.id().toString(),
-                        it.first.second
-                    )
-                }
-                .addToDisposable(disposables)
-
-            this.onLoadingReplies
-                .map {
-                    this.onCommentReplies.value ?: Pair(listOf(), false)
-                }
-                .subscribe {
-                    if (it?.first?.isNotEmpty() == true) {
-                        this.loadMoreReplies.onNext(Unit)
-                    } else {
-                        this.refresh.onNext(Unit)
-                    }
-                }
-                .addToDisposable(disposables)
-
-            this.initialError
-                .subscribe {
-                    this.initialLoadCommentsError.onNext(true)
-                }
-                .addToDisposable(disposables)
-
-            this.paginationError
-                .subscribe {
-                    this.displayPaginationError.onNext(true)
-                }
-                .addToDisposable(disposables)
-
-            this.onShowGuideLinesLinkClicked
-                .subscribe {
-                    showGuideLinesLink.onNext(Unit)
-                }
-                .addToDisposable(disposables)
-
-            // - Update internal mutable list with the latest state after failed response
-            this.onCommentReplies
-                .compose(Transformers.combineLatestPair(this.failedCommentCardToRefresh))
-                .map {
-                    val mappedList =
-                        it.second.first.updateCommentFailedToPost(it.first.first, it.second.second)
-                    updateNewlyPostedCommentWithNewStatus(mappedList[it.second.second])
-                    Pair(mappedList, it.first.second)
-                }
-                .distinctUntilChanged()
-                .subscribe { this.onCommentReplies.onNext(it) }
-                .addToDisposable(disposables)
-
-            // - Update internal mutable list with the latest state after successful response
-
-            this.successfullyPostedCommentCardToRefresh
-                .map { it.first }
-                .compose(Transformers.combineLatestPair(this.getProjectUpdateId()))
-                .compose(Transformers.combineLatestPair(project))
-                .compose(Transformers.combineLatestPair(comment))
-                .distinctUntilChanged()
-                .subscribe {
-                    analyticEvents.trackRootCommentReplyCTA(
-                        it.first.second,
-                        it.first.first.first.id().toString(),
-                        it.first.first.first.body(), it.second.id().toString(),
-                        it.first.first.second
-                    )
-                }
-                .addToDisposable(disposables)
-
-            this.onCommentReplies
-                .compose(Transformers.combineLatestPair(this.successfullyPostedCommentCardToRefresh))
-                .map {
-                    val mappedList = it.second.first.updateCommentAfterSuccessfulPost(
-                        it.first.first,
-                        it.second.second
-                    )
-                    updateNewlyPostedCommentWithNewStatus(mappedList[it.second.second])
-                    Pair(mappedList, it.first.second)
-                }
-                .distinctUntilChanged()
-                .subscribe {
-                    this.onCommentReplies.onNext(it)
-                }
-                .addToDisposable(disposables)
-
-            this.onCommentReplies
-                .compose(Transformers.takePairWhenV2(this.showCanceledPledgeComment))
-                .map {
-                    Pair(it.second.updateCanceledPledgeComment(it.first.first), it.first.second)
-                }
-                .distinctUntilChanged()
-                .subscribe {
-                    this.onCommentReplies.onNext(it)
-                }
-                .addToDisposable(disposables)
-
-            checkIfThereAnyPendingComments
-                .withLatestFrom(this.onCommentReplies) { _, list ->
-                    list
-                }
-                .subscribe { pair ->
-                    this.hasPendingComments.onNext(
-                        pair.first.any {
-                            it.commentCardState == CommentCardStatus.TRYING_TO_POST.commentCardStatus ||
-                                it.commentCardState == CommentCardStatus.FAILED_TO_SEND_COMMENT.commentCardStatus
-                        }
-                    )
-                }
-                .addToDisposable(disposables)
-
-            this.backPressed
-                .subscribe { this.closeThreadActivity.onNext(it) }
-                .addToDisposable(disposables)
-
-            intent
-                .map { it.getBooleanExtra(IntentKey.REPLY_SCROLL_BOTTOM, false) }
-                .filter { it }
-                .compose(Transformers.takeWhenV2(this.onCommentReplies))
-                .distinctUntilChanged()
-                .subscribe {
-                    scrollToBottom.onNext(Unit)
-                }
-                .addToDisposable(disposables)
+            initPipelines(disposables)
         }
-
-        private fun updateNewlyPostedCommentWithNewStatus(
-            updatedComment: CommentCardData
-        ) {
-            this.newlyPostedRepliesList.indexOfFirst { item ->
-                item.commentableId == updatedComment.commentableId
-            }.also { index ->
-                newlyPostedRepliesList[index] = updatedComment
-            }
-        }
-
-        private fun loadCommentListFromProjectOrUpdate(comment: Observable<Comment>) {
-            val startOverWith =
-                Observable.merge(
-                    comment,
-                    comment.compose(
-                        Transformers.takeWhenV2(
-                            refresh
-                        )
-                    )
-                )
-
-            val apolloPaginate =
-                ApolloPaginateV2.builder<CommentCardData, CommentEnvelope, Comment?>()
-                    .nextPage(nextPage)
-                    .distinctUntilChanged(true)
-                    .startOverWith(startOverWith)
-                    .envelopeToListOfData {
-                        hasPreviousElements.onNext(it.pageInfoEnvelope()?.hasPreviousPage ?: false)
-                        this.project?.let { project -> mapListToData(it, project, currentUser) }
-                    }
-                    .loadWithParams {
-                        loadWithProjectReplies(
-                            Observable.just(it.first), it.second
-                        )
-                    }
-                    .isReversed(true)
-                    .clearWhenStartingOver(true)
-                    .build()
-
-            apolloPaginate
-                .isFetching
-                .share()
-                .subscribe { this.isFetchingReplies.onNext(it) }
-                .addToDisposable(disposables)
-
-            /** reversed replies **/
-            apolloPaginate
-                .paginatedData()
-                ?.map { it.asReversed() }
-                ?.compose(Transformers.combineLatestPair(this.hasPreviousElements))
-                ?.distinctUntilChanged()
-                ?.share()
-                ?.map {
-                    if (this.newlyPostedRepliesList.isNotEmpty()) {
-                        Pair(this.newlyPostedRepliesList + it.first, it.second)
-                    } else {
-                        it
-                    }
-                }
-                ?.subscribe {
-                    this.onCommentReplies.onNext(it)
-                }
-                ?.addToDisposable(disposables)
-
-            this.internalError
-                .subscribe {
-                    this.initialError.onNext(it)
-                }
-                .addToDisposable(disposables)
-
-            this.onCommentReplies
-                .compose(Transformers.takePairWhenV2(internalError))
-                .filter {
-                    it.first.first.isNotEmpty()
-                }
-                .subscribe {
-                    this.paginationError.onNext(it.second)
-                }
-                .addToDisposable(disposables)
-        }
-
-        private fun mapListToData(it: CommentEnvelope, project: Project, currentUser: User?) =
-            it.comments?.toCommentCardList(
-                project, currentUser
-            )
-
-        private fun loadWithProjectReplies(
-            comment: Observable<Comment>,
-            cursor: String?
-        ): Observable<CommentEnvelope> {
-            return comment.switchMap {
-                return@switchMap this.apolloClient.getRepliesForComment(
-                    it,
-                    if (cursor.isNullOrEmpty()) null else cursor
-                )
-            }.doOnError {
-                this.internalError.onNext(it)
-            }.onErrorResumeNext(Observable.empty())
-        }
-
-        private fun buildReplyBody(it: Pair<Pair<CommentCardData, User>, Pair<String, DateTime>>): Comment {
-            return Comment.builder()
-                .body(it.second.first)
-                .parentId(it.first.first.comment?.id() ?: -1)
-                .authorBadges(listOf())
-                .createdAt(it.second.second)
-                .cursor("")
-                .deleted(false)
-                .id(-1)
-                .repliesCount(0)
-                .authorCanceledPledge(false)
-                .author(it.first.second)
-                .build()
-        }
-
-        private fun getCommentComposerStatus(projectAndUser: Pair<Project, User?>) =
-            when {
-                projectAndUser.second == null -> CommentComposerStatus.GONE
-                projectAndUser.first.isBacking() || projectAndUser.first.userIsCreator(
-                    projectAndUser.second
-                ) -> CommentComposerStatus.ENABLED
-
-                else -> CommentComposerStatus.DISABLED
-            }
-
-        private fun getCommentCardDataFromIntent() = intent
-            .map { it.getParcelableExtra<CommentCardData>(IntentKey.COMMENT_CARD_DATA) }
-            .ofType(CommentCardData::class.java)
-
-        private fun getProjectUpdateId() = intent
-            .map { it.getStringExtra(IntentKey.UPDATE_POST_ID) ?: "" }
 
         override fun nextPage() = nextPage.onNext(Unit)
         override fun reloadRepliesPage() = onLoadingReplies.onNext(Unit)

@@ -8,17 +8,13 @@ import com.kickstarter.features.checkout.data.LatePledgePaymentProcessor
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.featureflag.StatsigGateKey
 import com.kickstarter.libs.utils.extensions.checkoutTotalAmount
-import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.libs.utils.extensions.isTrue
-import com.kickstarter.libs.utils.extensions.pledgeAmountTotal
 import com.kickstarter.libs.utils.extensions.shippingCostIfShipping
 import com.kickstarter.models.Backing
-import com.kickstarter.models.Checkout
 import com.kickstarter.models.CheckoutPayment
 import com.kickstarter.models.Project
 import com.kickstarter.models.Reward
 import com.kickstarter.models.StoredCard
-import com.kickstarter.type.CreditCardPaymentType
 import com.kickstarter.ui.data.CheckoutData
 import com.kickstarter.ui.data.PledgeData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -42,7 +38,7 @@ typealias LatePledgeCheckoutUIState = DomainLatePledgeCheckoutUIState
  * ViewModel coordinating late pledge checkout operations.
  *
  * Deconstructed to satisfy AX Rule 1 (Strangler Fig) & Rule 2 (Dev-Primitives < 300 LOC),
- * delegating network and payment mutations to [LatePledgePaymentProcessor].
+ * delegating network and payment mutations to [LatePledgePaymentProcessor] and [LatePledgeCheckoutCoordinator].
  */
 @Deprecated(
     message = "Legacy monolithic path replaced by LatePledgeCheckoutFeatureViewModel under com.kickstarter.features.checkout.viewmodel.",
@@ -50,40 +46,40 @@ typealias LatePledgeCheckoutUIState = DomainLatePledgeCheckoutUIState
 )
 class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
 
-    private var pledgeData: PledgeData? = null
-    private var checkoutData: CheckoutData? = null
+    internal var pledgeData: PledgeData? = null
+    internal var checkoutData: CheckoutData? = null
     private val analytics = requireNotNull(environment.analytics())
     private val statsigClient = requireNotNull(environment.statsigClient())
 
-    private val paymentProcessor = LatePledgePaymentProcessor(
+    internal val paymentProcessor = LatePledgePaymentProcessor(
         requireNotNull(environment.apolloClientV2()),
         requireNotNull(environment.stripe())
     )
 
-    private var storedCards: List<StoredCard> = listOf()
-    private var userEmail: String = ""
-    private var checkoutId: String? = null
-    private var backing: Backing? = null
-    private val selectedRewards = mutableListOf<Reward>()
-    private var buttonEnabled = true
+    internal var storedCards: List<StoredCard> = listOf()
+    internal var userEmail: String = ""
+    internal var checkoutId: String? = null
+    internal var backing: Backing? = null
+    internal val selectedRewards = mutableListOf<Reward>()
+    internal var buttonEnabled = true
 
-    private var clientSecretForNewCard: String = ""
-    private var newStoredCard: StoredCard? = null
-    private var errorAction: (message: String?) -> Unit = {}
+    internal var clientSecretForNewCard: String = ""
+    internal var newStoredCard: StoredCard? = null
+    internal var errorAction: (message: String?) -> Unit = {}
 
-    private var clientSecretFor3DSVerification: String = ""
-    private var selectedCardFor3DSVerification: StoredCard? = null
+    internal var clientSecretFor3DSVerification: String = ""
+    internal var selectedCardFor3DSVerification: StoredCard? = null
 
     private var selectedReward: Reward? = null
-    private var mutableLatePledgeCheckoutUIState = MutableStateFlow(LatePledgeCheckoutUIState())
+    internal var mutableLatePledgeCheckoutUIState = MutableStateFlow(LatePledgeCheckoutUIState())
 
-    private var paymentIntent: String? = null
+    internal var paymentIntent: String? = null
     private var pledgeButtonClickedJob: Job? = null
 
-    private var scope: CoroutineScope = viewModelScope
-    private var dispatcher: CoroutineDispatcher = Dispatchers.IO
+    internal var scope: CoroutineScope = viewModelScope
+    internal var dispatcher: CoroutineDispatcher = Dispatchers.IO
 
-    private var mutableOnPledgeSuccessAction = MutableSharedFlow<Boolean>()
+    internal var mutableOnPledgeSuccessAction = MutableSharedFlow<Boolean>()
     val onPledgeSuccess: SharedFlow<Boolean>
         get() = mutableOnPledgeSuccessAction.asSharedFlow().stateIn(
             scope = viewModelScope,
@@ -98,7 +94,7 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
             initialValue = LatePledgeCheckoutUIState(isLoading = false)
         )
 
-    private val mutableCheckoutPayment = MutableStateFlow(CheckoutPayment(id = 0L, paymentUrl = null, backing = null))
+    internal val mutableCheckoutPayment = MutableStateFlow(CheckoutPayment(id = 0L, paymentUrl = null, backing = null))
     val checkoutPayment: StateFlow<CheckoutPayment>
         get() = mutableCheckoutPayment.asStateFlow().stateIn(
             scope = viewModelScope,
@@ -106,11 +102,11 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
             initialValue = CheckoutPayment(id = 0L, paymentUrl = null, null)
         )
 
-    private var mutableClientSecretForNewPaymentMethod = MutableSharedFlow<String>()
+    internal var mutableClientSecretForNewPaymentMethod = MutableSharedFlow<String>()
     val clientSecretForNewPaymentMethod: SharedFlow<String>
         get() = mutableClientSecretForNewPaymentMethod.asSharedFlow()
 
-    private var mutablePaymentRequiresAction = MutableSharedFlow<String>()
+    internal var mutablePaymentRequiresAction = MutableSharedFlow<String>()
     val paymentRequiresAction: SharedFlow<String>
         get() = mutablePaymentRequiresAction.asSharedFlow()
 
@@ -122,33 +118,9 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
         this.backing = backing
     }
 
-    fun onAddNewCardClicked(project: Project) {
-        scope.launch(dispatcher) {
-            paymentProcessor.createSetupIntent(
-                project = project,
-                onStart = { emitCurrentState(isLoading = true) },
-                onSuccess = { clientSecret ->
-                    buttonEnabled = true
-                    clientSecretForNewCard = clientSecret
-                    mutableClientSecretForNewPaymentMethod.emit(clientSecretForNewCard)
-                },
-                onFailure = { resetPledgeButtonUIOnFailure() },
-                onComplete = { emitCurrentState() }
-            )
-        }
-    }
+    fun onAddNewCardClicked(project: Project) = handleAddNewCard(project)
 
-    fun onNewCardSuccessfullyAdded() {
-        scope.launch(dispatcher) {
-            paymentProcessor.savePaymentMethod(
-                clientSecret = clientSecretForNewCard,
-                onStart = { emitCurrentState(isLoading = true) },
-                onSuccess = { cards -> storedCards = cards },
-                onFailure = { resetPledgeButtonUIOnFailure() },
-                onComplete = { emitCurrentState() }
-            )
-        }
-    }
+    fun onNewCardSuccessfullyAdded() = handleNewCardSuccessfullyAdded()
 
     fun onNewCardFailed() {
         scope.launch {
@@ -167,10 +139,10 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
                 emitCurrentState(isLoading = true)
 
                 if (paymentIntent == null) {
-                    createPaymentIntentForCheckout(selectedCard, project, it.checkoutTotalAmount())
+                    executeCreatePaymentIntent(selectedCard, project, it.checkoutTotalAmount())
                 } else {
                     paymentIntent?.let { pi ->
-                        selectedCard?.let { card -> validateCheckout(pi, card) }
+                        selectedCard?.let { card -> executeValidateCheckout(pi, card) }
                     }
                 }
             }
@@ -181,96 +153,7 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
         this.errorAction = errorAction
     }
 
-    private suspend fun createPaymentIntentForCheckout(selectedCard: StoredCard?, project: Project, totalAmount: Double) {
-        if (paymentIntent.isNotNull()) return
-        val currentCheckoutId = checkoutId
-        val currentBacking = backing
-        if (currentCheckoutId != null && currentBacking != null) {
-            paymentProcessor.createPaymentIntent(
-                project = project,
-                amount = totalAmount,
-                checkoutId = currentCheckoutId,
-                backing = currentBacking,
-                onSuccess = { clientSecret ->
-                    paymentIntent = clientSecret
-                    if (selectedCard != null) {
-                        validateCheckout(clientSecret, selectedCard)
-                    } else {
-                        emitCurrentState()
-                        resetPledgeButtonUIOnFailure()
-                    }
-                },
-                onFailure = {
-                    paymentIntent = null
-                    resetPledgeButtonUIOnFailure()
-                }
-            )
-        } else {
-            buttonEnabled = true
-            paymentIntent = null
-            emitCurrentState()
-            errorAction.invoke(null)
-        }
-    }
-
-    private suspend fun validateCheckout(clientSecret: String, selectedCard: StoredCard) {
-        paymentProcessor.validateAndConfirmPayment(
-            checkoutId = checkoutId ?: "",
-            clientSecret = clientSecret,
-            selectedCard = selectedCard,
-            onRequiresAction = { secret ->
-                clientSecretFor3DSVerification = secret
-                selectedCardFor3DSVerification = selectedCard
-                mutablePaymentRequiresAction.emit(secret)
-                emitCurrentState()
-            },
-            onPaymentError = { errorMsg ->
-                emitCurrentState()
-                resetPledgeButtonUIOnFailure(errorMsg)
-            },
-            onSuccess = {
-                completeOnSessionCheckout(clientSecret, selectedCard)
-            },
-            onValidationFailure = { errorMsg -> resetPledgeButtonUIOnFailure(errorMsg) },
-            onComplete = { emitCurrentState() }
-        )
-    }
-
-    private suspend fun completeOnSessionCheckout(clientSecret: String, selectedCard: StoredCard) {
-        paymentProcessor.completeOnSessionCheckout(
-            checkoutId = checkoutId ?: "",
-            clientSecret = clientSecret,
-            selectedCard = selectedCard,
-            newStoredCard = newStoredCard,
-            onRequiresAction = { secret -> mutablePaymentRequiresAction.emit(secret) },
-            onPledgeSuccess = { mutableOnPledgeSuccessAction.emit(true) },
-            onFailure = { resetPledgeButtonUIOnFailure() },
-            onComplete = { emitCurrentState() }
-        )
-    }
-
-    fun completeOnSessionCheckoutFor3DS() {
-        scope.launch(dispatcher) {
-            if (clientSecretFor3DSVerification.isNotEmpty() && selectedCardFor3DSVerification.isNotNull()) {
-                paymentProcessor.completeOnSessionCheckout(
-                    checkoutId = checkoutId ?: "",
-                    clientSecret = clientSecretFor3DSVerification,
-                    selectedCard = selectedCardFor3DSVerification,
-                    newStoredCard = newStoredCard,
-                    onRequiresAction = { secret -> mutablePaymentRequiresAction.emit(secret) },
-                    onPledgeSuccess = { mutableOnPledgeSuccessAction.emit(true) },
-                    onFailure = {
-                        resetPledgeButtonUIOnFailure()
-                        clear3DSValues()
-                    },
-                    onComplete = { emitCurrentState() }
-                )
-            } else {
-                resetPledgeButtonUIOnFailure()
-                clear3DSValues()
-            }
-        }
-    }
+    fun completeOnSessionCheckoutFor3DS() = handleCompleteOnSessionCheckoutFor3DS()
 
     fun clear3DSValues() {
         buttonEnabled = true
@@ -279,17 +162,7 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
         scope.launch { emitCurrentState() }
     }
 
-    private fun createCheckoutData(shippingAmount: Double, total: Double, bonusAmount: Double?, checkout: Checkout? = null): CheckoutData {
-        return CheckoutData.builder()
-            .amount(total)
-            .id(checkout?.id())
-            .paymentType(CreditCardPaymentType.CREDIT_CARD)
-            .bonusAmount(bonusAmount)
-            .shippingAmount(shippingAmount)
-            .build()
-    }
-
-    private suspend fun emitCurrentState(isLoading: Boolean = false) {
+    internal suspend fun emitCurrentState(isLoading: Boolean = false) {
         mutableLatePledgeCheckoutUIState.emit(
             LatePledgeCheckoutUIState(
                 storeCards = storedCards,
@@ -339,45 +212,7 @@ class LatePledgeCheckoutViewModel(val environment: Environment) : ViewModel() {
         this.dispatcher = dispatcher
     }
 
-    fun providePledgeData(pledgeData: PledgeData) {
-        this.pledgeData = pledgeData
-        this.checkoutData = createCheckoutData(
-            pledgeData.shippingCostIfShipping(),
-            pledgeData.pledgeAmountTotal(),
-            pledgeData.bonusAmount()
-        )
-        selectedRewards.clear()
-        pledgeData.addOns()?.let { addOns ->
-            selectedRewards.add(pledgeData.reward())
-            selectedRewards.addAll(addOns)
-        }
-        scope.launch(dispatcher) {
-            paymentProcessor.loadUserInfo(
-                currentUserStream = environment.currentUserV2(),
-                onStart = { emitCurrentState(isLoading = true) },
-                onSuccess = { email, cards ->
-                    userEmail = email
-                    storedCards = cards
-                    emitCurrentState()
-                },
-                onError = {
-                    errorAction.invoke(null)
-                    emitCurrentState()
-                }
-            )
-
-            scope.launch(dispatcher) {
-                paymentProcessor.createCheckout(
-                    pledgeData = pledgeData,
-                    onStart = { emitCurrentState(isLoading = false) },
-                    onSuccess = { checkoutPayment -> mutableCheckoutPayment.emit(checkoutPayment) },
-                    onFailure = { msg -> resetPledgeButtonUIOnFailure(msg) },
-                    onComplete = { emitCurrentState() },
-                    onErrorAction = { errorAction.invoke(null) }
-                )
-            }
-        }
-    }
+    fun providePledgeData(pledgeData: PledgeData) = handlePledgeDataProvided(pledgeData)
 
     fun isPaymentSheetGooglePayEnabled(): Boolean =
         statsigClient.configReady.value && statsigClient.checkGate(StatsigGateKey.ANDROID_PAYMENTSHEET_GOOGLE_PAY.key)

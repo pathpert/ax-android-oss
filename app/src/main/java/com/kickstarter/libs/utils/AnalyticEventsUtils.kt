@@ -45,55 +45,15 @@ import kotlin.math.roundToInt
 object AnalyticEventsUtils {
 
     @JvmOverloads
-    fun checkoutProperties(checkoutData: CheckoutData, pledgeData: PledgeData, prefix: String = "checkout_"): Map<String, Any> {
-        val project = pledgeData.projectData().project()
-        val properties = HashMap<String, Any>().apply {
-            put("amount", checkoutData.amount().round())
-            checkoutData.id()?.let { put("id", it.toString()) }
-            put(
-                "payment_type",
-                checkoutData.paymentType().rawValue.lowercase(Locale.getDefault())
-            )
-            put("amount_total_usd", checkoutData.totalAmount(project.staticUsdRate()).round())
-            put("shipping_amount", checkoutData.shippingAmount())
-            put("shipping_amount_usd", checkoutData.shippingAmount(project.staticUsdRate()).round())
-            put("bonus_amount", checkoutData.bonus())
-            put("bonus_amount_usd", checkoutData.bonus(project.staticUsdRate()).round())
-            put("add_ons_count_total", pledgeData.totalQuantity())
-            put("add_ons_count_unique", pledgeData.totalCountUnique())
-            put("add_ons_minimum_usd", pledgeData.addOnsCost(project.staticUsdRate()).round())
-        }
-
-        return MapUtils.prefixKeys(properties, prefix)
-    }
+    fun checkoutProperties(checkoutData: CheckoutData, pledgeData: PledgeData, prefix: String = "checkout_"): Map<String, Any> =
+        CheckoutAnalyticsUtils.checkoutProperties(checkoutData, pledgeData, prefix)
 
     @JvmOverloads
-    fun checkoutProperties(checkoutData: CheckoutData, project: Project, addOns: List<Reward>?, prefix: String = "checkout_"): Map<String, Any> {
-        val properties = HashMap<String, Any>().apply {
-            put("amount", checkoutData.amount().round())
-            checkoutData.id()?.let { put("id", it.toString()) }
-            put(
-                "payment_type",
-                checkoutData.paymentType().rawValue.lowercase(Locale.getDefault())
-            )
-            put("amount_total_usd", checkoutData.totalAmount(project.staticUsdRate()).round())
-            put("shipping_amount", checkoutData.shippingAmount())
-            put("shipping_amount_usd", checkoutData.shippingAmount(project.staticUsdRate()).round())
-            put("bonus_amount", checkoutData.bonus())
-            put("bonus_amount_usd", checkoutData.bonus(project.staticUsdRate()).round())
-            put("add_ons_count_total", totalQuantity(addOns))
-            put("add_ons_count_unique", totalCountUnique(addOns))
-            put("add_ons_minimum_usd", addOnsCost(project.staticUsdRate(), addOns).round())
-        }
+    fun checkoutProperties(checkoutData: CheckoutData, project: Project, addOns: List<Reward>?, prefix: String = "checkout_"): Map<String, Any> =
+        CheckoutAnalyticsUtils.checkoutProperties(checkoutData, project, addOns, prefix)
 
-        return MapUtils.prefixKeys(properties, prefix)
-    }
-
-    fun checkoutDataProperties(checkoutData: CheckoutData, pledgeData: PledgeData, loggedInUser: User?): Map<String, Any> {
-        val props = pledgeDataProperties(pledgeData, loggedInUser)
-        props.putAll(checkoutProperties(checkoutData, pledgeData))
-        return props
-    }
+    fun checkoutDataProperties(checkoutData: CheckoutData, pledgeData: PledgeData, loggedInUser: User?): Map<String, Any> =
+        CheckoutAnalyticsUtils.checkoutDataProperties(checkoutData, pledgeData, loggedInUser)
 
     @JvmOverloads
     fun discoveryParamsProperties(params: DiscoveryParams, discoverSort: DiscoveryParams.Sort? = params.sort(), prefix: String = "discover_"): Map<String, Any> {
@@ -172,54 +132,16 @@ object AnalyticEventsUtils {
         return MapUtils.prefixKeys(properties, prefix)
     }
 
-    fun pledgeDataProperties(pledgeData: PledgeData, loggedInUser: User?): MutableMap<String, Any> {
-        val projectData = pledgeData.projectData()
-        val props = projectProperties(projectData.project(), loggedInUser)
-        props.putAll(pledgeProperties(pledgeData))
-        props.putAll(refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-        props["context_pledge_flow"] = pledgeData.pledgeFlowContext().trackingString
-        return props
-    }
+    fun pledgeDataProperties(pledgeData: PledgeData, loggedInUser: User?): MutableMap<String, Any> =
+        CheckoutAnalyticsUtils.pledgeDataProperties(pledgeData, loggedInUser)
 
     @JvmOverloads
-    fun videoProperties(videoLength: Long, videoPosition: Long, prefix: String = "video_"): Map<String, Any> {
-
-        val properties = HashMap<String, Any>().apply {
-            put(LENGTH.contextName, videoLength)
-            put(POSITION.contextName, videoPosition)
-        }
-        return MapUtils.prefixKeys(properties, prefix)
-    }
+    fun videoProperties(videoLength: Long, videoPosition: Long, prefix: String = "video_"): Map<String, Any> =
+        VideoAnalyticsUtils.videoProperties(videoLength, videoPosition, prefix)
 
     @JvmOverloads
-    fun pledgeProperties(pledgeData: PledgeData, prefix: String = "checkout_"): Map<String, Any> {
-        val reward = pledgeData.reward()
-        val project = pledgeData.projectData().project()
-        val properties = HashMap<String, Any>().apply {
-            reward.estimatedDeliveryOn()?.let { deliveryDate ->
-                put("estimated_delivery_on", deliveryDate)
-            }
-            put("has_items", isItemized(reward))
-            put("id", reward.id().toString())
-            put("is_limited_time", isTimeLimitedEnd(reward))
-            put("is_limited_quantity", reward.limit() != null)
-            put("minimum", reward.minimum())
-            put("shipping_enabled", isShippable(reward))
-            put("minimum_usd", pledgeData.rewardCost(project.staticUsdRate()).round())
-            reward.shippingPreference()?.let { put("shipping_preference", it) }
-            reward.title()?.let { put("title", it) }
-        }
-
-        val props = MapUtils.prefixKeys(properties, "reward_")
-
-        props.apply {
-            put("add_ons_count_total", pledgeData.totalQuantity())
-            put("add_ons_count_unique", pledgeData.totalCountUnique())
-            put("add_ons_minimum_usd", addOnsCost(project.staticUsdRate(), pledgeData.addOns()?.let { it as? List<Reward> } ?: emptyList()).round())
-        }
-
-        return MapUtils.prefixKeys(props, prefix)
-    }
+    fun pledgeProperties(pledgeData: PledgeData, prefix: String = "checkout_"): Map<String, Any> =
+        CheckoutAnalyticsUtils.pledgeProperties(pledgeData, prefix)
 
     @JvmOverloads
     fun projectProperties(project: Project, loggedInUser: User?, prefix: String = "project_"): MutableMap<String, Any> {
@@ -352,13 +274,8 @@ object AnalyticEventsUtils {
         return properties
     }
 
-    fun videoFeedItemProperties(item: VideoFeedItem, position: Int): Map<String, Any> {
-        return hashMapOf(
-            "video_feed_video_id" to item.videoId.toString(),
-            "video_feed_project_id" to item.project.id().toString(),
-            "video_feed_position_in_session" to position
-        )
-    }
+    fun videoFeedItemProperties(item: VideoFeedItem, position: Int): Map<String, Any> =
+        VideoAnalyticsUtils.videoFeedItemProperties(item, position)
 
     fun videoFeedPageViewedProperties(
         item: VideoFeedItem,
@@ -367,13 +284,7 @@ object AnalyticEventsUtils {
         watchTimeMs: Long? = null,
         videoDurationMs: Long? = null,
         entrySurface: String = ""
-    ): Map<String, Any> {
-        val props = HashMap<String, Any>()
-        props.putAll(videoFeedItemProperties(item, toPosition))
-        fromVideoFeedItem?.let { props["video_feed_from_video_id"] = it.videoId.toString() }
-        watchTimeMs?.let { props["video_feed_total_watch_time"] = it }
-        videoDurationMs?.let { props["video_feed_total_video_duration"] = it }
-        if (entrySurface.isNotEmpty()) props["video_feed_entry_surface"] = entrySurface
-        return props
-    }
+    ): Map<String, Any> = VideoAnalyticsUtils.videoFeedPageViewedProperties(
+        item, toPosition, fromVideoFeedItem, watchTimeMs, videoDurationMs, entrySurface
+    )
 }

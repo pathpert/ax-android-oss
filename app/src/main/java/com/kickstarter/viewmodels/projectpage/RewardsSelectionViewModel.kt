@@ -43,12 +43,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 import timber.log.Timber
 
-data class RewardSelectionUIState(
-    val selectedReward: Reward = Reward.builder().build(),
-    val initialRewardIndex: Int = 0,
-    val project: ProjectData = ProjectData.builder().build()
-)
-
 @Deprecated(
     message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
     replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
@@ -96,8 +90,8 @@ class RewardsSelectionViewModel(private val environment: Environment, private va
         previousUserBacking =
             if (projectData.backing() != null) projectData.backing()
             else projectData.project().backing()
-        previouslyBackedReward = getReward(previousUserBacking)
-        indexOfBackedReward = indexOfBackedReward(project = projectData.project())
+        previouslyBackedReward = RewardsSelectionHelper.getReward(previousUserBacking)
+        indexOfBackedReward = RewardsSelectionHelper.indexOfBackedReward(project = projectData.project())
         pReason = when {
             previousUserBacking == null && projectData.project().isInPostCampaignPledgingPhase() == true -> PledgeReason.LATE_PLEDGE
             previousUserBacking != null -> PledgeReason.UPDATE_REWARD
@@ -152,15 +146,15 @@ class RewardsSelectionViewModel(private val environment: Environment, private va
 
             val config = currentConfig.asFlow().first()
 
-            val defaultLocation = getDefaultLocation(config, project, shippingLocations)
+            val defaultLocation = RewardsSelectionHelper.getDefaultLocation(config, project, shippingLocations)
             selectedShippingRule = ShippingRule.builder().location(defaultLocation).build()
             val sortedRewards = rewards.sortedByDescending { RewardViewUtils.isRewardSelectable(it, project, defaultLocation.id(), backing) }
-            val repositionedRewards = repositionRewards(sortedRewards, project, defaultLocation.id(), backing)
+            val repositionedRewards = RewardsSelectionHelper.repositionRewards(sortedRewards, project, defaultLocation.id(), backing)
 
             mutableShippingUIState.update { previous ->
                 previous.copy(
                     loading = false,
-                    shippingRules = shippingLocations.toShippingRules(),
+                    shippingRules = RewardsSelectionHelper.toShippingRules(shippingLocations),
                     selectedShippingRule = selectedShippingRule,
                     filteredRw = repositionedRewards
                 )
@@ -184,26 +178,6 @@ class RewardsSelectionViewModel(private val environment: Environment, private va
             // Show add-ons
             mutableFlowUIRequest.emit(FlowUIState(currentPage = 1, expanded = true))
         }
-    }
-
-    private fun getReward(backingObj: Backing?): Reward? {
-        backingObj?.let { backing ->
-            return backing.reward()?.let { reward ->
-                if (backing.addOns().isNullOrEmpty()) reward
-                else reward.toBuilder().hasAddons(true).build()
-            } ?: RewardFactory.noReward()
-        } ?: return null
-    }
-
-    private fun indexOfBackedReward(project: Project): Int {
-        project.rewards()?.run {
-            for ((index, reward) in withIndex()) {
-                if (project.backing()?.isBacked(reward) == true) {
-                    return index
-                }
-            }
-        }
-        return 0
     }
 
     fun sendEvent(expanded: Boolean, currentPage: Int = 0, projectData: ProjectData? = null) {
@@ -249,7 +223,7 @@ class RewardsSelectionViewModel(private val environment: Environment, private va
         val project = currentProjectData.project()
         val backing = currentProjectData.backing() ?: project.backing()
         val sortedRewards = rewards.sortedByDescending { RewardViewUtils.isRewardSelectable(it, project, selectedLocationId, backing) }
-        val repositionedRewards = repositionRewards(sortedRewards, project, selectedLocationId, backing)
+        val repositionedRewards = RewardsSelectionHelper.repositionRewards(sortedRewards, project, selectedLocationId, backing)
 
         mutableShippingUIState.update { previous ->
             previous.copy(
@@ -307,53 +281,6 @@ class RewardsSelectionViewModel(private val environment: Environment, private va
     @VisibleForTesting
     fun setShippingRuleUseCaseDispatcher(dispatcher: CoroutineDispatcher) {
         shippingRuleUseCaseDispatcher = dispatcher
-    }
-
-    private fun getDefaultLocation(
-        config: Config,
-        project: Project,
-        shippingLocations: List<Location>,
-    ): Location {
-        val backingLocation =
-            if (project.isBacking()) {
-                val backingLocationId = project.backing()?.locationId()
-                if (backingLocationId != null) {
-                    shippingLocations.firstOrNull { it.id() == backingLocationId }
-                } else {
-                    null
-                }
-            } else {
-                null
-            }
-        return backingLocation
-            ?: shippingLocations.firstOrNull { it.country() == config.countryCode() }
-            ?: shippingLocations.firstOrNull()
-            ?: Location.builder().build()
-    }
-
-    private fun List<Location>.toShippingRules() =
-        this.map { location -> ShippingRule.builder().location(location).build() }
-
-    private fun indexOfFirstUnselectableReward(rewards: List<Reward>, project: Project, selectedLocationId: Long?, backing: Backing?): Int {
-        return rewards.indexOfFirst { reward ->
-            !RewardViewUtils.isRewardSelectable(reward, project, selectedLocationId, backing)
-        }
-    }
-
-    private fun repositionRewards(rewards: List<Reward>, project: Project, selectedLocationId: Long?, backing: Backing?): List<Reward> {
-        val noRewardOptionIndex = rewards.indexOfFirst { RewardUtils.isNoReward(it) }
-        if (noRewardOptionIndex < 0) return rewards
-
-        val mutableRewards = rewards.toMutableList()
-        val noRewardOption = mutableRewards.removeAt(noRewardOptionIndex)
-        val firstUnselectableRewardIndex =
-            indexOfFirstUnselectableReward(mutableRewards, project, selectedLocationId, backing)
-        if (firstUnselectableRewardIndex == -1) {
-            mutableRewards.add(noRewardOption)
-        } else {
-            mutableRewards.add(firstUnselectableRewardIndex, noRewardOption)
-        }
-        return mutableRewards
     }
 
     @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")

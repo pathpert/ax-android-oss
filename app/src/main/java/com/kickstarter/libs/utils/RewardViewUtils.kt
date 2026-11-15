@@ -220,50 +220,8 @@ object RewardViewUtils {
         project: Project,
         reward: Reward,
         locationId: Long,
-    ): String? {
-        if (RewardUtils.isDigital(reward) || RewardUtils.isLocalPickup(reward) || !RewardUtils.isShippable(reward))
-            return null
+    ): String? = RewardShippingViewUtils.getEstimatedShippingCost(context, ksCurrency, ksString, project, reward, locationId)
 
-        val shippingRule = reward.shippingRules()?.firstOrNull { it.location()?.id() == locationId }
-            ?: if (RewardUtils.shipsWorldwide(reward)) reward.shippingRules()?.firstOrNull() else null
-
-        if (shippingRule == null)
-            return null
-
-        val estimatedMin = shippingRule.estimatedMin()
-        val estimatedMax = shippingRule.estimatedMax()
-        val cost = shippingRule.cost()
-
-        if (estimatedMin > 0.0 || estimatedMax > 0.0) {
-            val estimatedMinFormatted = ksCurrency.format(estimatedMin, project, RoundingMode.HALF_UP)
-            val estimatedMaxFormatted = ksCurrency.format(estimatedMax, project, RoundingMode.HALF_UP)
-            return if (estimatedMinFormatted.isEmpty() || estimatedMaxFormatted.isEmpty()) {
-                EMPTY_STRING
-            } else {
-                ksString.format(
-                    context.getString(R.string.About_reward_amount),
-                    "reward_amount",
-                    "$estimatedMinFormatted-$estimatedMaxFormatted"
-                )
-            }
-        } else if (cost > 0) {
-            val costFormatted = ksCurrency.format(cost, project, RoundingMode.HALF_UP)
-            return costFormatted.ifEmpty {
-                EMPTY_STRING
-            }
-        } else {
-            return EMPTY_STRING
-        }
-    }
-
-    /**
-     * Return a string for the estimated shipping costs for a collection of
-     * Rewards (i.e. a base Reward + Add-Ons) for a given shipping rule.
-     *
-     * Ex. "About $10-$15" or "About $10-$15 each"
-     *
-     * Used for Add-On Cards (for now) and on the Checkout Screen.
-     */
     fun getEstimatedShippingRange(
         context: Context,
         ksCurrency: KSCurrency,
@@ -274,63 +232,10 @@ object RewardViewUtils {
         multipleQuantitiesAllowed: Boolean,
         useUserPreference: Boolean,
         useAbout: Boolean
-    ): String {
-        var min = ""
-        var max = ""
-        var minTotal = 0.0
-        var maxtotal = 0.0
+    ): String = RewardShippingViewUtils.getEstimatedShippingRange(
+        context, ksCurrency, ksString, project, rewards, selectedShippingRule, multipleQuantitiesAllowed, useUserPreference, useAbout
+    )
 
-        rewards.forEach { reward ->
-            if (RewardUtils.isDigital(reward) || RewardUtils.isLocalPickup(reward) || !RewardUtils.isShippable(reward))
-                return@forEach
-
-            var shippingRule = reward.shippingRules()?.firstOrNull {
-                it.location()?.id() == selectedShippingRule.location()?.id()
-            }
-
-            if (shippingRule == null && RewardUtils.shipsWorldwide(reward))
-                shippingRule = reward.shippingRules()?.firstOrNull()
-
-            shippingRule?.let {
-                minTotal += (it.estimatedMin() * (reward.quantity() ?: 1))
-                maxtotal += (it.estimatedMax() * (reward.quantity() ?: 1))
-            }
-        }
-
-        if (minTotal <= 0 && maxtotal <= 0) return ""
-
-        min = if (useUserPreference) {
-            ksCurrency.formatWithUserPreference(minTotal, project, RoundingMode.HALF_UP, precision = 2)
-        } else {
-            ksCurrency.format(minTotal, project, RoundingMode.HALF_UP)
-        }
-        max = if (useUserPreference) {
-            ksCurrency.formatWithUserPreference(maxtotal, project, RoundingMode.HALF_UP, precision = 2)
-        } else {
-            ksCurrency.format(maxtotal, project, RoundingMode.HALF_UP)
-        }
-
-        if (min.isEmpty() || max.isEmpty()) return ""
-
-        // TODO: Replace with defined string
-        val minToMaxString = if (multipleQuantitiesAllowed) "$min-$max each" else "$min-$max"
-
-        return if (useAbout) {
-            ksString.format(
-                context.getString(R.string.About_reward_amount),
-                "reward_amount",
-                minToMaxString
-            )
-        } else {
-            minToMaxString
-        }
-    }
-
-    /**
-     * Returns a string for the shipping costs for add-on cards
-     *
-     * Ex. " + $5 each"
-     */
     fun getAddOnShippingAmountString(
         context: Context,
         project: Project,
@@ -339,53 +244,23 @@ object RewardViewUtils {
         ksCurrency: KSCurrency?,
         ksString: KSString?,
         selectedShippingRule: ShippingRule
-    ): String {
-        if (rewardShippingRules.isNullOrEmpty() || ksCurrency.isNull() || ksString.isNull()) return ""
-        val shippingAmount =
-            if (!RewardUtils.isDigital(reward) && RewardUtils.isShippable(reward) && !RewardUtils.isLocalPickup(reward)) {
-                var cost = 0.0
-                rewardShippingRules.filter {
-                    it.location()?.id() == selectedShippingRule.location()?.id()
-                }.map {
-                    cost += it.cost()
-                }
-                if (cost > 0) ksCurrency?.format(cost, project)
-                else ""
-            } else {
-                ""
-            }
-        if (shippingAmount.isNullOrEmpty()) return ""
-        val rewardAndShippingString =
-            context.getString(R.string.reward_amount_plus_shipping_cost_each)
-        val stringSections = rewardAndShippingString.split("+")
-        val shippingString = " +" + stringSections[1]
-        val ammountAndShippingString = ksString?.format(
-            shippingString,
-            "shipping_cost",
-            shippingAmount
-        )
-        return ammountAndShippingString ?: ""
-    }
+    ): String = RewardShippingViewUtils.getAddOnShippingAmountString(
+        context, project, reward, rewardShippingRules, ksCurrency, ksString, selectedShippingRule
+    )
 
     fun getQuantityRemainingString(context: Context, ksString: KSString, reward: Reward): String {
-        val limit = reward.limit()
-        if (limit != null && limit > 0) { // Matches the web, and we don't know what a `limit` of `0` implies.
-            val remaining = reward.remaining()
-            if (remaining != null && remaining > 0) {
-                val remainingCountLeftOfLimitCountString = context.getString(R.string.remaining_count_left_of_limit_count)
-                return ksString.format(
-                    remainingCountLeftOfLimitCountString,
-                    "remaining_count",
-                    NumberUtils.format(remaining),
-                    "limit_count",
-                    NumberUtils.format(limit),
-                )
-            } else { // To match pre-existing UI behavior: hide the badge if the remaining quantity is <= 0.
-                return EMPTY_STRING
-            }
-        } else {
-            return EMPTY_STRING
-        }
+        val limit = reward.limit() ?: return EMPTY_STRING
+        val remaining = reward.remaining() ?: return EMPTY_STRING
+        if (limit <= 0 || remaining <= 0) return EMPTY_STRING
+
+        val remainingCountLeftOfLimitCountString = context.getString(R.string.remaining_count_left_of_limit_count)
+        return ksString.format(
+            remainingCountLeftOfLimitCountString,
+            "remaining_count",
+            NumberUtils.format(remaining),
+            "limit_count",
+            NumberUtils.format(limit),
+        )
     }
 
     /* Copied directly from RewardCarouselScreen.kt. Tested by RewardCarouselScreenTest.kt */

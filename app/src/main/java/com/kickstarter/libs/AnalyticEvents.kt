@@ -3,97 +3,33 @@ package com.kickstarter.libs
 import OnboardingPage
 import com.kickstarter.features.pledgedprojectsoverview.data.PPOCard
 import com.kickstarter.features.socialshare.data.SocialSharePlatform
-import com.kickstarter.features.socialshare.data.analyticsContextType
 import com.kickstarter.features.videofeed.data.VideoFeedItem
-import com.kickstarter.libs.utils.AnalyticEventsUtils
-import com.kickstarter.libs.utils.ContextPropertyKeyName.COMMENT_BODY
-import com.kickstarter.libs.utils.ContextPropertyKeyName.COMMENT_CHARACTER_COUNT
-import com.kickstarter.libs.utils.ContextPropertyKeyName.COMMENT_ID
-import com.kickstarter.libs.utils.ContextPropertyKeyName.COMMENT_ROOT_ID
 import com.kickstarter.libs.utils.ContextPropertyKeyName.CONTEXT_CTA
-import com.kickstarter.libs.utils.ContextPropertyKeyName.CONTEXT_LOCATION
 import com.kickstarter.libs.utils.ContextPropertyKeyName.CONTEXT_PAGE
 import com.kickstarter.libs.utils.ContextPropertyKeyName.CONTEXT_SECTION
 import com.kickstarter.libs.utils.ContextPropertyKeyName.CONTEXT_TYPE
-import com.kickstarter.libs.utils.ContextPropertyKeyName.PROJECT_UPDATE_ID
 import com.kickstarter.libs.utils.EventContextValues
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName.ACTIVITY_FEED
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.ADD_ONS
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.CHANGE_PAYMENT
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.CHECKOUT
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName.LOGIN
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName.LOGIN_SIGN_UP
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.MANAGE_PLEDGE
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName.ONBOARDING
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.PROJECT
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.PROJECT_ALERTS
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.REWARDS
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName.SIGN_UP
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.THANKS
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName.TWO_FACTOR_AUTH
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.UPDATE_PLEDGE
-import com.kickstarter.libs.utils.EventContextValues.ContextPageName.VIDEO_FEED
 import com.kickstarter.libs.utils.EventContextValues.ContextSectionName.ACTIVITY_TRACKING_PROMPT
 import com.kickstarter.libs.utils.EventContextValues.ContextSectionName.ENABLE_NOTIFICATIONS_PROMPT
-import com.kickstarter.libs.utils.EventContextValues.ContextTypeName.ADDRESS
-import com.kickstarter.libs.utils.EventContextValues.ContextTypeName.CREDIT_CARD
-import com.kickstarter.libs.utils.EventContextValues.ContextTypeName.REPLY
-import com.kickstarter.libs.utils.EventContextValues.ContextTypeName.ROOT
-import com.kickstarter.libs.utils.EventContextValues.ContextTypeName.UNWATCH
-import com.kickstarter.libs.utils.EventContextValues.ContextTypeName.WATCH
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.ADD_ONS_CONTINUE
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.ALLOW_TRACKING
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.CAMPAIGN_DETAILS
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.CLOSE
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.COMMENT_POST
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.CONFIRM_INITIATE
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.CONFIRM_SUBMIT
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.DISCOVER
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.DISCOVER_FILTER
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.DISCOVER_SORT
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.EDIT
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.FINALIZE_PLEDGE_INITIATE
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.FIX_PLEDGE_INITIATE
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.GET_NOTIFIED
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.LATE_PLEDGE
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.LOGIN_INITIATE
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.LOGIN_OR_SIGN_UP
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.LOGIN_SUBMIT
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.MESSAGE_CREATOR_INITIATE
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.NEXT
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.PLEDGE_CONFIRM
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.PLEDGE_INITIATE
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.PLEDGE_SUBMIT
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.REWARD_CONTINUE
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.SEARCH
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.SHARE_PLATFORM_CLICKED
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.SIGNUP_LOGIN
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.SIGN_UP_INITIATE
 import com.kickstarter.libs.utils.EventContextValues.CtaContextName.SIGN_UP_SUBMIT
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.SURVEY_RESPONSE_INITIATE
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.VIDEO_PROGRESS_BAR
-import com.kickstarter.libs.utils.EventContextValues.CtaContextName.WATCH_PROJECT
-import com.kickstarter.libs.utils.EventContextValues.DiscoveryContextType.ALL
-import com.kickstarter.libs.utils.EventContextValues.DiscoveryContextType.CATEGORY_NAME
-import com.kickstarter.libs.utils.EventContextValues.DiscoveryContextType.PWL
-import com.kickstarter.libs.utils.EventContextValues.DiscoveryContextType.RECOMMENDED
-import com.kickstarter.libs.utils.EventContextValues.DiscoveryContextType.RESULTS
-import com.kickstarter.libs.utils.EventContextValues.DiscoveryContextType.SOCIAL
-import com.kickstarter.libs.utils.EventContextValues.DiscoveryContextType.SUBCATEGORY_NAME
-import com.kickstarter.libs.utils.EventContextValues.DiscoveryContextType.WATCHED
-import com.kickstarter.libs.utils.EventContextValues.LocationContextName.CURATED
-import com.kickstarter.libs.utils.EventContextValues.LocationContextName.DISCOVER_ADVANCED
-import com.kickstarter.libs.utils.EventContextValues.LocationContextName.DISCOVER_OVERLAY
-import com.kickstarter.libs.utils.EventContextValues.LocationContextName.GLOBAL_NAV
-import com.kickstarter.libs.utils.EventContextValues.LocationContextName.SEARCH_RESULTS
-import com.kickstarter.libs.utils.EventName.CARD_CLICKED
 import com.kickstarter.libs.utils.EventName.CTA_CLICKED
 import com.kickstarter.libs.utils.EventName.PAGE_VIEWED
-import com.kickstarter.libs.utils.EventName.VIDEO_PLAYBACK_COMPLETED
-import com.kickstarter.libs.utils.EventName.VIDEO_PLAYBACK_STARTED
-import com.kickstarter.libs.utils.checkoutProperties
-import com.kickstarter.libs.utils.extensions.isNonZero
-import com.kickstarter.libs.utils.extensions.isTrue
 import com.kickstarter.models.Backing
 import com.kickstarter.models.Project
 import com.kickstarter.models.User
@@ -101,947 +37,254 @@ import com.kickstarter.services.DiscoveryParams
 import com.kickstarter.ui.data.CheckoutData
 import com.kickstarter.ui.data.PledgeData
 import com.kickstarter.ui.data.ProjectData
-import java.util.Locale
-import com.kickstarter.libs.utils.EventContextValues.LocationContextName.VIDEO_FEED as VIDEO_FEED_LOCATION
-
 
 @Deprecated("Legacy monolithic path replaced by com.kickstarter.features.*.data.*Tracker")
 class AnalyticEvents(trackingClients: List<TrackingClientType?>) {
 
-    private val client = ProxyClient(trackingClients)
+    internal val client = ProxyClient(trackingClients)
+    private val discovery = AnalyticEventsDiscovery(client)
+    private val checkout = AnalyticEventsCheckout(client)
+    private val projectEvents = AnalyticEventsProject(client)
 
     // APPLICATION LIFECYCLE
-    fun trackAppOpen() {
-        client.track("App Open")
-    }
+    fun trackAppOpen() = client.track("App Open")
 
-    /**
-     * Sends data to the client when Activity Screen is viewed.
-     */
     fun trackActivityFeedPageViewed() {
-        val props = hashMapOf<String, Any>()
-        props[CONTEXT_PAGE.contextName] = ACTIVITY_FEED.contextName
+        val props = hashMapOf<String, Any>(CONTEXT_PAGE.contextName to ACTIVITY_FEED.contextName)
         client.track(PAGE_VIEWED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the discover projects CTA is tapped on the activity screen.
-     */
     fun trackDiscoverProjectCTAClicked() {
-        val props = hashMapOf<String, Any>()
-        props[CONTEXT_CTA.contextName] = DISCOVER.contextName
-        props[CONTEXT_PAGE.contextName] = ACTIVITY_FEED.contextName
+        val props = hashMapOf<String, Any>(
+            CONTEXT_CTA.contextName to DISCOVER.contextName,
+            CONTEXT_PAGE.contextName to ACTIVITY_FEED.contextName
+        )
         client.track(CTA_CLICKED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the signup or login CTAs are clicked.
-     *
-     * @param type: The type of sign-up the user is doing, if applicable.
-     * @param page: The page where the CTA was clicked.
-     */
+    // AUTH & LOGIN
     fun trackLoginOrSignUpCtaClicked(type: String?, page: String) {
         val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to LOGIN_OR_SIGN_UP.contextName)
         props[CONTEXT_PAGE.contextName] = page
-        type?. let { props[CONTEXT_TYPE.contextName] = it }
+        type?.let { props[CONTEXT_TYPE.contextName] = it }
         client.track(CTA_CLICKED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the signup page is viewed.
-     */
     fun trackSignUpPageViewed() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to SIGN_UP.contextName)
-        client.track(PAGE_VIEWED.eventName, props)
+        client.track(PAGE_VIEWED.eventName, hashMapOf(CONTEXT_PAGE.contextName to SIGN_UP.contextName))
     }
 
-    /**
-     * Sends data to the client when the login/sign-up page is viewed.
-     */
     fun trackLoginOrSignUpPagedViewed() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to LOGIN_SIGN_UP.contextName)
-        client.track(PAGE_VIEWED.eventName, props)
+        client.track(PAGE_VIEWED.eventName, hashMapOf(CONTEXT_PAGE.contextName to LOGIN_SIGN_UP.contextName))
     }
 
-    /**
-     * Sends data to the client when the login page is viewed.
-     */
     fun trackLoginPagedViewed() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to LOGIN.contextName)
-        client.track(PAGE_VIEWED.eventName, props)
+        client.track(PAGE_VIEWED.eventName, hashMapOf(CONTEXT_PAGE.contextName to LOGIN.contextName))
     }
 
-    // VIDEO
-    /**
-     *Sends data to the client when the any of video started .
-     *
-     * @param videoLength: Length of video in seconds.
-     * @param videoPosition: Index position of the playhead,
-     */
-    fun trackVideoStarted(project: Project, videoLength: Long, videoPosition: Long) {
-        val props: HashMap<String, Any> = HashMap()
-        props[CONTEXT_PAGE.contextName] = PROJECT.contextName
-        props.putAll(AnalyticEventsUtils.videoProperties(videoLength, videoPosition))
-        props.putAll(AnalyticEventsUtils.projectProperties(project, client.loggedInUser()))
-        client.track(VIDEO_PLAYBACK_STARTED.eventName, props)
-    }
-
-    /**
-     *Sends data to the client when the any of video completed .
-     *
-     * @param videoLength: Length of video in seconds.
-     * @param videoPosition:Index position of the playhead,
-     */
-    fun trackVideoCompleted(project: Project, videoLength: Long, videoPosition: Long) {
-        val props: HashMap<String, Any> = HashMap()
-        props[CONTEXT_PAGE.contextName] = PROJECT.contextName
-        props.putAll(AnalyticEventsUtils.videoProperties(videoLength, videoPosition))
-        props.putAll(AnalyticEventsUtils.projectProperties(project, client.loggedInUser()))
-        client.track(VIDEO_PLAYBACK_COMPLETED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the any of the discover sort tabs are clicked.
-     *
-     * @param currentSort: The sort the user was in before changing sorts.
-     * @param discoveryParams: The discovery parameters.
-     */
-    fun trackDiscoverSortCTA(currentSort: DiscoveryParams.Sort, discoverParams: DiscoveryParams) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to DISCOVER_SORT.contextName)
-        props[CONTEXT_LOCATION.contextName] = DISCOVER_ADVANCED.contextName
-        props[CONTEXT_PAGE.contextName] = DISCOVER.contextName
-        props[CONTEXT_TYPE.contextName] = discoverParams.sort()?.let {
-            when (it) {
-                DiscoveryParams.Sort.POPULAR -> "popular"
-                DiscoveryParams.Sort.ENDING_SOON -> "ending_soon"
-                else -> it.toString()
-            }
-        } ?: ""
-        props.putAll(AnalyticEventsUtils.discoveryParamsProperties(discoverParams, currentSort))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Tracks a discover project clicks on the search result
-     * @param discoveryParams: The search discovery parameters.
-     * @param projectData: selected project from serach result
-     * @param count: search result count
-     * @param sort: DiscoveryParams.Sort type
-     */
-    fun trackDiscoverSearchResultProjectCATClicked(
-        discoveryParams: DiscoveryParams,
-        projectData: ProjectData,
-        count: Int,
-        sort: DiscoveryParams.Sort
-    ) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to PROJECT.contextName)
-        props[CONTEXT_PAGE.contextName] = SEARCH.contextName
-        props[CONTEXT_LOCATION.contextName] = SEARCH_RESULTS.contextName
-        props[CONTEXT_TYPE.contextName] = EventContextValues.ContextTypeName.RESULTS.contextName
-        discoveryParams.term()?.let { props["discover_search_term"] = it }
-        props["discover_search_results_count"] = count
-        props.putAll(AnalyticEventsUtils.discoveryParamsProperties(discoveryParams, sort).toMutableMap())
-        props.putAll(AnalyticEventsUtils.refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when a project in the discovery is clicked
-     * sending sort and filter properties.
-     *
-     * @param discoveryParams: The discovery parameters.
-     * @param projectData: The projectData parameters.
-     */
-    fun trackDiscoverProjectCtaClicked(discoveryParams: DiscoveryParams, projectData: ProjectData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to PROJECT.contextName)
-        props[CONTEXT_LOCATION.contextName] = DISCOVER_ADVANCED.contextName
-        props[CONTEXT_PAGE.contextName] = DISCOVER.contextName
-        props[CONTEXT_TYPE.contextName] = when {
-            discoveryParams.recommended().isTrue() -> RECOMMENDED.contextName
-            discoveryParams.category()?.isRoot.isTrue() ||
-                discoveryParams.category() != null ||
-                discoveryParams.staffPicks().isTrue() ||
-                discoveryParams.isAllProjects.isTrue() -> RESULTS.contextName
-            else -> ""
-        }
-
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        props.putAll(AnalyticEventsUtils.refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-        props.putAll(AnalyticEventsUtils.discoveryParamsProperties(discoveryParams))
-
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when items in the discovery sort is selected.
-     *
-     * @param discoveryParams: The discovery parameters.
-     */
-    fun trackDiscoveryPageViewed(discoveryParams: DiscoveryParams) {
-        val props = AnalyticEventsUtils.discoveryParamsProperties(discoveryParams).toMutableMap()
-        props[DISCOVER_SORT.contextName] = discoveryParams.sort()?.name?.lowercase(Locale.ROOT) ?: ""
-        props[CONTEXT_PAGE.contextName] = DISCOVER.contextName
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when pledged project overview screen is viewed
-     *
-     * @param ppoCards: The list of alerts.
-     * @param totalCount: The total number of alerts.
-     */
-    fun trackPledgedProjectsOverviewPageViewed(ppoCards: List<PPOCard>, totalCount: Int) {
-        val props = AnalyticEventsUtils.notificationProperties(ppoCards, totalCount).toMutableMap()
-        props[CONTEXT_PAGE.contextName] = PROJECT_ALERTS.contextName
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when message creator is tapped on a ppo card
-     *
-     * @param projectID: The id of the project.
-     * @param creatorID: The id of the creator.
-     * @param ppoCards: The list of alerts.
-     * @param totalCount: The total number of alerts.
-     */
-    fun trackPPOMessageCreatorCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int, creatorID: String) {
-        val props = AnalyticEventsUtils.notificationProperties(ppoCards, totalCount).toMutableMap()
-        props["interaction_target_id"] = creatorID
-        props["project_pid"] = projectID
-        props[CONTEXT_PAGE.contextName] = PROJECT_ALERTS.contextName
-        props[CONTEXT_CTA.contextName] = MESSAGE_CREATOR_INITIATE.contextName
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when fix payment is tapped on a fix payment ppo card
-     *
-     * @param projectID: The id of the project.
-     * @param ppoCards: The list of alerts.
-     * @param totalCount: The total number of alerts.
-     */
-    fun trackPPOFixPaymentCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) {
-        val props = AnalyticEventsUtils.notificationProperties(ppoCards, totalCount).toMutableMap()
-        props["project_pid"] = projectID
-        props[CONTEXT_PAGE.contextName] = PROJECT_ALERTS.contextName
-        props[CONTEXT_CTA.contextName] = FIX_PLEDGE_INITIATE.contextName
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when open survey is tapped on open survey ppo card
-     *
-     * @param projectID: The id of the project.
-     * @param ppoCards: The list of alerts.
-     * @param totalCount: The total number of alerts.
-     * @param surveyID: The id of the survey.
-     */
-    fun trackPPOOpenSurveyCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int, surveyID: String) {
-        val props = AnalyticEventsUtils.notificationProperties(ppoCards, totalCount).toMutableMap()
-        props["project_pid"] = projectID
-        props["survey_id"] = surveyID
-        props[CONTEXT_PAGE.contextName] = PROJECT_ALERTS.contextName
-        props[CONTEXT_CTA.contextName] = SURVEY_RESPONSE_INITIATE.contextName
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when finalize pledge button is tapped on pledge management ppo card
-     *
-     * @param projectID: The id of the project.
-     * @param ppoCards: The list of alerts.
-     * @param totalCount: The total number of alerts.
-     */
-    fun trackPPOFinalizePledgeCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) {
-        val props = AnalyticEventsUtils.notificationProperties(ppoCards, totalCount).toMutableMap()
-        props["project_pid"] = projectID
-        props[CONTEXT_PAGE.contextName] = PROJECT_ALERTS.contextName
-        props[CONTEXT_CTA.contextName] = FINALIZE_PLEDGE_INITIATE.contextName
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when confirm address is initiated on a confirm address ppo card
-     *
-     * @param projectID: The id of the project.
-     * @param ppoCards: The list of alerts.
-     * @param totalCount: The total number of alerts.
-     */
-    fun trackPPOConfirmAddressInitiateCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) {
-        val props = AnalyticEventsUtils.notificationProperties(ppoCards, totalCount).toMutableMap()
-        props["project_pid"] = projectID
-        props[CONTEXT_PAGE.contextName] = PROJECT_ALERTS.contextName
-        props[CONTEXT_CTA.contextName] = CONFIRM_INITIATE.contextName
-        props[CONTEXT_TYPE.contextName] = ADDRESS.contextName
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when confirm address is submitted on a confirm address ppo card dialog box
-     *
-     * @param projectID: The id of the project.
-     * @param ppoCards: The list of alerts.
-     * @param totalCount: The total number of alerts.
-     */
-    fun trackPPOConfirmAddressSubmitCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) {
-        val props = AnalyticEventsUtils.notificationProperties(ppoCards, totalCount).toMutableMap()
-        props["project_pid"] = projectID
-        props[CONTEXT_PAGE.contextName] = PROJECT_ALERTS.contextName
-        props[CONTEXT_CTA.contextName] = CONFIRM_SUBMIT.contextName
-        props[CONTEXT_TYPE.contextName] = ADDRESS.contextName
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when edit on confirm address card is tapped
-     *
-     * @param projectID: The id of the project.
-     * @param ppoCards: The list of alerts.
-     * @param totalCount: The total number of alerts.
-     */
-    fun trackPPOConfirmAddressEditCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) {
-        val props = AnalyticEventsUtils.notificationProperties(ppoCards, totalCount).toMutableMap()
-        props["project_pid"] = projectID
-        props[CONTEXT_PAGE.contextName] = PROJECT_ALERTS.contextName
-        props[CONTEXT_CTA.contextName] = EDIT.contextName
-        props[CONTEXT_TYPE.contextName] = ADDRESS.contextName
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when items in the discovery overflow menu are tapped.
-     *
-     * @param discoveryParams: The discovery parameters.
-     */
-    fun trackDiscoverFilterCTA(discoveryParams: DiscoveryParams) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to DISCOVER_FILTER.contextName)
-        props[CONTEXT_LOCATION.contextName] = DISCOVER_OVERLAY.contextName
-        props[CONTEXT_PAGE.contextName] = DISCOVER.contextName
-        props[CONTEXT_TYPE.contextName] = when {
-            discoveryParams.staffPicks().isTrue() -> PWL.contextName
-            discoveryParams.recommended().isTrue() -> RECOMMENDED.contextName
-            discoveryParams.starred().isNonZero() -> WATCHED.contextName
-            discoveryParams.social().isNonZero() -> SOCIAL.contextName
-            discoveryParams.category()?.isRoot.isTrue() -> CATEGORY_NAME.contextName
-            discoveryParams.category() != null -> SUBCATEGORY_NAME.contextName
-            discoveryParams.isAllProjects.isTrue() -> ALL.contextName
-            else -> ALL.contextName
-        }
-        props.putAll(AnalyticEventsUtils.discoveryParamsProperties(discoveryParams))
-
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the projects screen is loaded.
-     *
-     * @param pledgeData: The selected pledge data.
-     * @param pageSectionContext: The section of the project page being viewed.
-     */
-    fun trackProjectScreenViewed(projectData: ProjectData, pageSectionContext: String) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to PROJECT.contextName)
-        props[CONTEXT_SECTION.contextName] = pageSectionContext
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        props.putAll(AnalyticEventsUtils.refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client open TwoFactorAuth screen
-     */
     fun trackTwoFactorAuthPageViewed() {
-        val props = hashMapOf(CONTEXT_PAGE.contextName to TWO_FACTOR_AUTH.contextName)
-        client.track(PAGE_VIEWED.eventName, props)
+        client.track(PAGE_VIEWED.eventName, hashMapOf(CONTEXT_PAGE.contextName to TWO_FACTOR_AUTH.contextName))
     }
 
-    /**
-     * Sends data to the client when the projects screen is loaded.
-     *
-     * @param project: The selected project.
-     * @param pageContext: The page/screen of the app where the project card was clicked.
-     */
-    fun trackProjectCardClicked(project: Project, pageContext: String) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_TYPE.contextName to PROJECT.contextName)
-        props[CONTEXT_PAGE.contextName] = pageContext
-        props.putAll(AnalyticEventsUtils.projectProperties(project, client.loggedInUser()))
-        client.track(CARD_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the projects card at thanks activity is clicked
-     *
-     * @param project: The selected project.
-     * @param checkoutData: The page/screen of the app where the project card was clicked.
-     * @param pledgeData: The selected pledge data.
-     */
-    fun trackThanksActivityProjectCardClicked(projectData: ProjectData, checkoutData: CheckoutData, pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to PROJECT.contextName)
-        props[CONTEXT_PAGE.contextName] = THANKS.contextName
-        props[CONTEXT_LOCATION.contextName] = CURATED.contextName
-        props[CONTEXT_TYPE.contextName] = RECOMMENDED.contextName
-        props.putAll(AnalyticEventsUtils.refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        props.putAll(AnalyticEventsUtils.checkoutDataProperties(checkoutData, pledgeData, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the search CTA click event to the client.
-     * @param discoveryParams: DiscoveryParams
-     */
-    fun trackSearchCTAButtonClicked(discoveryParams: DiscoveryParams) {
-        val props = AnalyticEventsUtils.discoveryParamsProperties(discoveryParams).toMutableMap()
-        props[CONTEXT_PAGE.contextName] = DISCOVER.contextName
-        props[CONTEXT_CTA.contextName] = SEARCH.contextName
-        props[CONTEXT_LOCATION.contextName] = GLOBAL_NAV.contextName
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the search results page viewed to segment.
-     * @param discoveryParams: DiscoveryParams
-     * @param count: Int
-     * @param sort: DiscoveryParams.Sort
-     */
-    fun trackSearchResultPageViewed(discoveryParams: DiscoveryParams, count: Int, sort: DiscoveryParams.Sort) {
-        val props = AnalyticEventsUtils.discoveryParamsProperties(discoveryParams, sort).toMutableMap()
-        props[CONTEXT_PAGE.contextName] = SEARCH.contextName
-        discoveryParams.term()?.let { props["discover_search_term"] = it }
-        props["discover_search_results_count"] = count
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the checkout screen is loaded.
-     *
-     * @param checkoutData: The checkout data.
-     * @param pledgeData: The selected pledge data.
-     */
-    fun trackCheckoutScreenViewed(checkoutData: CheckoutData, pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to CHECKOUT.contextName)
-        props.putAll(AnalyticEventsUtils.checkoutDataProperties(checkoutData, pledgeData, client.loggedInUser()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the update pledge screen is view.
-     *
-     * @param checkoutData: The checkout data.
-     * @param pledgeData: The selected pledge data.
-     */
-    fun trackUpdatePledgePageViewed(checkoutData: CheckoutData, pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to UPDATE_PLEDGE.contextName)
-        props.putAll(AnalyticEventsUtils.checkoutDataProperties(checkoutData, pledgeData, client.loggedInUser()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the Confirm CTA click event to the client.
-     *
-     * @param checkoutData: The checkout data.
-     * @param pledgeData: The selected pledge data.
-     */
-    fun trackPledgeConfirmCTA(checkoutData: CheckoutData, pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to PLEDGE_CONFIRM.contextName)
-        props[CONTEXT_TYPE.contextName] = CREDIT_CARD.contextName
-        props[CONTEXT_PAGE.contextName] = CHECKOUT.contextName
-        props.putAll(AnalyticEventsUtils.checkoutDataProperties(checkoutData, pledgeData, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the submit CTA click event to the client.
-     *
-     * @param checkoutData: The checkout data.
-     * @param pledgeData: The selected pledge data.
-     */
-    fun trackPledgeSubmitCTA(checkoutData: CheckoutData, pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to PLEDGE_SUBMIT.contextName)
-        props[CONTEXT_TYPE.contextName] = CREDIT_CARD.contextName
-        props[CONTEXT_PAGE.contextName] = CHECKOUT.contextName
-        props.putAll(AnalyticEventsUtils.checkoutDataProperties(checkoutData, pledgeData, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the submit CTA click event to the client.
-     *
-     * @param checkoutData: The checkout data.
-     * @param pledgeData: The selected pledge data.
-     */
-    fun trackLatePledgeSubmitCTA(checkoutData: CheckoutData, pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to LATE_PLEDGE.contextName)
-        props[CONTEXT_TYPE.contextName] = CREDIT_CARD.contextName
-        props[CONTEXT_PAGE.contextName] = CHECKOUT.contextName
-        props.putAll(AnalyticEventsUtils.checkoutDataProperties(checkoutData, pledgeData, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with page view event to the client.
-     *
-     * @param backing Information regarding the backing
-     * @param projectData Information regarding projectData
-     */
-    fun trackManagePledgePageViewed(backing: Backing, projectData: ProjectData) {
-        val checkoutData = checkoutProperties(
-            amount = backing.amount(),
-            checkoutId = null,
-            bonus = backing.bonusAmount(),
-            shippingAmount = backing.shippingAmount().toDouble()
-        )
-
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to MANAGE_PLEDGE.contextName)
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        props.putAll(AnalyticEventsUtils.checkoutProperties(checkoutData, projectData.project(), backing.addOns()))
-        props.putAll(AnalyticEventsUtils.refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the initial pledge CTA click event to the client.
-     *
-     * @param projectData: The project data.
-     */
-    fun trackPledgeInitiateCTA(projectData: ProjectData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to PLEDGE_INITIATE.contextName)
-        props[CONTEXT_PAGE.contextName] = PROJECT.contextName
-        props.putAll(AnalyticEventsUtils.refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the select reward CTA click event to the client.
-     *
-     * @param pledgeData: The pledge data.
-     */
-    fun trackSelectRewardCTA(pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to REWARD_CONTINUE.contextName)
-        props[CONTEXT_PAGE.contextName] = REWARDS.contextName
-        props.putAll(AnalyticEventsUtils.pledgeDataProperties(pledgeData, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the thanks page after backing a project is viewed.
-     *
-     * @param checkoutData: The checkout data for the backed project.
-     * @param pledgeData: The pledge data for the backed project.
-     */
-    fun trackThanksScreenViewed(checkoutData: CheckoutData, pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to THANKS.contextName)
-        props[CONTEXT_TYPE.contextName] = pledgeData.pledgeFlowContext().trackingString
-        props.putAll(AnalyticEventsUtils.checkoutDataProperties(checkoutData, pledgeData, client.loggedInUser()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the add-ons screen is loaded.
-     *
-     * @param pledgeData: The selected pledge data.
-     */
-    fun trackAddOnsScreenViewed(pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ADD_ONS.contextName)
-        props.putAll(AnalyticEventsUtils.pledgeDataProperties(pledgeData, client.loggedInUser()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the heart icon is tapped on a project page.
-     *
-     * @param project: The watched or unwatched project.
-     */
-    fun trackWatchProjectCTA(project: Project, contextPageName: EventContextValues.ContextPageName) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to WATCH_PROJECT.contextName)
-        props[CONTEXT_TYPE.contextName] = if (project.isStarred()) WATCH.contextName else UNWATCH.contextName
-        props[CONTEXT_PAGE.contextName] = contextPageName.contextName
-        props.putAll(AnalyticEventsUtils.projectProperties(project, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the add ons continue CTA clicked event to the client.
-     *
-     * @param pledgeData: The selected pledge data.
-     */
-    fun trackAddOnsContinueCTA(pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to ADD_ONS_CONTINUE.contextName)
-        props[CONTEXT_PAGE.contextName] = ADD_ONS.contextName
-        props.putAll(AnalyticEventsUtils.pledgeDataProperties(pledgeData, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the rewards carousel is loaded.
-     *
-     * @param projectData: The selected project data.
-     */
-    fun trackRewardsCarouselViewed(projectData: ProjectData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to REWARDS.contextName)
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the payment method is changed.
-     *
-     * @param pledgeData: The selected pledge data for project.
-     */
-    fun trackChangePaymentMethod(pledgeData: PledgeData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to CHANGE_PAYMENT.contextName)
-        props.putAll(AnalyticEventsUtils.pledgeDataProperties(pledgeData, client.loggedInUser()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the selected project tabs  changed.
-     *
-     * @param pledgeData: The selected pledge data for project.
-     */
-
-    fun trackProjectPageTabChanged(projectData: ProjectData, pageSectionContext: String) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to PROJECT.contextName)
-        props[CONTEXT_SECTION.contextName] = pageSectionContext
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        props.putAll(AnalyticEventsUtils.refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when the login button is clicked.
-     */
     fun trackLogInButtonCtaClicked() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to LOGIN.contextName)
-        props[CONTEXT_CTA.contextName] = LOGIN_SUBMIT.contextName
-        client.track(CTA_CLICKED.eventName, props)
+        client.track(CTA_CLICKED.eventName, hashMapOf(CONTEXT_PAGE.contextName to LOGIN.contextName, CONTEXT_CTA.contextName to LOGIN_SUBMIT.contextName))
     }
 
-    /**
-     * Sends data to the client when the login CTA is clicked on the login/signup screen.
-     */
     fun trackLogInInitiateCtaClicked() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to LOGIN_INITIATE.contextName)
-        props[CONTEXT_PAGE.contextName] = LOGIN_SIGN_UP.contextName
-        client.track(CTA_CLICKED.eventName, props)
+        client.track(CTA_CLICKED.eventName, hashMapOf(CONTEXT_CTA.contextName to LOGIN_INITIATE.contextName, CONTEXT_PAGE.contextName to LOGIN_SIGN_UP.contextName))
     }
 
-    /**
-     * Sends data to the client when the signup CTA is clicked on the login/signup screen.
-     */
     fun trackSignUpInitiateCtaClicked() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to SIGN_UP_INITIATE.contextName)
-        props[CONTEXT_PAGE.contextName] = LOGIN_SIGN_UP.contextName
-        client.track(CTA_CLICKED.eventName, props)
+        client.track(CTA_CLICKED.eventName, hashMapOf(CONTEXT_CTA.contextName to SIGN_UP_INITIATE.contextName, CONTEXT_PAGE.contextName to LOGIN_SIGN_UP.contextName))
     }
 
-    /**
-     * Sends data to the client when the submit button is clicked.
-     */
     fun trackSignUpSubmitCtaClicked() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to SIGN_UP_SUBMIT.contextName)
-        props[CONTEXT_PAGE.contextName] = SIGN_UP.contextName
-        client.track(CTA_CLICKED.eventName, props)
+        client.track(CTA_CLICKED.eventName, hashMapOf(CONTEXT_CTA.contextName to SIGN_UP_SUBMIT.contextName, CONTEXT_PAGE.contextName to SIGN_UP.contextName))
     }
 
-    /**
-     * Sends data to the client when the campaign details CTA is clicked on the project screen.
-     *
-     * @param projectData: The data for the current project.
-     */
-    fun trackCampaignDetailsCTAClicked(projectData: ProjectData) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_CTA.contextName to CAMPAIGN_DETAILS.contextName)
-        props[CONTEXT_PAGE.contextName] = PROJECT.contextName
-        props.putAll(AnalyticEventsUtils.projectProperties(projectData.project(), client.loggedInUser()))
-        props.putAll(AnalyticEventsUtils.refTagProperties(projectData.refTagFromIntent(), projectData.refTagFromCookie()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the comment screen page viewed to segment.
-     * @param project: The current project.
-     * @param projectUpdateId: the update id
-     */
-    fun trackRootCommentPageViewed(project: Project, projectUpdateId: String? = null) {
-        val props: HashMap<String, Any> = HashMap()
-        props.putAll(createCommentPagePropMap(projectUpdateId))
-        props.putAll(AnalyticEventsUtils.projectProperties(project, client.loggedInUser()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data associated with the comment screen page viewed to segment.
-     * @param project: The current project.
-     * @param rootCommentId: The root comment id.
-     * @param projectUpdateId: the update id
-     */
-    fun trackThreadCommentPageViewed(project: Project, rootCommentId: String, projectUpdateId: String? = null) {
-        val props: HashMap<String, Any> = HashMap()
-        props.putAll(createCommentPagePropMap(projectUpdateId))
-        props[COMMENT_ROOT_ID.contextName] = rootCommentId
-        props.putAll(AnalyticEventsUtils.projectProperties(project, client.loggedInUser()))
-        client.track(PAGE_VIEWED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when reply is clicked on the project comment screen.
-     *
-     * @param project: The current project.
-     * @param commentId: The comment id.
-     * @param comment: The reply.
-     * @param projectUpdateId: the update id
-     */
-    fun trackCommentCTA(project: Project, commentId: String, comment: String, projectUpdateId: String? = null) {
-        val props: HashMap<String, Any> =
-            createCommentPropMap(projectUpdateId, comment)
-        props[CONTEXT_TYPE.contextName] = ROOT.contextName
-        props[COMMENT_ID.contextName] = commentId
-        props.putAll(AnalyticEventsUtils.projectProperties(project, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    /**
-     * Sends data to the client when reply is clicked on the project root comment screen.
-     *
-     * @param project: The current project.
-     * @param commentReply: The reply.
-     * @param commentId: The comment id.
-     * @param rootCommentId: The root comment id.
-     * @param projectUpdateId: the update id
-     *
-     */
-    fun trackRootCommentReplyCTA(
-        project: Project,
-        commentId: String,
-        commentReply: String,
-        rootCommentId: String,
-        projectUpdateId: String? = null
-    ) {
-        val props: HashMap<String, Any> =
-            createCommentPropMap(projectUpdateId, commentReply)
-
-        props[CONTEXT_TYPE.contextName] = REPLY.contextName
-        props[COMMENT_ID.contextName] = commentId
-        props[COMMENT_ROOT_ID.contextName] = rootCommentId
-
-        props.putAll(AnalyticEventsUtils.projectProperties(project, client.loggedInUser()))
-        client.track(CTA_CLICKED.eventName, props)
-    }
-
-    private fun createCommentPropMap(
-        projectUpdateId: String?,
-        commentReply: String
-    ): HashMap<String, Any> {
-        return hashMapOf<String, Any>(CONTEXT_CTA.contextName to COMMENT_POST.contextName).also { map ->
-            map.putAll(createCommentPagePropMap(projectUpdateId))
-            map[COMMENT_BODY.contextName] = commentReply
-            map[COMMENT_CHARACTER_COUNT.contextName] = commentReply.length
-        }
-    }
-
-    private fun createCommentPagePropMap(
-        projectUpdateId: String?
-    ): HashMap<String, Any> {
-        return hashMapOf<String, Any>().also { map ->
-            map[CONTEXT_PAGE.contextName] = PROJECT.contextName
-            map[CONTEXT_SECTION.contextName] =
-                EventContextValues.ContextSectionName.COMMENTS.contextName
-
-            projectUpdateId?.let {
-                map[CONTEXT_SECTION.contextName] =
-                    EventContextValues.ContextSectionName.UPDATES.contextName
-                map[CONTEXT_LOCATION.contextName] =
-                    EventContextValues.LocationContextName.COMMENTS.contextName
-                map[PROJECT_UPDATE_ID.contextName] = projectUpdateId
-            }
-        }
-    }
-
-    /**
-     * Sends data to the client when onboarding flow screens are viewed
-     */
+    // ONBOARDING
     fun trackOnboardingPageViewed(onboardingPage: String) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName)
-        props[CONTEXT_SECTION.contextName] = onboardingPage
+        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName, CONTEXT_SECTION.contextName to onboardingPage)
         client.track(PAGE_VIEWED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the close CTA is tapped on the onboarding flow
-     */
     fun trackOnboardingCloseCTAClicked(onboardingPage: String) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName)
-        props[CONTEXT_SECTION.contextName] = onboardingPage
-        props[CONTEXT_CTA.contextName] = CLOSE.contextName
+        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName, CONTEXT_SECTION.contextName to onboardingPage, CONTEXT_CTA.contextName to CLOSE.contextName)
         client.track(CTA_CLICKED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the next CTA is tapped on the onboarding flow
-     */
     fun trackOnboardingNextCTAClicked(onboardingPage: String) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName)
-        props[CONTEXT_SECTION.contextName] = onboardingPage
-        props[CONTEXT_CTA.contextName] = NEXT.contextName
+        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName, CONTEXT_SECTION.contextName to onboardingPage, CONTEXT_CTA.contextName to NEXT.contextName)
         client.track(CTA_CLICKED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the Get Notified CTA is tapped on the onboarding flow
-     */
     fun trackOnboardingGetNotifiedCTAClicked() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName)
-        props[CONTEXT_SECTION.contextName] = ENABLE_NOTIFICATIONS_PROMPT.contextName
-        props[CONTEXT_CTA.contextName] = GET_NOTIFIED.contextName
+        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName, CONTEXT_SECTION.contextName to ENABLE_NOTIFICATIONS_PROMPT.contextName, CONTEXT_CTA.contextName to GET_NOTIFIED.contextName)
         client.track(CTA_CLICKED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the Allow Tracking CTA is tapped on the onboarding flow
-     */
     fun trackOnboardingAllowTrackingCTAClicked() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName)
-        props[CONTEXT_SECTION.contextName] = ACTIVITY_TRACKING_PROMPT.contextName
-        props[CONTEXT_CTA.contextName] = ALLOW_TRACKING.contextName
+        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName, CONTEXT_SECTION.contextName to ACTIVITY_TRACKING_PROMPT.contextName, CONTEXT_CTA.contextName to ALLOW_TRACKING.contextName)
         client.track(CTA_CLICKED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the either the allow or deny CTA is tapped on the dialog prompt
-     */
     fun trackOnboardingAllowDenyPromptCTAClicked(prompt: String, allowOrDeny: String) {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName)
-        props[CONTEXT_SECTION.contextName] = prompt
-        props[CONTEXT_CTA.contextName] = allowOrDeny
+        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName, CONTEXT_SECTION.contextName to prompt, CONTEXT_CTA.contextName to allowOrDeny)
         client.track(CTA_CLICKED.eventName, props)
     }
 
-    /**
-     * Sends data to the client when the close CTA is tapped on the onboarding flow
-     */
     fun trackOnboardingSignupLoginCTAClicked() {
-        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName)
-        props[CONTEXT_SECTION.contextName] = OnboardingPage.SIGNUP_LOGIN
-        props[CONTEXT_CTA.contextName] = SIGNUP_LOGIN.contextName
+        val props: HashMap<String, Any> = hashMapOf(CONTEXT_PAGE.contextName to ONBOARDING.contextName, CONTEXT_SECTION.contextName to OnboardingPage.SIGNUP_LOGIN, CONTEXT_CTA.contextName to SIGNUP_LOGIN.contextName)
         client.track(CTA_CLICKED.eventName, props)
     }
 
-    // VIDEO FEED
+    // DISCOVERY & SEARCH DELEGATES
+    fun trackDiscoverSortCTA(currentSort: DiscoveryParams.Sort, discoverParams: DiscoveryParams) =
+        discovery.trackDiscoverSortCTA(currentSort, discoverParams)
 
-    /**
-     * Fires every time a video settles as the primary visible item, including the first load.
-     * Covers impression measurement independently of navigation.
-     *
-     * @param videoFeedItem: The item now in the primary position, containing project and video
-     * @param position: 0-based index of the video in this session.
-     */
-    fun trackVideoFeedImpression(item: VideoFeedItem, position: Int, entrySurface: String) {
-        val props = HashMap<String, Any>()
-        props[CONTEXT_PAGE.contextName] = VIDEO_FEED.contextName
-        props[CONTEXT_LOCATION.contextName] = VIDEO_FEED_LOCATION.contextName
-        props.putAll(AnalyticEventsUtils.videoFeedItemProperties(item, position))
-        props["video_feed_entry_surface"] = entrySurface
-        client.track(PAGE_VIEWED.eventName, props)
-    }
+    fun trackDiscoverSearchResultProjectCATClicked(discoveryParams: DiscoveryParams, projectData: ProjectData, count: Int, sort: DiscoveryParams.Sort) =
+        discovery.trackDiscoverSearchResultProjectCATClicked(discoveryParams, projectData, count, sort)
 
-    /**
-     * Fires when the user swipes to a new video (page settles). Combines swipe
-     * navigation and watch-progress data into a single PAGE_VIEWED event. Never fires on
-     * the initial feed load — only on explicit user navigation.
-     *
-     * @param videoFeedItem: The item now in the primary position.
-     * @param toPosition: 0-based index of the destination video in this session.
-     * @param fromVideoFeedItem: The item the user swiped away from.
-     * @param watchTimeMs: Milliseconds the previous video was in the primary position.
-     * @param videoDurationMs: Total duration of the previous video in milliseconds.
-     */
-    fun trackVideoFeedPageViewed(
-        videoFeedItem: VideoFeedItem,
-        toPosition: Int,
-        fromVideoFeedItem: VideoFeedItem,
-        watchTimeMs: Long?,
-        videoDurationMs: Long?,
-        entrySurface: String
-    ) {
-        val props = HashMap<String, Any>()
-        props[CONTEXT_PAGE.contextName] = VIDEO_FEED.contextName
-        props[CONTEXT_LOCATION.contextName] = VIDEO_FEED_LOCATION.contextName
-        props.putAll(
-            AnalyticEventsUtils.videoFeedPageViewedProperties(
-                videoFeedItem, toPosition, fromVideoFeedItem, watchTimeMs, videoDurationMs, entrySurface
-            )
-        )
-        client.track(PAGE_VIEWED.eventName, props)
-    }
+    fun trackDiscoverProjectCtaClicked(discoveryParams: DiscoveryParams, projectData: ProjectData) =
+        discovery.trackDiscoverProjectCtaClicked(discoveryParams, projectData)
 
-    /**
-     * Fires when the user taps the video progress bar while watching.
-     *
-     * @param item: The videoItem whose progress bar was tapped.
-     * @param percentageWatched: Value from 0.0 to 1.0 representing watch completion at tap time.
-     * @param watchTimeAtClick: Optional milliseconds watched at the moment of the tap.
-     */
-    fun trackVideoFeedProgressBarTap(item: VideoFeedItem, percentageWatched: Float, watchTimeAtClick: Long? = null) {
-        val props = HashMap<String, Any>()
-        props[CONTEXT_PAGE.contextName] = VIDEO_FEED.contextName
-        props[CONTEXT_CTA.contextName] = VIDEO_PROGRESS_BAR.contextName
-        props.putAll(AnalyticEventsUtils.videoFeedItemProperties(item, 0))
-        props["video_feed_percentage_watched"] = percentageWatched
-        watchTimeAtClick?.let { props["video_feed_watch_time_at_click"] = it }
-        client.track(CTA_CLICKED.eventName, props)
-    }
+    fun trackDiscoveryPageViewed(discoveryParams: DiscoveryParams) =
+        discovery.trackDiscoveryPageViewed(discoveryParams)
 
-    /**
-     * Fires for every tappable action in the video feed: save, follow, share, and all
-     * video player controls (play, pause, forward, progress bar tap).
-     *
-     * @param project: The project the action was taken on.
-     * @param ctaType: The specific action that was tapped.
-     * @param watchTimeAtClick: Optional milliseconds watched at the moment of the tap.
-     */
-    fun trackSharePlatformCTAClicked(
-        platform: SocialSharePlatform,
-        contextPage: EventContextValues.ContextPageName
-    ) {
-        val props = HashMap<String, Any>()
-        props[CONTEXT_CTA.contextName] = SHARE_PLATFORM_CLICKED.contextName
-        props[CONTEXT_PAGE.contextName] = contextPage.contextName
-        props[CONTEXT_TYPE.contextName] = platform.analyticsContextType()
-        client.track(CTA_CLICKED.eventName, props)
-    }
+    fun trackDiscoverFilterCTA(discoveryParams: DiscoveryParams) =
+        discovery.trackDiscoverFilterCTA(discoveryParams)
 
-    fun trackVideoFeedCTAClicked(
-        project: Project,
-        videoId: Long,
-        ctaType: EventContextValues.CtaContextName,
-        watchTimeAtClick: Long? = null
-    ) {
-        val props = HashMap<String, Any>()
-        props[CONTEXT_PAGE.contextName] = VIDEO_FEED.contextName
-        props[CONTEXT_CTA.contextName] = ctaType.contextName
-        props["video_feed_video_id"] = videoId.toString()
-        props["video_feed_project_id"] = project.id().toString()
-        watchTimeAtClick?.let { props["video_feed_watch_time_at_click"] = it }
-        client.track(CTA_CLICKED.eventName, props)
-    }
+    fun trackSearchCTAButtonClicked(discoveryParams: DiscoveryParams) =
+        discovery.trackSearchCTAButtonClicked(discoveryParams)
 
-    fun reset() {
-        client.reset()
-    }
+    fun trackSearchResultPageViewed(discoveryParams: DiscoveryParams, count: Int, sort: DiscoveryParams.Sort) =
+        discovery.trackSearchResultPageViewed(discoveryParams, count, sort)
 
-    private class ProxyClient(private val clients: List<TrackingClientType?>) {
+    // CHECKOUT & PLEDGE & PPO DELEGATES
+    fun trackPledgedProjectsOverviewPageViewed(ppoCards: List<PPOCard>, totalCount: Int) =
+        checkout.trackPledgedProjectsOverviewPageViewed(ppoCards, totalCount)
+
+    fun trackPPOMessageCreatorCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int, creatorID: String) =
+        checkout.trackPPOMessageCreatorCTAClicked(projectID, ppoCards, totalCount, creatorID)
+
+    fun trackPPOFixPaymentCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) =
+        checkout.trackPPOFixPaymentCTAClicked(projectID, ppoCards, totalCount)
+
+    fun trackPPOOpenSurveyCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int, surveyID: String) =
+        checkout.trackPPOOpenSurveyCTAClicked(projectID, ppoCards, totalCount, surveyID)
+
+    fun trackPPOFinalizePledgeCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) =
+        checkout.trackPPOFinalizePledgeCTAClicked(projectID, ppoCards, totalCount)
+
+    fun trackPPOConfirmAddressInitiateCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) =
+        checkout.trackPPOConfirmAddressInitiateCTAClicked(projectID, ppoCards, totalCount)
+
+    fun trackPPOConfirmAddressSubmitCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) =
+        checkout.trackPPOConfirmAddressSubmitCTAClicked(projectID, ppoCards, totalCount)
+
+    fun trackPPOConfirmAddressEditCTAClicked(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) =
+        checkout.trackPPOConfirmAddressEditCTAClicked(projectID, ppoCards, totalCount)
+
+    fun trackCheckoutScreenViewed(checkoutData: CheckoutData, pledgeData: PledgeData) =
+        checkout.trackCheckoutScreenViewed(checkoutData, pledgeData)
+
+    fun trackUpdatePledgePageViewed(checkoutData: CheckoutData, pledgeData: PledgeData) =
+        checkout.trackUpdatePledgePageViewed(checkoutData, pledgeData)
+
+    fun trackPledgeConfirmCTA(checkoutData: CheckoutData, pledgeData: PledgeData) =
+        checkout.trackPledgeConfirmCTA(checkoutData, pledgeData)
+
+    fun trackPledgeSubmitCTA(checkoutData: CheckoutData, pledgeData: PledgeData) =
+        checkout.trackPledgeSubmitCTA(checkoutData, pledgeData)
+
+    fun trackLatePledgeSubmitCTA(checkoutData: CheckoutData, pledgeData: PledgeData) =
+        checkout.trackLatePledgeSubmitCTA(checkoutData, pledgeData)
+
+    fun trackManagePledgePageViewed(backing: Backing, projectData: ProjectData) =
+        checkout.trackManagePledgePageViewed(backing, projectData)
+
+    fun trackPledgeInitiateCTA(projectData: ProjectData) =
+        checkout.trackPledgeInitiateCTA(projectData)
+
+    fun trackSelectRewardCTA(pledgeData: PledgeData) =
+        checkout.trackSelectRewardCTA(pledgeData)
+
+    fun trackThanksScreenViewed(checkoutData: CheckoutData, pledgeData: PledgeData) =
+        checkout.trackThanksScreenViewed(checkoutData, pledgeData)
+
+    fun trackAddOnsScreenViewed(pledgeData: PledgeData) =
+        checkout.trackAddOnsScreenViewed(pledgeData)
+
+    fun trackAddOnsContinueCTA(pledgeData: PledgeData) =
+        checkout.trackAddOnsContinueCTA(pledgeData)
+
+    fun trackRewardsCarouselViewed(projectData: ProjectData) =
+        checkout.trackRewardsCarouselViewed(projectData)
+
+    fun trackChangePaymentMethod(pledgeData: PledgeData) =
+        checkout.trackChangePaymentMethod(pledgeData)
+
+    fun trackThanksActivityProjectCardClicked(projectData: ProjectData, checkoutData: CheckoutData, pledgeData: PledgeData) =
+        checkout.trackThanksActivityProjectCardClicked(projectData, checkoutData, pledgeData)
+
+    // PROJECT & VIDEO & COMMENTS DELEGATES
+    fun trackVideoStarted(project: Project, videoLength: Long, videoPosition: Long) =
+        projectEvents.trackVideoStarted(project, videoLength, videoPosition)
+
+    fun trackVideoCompleted(project: Project, videoLength: Long, videoPosition: Long) =
+        projectEvents.trackVideoCompleted(project, videoLength, videoPosition)
+
+    fun trackProjectScreenViewed(projectData: ProjectData, pageSectionContext: String) =
+        projectEvents.trackProjectScreenViewed(projectData, pageSectionContext)
+
+    fun trackProjectCardClicked(project: Project, pageContext: String) =
+        projectEvents.trackProjectCardClicked(project, pageContext)
+
+    fun trackCampaignDetailsCTAClicked(projectData: ProjectData) =
+        projectEvents.trackCampaignDetailsCTAClicked(projectData)
+
+    fun trackProjectPageTabChanged(projectData: ProjectData, pageSectionContext: String) =
+        projectEvents.trackProjectPageTabChanged(projectData, pageSectionContext)
+
+    fun trackWatchProjectCTA(project: Project, contextPageName: EventContextValues.ContextPageName) =
+        projectEvents.trackWatchProjectCTA(project, contextPageName)
+
+    fun trackRootCommentPageViewed(project: Project, projectUpdateId: String? = null) =
+        projectEvents.trackRootCommentPageViewed(project, projectUpdateId)
+
+    fun trackThreadCommentPageViewed(project: Project, rootCommentId: String, projectUpdateId: String? = null) =
+        projectEvents.trackThreadCommentPageViewed(project, rootCommentId, projectUpdateId)
+
+    fun trackCommentCTA(project: Project, commentId: String, comment: String, projectUpdateId: String? = null) =
+        projectEvents.trackCommentCTA(project, commentId, comment, projectUpdateId)
+
+    fun trackRootCommentReplyCTA(project: Project, commentId: String, commentReply: String, rootCommentId: String, projectUpdateId: String? = null) =
+        projectEvents.trackRootCommentReplyCTA(project, commentId, commentReply, rootCommentId, projectUpdateId)
+
+    fun trackVideoFeedImpression(item: VideoFeedItem, position: Int, entrySurface: String) =
+        projectEvents.trackVideoFeedImpression(item, position, entrySurface)
+
+    fun trackVideoFeedPageViewed(videoFeedItem: VideoFeedItem, toPosition: Int, fromVideoFeedItem: VideoFeedItem, watchTimeMs: Long?, videoDurationMs: Long?, entrySurface: String) =
+        projectEvents.trackVideoFeedPageViewed(videoFeedItem, toPosition, fromVideoFeedItem, watchTimeMs, videoDurationMs, entrySurface)
+
+    fun trackVideoFeedProgressBarTap(item: VideoFeedItem, percentageWatched: Float, watchTimeAtClick: Long? = null) =
+        projectEvents.trackVideoFeedProgressBarTap(item, percentageWatched, watchTimeAtClick)
+
+    fun trackSharePlatformCTAClicked(platform: SocialSharePlatform, contextPage: EventContextValues.ContextPageName) =
+        projectEvents.trackSharePlatformCTAClicked(platform, contextPage)
+
+    fun trackVideoFeedCTAClicked(project: Project, videoId: Long, ctaType: EventContextValues.CtaContextName, watchTimeAtClick: Long? = null) =
+        projectEvents.trackVideoFeedCTAClicked(project, videoId, ctaType, watchTimeAtClick)
+
+    fun reset() = client.reset()
+
+    internal class ProxyClient(private val clients: List<TrackingClientType?>) {
         fun track(eventName: String) {
-            clients.forEach { client ->
-                client?.track(eventName)
-            }
+            clients.forEach { it?.track(eventName) }
         }
 
         fun track(eventName: String, additionalProperties: Map<String, Any>) {
-            clients.forEach { client ->
-                client?.track(eventName, additionalProperties)
-            }
+            clients.forEach { it?.track(eventName, additionalProperties) }
         }
 
         fun reset() = clients.forEach { it?.reset() }

@@ -95,38 +95,38 @@ interface ActivityFeedViewModel {
     }
 
     @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
-    class ActivityFeedViewModel(environment: Environment) : ViewModel(), Inputs, Outputs {
+    class ActivityFeedViewModel(internal val environment: Environment) : ViewModel(), Inputs, Outputs {
 
-        private val apiClient: ApiClientTypeV2
-        private val apolloClient: ApolloClientTypeV2
-        private val currentUser: CurrentUserTypeV2
-        private val analyticEvents: AnalyticEvents
+        internal val apiClient: ApiClientTypeV2
+        internal val apolloClient: ApolloClientTypeV2
+        internal val currentUser: CurrentUserTypeV2
+        internal val analyticEvents: AnalyticEvents
 
-        private val discoverProjectsClick = PublishSubject.create<Unit>()
-        private val friendBackingClick = PublishSubject.create<Activity>()
-        private val loginClick = PublishSubject.create<Unit>()
-        private val managePledgeClicked = PublishSubject.create<String>()
-        private val trackShipmentClicked = PublishSubject.create<String>()
-        private val nextPage = PublishSubject.create<Unit>()
-        private val projectStateChangedClick = PublishSubject.create<Activity>()
-        private val projectStateChangedPositiveClick = PublishSubject.create<Activity>()
-        private val projectUpdateClick = PublishSubject.create<Activity>()
-        private val projectUpdateProjectClick = PublishSubject.create<Activity>()
-        private val refresh = PublishSubject.create<Unit>()
-        private val resume = PublishSubject.create<Unit>()
-        private val surveyClick = PublishSubject.create<SurveyResponse>()
-        private val activityList = BehaviorSubject.create<List<Activity>>()
-        private val erroredBackings = BehaviorSubject.create<List<ErroredBacking>>()
-        private val goToDiscovery: Observable<Unit>
-        private val goToLogin: Observable<Unit>
-        private val goToProject: Observable<Project>
-        private val goToSurvey: Observable<SurveyResponse>
-        private val isFetchingActivities = BehaviorSubject.create<Boolean>()
-        private val loggedInEmptyStateIsVisible = BehaviorSubject.create<Boolean>()
-        private val loggedOutEmptyStateIsVisible = BehaviorSubject.create<Boolean>()
-        private val startFixPledge = PublishSubject.create<String>()
-        private val startUpdateActivity: Observable<Activity>
-        private val surveys = BehaviorSubject.create<List<SurveyResponse>>()
+        internal val discoverProjectsClick = PublishSubject.create<Unit>()
+        internal val friendBackingClick = PublishSubject.create<Activity>()
+        internal val loginClick = PublishSubject.create<Unit>()
+        internal val managePledgeClicked = PublishSubject.create<String>()
+        internal val trackShipmentClicked = PublishSubject.create<String>()
+        internal val nextPage = PublishSubject.create<Unit>()
+        internal val projectStateChangedClick = PublishSubject.create<Activity>()
+        internal val projectStateChangedPositiveClick = PublishSubject.create<Activity>()
+        internal val projectUpdateClick = PublishSubject.create<Activity>()
+        internal val projectUpdateProjectClick = PublishSubject.create<Activity>()
+        internal val refresh = PublishSubject.create<Unit>()
+        internal val resume = PublishSubject.create<Unit>()
+        internal val surveyClick = PublishSubject.create<SurveyResponse>()
+        internal val activityList = BehaviorSubject.create<List<Activity>>()
+        internal val erroredBackings = BehaviorSubject.create<List<ErroredBacking>>()
+        internal var goToDiscovery: Observable<Unit> = Observable.empty()
+        internal var goToLogin: Observable<Unit> = Observable.empty()
+        internal var goToProject: Observable<Project> = Observable.empty()
+        internal var goToSurvey: Observable<SurveyResponse> = Observable.empty()
+        internal val isFetchingActivities = BehaviorSubject.create<Boolean>()
+        internal val loggedInEmptyStateIsVisible = BehaviorSubject.create<Boolean>()
+        internal val loggedOutEmptyStateIsVisible = BehaviorSubject.create<Boolean>()
+        internal val startFixPledge = PublishSubject.create<String>()
+        internal var startUpdateActivity: Observable<Activity> = Observable.empty()
+        internal val surveys = BehaviorSubject.create<List<SurveyResponse>>()
 
         private val disposables = CompositeDisposable()
 
@@ -139,131 +139,7 @@ interface ActivityFeedViewModel {
             currentUser = requireNotNull(environment.currentUserV2())
             analyticEvents = requireNotNull(environment.analytics())
 
-            goToDiscovery = discoverProjectsClick
-            goToLogin = loginClick
-            goToSurvey = surveyClick
-
-            goToProject = Observable.merge(
-                friendBackingClick,
-                projectStateChangedClick,
-                projectStateChangedPositiveClick,
-                projectUpdateProjectClick
-            ).map { obj: Activity -> obj.project() }
-
-            goToProject
-                .subscribe { p: Project ->
-                    analyticEvents.trackProjectCardClicked(
-                        p,
-                        EventContextValues.ContextPageName.ACTIVITY_FEED.contextName
-                    )
-                }
-                .addToDisposable(disposables)
-
-            startUpdateActivity = projectUpdateClick
-
-            val refreshOrResume = Observable.merge(refresh, resume).share()
-
-            val loggedInUser = currentUser.loggedInUser()
-
-            loggedInUser
-                .compose(Transformers.takeWhenV2(refreshOrResume))
-                .switchMap {
-                    apiClient.fetchUnansweredSurveys().compose(Transformers.neverErrorV2()).share()
-                }
-                .subscribe { surveys.onNext(it) }
-                .addToDisposable(disposables)
-
-            loggedInUser
-                .compose(Transformers.takeWhenV2(refreshOrResume))
-                .switchMap {
-                    apolloClient.erroredBackings().compose(Transformers.neverErrorV2()).share()
-                }
-                .subscribe { v: List<ErroredBacking> -> erroredBackings.onNext(v) }
-                .addToDisposable(disposables)
-
-            loggedInUser
-                .compose(Transformers.takeWhenV2(refreshOrResume))
-                .map { user: User ->
-                    user.unseenActivityCount().intValueOrZero() + user.erroredBackingsCount()
-                        .intValueOrZero()
-                }
-                .filter { it.isNonZero() }
-                .distinctUntilChanged()
-                .switchMap {
-                    apolloClient.clearUnseenActivity().compose(Transformers.neverErrorV2())
-                }
-                .switchMap {
-                    apiClient.fetchCurrentUser().compose(Transformers.neverErrorV2())
-                }
-                .subscribe {
-                    currentUser.refresh(it)
-                }
-                .addToDisposable(disposables)
-
-            val paginator = ApiPaginatorV2.builder<Activity, ActivityEnvelope, Unit>()
-                .nextPage(nextPage)
-                .startOverWith(refresh)
-                .envelopeToListOfData { obj: ActivityEnvelope -> obj.activities() }
-                .envelopeToMoreUrl { env: ActivityEnvelope -> env.urls().api().moreActivities() }
-                .loadWithParams {
-                    apiClient.fetchActivities().compose(Transformers.neverErrorV2())
-                }
-                .loadWithPaginationPath { paginationPath: String ->
-                    apiClient.fetchActivitiesWithPaginationPath(
-                        paginationPath
-                    )
-                }
-                .build()
-
-            paginator.paginatedData()
-                .subscribe {
-                    if (!environment.featureFlagClient()
-                        ?.getBoolean(FlagKey.ANDROID_REWARD_SHIPMENT_TRACKING).isTrue()
-                    ) {
-                        activityList.onNext(it.filter { it.category() != CATEGORY_SHIPPED })
-                    } else {
-                        activityList.onNext(it)
-                    }
-                }
-                .addToDisposable(disposables)
-
-            paginator.isFetching
-                .subscribe { isFetchingActivities.onNext(it) }
-                .addToDisposable(disposables)
-
-            currentUser.loggedInUser()
-                .take(1)
-                .subscribe { refresh() }
-                .addToDisposable(disposables)
-
-            currentUser.isLoggedIn
-                .map { loggedIn: Boolean -> !loggedIn }
-                .subscribe { loggedOutEmptyStateIsVisible.onNext(it) }
-                .addToDisposable(disposables)
-
-            managePledgeClicked
-                .subscribe { v: String -> startFixPledge.onNext(v) }
-                .addToDisposable(disposables)
-
-            currentUser.observable()
-                .compose(Transformers.takePairWhenV2(activityList))
-                .map { ua: Pair<KsOptional<User>, List<Activity>> -> ua.first != null && ua.second.isEmpty() }
-                .subscribe { loggedInEmptyStateIsVisible.onNext(it) }
-                .addToDisposable(disposables)
-
-            // Track viewing and paginating activity.
-            val feedViewed = nextPage
-                .compose(Transformers.incrementalCountV2())
-                .startWith(0)
-
-            feedViewed
-                .take(1)
-                .subscribe { analyticEvents.trackActivityFeedPageViewed() }
-                .addToDisposable(disposables)
-
-            discoverProjectsClick
-                .subscribe { analyticEvents.trackDiscoverProjectCTAClicked() }
-                .addToDisposable(disposables)
+            initActivityFeedPipelines(disposables)
         }
 
         override fun onCleared() {

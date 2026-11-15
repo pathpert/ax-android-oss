@@ -1,17 +1,18 @@
 package com.kickstarter.mock.factories
 
-import com.kickstarter.models.Backing
-import com.kickstarter.models.Order
 import com.kickstarter.models.Project
 import com.kickstarter.models.Reward
 import com.kickstarter.models.Urls
 import com.kickstarter.models.Web
-import com.kickstarter.type.CreditCardPaymentType
 import com.kickstarter.type.CreditCardTypes
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 
+/**
+ * Mock factory producing Kickstarter [Project] instances for testing and preview mocks.
+ */
 object ProjectFactory {
+
     @JvmStatic
     fun project(): Project {
         val creator = UserFactory.creator()
@@ -77,219 +78,30 @@ object ProjectFactory {
             .build()
     }
 
-    @JvmStatic
-    fun backedProjectWithError(): Project {
-        val project = project()
-        val reward = RewardFactory.reward()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .paymentSource(PaymentSourceFactory.visa())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_ERRORED)
-            .build()
-        return project
-            .toBuilder()
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
+    // Delegated Backed Projects
+    @JvmStatic fun backedProjectWithError(): Project = BackedProjectFactory.backedProjectWithError()
+    @JvmStatic fun backedProject(): Project = BackedProjectFactory.backedProject()
+    @JvmStatic fun backedProjectWithPMCheckoutOrder(): Project = BackedProjectFactory.backedProjectWithPMCheckoutOrder()
+    @JvmStatic fun backedProjectWithPlotSelected(): Project = BackedProjectFactory.backedProjectWithPlotSelected()
+    @JvmStatic fun backedProjectWithRewardAndAddOnsLimitReached(): Project = BackedProjectFactory.backedProjectWithRewardAndAddOnsLimitReached()
+    @JvmStatic fun backedProjectWithAddOns(): Project = BackedProjectFactory.backedProjectWithAddOns()
+    @JvmStatic fun backedProjectRewardAvailableAddOnsNotBackedAddOns(): Project = BackedProjectFactory.backedProjectRewardAvailableAddOnsNotBackedAddOns()
+    @JvmStatic fun backedSuccessfulProject(): Project = BackedProjectFactory.backedSuccessfulProject()
+    @JvmStatic fun backedProjectWithRewardLimited(): Project = BackedProjectFactory.backedProjectWithRewardLimited()
+    @JvmStatic fun backedProjectWithRewardLimitReached(): Project = BackedProjectFactory.backedProjectWithRewardLimitReached()
+    @JvmStatic fun backedProjectWithNoReward(): Project = BackedProjectFactory.backedProjectWithNoReward()
 
-    @JvmStatic
-    fun britishProject(): Project {
-        return project()
-            .toBuilder()
-            .country("GB")
-            .countryCode("GB")
-            .currency("GBP")
-            .currencySymbol("£")
-            .build()
-    }
+    // Delegated International Projects
+    @JvmStatic fun britishProject(): Project = InternationalProjectFactory.britishProject()
+    @JvmStatic fun caProject(): Project = InternationalProjectFactory.caProject()
+    @JvmStatic fun mxCurrencyCAProject(): Project = InternationalProjectFactory.mxCurrencyCAProject()
+    @JvmStatic fun mxProject(): Project = InternationalProjectFactory.mxProject()
+    @JvmStatic fun ukProject(): Project = InternationalProjectFactory.ukProject()
 
-    @JvmStatic
-    fun backedProject(): Project {
-        val project = project()
-        val reward = RewardFactory.reward()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .paymentSource(PaymentSourceFactory.visa())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .availableCardTypes(listOf(PaymentSourceFactory.visa().type() ?: CreditCardPaymentType.CREDIT_CARD.rawValue))
-            .canComment(true)
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-
-    @JvmStatic
-    fun backedProjectWithPMCheckoutOrder(): Project {
-        val project = project()
-        val reward = RewardFactory.reward()
-        val order = Order.builder().checkoutState(Order.CheckoutStateEnum.COMPLETE).build()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .backingDetailsPageRoute("https://ksr.com/backing/survey_responses")
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .order(order)
-            .reward(reward)
-            .rewardId(reward.id())
-            .paymentSource(PaymentSourceFactory.visa())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .availableCardTypes(listOf(PaymentSourceFactory.visa().type() ?: CreditCardPaymentType.CREDIT_CARD.rawValue))
-            .canComment(true)
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-
-    @JvmStatic
-    fun backedProjectWithPlotSelected(): Project {
-        val project = project().toBuilder().isPledgeOverTimeAllowed(true).build()
-        val reward = RewardFactory.reward()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .incremental(true)
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .paymentSource(PaymentSourceFactory.visa())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .availableCardTypes(listOf(PaymentSourceFactory.visa().type() ?: CreditCardPaymentType.CREDIT_CARD.rawValue))
-            .canComment(true)
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-    @JvmStatic
-    fun backedProjectWithRewardAndAddOnsLimitReached(): Project {
-        val project = project()
-        val reward = RewardFactory.reward().toBuilder().hasAddons(true).limit(10).build()
-        val add1 = RewardFactory.addOn()
-            .toBuilder()
-            .remaining(0)
-            .limit(0)
-            .quantity(1)
-            .build()
-        val addOns: MutableList<Reward> = ArrayList()
-        addOns.add(add1)
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .addOns(addOns)
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .paymentSource(PaymentSourceFactory.visa())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-
-    @JvmStatic
-    fun backedProjectWithAddOns(): Project {
-        val project = project()
-        val reward = RewardFactory.reward().toBuilder().hasAddons(true).build()
-        val add1 = RewardFactory.addOn()
-        val addOns: MutableList<Reward> = ArrayList()
-        addOns.add(add1)
-        addOns.add(add1)
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .addOns(addOns)
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .paymentSource(PaymentSourceFactory.visa())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-
-    @JvmStatic
-    fun backedProjectRewardAvailableAddOnsNotBackedAddOns(): Project {
-        val project = project()
-        val reward = RewardFactory.reward().toBuilder().hasAddons(true).isAvailable(true).build()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .paymentSource(PaymentSourceFactory.visa())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-
+    // Project State and Milestone Variants
     @JvmStatic
     fun projectWithActivePMForNewBackers(): Project {
-        val project = project()
-        return project
+        return project()
             .toBuilder()
             .pledgeManager(PledgeManagerFactory.pledgeManagerAcceptsNetNewBackers())
             .lastWave(CheckoutWaveFactory.checkoutWaveActive())
@@ -299,109 +111,9 @@ object ProjectFactory {
 
     @JvmStatic
     fun projectWithAddOns(): Project {
-        val rwWithAddOn =
-            RewardFactory.reward().toBuilder().hasAddons(true).build()
-        val rw =
-            RewardFactory.reward().toBuilder().hasAddons(false).build()
+        val rwWithAddOn = RewardFactory.reward().toBuilder().hasAddons(true).build()
+        val rw = RewardFactory.reward().toBuilder().hasAddons(false).build()
         return project().toBuilder().rewards(listOf(rw, rwWithAddOn)).build()
-    }
-
-    @JvmStatic
-    fun backedSuccessfulProject(): Project {
-        val project = successfulProject()
-        val reward = RewardFactory.reward()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-
-    fun backedProjectWithRewardLimited(): Project {
-        val project = project()
-        val reward = RewardFactory.limited()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-
-    @JvmStatic
-    fun backedProjectWithRewardLimitReached(): Project {
-        val project = project()
-        val reward = RewardFactory.limitReached()
-            .toBuilder()
-            .hasAddons(true)
-            .build()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(reward.id())
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .backing(backing)
-            .isBacking(true)
-            .build()
-    }
-
-    @JvmStatic
-    fun backedProjectWithNoReward(): Project {
-        val project = project()
-        val reward = RewardFactory.noReward()
-        val backing = Backing.builder()
-            .amount(10.0)
-            .backerId(IdFactory.id().toLong())
-            .cancelable(true)
-            .id(IdFactory.id().toLong())
-            .sequence(1)
-            .reward(reward)
-            .rewardId(null)
-            .pledgedAt(DateTime.now())
-            .projectId(project.id())
-            .shippingAmount(0.0f)
-            .status(Backing.STATUS_PLEDGED)
-            .build()
-        return project
-            .toBuilder()
-            .backing(backing)
-            .isBacking(true)
-            .build()
     }
 
     @JvmStatic
@@ -447,98 +159,6 @@ object ProjectFactory {
     }
 
     @JvmStatic
-    fun caProject(): Project {
-        return project()
-            .toBuilder()
-            .availableCardTypes(
-                listOf(
-                    CreditCardTypes.AMEX.rawValue,
-                    CreditCardTypes.MASTERCARD.rawValue,
-                    CreditCardTypes.VISA.rawValue
-                )
-            )
-            .name("caProject")
-            .country("CA")
-            .countryCode("CA")
-            .currentCurrency("CAD")
-            .currencySymbol("$")
-            .currency("CAD")
-            .staticUsdRate(0.75f)
-            .usdExchangeRate(0.75f)
-            .fxRate(0.75f)
-            .build()
-    }
-
-    @JvmStatic
-    fun mxCurrencyCAProject(): Project {
-        return project()
-            .toBuilder()
-            .availableCardTypes(
-                listOf(
-                    CreditCardTypes.AMEX.rawValue,
-                    CreditCardTypes.MASTERCARD.rawValue,
-                    CreditCardTypes.VISA.rawValue
-                )
-            )
-            .name("mxCurrencyCAProject")
-            .country("CA")
-            .countryCode("CA")
-            .currentCurrency("MXN")
-            .currencySymbol("$")
-            .currency("CAD")
-            .staticUsdRate(0.75f)
-            .usdExchangeRate(0.75f)
-            .fxRate(.75f)
-            .build()
-    }
-
-    fun mxProject(): Project {
-        return project()
-            .toBuilder()
-            .availableCardTypes(
-                listOf(
-                    CreditCardTypes.AMEX.rawValue,
-                    CreditCardTypes.MASTERCARD.rawValue,
-                    CreditCardTypes.VISA.rawValue
-                )
-            )
-            .name("mxProject")
-            .country("MX")
-            .countryCode("MX")
-            .currentCurrency("MXN")
-            .currencySymbol("$")
-            .currency("MXN")
-            .location(LocationFactory.mexico())
-            .staticUsdRate(0.75f)
-            .usdExchangeRate(0.75f)
-            .fxRate(0.75f)
-            .build()
-    }
-
-    @JvmStatic
-    fun ukProject(): Project {
-        return project()
-            .toBuilder()
-            .availableCardTypes(
-                listOf(
-                    CreditCardTypes.AMEX.rawValue,
-                    CreditCardTypes.MASTERCARD.rawValue,
-                    CreditCardTypes.VISA.rawValue
-                )
-            )
-            .name("ukProject")
-            .country("UK")
-            .countryCode("GB")
-            .currentCurrency("GBP")
-            .currencySymbol("£")
-            .currency("GBP")
-            .staticUsdRate(1.5f)
-            .usdExchangeRate(0.75f)
-            .fxRate(1.5f)
-            .build()
-    }
-
-    @JvmStatic
     fun almostCompletedProject(): Project {
         return project()
             .toBuilder()
@@ -566,6 +186,7 @@ object ProjectFactory {
             .build()
     }
 
+    @JvmStatic
     fun saved(): Project {
         return project()
             .toBuilder()
@@ -583,6 +204,7 @@ object ProjectFactory {
             .build()
     }
 
+    @JvmStatic
     fun prelaunchProject(projectUrl: String): Project {
         val web = Web.builder()
             .project(projectUrl)
@@ -598,6 +220,7 @@ object ProjectFactory {
             .build()
     }
 
+    @JvmStatic
     fun initialProject(): Project {
         return project()
             .toBuilder()

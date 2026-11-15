@@ -54,7 +54,8 @@ class CrowdfundCheckoutFragment : Fragment() {
         viewModelFactory
     }
 
-    private lateinit var flowController: PaymentSheet.FlowController
+    private lateinit var paymentSheetHelper: CrowdfundPaymentSheetHelper
+    private var currentSetupClientId: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,6 +64,14 @@ class CrowdfundCheckoutFragment : Fragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         binding = FragmentCrowdfundCheckoutBinding.inflate(inflater, container, false)
+
+        paymentSheetHelper = CrowdfundPaymentSheetHelper(
+            fragment = this,
+            viewModel = viewModel,
+            getErrorTargetView = { binding?.composeView }
+        ).apply {
+            initialize { currentSetupClientId }
+        }
 
         val view = binding?.root
         binding?.composeView?.apply {
@@ -186,10 +195,21 @@ class CrowdfundCheckoutFragment : Fragment() {
                                 viewModel.getSetupIntent()
                             },
                             onDisclaimerItemClicked = { disclaimerItem ->
-                                openDisclaimerScreen(disclaimerItem, environment)
+                                CrowdfundCheckoutNavigationHelper.openDisclaimerScreen(
+                                    activity,
+                                    context,
+                                    binding?.composeView,
+                                    disclaimerItem,
+                                    environment
+                                )
                             },
                             onAccountabilityLinkClicked = {
-                                showAccountabilityPage(environment)
+                                CrowdfundCheckoutNavigationHelper.showAccountabilityPage(
+                                    activity,
+                                    context,
+                                    binding?.composeView,
+                                    environment
+                                )
                             },
                             onChangedPaymentMethod = { paymentMethodSelected ->
                                 viewModel.userChangedPaymentMethodSelected(paymentMethodSelected)
@@ -219,139 +239,17 @@ class CrowdfundCheckoutFragment : Fragment() {
         googlePayCurrencyCode: String? = null
     ) {
         context?.let {
-            val googlePayEnabled = viewModel.isPaymentSheetGooglePayEnabled()
-            Timber.d("googlePayEnabled: $googlePayEnabled, googlePayCountryCode: $googlePayCountryCode, googlePayCurrencyCode: $googlePayCurrencyCode")
-            flowController.configureWithSetupIntent(
-                setupIntentClientSecret = clientSecret,
-                configuration = it.getPaymentSheetConfiguration(userEmail, googlePayEnabled, googlePayCountryCode, googlePayCurrencyCode),
-                callback = ::onConfigured
+            paymentSheetHelper.presentPaymentOption(
+                it,
+                clientSecret,
+                userEmail,
+                googlePayCountryCode,
+                googlePayCurrencyCode
             )
         }
     }
 
-    private fun onConfigured(success: Boolean, error: Throwable?) {
-        if (success) {
-            flowController.presentPaymentOptions()
-        } else {
-            binding?.composeView?.let { view ->
-                context?.let {
-                    activity?.runOnUiThread {
-                        showErrorToast(
-                            it,
-                            view,
-                            error?.message ?: getString(R.string.general_error_something_wrong)
-                        )
-                    }
-                }
-            }
-        }
-        this.viewModel.paymentSheetPresented(success)
-    }
-
-    private fun openDisclaimerScreen(disclaimerItem: DisclaimerItems, environment: Environment?) {
-        activity?.let { activity ->
-            environment?.let {
-                activity.startDisclaimerChromeTab(disclaimerItem, environment)
-            } ?: binding?.composeView?.let { view ->
-                context?.let {
-                    activity.runOnUiThread {
-                        showErrorToast(
-                            it,
-                            view,
-                            getString(R.string.general_error_something_wrong)
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun showAccountabilityPage(environment: Environment?) {
-        activity?.let { activity ->
-            context?.let { context ->
-                environment?.let { env ->
-                    env.webEndpoint().let { endpoint ->
-                        val trustUrl = UrlUtils.appendPath(endpoint, "trust")
-                        ChromeTabsHelperActivity.openCustomTab(
-                            activity,
-                            UrlUtils.baseCustomTabsIntent(context),
-                            trustUrl.toUri(),
-                            null
-                        )
-                    }
-                } ?: binding?.composeView?.let { view ->
-                    activity.runOnUiThread {
-                        showErrorToast(
-                            context,
-                            view,
-                            getString(R.string.general_error_something_wrong)
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    // TODO: explore this piece to be more generic/reusable between crowdfund/late pledges/pledge redemption,
-    // TODO: it does require specific VM callbacks
     private fun configurePaymentSheet(setupClientId: String) {
-
-        val paymentOptionCallback = PaymentOptionCallback { paymentOption ->
-            paymentOption?.let {
-                // In crowdfund checkout, `lastFourDigits` serves as an intermediate display label
-                val storedCard = StoredCard.Builder(
-                    lastFourDigits = if (paymentOption.isLink() || paymentOption.isGooglePay()) {
-                        paymentOption.label
-                    } else {
-                        paymentOption.label.takeLast(4)
-                    },
-                    resourceId = if (paymentOption.isGooglePay()) {
-                        R.drawable.google_pay_mark_stored_card
-                    } else {
-                        paymentOption.drawableResourceId
-                    },
-                    clientSetupId = setupClientId
-                ).build()
-                this.viewModel.newlyAddedPaymentMethod(storedCard)
-                Timber.d(" ${this.javaClass.canonicalName} onPaymentOption with ${storedCard.lastFourDigits()} and ${storedCard.clientSetupId()}")
-                flowController.confirm()
-            }
-        }
-
-        val onPaymentSheetResult = PaymentSheetResultCallback { paymentSheetResult ->
-            this.viewModel.paymentSheetResult(paymentSheetResult.toStripePaymentSheetResult())
-            when (paymentSheetResult) {
-                is PaymentSheetResult.Canceled -> {
-                    binding?.composeView?.let { view ->
-                        context?.let {
-                            activity?.runOnUiThread {
-                                showErrorToast(it, view, getString(R.string.general_error_oops))
-                            }
-                        }
-                    }
-                }
-
-                is PaymentSheetResult.Failed -> {
-                    binding?.composeView?.let { view ->
-                        context?.let {
-                            val errorMessage = paymentSheetResult.error.localizedMessage
-                                ?: getString(R.string.general_error_something_wrong)
-                            activity?.runOnUiThread {
-                                showErrorToast(it, view, errorMessage)
-                            }
-                        }
-                    }
-                }
-
-                is PaymentSheetResult.Completed -> {
-                }
-            }
-        }
-
-        flowController = PaymentSheet.FlowController.create(
-            fragment = this,
-            paymentOptionCallback = paymentOptionCallback,
-            paymentResultCallback = onPaymentSheetResult
-        )
+        currentSetupClientId = setupClientId
     }
 }

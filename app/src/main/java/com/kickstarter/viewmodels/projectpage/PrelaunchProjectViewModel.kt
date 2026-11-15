@@ -79,283 +79,35 @@ interface PrelaunchProjectViewModel {
         val outputs: Outputs = this
         private val disposables = CompositeDisposable()
 
-        private val cookieManager = requireNotNull(environment.cookieManager())
-        private val currentUser = requireNotNull(environment.currentUserV2())
-        private val apolloClient = requireNotNull(environment.apolloClientV2())
-        private val apolloClientLegacy = requireNotNull(environment.apolloClientV2())
-        private val currentConfig = requireNotNull(environment.currentConfigV2())
-        private val sharedPreferences = requireNotNull(environment.sharedPreferences())
-        private val ffClient = requireNotNull(environment.featureFlagClient())
-        private val attributionEvents = requireNotNull(environment.attributionEvents())
-        private val statsigClient = requireNotNull(environment.statsigClient())
+        internal val cookieManager = requireNotNull(environment.cookieManager())
+        internal val currentUser = requireNotNull(environment.currentUserV2())
+        internal val apolloClient = requireNotNull(environment.apolloClientV2())
+        internal val apolloClientLegacy = requireNotNull(environment.apolloClientV2())
+        internal val currentConfig = requireNotNull(environment.currentConfigV2())
+        internal val sharedPreferences = requireNotNull(environment.sharedPreferences())
+        internal val ffClient = requireNotNull(environment.featureFlagClient())
+        internal val attributionEvents = requireNotNull(environment.attributionEvents())
+        internal val statsigClient = requireNotNull(environment.statsigClient())
 
-        private val intent = BehaviorSubject.create<Intent>()
-        private val creatorInfoClicked = PublishSubject.create<Unit>()
-        private val shareButtonClicked = PublishSubject.create<Unit>()
-        private val bookmarkButtonClicked = PublishSubject.create<Unit>()
-        private val projectData = BehaviorSubject.create<ProjectData>()
+        internal val intent = BehaviorSubject.create<Intent>()
+        internal val creatorInfoClicked = PublishSubject.create<Unit>()
+        internal val shareButtonClicked = PublishSubject.create<Unit>()
+        internal val bookmarkButtonClicked = PublishSubject.create<Unit>()
+        internal val projectData = BehaviorSubject.create<ProjectData>()
 
-        private val project = PublishSubject.create<Project>()
-        private val startCreatorView = PublishSubject.create<Project>()
-        private val showShareSheet = PublishSubject.create<Pair<String, String>>()
-        private val startLoginToutActivity = PublishSubject.create<Unit>()
-        private val showSavedPrompt = PublishSubject.create<Unit>()
-        private val currentProject2 = PublishSubject.create<Project>()
+        internal val project = PublishSubject.create<Project>()
+        internal val startCreatorView = PublishSubject.create<Project>()
+        internal val showShareSheet = PublishSubject.create<Pair<String, String>>()
+        internal val startLoginToutActivity = PublishSubject.create<Unit>()
+        internal val showSavedPrompt = PublishSubject.create<Unit>()
+        internal val currentProject2 = PublishSubject.create<Project>()
 
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         val onThirdPartyEventSent = BehaviorSubject.create<Boolean>()
 
         init {
-
-            val reducedProject = this.intent
-                .map { it.getParcelableExtra<Project>(IntentKey.PROJECT) }
-                .ofType(Project::class.java)
-                .withLatestFrom(
-                    currentConfig.observable(),
-                    currentUser.observable(),
-                ) { project, config, user ->
-                    if (user.isPresent()) {
-                        return@withLatestFrom project.updateProjectWith(config, user.getValue())
-                    } else {
-                        return@withLatestFrom project.updateProjectWith(config, null)
-                    }
-                }.delay(1000, TimeUnit.MILLISECONDS, environment.schedulerV2())
-
-            val loadedProject = intent
-                .filter {
-                    it.getParcelableExtra<Project>(IntentKey.PROJECT).isNull()
-                }.switchMap { intent ->
-                    loadProject(intent)
-                }
-                .share()
-
-            val initialProject = Observable.merge(reducedProject, loadedProject)
-
-            // An observable of the ref tag stored in the cookie for the project. Emits an optional since this value can be null.
-            val cookieRefTag = initialProject
-                .take(1)
-                .map {
-                        p ->
-                    KsOptional.of(RefTagUtils.storedCookieRefTagForProject(p, this.cookieManager, this.sharedPreferences))
-                }
-
-            val refTag = intent
-                .flatMap { ProjectIntentMapper.refTag(it) }
-
-            val fullDeeplink = intent
-                .flatMap { Observable.just(KsOptional.of(it.data)) }
-
-            val loggedInUserOnHeartClick = this.currentUser.observable()
-                .compose(Transformers.takeWhenV2(this.bookmarkButtonClicked))
-                .filter {
-                    it.isPresent()
-                }
-
-            val loggedOutUserOnHeartClick = this.currentUser.observable()
-                .compose(Transformers.takeWhenV2(this.bookmarkButtonClicked))
-                .filter {
-                    !it.isPresent()
-                }.map { !it.isPresent() }
-
-            val savedProjectOnLoginSuccess = this.startLoginToutActivity
-                .compose(Transformers.takePairWhenV2(this.currentUser.observable()))
-                .doOnError {
-                    println(it.message)
-                }
-                .filter { su ->
-                    su.second != null
-                }
-                .withLatestFrom<Project, Project>(initialProject) { _, p -> p }
-                .take(1)
-                .switchMap {
-                    this.saveProject(it)
-                }
-
-            val projectOnUserChangeSave = initialProject
-                .compose(Transformers.takePairWhenV2(loggedInUserOnHeartClick))
-                .withLatestFrom(projectData) { initProject, latestProjectData ->
-                    mapProject(latestProjectData, initProject)
-                }
-                .switchMap {
-                    this.toggleProjectSave(it)
-                }
-                .share()
-                .filter { it.isNotNull() }
-                .map { it }
-
-            val currentProject = Observable.mergeArray(
-                initialProject,
-                savedProjectOnLoginSuccess,
-                projectOnUserChangeSave,
-            )
-
-            val currentProjectData = Observable.combineLatest<KsOptional<RefTag?>, KsOptional<RefTag?>, KsOptional<Uri?>, Project, ProjectData>(
-                refTag,
-                cookieRefTag,
-                fullDeeplink,
-                currentProject
-            ) { refTagFromIntent, refTagFromCookie, fullDeeplink, project ->
-                projectData(refTagFromIntent, refTagFromCookie, fullDeeplink, project)
-            }
-
-            initialProject
-                .subscribe {
-                    project.onNext(it)
-                }.addToDisposable(disposables)
-
-            initialProject
-                .compose(TakeWhenTransformerV2(this.shareButtonClicked))
-                .map {
-                    Pair(
-                        it.name(),
-                        UrlUtils.appendRefTag(
-                            it.webProjectUrl(),
-                            RefTag.projectShare().tag(),
-                        ),
-                    )
-                }
-                .subscribe {
-                    this.showShareSheet.onNext(it)
-                }.addToDisposable(disposables)
-
-            currentProjectData
-                .distinctUntilChanged()
-                .subscribe {
-                    this.projectData.onNext(it)
-                }.addToDisposable(disposables)
-
-            currentProject
-                .compose(Transformers.takePairWhenV2(creatorInfoClicked))
-                .map { it.first }
-                .subscribe {
-                    startCreatorView.onNext(it)
-                }.addToDisposable(disposables)
-
-            loggedOutUserOnHeartClick
-                .subscribe {
-                    this.startLoginToutActivity.onNext(Unit)
-                }.addToDisposable(disposables)
-
-            savedProjectOnLoginSuccess
-                .doOnError {
-                    println(it.message)
-                }
-                .filter { it.isNotNull() }
-                .map { it }
-                .subscribe {
-                    this.project.onNext(it)
-                }.addToDisposable(disposables)
-
-            projectOnUserChangeSave
-                .filter { it.isNotNull() }
-                .map { it }
-                .subscribe {
-                    this.project.onNext(it)
-                }.addToDisposable(disposables)
-
-            projectOnUserChangeSave
-                .filter { p -> p.isStarred() }
-                .subscribe {
-                    this.showSavedPrompt.onNext(Unit)
-                }.addToDisposable(disposables)
-
-            var previousScreen = ""
-            this.intent
-                .subscribe { previousScreen = it.getStringExtra(IntentKey.PREVIOUS_SCREEN) ?: "" }
-                .addToDisposable(disposables)
-
-            SendThirdPartyEventUseCaseV2(sharedPreferences, ffClient)
-                .sendThirdPartyEvent(
-                    loadedProject,
-                    apolloClient,
-                    currentUser = currentUser,
-                    eventName = ThirdPartyEventValues.EventName.SCREEN_VIEW,
-                    firebaseScreen = ThirdPartyEventValues.ScreenName.PRELAUNCH.value,
-                    firebasePreviousScreen = previousScreen,
-                )
-                .subscribe {
-                    onThirdPartyEventSent.onNext(it.first)
-                }.addToDisposable(disposables)
-
-            // Tracking
-            currentProjectData
-                .take(1)
-                .subscribe { data ->
-                    // If a cookie hasn't been set for this ref+project then do so.
-                    if (data.refTagFromCookie() == null) {
-                        data.refTagFromIntent()?.let { RefTagUtils.storeCookie(it, data.project(), this.cookieManager, this.sharedPreferences) }
-                    }
-                    val dataWithStoredCookieRefTag = storeCurrentCookieRefTag(data)
-
-                    // Send event to backend event attribution
-                    this.attributionEvents.trackProjectPageViewed(dataWithStoredCookieRefTag)
-                }.addToDisposable(disposables)
+            initPipelines(disposables)
         }
-
-        private fun mapProject(
-            latestProjectData: ProjectData,
-            initProject: Pair<Project, KsOptional<User>>,
-        ): Project {
-            return if (latestProjectData.project().isStarred() != initProject.first.isStarred()) {
-                latestProjectData.project()
-            } else {
-                initProject.first
-            }
-        }
-
-        private fun saveProject(project: Project): Observable<Project> {
-            return this.apolloClient.watchProject(project)
-                .compose(Transformers.neverErrorV2())
-        }
-
-        private fun unSaveProject(project: Project): Observable<Project> {
-            return this.apolloClient.unWatchProject(project).compose(Transformers.neverErrorV2())
-        }
-
-        private fun toggleProjectSave(project: Project): Observable<Project> {
-            return if (project.isStarred()) {
-                unSaveProject(project)
-            } else {
-                saveProject(project)
-            }
-        }
-
-        private fun projectData(
-            refTagFromIntent: KsOptional<RefTag?>,
-            refTagFromCookie: KsOptional<RefTag?>,
-            fullDeeplink: KsOptional<Uri?>,
-            project: Project,
-        ): ProjectData {
-            return ProjectData
-                .builder()
-                .refTagFromIntent(refTagFromIntent.getValue())
-                .refTagFromCookie(refTagFromCookie.getValue())
-                .fullDeeplink(fullDeeplink.getValue())
-                .project(project)
-                .build()
-        }
-        private fun storeCurrentCookieRefTag(data: ProjectData): ProjectData {
-            return data
-                .toBuilder()
-                .refTagFromCookie(RefTagUtils.storedCookieRefTagForProject(data.project(), cookieManager, sharedPreferences))
-                .build()
-        }
-
-        private fun loadProject(intent: Intent) = ProjectIntentMapper
-            .project(intent, this.apolloClient).doOnError {
-                // TODO Show Retry layout
-            }
-            .onErrorResumeNext(Observable.empty())
-            .withLatestFrom(
-                currentConfig.observable(),
-                currentUser.observable(),
-            ) { project, config, user ->
-                if (user.isPresent()) {
-                    return@withLatestFrom project.updateProjectWith(config, user.getValue())
-                } else {
-                    return@withLatestFrom project.updateProjectWith(config, null)
-                }
-            }
 
         override fun onCleared() {
             apolloClient.cleanDisposables()

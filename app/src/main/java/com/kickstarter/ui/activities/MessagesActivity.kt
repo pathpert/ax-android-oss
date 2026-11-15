@@ -67,31 +67,7 @@ class MessagesActivity : AppCompatActivity() {
         binding = MessagesLayoutBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Listen for window insets (which represent system UI like status and navigation bars)
-        // and apply those insets to the view's layout parameters.
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            // Extract the insets that represent the system bars (status and navigation bars)
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-
-            // Update the view's layout margins with the insets so the content avoids overlapping
-            // with system bars. You can choose to apply top, left, bottom, and right insets as needed.
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                // Apply the left, right, top, and bottom margins based on the insets
-                leftMargin = insets.left
-                bottomMargin = insets.bottom
-                rightMargin = insets.right
-                topMargin = insets.top
-            }
-
-            val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
-
-            v.updatePadding(bottom = imeInsets.bottom)
-
-            // Return CONSUMED to indicate that the window insets have been handled and
-            // should not be passed down to child views. If you want child views to handle insets,
-            // you can return the windowInsets instead.
-            WindowInsetsCompat.CONSUMED
-        }
+        MessagesActivityInsetsHelper.setupWindowInsets(binding.root)
 
         setUpConnectivityStatusCheck(lifecycle)
 
@@ -112,7 +88,7 @@ class MessagesActivity : AppCompatActivity() {
 
         binding.messagesBackingInfoView.messagesViewPledgeButton.text = getString(R.string.project_view_button)
 
-        setAppBarOffsetChangedListener(binding.messagesAppBarLayout)
+        MessagesActivityInsetsHelper.setAppBarOffsetChangedListener(binding, viewModel)
 
         binding.messageReplyLayout.messageEditText.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
             viewModel.inputs.messageEditTextIsFocused(hasFocus)
@@ -282,32 +258,10 @@ class MessagesActivity : AppCompatActivity() {
         this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
     }
 
-    /**
-     * Sets an OffsetChangedListener for the view's AppBarLayout to:
-     * 1. determine the toolbar's alpha based on scroll range
-     * 2. adjust the view's bottom padding via inputs
-     */
-    private fun setAppBarOffsetChangedListener(appBarLayout: AppBarLayout) {
-        appBarLayout.addOnOffsetChangedListener(
-            OnOffsetChangedListener { layout: AppBarLayout, offset: Int ->
-                binding.messagesToolbar.messagesProjectNameCollapsedTextView.alpha = (Math.abs(offset) / layout.totalScrollRange).toFloat()
-                viewModel.inputs.appBarTotalScrollRange(layout.totalScrollRange)
-                viewModel.inputs.appBarOffset(offset)
-            }
-        )
-    }
 
-    private fun setBackingInfoView(backingAndProject: Pair<Backing, Project>) {
-        val pledgeAmount = ksCurrency.format(backingAndProject.first.amount(), backingAndProject.second, RoundingMode.HALF_UP)
-        backingAndProject.first.pledgedAt()?.let {
-            val pledgeDate = DateTimeUtils.relative(this, ksString, it)
-            binding.messagesBackingInfoView.backingAmountTextView.text = Html.fromHtml(
-                ksString.format(
-                    getString(R.string.pledge_amount_pledged_on_pledge_date), "pledge_amount", pledgeAmount, "pledge_date", pledgeDate
-                )
-            )
-        }
-    }
+
+    private fun setBackingInfoView(backingAndProject: Pair<Backing, Project>) =
+        MessagesActivityNavigation.setBackingInfoView(this, binding, ksCurrency, ksString, backingAndProject)
 
     private fun setDefaultRecyclerViewBottomPadding() =
         binding
@@ -323,18 +277,9 @@ class MessagesActivity : AppCompatActivity() {
         binding.messageReplyLayout.messageEditText.hint = ksString.format(getString(R.string.Message_user_name), "user_name", name)
     }
 
-    private fun startBackingActivity(projectAndBacker: BackingWrapper) {
-        val intent = Intent(this, BackingActivity::class.java)
-            .putExtra(IntentKey.BACKING, projectAndBacker.backing)
-            .putExtra(IntentKey.PROJECT, projectAndBacker.project)
-            .putExtra(IntentKey.BACKER, projectAndBacker.user)
-            .putExtra(IntentKey.IS_FROM_MESSAGES_ACTIVITY, true)
-        startActivityWithTransition(intent, R.anim.slide_in_right, R.anim.fade_out_slide_out_left)
-    }
+    private fun startBackingActivity(projectAndBacker: BackingWrapper) =
+        MessagesActivityNavigation.startBackingActivity(this, projectAndBacker)
 
-    private fun startProjectPageActivity(project: Project) {
-        val intent = Intent().getProjectIntent(this)
-            .putExtra(IntentKey.PROJECT, project)
-        startActivityWithTransition(intent, R.anim.slide_in_right, R.anim.fade_out_slide_out_left)
-    }
+    private fun startProjectPageActivity(project: Project) =
+        MessagesActivityNavigation.startProjectPageActivity(this, project)
 }

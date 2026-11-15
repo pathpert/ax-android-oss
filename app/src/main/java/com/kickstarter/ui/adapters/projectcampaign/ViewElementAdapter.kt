@@ -286,13 +286,9 @@ class ViewElementAdapter(
         VideoElementViewHolder.setPlayerSeekPosition(index, seekPosition)
     }
 
-    override fun onPause(owner: LifecycleOwner) {
-        return lifecycleObservable.onNext(KSLifecycleEvent.PAUSE)
-    }
+    override fun onPause(owner: LifecycleOwner) = lifecycleObservable.onNext(KSLifecycleEvent.PAUSE)
 
-    override fun onDestroy(owner: LifecycleOwner) {
-        return lifecycleObservable.onNext(KSLifecycleEvent.DESTROY)
-    }
+    override fun onDestroy(owner: LifecycleOwner) = lifecycleObservable.onNext(KSLifecycleEvent.DESTROY)
 
     interface FullScreenDelegate {
         fun onFullScreenOpened(index: Int, source: String, seekPosition: Long = 0L)

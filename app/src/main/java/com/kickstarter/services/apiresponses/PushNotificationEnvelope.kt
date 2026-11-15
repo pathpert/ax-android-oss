@@ -2,43 +2,27 @@ package com.kickstarter.services.apiresponses
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
-import com.kickstarter.models.SurveyResponse.Urls
-import com.kickstarter.models.SurveyResponse.Urls.Web
 import com.kickstarter.models.pushdata.Activity
 import com.kickstarter.models.pushdata.GCM
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 @androidx.annotation.Keep
-class PushNotificationEnvelope private constructor(
-    private val activity: Activity?,
-    private val erroredPledge: ErroredPledge?,
-    private val gcm: GCM,
-    private val message: Message?,
-    private val project: Project?,
-    private val survey: Survey?,
-    private val pledgeRedemption: PledgeRedemption?,
-
+data class PushNotificationEnvelope(
+    private val activity: Activity? = null,
+    private val erroredPledge: ErroredPledge? = null,
+    private val gcm: GCM = GCM.builder().build(),
+    private val message: Message? = null,
+    private val project: Project? = null,
+    private val survey: Survey? = null,
+    private val pledgeRedemption: PledgeRedemption? = null,
 ) : Parcelable {
-    /** Associated activity payload (e.g. new update, comment, backing) if this is an activity notification. */
     fun activity() = this.activity
-
-    /** Associated errored pledge payload requiring card/billing fix, or null. */
     fun erroredPledge() = this.erroredPledge
-
-    /** Google Cloud Messaging / Firebase push metadata (alert text, sound, collapse key). */
     fun gcm() = this.gcm
-
-    /** Direct message payload if this is a chat/inbox notification, or null. */
     fun message() = this.message
-
-    /** Campaign project payload referenced by this push notification, or null. */
     fun project() = this.project
-
-    /** Backer survey payload if this is a survey notification, or null. */
     fun survey() = this.survey
-
-    /** Pledge redemption notification payload for reward fulfillment, or null. */
     fun pledgeRedemption() = this.pledgeRedemption
 
     @Parcelize
@@ -79,83 +63,35 @@ class PushNotificationEnvelope private constructor(
         pledgeRedemption = pledgeRedemption
     )
 
-    override fun equals(other: Any?): Boolean {
-        var equals = super.equals(other)
-        if (other is PushNotificationEnvelope) {
-            equals = activity() == other.activity() &&
-                erroredPledge() == other.erroredPledge() &&
-                gcm() == other.gcm() &&
-                message() == other.message() &&
-                project() == other.project() &&
-                pledgeRedemption() == other.pledgeRedemption() &&
-                survey() == other.survey()
-        }
-        return equals
-    }
-
     fun isErroredPledge() = erroredPledge() != null
-
     fun isFriendFollow() = activity() != null && activity()?.category() == com.kickstarter.models.Activity.CATEGORY_FOLLOW
-
     fun isMessage() = message() != null
-
-    fun isProjectActivity() = if (activity() != null) {
-        PROJECT_NOTIFICATION_CATEGORIES.contains(
-            activity()?.category()
-        )
-    } else false
-
+    fun isProjectActivity() = activity()?.let { PROJECT_NOTIFICATION_CATEGORIES.contains(it.category()) } ?: false
     fun isProjectReminder() = project() != null
-
     fun isProjectUpdateActivity() = activity() != null && activity()?.category() == com.kickstarter.models.Activity.CATEGORY_UPDATE
-
     fun isSurvey() = survey() != null
-
     fun isPledgeRedemption() = pledgeRedemption() != null
 
-    fun signature(): Int {
-        // When we display an Android notification, we can give it a id. If the server sends a notification with the same
-        // id, Android updates the existing notification with new information rather than creating a new notification.
-        //
-        // The server doesn't send unique notification ids, so hashing the alert text is a weak substitute. Probably won't
-        // make use of this feature anyhow.
-        return gcm().alert().hashCode()
-    }
+    fun signature(): Int = gcm().alert().hashCode()
 
     @Parcelize
-    class ErroredPledge private constructor(private val projectId: Long) : Parcelable {
+    data class ErroredPledge(private val projectId: Long = 0L) : Parcelable {
         fun projectId() = this.projectId
-
         @Parcelize
         data class Builder(private var projectId: Long = 0L) : Parcelable {
             fun projectId(projectId: Long) = apply { this.projectId = projectId }
             fun build() = ErroredPledge(projectId = projectId)
         }
-
-        fun toBuilder() = Builder(
-            projectId = projectId
-        )
-
-        override fun equals(other: Any?): Boolean {
-            var equals = super.equals(other)
-            if (other is ErroredPledge) {
-                equals = projectId() == other.projectId()
-            }
-            return equals
-        }
-
+        fun toBuilder() = Builder(projectId = projectId)
         companion object {
-            @JvmStatic
-            fun builder(): Builder {
-                return Builder()
-            }
+            @JvmStatic fun builder(): Builder = Builder()
         }
     }
 
     @Parcelize
-    class Message private constructor(
-        private val messageThreadId: Long,
-        private val projectId: Long
+    data class Message(
+        private val messageThreadId: Long = 0L,
+        private val projectId: Long = 0L
     ) : Parcelable {
         fun messageThreadId() = this.messageThreadId
         fun projectId() = this.projectId
@@ -166,38 +102,18 @@ class PushNotificationEnvelope private constructor(
         ) : Parcelable {
             fun messageThreadId(messageThreadId: Long) = apply { this.messageThreadId = messageThreadId }
             fun projectId(projectId: Long) = apply { this.projectId = projectId }
-            fun build() = Message(
-                messageThreadId = messageThreadId,
-                projectId = projectId
-            )
+            fun build() = Message(messageThreadId = messageThreadId, projectId = projectId)
         }
-
-        fun toBuilder() = Builder(
-            messageThreadId = messageThreadId,
-            projectId = projectId
-        )
-
-        override fun equals(other: Any?): Boolean {
-            var equals = super.equals(other)
-            if (other is Message) {
-                equals = messageThreadId() == other.messageThreadId() &&
-                    projectId() == other.projectId()
-            }
-            return equals
-        }
-
+        fun toBuilder() = Builder(messageThreadId = messageThreadId, projectId = projectId)
         companion object {
-            @JvmStatic
-            fun builder(): Builder {
-                return Builder()
-            }
+            @JvmStatic fun builder(): Builder = Builder()
         }
     }
 
     @Parcelize
-    class Project private constructor(
-        private val id: Long,
-        private val photo: String
+    data class Project(
+        private val id: Long = 0L,
+        private val photo: String = ""
     ) : Parcelable {
         fun id() = this.id
         fun photo() = this.photo
@@ -208,197 +124,89 @@ class PushNotificationEnvelope private constructor(
         ) : Parcelable {
             fun id(id: Long) = apply { this.id = id }
             fun photo(photo: String) = apply { this.photo = photo }
-            fun build() = Project(
-                id = id,
-                photo = photo
-            )
+            fun build() = Project(id = id, photo = photo)
         }
-
-        fun toBuilder() = Builder(
-            id = id,
-            photo = photo
-        )
-
-        override fun equals(other: Any?): Boolean {
-            var equals = super.equals(other)
-            if (other is Project) {
-                equals = id() == other.id() &&
-                    photo() == other.photo()
-            }
-            return equals
-        }
-
+        fun toBuilder() = Builder(id = id, photo = photo)
         companion object {
-            @JvmStatic
-            fun builder(): Builder {
-                return Builder()
-            }
+            @JvmStatic fun builder(): Builder = Builder()
         }
     }
 
     @Parcelize
-    class Survey private constructor(
-        private val id: Long,
-        private val projectId: Long,
-        private val urls: Urls?
+    data class Survey(
+        private val id: Long = 0L,
+        private val projectId: Long = 0L,
+        private val urls: Urls? = null
     ) : Parcelable {
         fun id() = this.id
         fun projectId() = this.projectId
         fun urls() = this.urls
-
         @Parcelize
         data class Builder(
             private var id: Long = 0L,
             private var projectId: Long = 0L,
             private var urls: Urls? = null
-
         ) : Parcelable {
             fun id(id: Long) = apply { this.id = id }
             fun projectId(projectId: Long) = apply { this.projectId = projectId }
             fun urls(urls: Urls?) = apply { urls?.let { this.urls = it } }
-            fun build() = Survey(
-                id = id,
-                projectId = projectId,
-                urls = urls
-            )
+            fun build() = Survey(id = id, projectId = projectId, urls = urls)
         }
-
-        fun toBuilder() = Builder(
-            id = id,
-            projectId = projectId
-        )
-
-        override fun equals(other: Any?): Boolean {
-            var equals = super.equals(other)
-            if (other is Survey) {
-                equals = id() == other.id() &&
-                    projectId() == other.projectId()
-            }
-            return equals
-        }
-
+        fun toBuilder() = Builder(id = id, projectId = projectId, urls = urls)
         companion object {
-            @JvmStatic
-            fun builder(): Builder {
-                return Builder()
-            }
+            @JvmStatic fun builder(): Builder = Builder()
         }
     }
 
     @Parcelize
-    class PledgeRedemption private constructor(
-        private val id: Long,
+    data class PledgeRedemption(
+        private val id: Long = 0L,
         @SerializedName("pledge_manager_path")
-        private val pledgeRedemptionPath: String?
+        private val pledgeRedemptionPath: String? = null
     ) : Parcelable {
         fun id() = this.id
         fun pledgeRedemptionPath() = this.pledgeRedemptionPath
-
         @Parcelize
         data class Builder(
             private var id: Long = 0L,
-
             @SerializedName("pledge_manager_path")
             private var pledgeRedemptionPath: String? = null
-
         ) : Parcelable {
             fun id(id: Long) = apply { this.id = id }
-            fun pledgeRedemptionPath(pledgeRedemptionPath: String?) = apply { pledgeRedemptionPath?.let { this.pledgeRedemptionPath = it } }
-            fun build() = PledgeRedemption(
-                id = id,
-                pledgeRedemptionPath = pledgeRedemptionPath
-            )
+            fun pledgeRedemptionPath(path: String?) = apply { path?.let { this.pledgeRedemptionPath = it } }
+            fun build() = PledgeRedemption(id = id, pledgeRedemptionPath = pledgeRedemptionPath)
         }
-
-        fun toBuilder() = Builder(
-            id = id,
-            pledgeRedemptionPath = pledgeRedemptionPath
-        )
-
-        override fun equals(other: Any?): Boolean {
-            var equals = super.equals(other)
-            if (other is PledgeRedemption) {
-                equals = id() == other.id() &&
-                    pledgeRedemptionPath() == other.pledgeRedemptionPath()
-            }
-            return equals
-        }
-
+        fun toBuilder() = Builder(id = id, pledgeRedemptionPath = pledgeRedemptionPath)
         companion object {
-            @JvmStatic
-            fun builder(): Builder {
-                return Builder()
-            }
+            @JvmStatic fun builder(): Builder = Builder()
         }
     }
 
     @Parcelize
-    class Urls private constructor(
-        private val web: Web
-    ) : Parcelable {
+    data class Urls(private val web: Web = Web.builder().build()) : Parcelable {
         fun web() = this.web
-
         @Parcelize
-        data class Builder(
-            private var web: Web = Web.builder()
-                .build()
-        ) : Parcelable {
+        data class Builder(private var web: Web = Web.builder().build()) : Parcelable {
             fun web(web: Web?) = apply { this.web = web ?: Web.builder().build() }
-
-            fun build() = Urls(
-                web = web
-            )
+            fun build() = Urls(web = web)
         }
-
-        fun toBuilder() = Builder(
-            web = web,
-        )
-
+        fun toBuilder() = Builder(web = web)
         companion object {
-            @JvmStatic
-            fun builder() = Builder()
-        }
-
-        override fun equals(obj: Any?): Boolean {
-            var equals = super.equals(obj)
-            if (obj is Urls) {
-                equals = web() == obj.web()
-            }
-            return equals
+            @JvmStatic fun builder() = Builder()
         }
     }
 
     @Parcelize
-    class Web private constructor(
-        private val survey: String?
-    ) : Parcelable {
+    data class Web(private val survey: String? = null) : Parcelable {
         fun survey() = this.survey
-
         @Parcelize
-        data class Builder(
-            private var survey: String? = null
-        ) : Parcelable {
+        data class Builder(private var survey: String? = null) : Parcelable {
             fun survey(survey: String?) = apply { this.survey = survey }
-            fun build() = Web(
-                survey = survey
-            )
+            fun build() = Web(survey = survey)
         }
-
-        fun toBuilder() = Builder(
-            survey = survey
-        )
-
+        fun toBuilder() = Builder(survey = survey)
         companion object {
-            @JvmStatic
-            fun builder() = Builder()
-        }
-
-        override fun equals(obj: Any?): Boolean {
-            var equals = super.equals(obj)
-            if (obj is Web) {
-                equals = survey() == obj.survey()
-            }
-            return equals
+            @JvmStatic fun builder() = Builder()
         }
     }
 
@@ -410,9 +218,6 @@ class PushNotificationEnvelope private constructor(
             com.kickstarter.models.Activity.CATEGORY_LAUNCH,
             com.kickstarter.models.Activity.CATEGORY_SUCCESS
         )
-        @JvmStatic
-        fun builder(): Builder {
-            return Builder()
-        }
+        @JvmStatic fun builder(): Builder = Builder()
     }
 }

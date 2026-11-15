@@ -140,7 +140,7 @@ class DiscoveryActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
 
         pagerAdapter = DiscoveryPagerAdapter(
             supportFragmentManager,
-            createFragments(viewPagerTitles.size).toMutableList(),
+            DiscoveryActivityUIHelper.createFragments(viewPagerTitles.size).toMutableList(),
             viewPagerTitles,
             viewModel.inputs
         )
@@ -148,7 +148,7 @@ class DiscoveryActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         binding.discoveryViewPager.adapter = pagerAdapter
         binding.discoveryTabLayout.setupWithViewPager(binding.discoveryViewPager)
 
-        addTabSelectedListenerToTabLayout()
+        DiscoveryActivityUIHelper.setupTabSelectedListener(binding, pagerAdapter, viewModel)
 
         viewModel.outputs.expandSortTabLayout()
             .compose(Transformers.observeForUIV2())
@@ -176,32 +176,25 @@ class DiscoveryActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
             }
             .delay(2000, TimeUnit.MILLISECONDS)
             .subscribe {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-                viewModel.inputs.hasSeenNotificationsPermission(true)
+                DiscoveryActivityDialogsHelper.requestNotificationPermission(
+                    this,
+                    requestPermissionLauncher,
+                    viewModel
+                )
             }
             .addToDisposable(disposables)
 
         viewModel.outputs.showConsentManagementDialog()
             .distinctUntilChanged()
             .subscribe {
-                consentManagementDialogFragment = ConsentManagementDialogFragment()
-                consentManagementDialogFragment.isCancelable = false
-                consentManagementDialogFragment.show(
-                    supportFragmentManager,
-                    "consentManagementDialogFragment"
-                )
+                DiscoveryActivityDialogsHelper.showConsentManagementDialog(supportFragmentManager)
             }
             .addToDisposable(disposables)
 
         viewModel.outputs.showOnboardingFlow()
             .distinctUntilChanged()
             .subscribe {
-                val intent = Intent(this, OnboardingFlowActivity::class.java)
-                onboardingResult.launch(intent)
-
-                viewModel.inputs.hasSeenOnboarding(true)
+                DiscoveryActivityDialogsHelper.showOnboarding(this, onboardingResult, viewModel)
             }
             .addToDisposable(disposables)
 
@@ -215,47 +208,12 @@ class DiscoveryActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
             .subscribe { pagerAdapter.takeCategoriesForPosition(it.first, it.second) }
             .addToDisposable(disposables)
 
-        viewModel.outputs.showActivityFeed()
-            .compose(Transformers.observeForUIV2())
-            .subscribe { startActivityFeedActivity() }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.showHelp()
-            .compose(Transformers.observeForUIV2())
-            .subscribe { startHelpSettingsActivity() }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.showInternalTools()
-            .compose(Transformers.observeForUIV2())
-            .subscribe {
-                internalTools?.maybeStartInternalToolsActivity(this)
-            }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.showLoginTout()
-            .compose(Transformers.observeForUIV2())
-            .subscribe { startLoginToutActivity() }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.showMessages()
-            .compose(Transformers.observeForUIV2())
-            .subscribe { startMessageThreadsActivity() }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.showProfile()
-            .compose(Transformers.observeForUIV2())
-            .subscribe { startProfileActivity() }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.showPledgedProjects()
-            .compose(Transformers.observeForUIV2())
-            .subscribe { startPledgedProjectsOverview() }
-            .addToDisposable(disposables)
-
-        viewModel.outputs.showSettings()
-            .compose(Transformers.observeForUIV2())
-            .subscribe { startSettingsActivity() }
-            .addToDisposable(disposables)
+        DiscoveryActivityNavigation.bindNavigationOutputs(
+            this,
+            viewModel,
+            internalTools,
+            disposables
+        )
 
         viewModel.outputs.navigationDrawerData()
             .compose(Transformers.observeForUIV2())
@@ -271,7 +229,7 @@ class DiscoveryActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
 
         viewModel.outputs.drawerMenuIcon()
             .compose(Transformers.observeForUIV2())
-            .subscribe { drawerMenuIcon: Int -> updateDrawerMenuIcon(drawerMenuIcon) }
+            .subscribe { drawerMenuIcon: Int -> DiscoveryActivityUIHelper.updateDrawerMenuIcon(binding, drawerMenuIcon) }
             .addToDisposable(disposables)
 
         viewModel.outputs.showSuccessMessage()
@@ -294,98 +252,12 @@ class DiscoveryActivity : AppCompatActivity(), SharedPreferences.OnSharedPrefere
         return binding.discoveryDrawerLayout
     }
 
-    private fun addTabSelectedListenerToTabLayout() {
-        binding.discoveryTabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab) {
-                viewModel.sortClicked(tab.position)
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab) {}
-            override fun onTabReselected(tab: TabLayout.Tab) {
-                pagerAdapter.scrollToTop(tab.position)
-                viewModel.sortClicked(tab.position)
-            }
-        })
-    }
-
-    private fun updateDrawerMenuIcon(drawerMenuIcon: Int) {
-        binding.discoveryToolbar.menuButton.setImageResource(drawerMenuIcon)
-        if (binding.discoveryToolbar.menuButton.drawable is Animatable) {
-            val menuDrawable = binding.discoveryToolbar.menuButton.drawable as Animatable
-            menuDrawable.start()
-        }
-    }
-
-    private fun startActivityFeedActivity() {
-        startActivity(Intent(this, ActivityFeedActivity::class.java))
-    }
-
-    private fun startHelpSettingsActivity() {
-        startActivity(Intent(this, HelpSettingsActivity::class.java))
-    }
-
-    private fun startLoginToutActivity() {
-        val intent = Intent(this, LoginToutActivity::class.java)
-            .putExtra(IntentKey.LOGIN_REASON, LoginReason.DEFAULT)
-        this.startActivityWithTransition(
-            intent,
-            R.anim.slide_in_right,
-            R.anim.fade_out_slide_out_left
-        )
-    }
-
-    private fun startMessageThreadsActivity() {
-        val intent = Intent(this, MessageThreadsActivity::class.java)
-        this.startActivityWithTransition(
-            intent,
-            R.anim.slide_in_right,
-            R.anim.fade_out_slide_out_left
-        )
-    }
-
-    private fun startProfileActivity() {
-        val intent = Intent(this, ProfileActivity::class.java)
-        this.startActivityWithTransition(
-            intent,
-            R.anim.slide_in_right,
-            R.anim.fade_out_slide_out_left
-        )
-    }
-
-    private fun startPledgedProjectsOverview() {
-        val intent = Intent(this, PledgedProjectsOverviewActivity::class.java)
-        this.startActivityWithTransition(
-            intent,
-            R.anim.slide_in_right,
-            R.anim.fade_out_slide_out_left
-        )
-    }
-
-    private fun startSettingsActivity() {
-        val intent = Intent(this, SettingsActivity::class.java)
-        this.startActivityWithTransition(
-            intent,
-            0,
-            0
-        )
-    }
-
     override fun onSharedPreferenceChanged(
         sharedPreferences: SharedPreferences?,
         key: String?
     ) {
         if (key.equals(SharedPreferenceKey.CONSENT_MANAGEMENT_PREFERENCE)) {
             viewModel.inputs.hasSeenConsentManagement(true)
-        }
-    }
-
-    companion object {
-        private fun createFragments(pages: Int): List<DiscoveryFragment> {
-            val fragments: MutableList<DiscoveryFragment> = ArrayList(pages)
-            for (position in 0..pages) {
-                fragments.add(newInstance(position))
-            }
-            return fragments
         }
     }
 }

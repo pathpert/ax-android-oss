@@ -31,15 +31,6 @@ import kotlinx.coroutines.plus
 import kotlinx.coroutines.rx2.asFlow
 import kotlin.coroutines.EmptyCoroutineContext
 
-data class AddOnsUIState(
-    val addOns: List<Reward> = emptyList(),
-    val totalCount: Int = 0,
-    val isLoading: Boolean = false,
-    val shippingRule: ShippingRule = ShippingRule.builder().build(),
-    val totalPledgeAmount: Double = 0.0,
-    val totalBonusAmount: Double = 0.0
-)
-
 @Deprecated(
     message = "Legacy monolithic path replaced by ProjectFeatureViewModel under com.kickstarter.features.projectpage.viewmodel.",
     replaceWith = ReplaceWith("ProjectFeatureViewModel", "com.kickstarter.features.projectpage.viewmodel.ProjectFeatureViewModel")
@@ -104,55 +95,18 @@ class AddOnsViewModel(
      */
     fun provideBundle(bundle: Bundle?) {
         bundle?.let {
-            pledgeData = it.getParcelable(ArgumentsKey.PLEDGE_PLEDGE_DATA) as? PledgeData
-
-            // Send analytic event for crowdfund checkout
-            this.sendEvent()
-
-            (it.getSerializable(ArgumentsKey.PLEDGE_PLEDGE_REASON) as? PledgeReason)?.let { reason ->
-                pReason = reason
-            }
-
-            pledgeData?.projectData()?.let {
-                projectData = it
-            }
-
-            // New pledge, selected reward
-            pledgeData?.reward()?.let { rw ->
-                currentUserReward = rw
-                bonusAmount = RewardUtils.minPledgeAmount(rw, project)
-            }
-
-            projectData?.project()?.let {
-                project = it
-            }
-
-            pledgeData?.shippingRule()?.let {
-                shippingRule = it
-            }
-
-            pledgeData?.pledgeFlowContext()?.let { pFContext ->
-                pledgeflowcontext = pFContext
-            }
-
-            backing = pledgeData?.projectData()?.backing() ?: project.backing()
-
-            if (pReason == PledgeReason.UPDATE_REWARD && backing?.reward()?.id() != currentUserReward.id()) {
-                // Do nothing, user is selecting a different reward/addOns ...
-            } else {
-                // User is selecting a same reward with AddOns, might just adding/deleting addOns, bonus support ...
-                backing?.let { b ->
-                    // - backed a reward no reward
-                    if (b.reward() == null && b.amount().isNotNull()) {
-                        currentUserReward =
-                            RewardFactory.noReward().toBuilder().pledgeAmount(b.amount()).build()
-                        bonusAmount = b.amount()
-                    } else {
-                        backedAddOns = b.addOns() ?: emptyList()
-                        bonusAmount = b.bonusAmount()
-                    }
-                }
-            }
+            val parsed = AddOnsBundleParser.parse(it)
+            pledgeData = parsed.pledgeData
+            sendEvent()
+            pReason = parsed.pledgeReason
+            projectData = parsed.projectData
+            currentUserReward = parsed.currentUserReward
+            bonusAmount = parsed.bonusAmount
+            project = parsed.project
+            shippingRule = parsed.shippingRule
+            pledgeflowcontext = parsed.pledgeFlowContext
+            backing = parsed.backing
+            backedAddOns = parsed.backedAddOns
 
             scope.launch {
                 getAddOns(shippingRule)
@@ -215,10 +169,11 @@ class AddOnsViewModel(
                 nextPage = envelopeResult.getOrNull()?.pageInfo?.endCursor
                 hasMorePages = envelopeResult.getOrNull()?.pageInfo?.hasNextPage ?: false
                 if (!addOns.isNullOrEmpty()) {
-                    val updatedList = getUpdatedList(
+                    val updatedList = AddOnsFilteringHelper.getUpdatedList(
                         addOns,
                         backedAddOns,
-                        selectedShippingRule.location() ?: Location.builder().build()
+                        selectedShippingRule.location() ?: Location.builder().build(),
+                        currentSelection
                     )
 
                     this@AddOnsViewModel.addOns.addAll(updatedList)
@@ -232,38 +187,6 @@ class AddOnsViewModel(
         } else {
             emitCurrentState(isLoading = false)
         }
-    }
-
-    /**
-     * List of available addOns, updated for those backed addOns with the Backed information
-     * such as quantity backed.
-     */
-    private fun getUpdatedList(addOns: List<Reward>, backedAddOns: List<Reward>, location: Location): List<Reward> {
-        val holder = mutableMapOf<Long, Reward>()
-        val locationId = location.id()
-
-        val filteredAddOns = addOns.filter { reward ->
-            when (reward.shippingPreference()) {
-                "unrestricted", "none", "local" -> true
-                else -> reward.shippingRules()?.any { it.location()?.id() == locationId } ?: false
-            }
-        }
-        // Store filtered addOns into holder
-        filteredAddOns.forEach {
-            holder[it.id()] = it
-        }
-
-        // Take the backed AddOns, update with matching addOn ID with the quantity information
-        backedAddOns.forEach { backedAddOn ->
-            val match = holder[backedAddOn.id()]
-            if (match != null) {
-                val updated = match.toBuilder().quantity(backedAddOn.quantity()).build()
-                holder[backedAddOn.id()] = updated
-            }
-            currentSelection[backedAddOn.id()] = backedAddOn.quantity() ?: 0
-        }
-
-        return holder.values.toList()
     }
 
     // - User has selected a different reward clear previous states

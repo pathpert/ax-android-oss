@@ -96,72 +96,45 @@ interface LoginToutViewModel {
         Inputs,
         Outputs {
 
-        private var callbackManager: CallbackManager? = null
-        private val client: ApiClientTypeV2 = requireNotNull(environment.apiClientV2())
-        private val analyticEvents = environment.analytics()
-        private val currentUser = requireNotNull(environment.currentUserV2())
+        internal var callbackManager: CallbackManager? = null
+        internal val client: ApiClientTypeV2 = requireNotNull(environment.apiClientV2())
+        internal val analyticEvents = environment.analytics()
+        internal val currentUser = requireNotNull(environment.currentUserV2())
 
-        private fun clearFacebookSession(e: FacebookException) {
-            LoginManager.getInstance().logOut()
-        }
-
-        private fun loginWithFacebookAccessToken(fbAccessToken: String): Observable<Notification<AccessTokenEnvelope?>> {
+        internal fun loginWithFacebookAccessToken(fbAccessToken: String): Observable<Notification<AccessTokenEnvelope?>> {
             return client.loginWithFacebook(fbAccessToken)
                 .materialize()
         }
 
-        private fun registerFacebookCallback() {
-            callbackManager = create()
-
-            LoginManager.getInstance()
-                .registerCallback(
-                    callbackManager,
-                    object : FacebookCallback<LoginResult> {
-                        override fun onSuccess(result: LoginResult) {
-                            facebookAccessToken.onNext(result.accessToken.token)
-                        }
-
-                        override fun onCancel() {
-                            // continue
-                        }
-
-                        override fun onError(error: FacebookException) {
-                            if (error is FacebookAuthorizationException) {
-                                facebookAuthorizationError.onNext(error)
-                            }
-                        }
-                    }
-                )
-        }
-
         @VisibleForTesting
         val facebookAccessToken = PublishSubject.create<String>()
-        private val facebookLoginClick = PublishSubject.create<List<String>>()
-        private val loginClick = PublishSubject.create<Unit>()
-        private val onResetPasswordFacebookErrorDialogClicked = PublishSubject.create<Unit>()
-        private val onLoginFacebookErrorDialogClicked = PublishSubject.create<Unit>()
+        internal val facebookLoginClick = PublishSubject.create<List<String>>()
+        internal val loginClick = PublishSubject.create<Unit>()
+        internal val onResetPasswordFacebookErrorDialogClicked = PublishSubject.create<Unit>()
+        internal val onLoginFacebookErrorDialogClicked = PublishSubject.create<Unit>()
 
         @VisibleForTesting
         val loginError = PublishSubject.create<ErrorEnvelope?>()
-        private val loginReason = PublishSubject.create<LoginReason>()
-        private val signupClick = PublishSubject.create<Unit>()
-        private val disclaimerItemClicked = PublishSubject.create<DisclaimerItems>()
+        internal val loginReason = PublishSubject.create<LoginReason>()
+        internal val signupClick = PublishSubject.create<Unit>()
+        internal val disclaimerItemClicked = PublishSubject.create<DisclaimerItems>()
 
         @VisibleForTesting
         val facebookAuthorizationError = BehaviorSubject.create<FacebookException>()
-        private val finishWithSuccessfulResult = BehaviorSubject.create<Unit>()
-        private val showFacebookErrorDialog = BehaviorSubject.create<Unit>()
-        private val startResetPasswordActivity = BehaviorSubject.create<Unit>()
-        private val startFacebookConfirmationActivity: Observable<Pair<ErrorEnvelope.FacebookUser, String>>
-        private val startLoginActivity: Observable<Unit>
-        private val showDisclaimerActivity: Observable<DisclaimerItems>
+        internal val finishWithSuccessfulResult = BehaviorSubject.create<Unit>()
+        internal val showFacebookErrorDialog = BehaviorSubject.create<Unit>()
+        internal val startResetPasswordActivity = BehaviorSubject.create<Unit>()
+        internal var startFacebookConfirmationActivity: Observable<Pair<ErrorEnvelope.FacebookUser, String>> =
+            Observable.empty()
+        internal var startLoginActivity: Observable<Unit> = Observable.empty()
+        internal var showDisclaimerActivity: Observable<DisclaimerItems> = Observable.empty()
 
-        private val finishOauthWithSuccessfulResult = BehaviorSubject.create<Unit>()
+        internal val finishOauthWithSuccessfulResult = BehaviorSubject.create<Unit>()
 
         val inputs: Inputs = this
         val outputs: Outputs = this
-        private val loginUserCase = LoginUseCase(environment)
-        private val refreshUserUseCase = RefreshUserUseCase(environment)
+        internal val loginUserCase = LoginUseCase(environment)
+        internal val refreshUserUseCase = RefreshUserUseCase(environment)
 
         private val disposables = CompositeDisposable()
         override fun facebookLoginClick(
@@ -242,87 +215,7 @@ interface LoginToutViewModel {
         }
 
         init {
-            registerFacebookCallback()
-
-            val facebookAccessTokenEnvelope = facebookAccessToken
-                .switchMap {
-                    loginWithFacebookAccessToken(
-                        it
-                    )
-                }
-                .share()
-
-            facebookAuthorizationError
-                .subscribe { clearFacebookSession(it) }
-                .addToDisposable(disposables)
-
-            facebookAccessTokenEnvelope
-                .compose(Transformers.valuesV2())
-                .filter { it.isNotNull() }
-                .switchMap {
-                    this.loginUserCase
-                        .loginAndUpdateUserPrivacy(it.user(), it.accessToken())
-                }
-                .subscribe {
-                    refreshUserUseCase.refresh(it)
-                    finishWithSuccessfulResult.onNext(Unit)
-                }
-                .addToDisposable(disposables)
-
-            facebookAccessTokenEnvelope
-                .compose(Transformers.errorsV2())
-                .map { ErrorEnvelope.fromThrowable(it) }
-                .filter { it.isNotNull() }
-                .subscribe { loginError.onNext(it) }
-                .addToDisposable(disposables)
-
-            startFacebookConfirmationActivity = loginError
-                .filter(ErrorEnvelope::isConfirmFacebookSignupError)
-                .filter { it.facebookUser() != null }
-                .map { it.facebookUser() }
-                .compose(Transformers.combineLatestPair(facebookAccessToken))
-
-            facebookAuthorizationError
-                .filter {
-                    environment.featureFlagClient()
-                        ?.getBoolean(FlagKey.ANDROID_FACEBOOK_LOGIN_REMOVE) == true
-                }
-                .subscribe {
-                    showFacebookErrorDialog.onNext(Unit)
-                }
-                .addToDisposable(disposables)
-
-            startLoginActivity = loginClick
-            showDisclaimerActivity = disclaimerItemClicked
-
-            facebookLoginClick
-                .compose(Transformers.ignoreValuesV2())
-                .subscribe {
-                    analyticEvents?.trackLoginOrSignUpCtaClicked(
-                        ContextTypeName.FACEBOOK.contextName,
-                        ContextPageName.LOGIN_SIGN_UP.contextName
-                    )
-                }
-                .addToDisposable(disposables)
-
-            onResetPasswordFacebookErrorDialogClicked
-                .subscribe { startResetPasswordActivity.onNext(Unit) }
-                .addToDisposable(disposables)
-
-            onLoginFacebookErrorDialogClicked
-                .subscribe {
-                    startLoginActivity.onNext(Unit)
-                }
-                .addToDisposable(disposables)
-
-            currentUser.observable()
-                .filter { it.isPresent() }
-                .subscribe {
-                    if (currentUser.accessToken != null) {
-                        finishOauthWithSuccessfulResult.onNext(Unit)
-                    }
-                }
-                .addToDisposable(disposables)
+            initLoginToutPipelines(disposables)
         }
 
         fun provideLoginReason(loginReason: LoginReason) {

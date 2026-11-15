@@ -117,200 +117,37 @@ class BackingAddOnViewHolderViewModel {
         private val intent: Intent? = null
     ) : Inputs, Outputs {
 
-        private val ksCurrency = requireNotNull(environment.ksCurrency())
-        private val projectDataAndAddOn = PublishSubject.create<Triple<ProjectData, Reward, ShippingRule>>()
-        private val title = PublishSubject.create<String>()
-        private val description = PublishSubject.create<String>()
-        private val minimum = PublishSubject.create<CharSequence>()
-        private val convertedMinimum = PublishSubject.create<CharSequence>()
-        private val conversionIsGone = PublishSubject.create<Boolean>()
-        private val conversion = PublishSubject.create<CharSequence>()
-        private val rewardItems = PublishSubject.create<List<RewardsItem>>()
-        private val remainingQuantityPillIsGone = PublishSubject.create<Boolean>()
-        private val backerLimitPillIsGone = PublishSubject.create<Boolean>()
-        private val remainingQuantity = PublishSubject.create<String>()
-        private val backerLimit = PublishSubject.create<String>()
-        private val shippingAmountIsGone = PublishSubject.create<Boolean>()
-        private val shippingAmount = PublishSubject.create<String>()
-        private val deadlineCountdown = PublishSubject.create<Reward>()
-        private val deadlineCountdownIsGone = PublishSubject.create<Boolean>()
-        private val rewardItemsAreGone = PublishSubject.create<Boolean>()
-        private val addButtonIsVisible = PublishSubject.create<Boolean>()
-        private val quantity = PublishSubject.create<Int>()
-        private val quantityPerId = PublishSubject.create<Pair<Int, Long>>()
-        private val maxQuantity = PublishSubject.create<Int>()
-        private val localPickUpIsGone = BehaviorSubject.create<Boolean>()
-        private val localPickUpName = BehaviorSubject.create<String>()
+        internal val ksCurrency = requireNotNull(environment.ksCurrency())
+        internal val projectDataAndAddOn = PublishSubject.create<Triple<ProjectData, Reward, ShippingRule>>()
+        internal val title = PublishSubject.create<String>()
+        internal val description = PublishSubject.create<String>()
+        internal val minimum = PublishSubject.create<CharSequence>()
+        internal val convertedMinimum = PublishSubject.create<CharSequence>()
+        internal val conversionIsGone = PublishSubject.create<Boolean>()
+        internal val conversion = PublishSubject.create<CharSequence>()
+        internal val rewardItems = PublishSubject.create<List<RewardsItem>>()
+        internal val remainingQuantityPillIsGone = PublishSubject.create<Boolean>()
+        internal val backerLimitPillIsGone = PublishSubject.create<Boolean>()
+        internal val remainingQuantity = PublishSubject.create<String>()
+        internal val backerLimit = PublishSubject.create<String>()
+        internal val shippingAmountIsGone = PublishSubject.create<Boolean>()
+        internal val shippingAmount = PublishSubject.create<String>()
+        internal val deadlineCountdown = PublishSubject.create<Reward>()
+        internal val deadlineCountdownIsGone = PublishSubject.create<Boolean>()
+        internal val rewardItemsAreGone = PublishSubject.create<Boolean>()
+        internal val addButtonIsVisible = PublishSubject.create<Boolean>()
+        internal val quantity = PublishSubject.create<Int>()
+        internal val quantityPerId = PublishSubject.create<Pair<Int, Long>>()
+        internal val maxQuantity = PublishSubject.create<Int>()
+        internal val localPickUpIsGone = BehaviorSubject.create<Boolean>()
+        internal val localPickUpName = BehaviorSubject.create<String>()
         private val disposables = CompositeDisposable()
 
         val inputs: Inputs = this
         val outputs: Outputs = this
 
         init {
-
-            val addOn = projectDataAndAddOn
-                .map { it.second }
-
-            addOn
-                .map { it.title() }
-                .subscribe(this.title)
-
-            addOn
-                .map { it.description() }
-                .filter { it.isNotNull() }
-                .map { requireNotNull(it) }
-                .subscribe { this.description.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn.map { !RewardUtils.isItemized(it) }
-                .subscribe { this.rewardItemsAreGone.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn.filter { RewardUtils.isItemized(it) }
-                .map { if (it.isAddOn()) it.addOnsItems() else it.rewardsItems() }
-                .filter { it.isNotNull() }
-                .map { requireNotNull(it) }
-                .subscribe { this.rewardItems.onNext(it) }
-                .addToDisposable(disposables)
-
-            projectDataAndAddOn.map { this.ksCurrency.format(it.second.minimum(), it.first.project()) }
-                .subscribe { this.minimum.onNext(it) }
-                .addToDisposable(disposables)
-
-            projectDataAndAddOn.map { this.ksCurrency.format(it.second.convertedMinimum(), it.first.project()) }
-                .subscribe { this.convertedMinimum.onNext(it) }
-                .addToDisposable(disposables)
-
-            projectDataAndAddOn.map { it.first.project() }
-                .map { it.currency() == it.currentCurrency() }
-                .subscribe { this.conversionIsGone.onNext(it) }
-                .addToDisposable(disposables)
-
-            projectDataAndAddOn
-                .map { this.ksCurrency.format(it.second.convertedMinimum(), it.first.project(), true, RoundingMode.HALF_UP, true) }
-                .subscribe { this.conversion.onNext(it) }
-                .addToDisposable(disposables)
-
-            projectDataAndAddOn
-                .map { !it.second.limit().isNotNull() }
-                .subscribe { this.backerLimitPillIsGone.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn
-                .map { !it.remaining().isNotNull() }
-                .subscribe { this.remainingQuantityPillIsGone.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn.map { it.limit().toString() }
-                .subscribe { this.backerLimit.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn
-                .filter { it.remaining().isNotNull() }
-                .map { it.remaining().toString() }
-                .subscribe { this.remainingQuantity.onNext(it) }
-                .addToDisposable(disposables)
-
-            projectDataAndAddOn.map { it.second.endsAt().isNotNull() }
-                .map { !it }
-                .subscribe { this.deadlineCountdownIsGone.onNext(it) }
-                .addToDisposable(disposables)
-
-            projectDataAndAddOn.map { it.second }
-                .subscribe { this.deadlineCountdown.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn.map { it.shippingRules()?.isEmpty() }
-                .filter { it.isNotNull() }
-                .map { requireNotNull(it) }
-                .subscribe { this.shippingAmountIsGone.onNext(it) }
-                .addToDisposable(disposables)
-
-            projectDataAndAddOn.map {
-                getShippingCost(it.second.shippingRules(), it.first.project(), it.third)
-            }
-                .filter { it.isNotNull() }
-                .map { requireNotNull(it) }
-                .subscribe { this.shippingAmount.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn
-                .map { it?.quantity() ?: 0 }
-                .distinctUntilChanged()
-                .subscribe { this.quantity.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn
-                .map { maximumLimit(it) }
-                .filter { it.isNotNull() }
-                .map { requireNotNull(it) }
-                .subscribe { this.maxQuantity.onNext(it) }
-                .addToDisposable(disposables)
-
-            addOn
-                .filter { !RewardUtils.isShippable(it) }
-                .map {
-                    RewardUtils.isLocalPickup(it)
-                }
-                .subscribe {
-                    this.localPickUpIsGone.onNext(!it)
-                }
-                .addToDisposable(disposables)
-
-            addOn
-                .filter { !RewardUtils.isShippable(it) }
-                .filter { RewardUtils.isLocalPickup(it) }
-                .map { it.localReceiptLocation()?.displayableName() }
-                .filter { it.isNotNull() }
-                .map { requireNotNull(it) }
-                .subscribe { this.localPickUpName.onNext(it) }
-                .addToDisposable(disposables)
-
-            this.quantity
-                .compose<Pair<Int, Reward>>(combineLatestPair(addOn))
-                .map { data -> Pair(data.first, data.second.id()) }
-                .distinctUntilChanged { quantityPerId1, quantityPerId2 ->
-                    quantityPerId1.first == quantityPerId2.first && quantityPerId1.second == quantityPerId2.second
-                }
-                .subscribe { this.quantityPerId.onNext(it) }
-                .addToDisposable(disposables)
-        }
-
-        private fun getShippingCost(shippingRules: List<ShippingRule>?, project: Project, selectedShippingRule: ShippingRule) =
-            if (shippingRules.isNullOrEmpty()) ""
-            else shippingRules?.let {
-                var cost = 0.0
-                it.filter {
-                    it.location()?.id() == selectedShippingRule.location()?.id()
-                }.map {
-                    cost += it.cost()
-                }
-                this.ksCurrency.format(cost, project)
-            }
-
-        /**
-         * If the addOn is available and within a valid time range for the campaign, the
-         * maximumLimit will be the lowest of either the limit or the remaining
-         * if the addOns is not available or the campaign is over, the maxLimit will be
-         * the current selected quantity allowing the user to modify the already backed amount
-         * just to decrease it.
-         *
-         * @param addOn: The current selected addon)
-         * @return maxmimum limit: remaining, limit, or quantity
-         */
-        private fun maximumLimit(addOn: Reward): Int? {
-            val limit = addOn.limit()
-            val remaining = addOn.remaining()
-            return if (addOn.isAvailable() && RewardUtils.isValidTimeRange(addOn)) {
-                when {
-                    remaining != null && limit != null -> min(remaining, limit)
-                    remaining != null -> remaining
-                    limit != null -> limit
-                    else -> null
-                }
-            } else {
-                addOn.quantity()
-            }
+            initPipelines(disposables)
         }
 
         // - Inputs

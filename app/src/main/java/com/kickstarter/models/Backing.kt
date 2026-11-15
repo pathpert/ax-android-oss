@@ -187,141 +187,62 @@ class Backing private constructor(
         private var isPostCampaign: Boolean = false,
         private var order: Order? = null,
     ) : Parcelable {
-        fun amount(amount: Double?) = apply { this.amount = amount ?: 0.0 }
-        fun backer(backer: User?) = apply { this.backer = backer }
-        fun backerNote(backerNote: String?) = apply { this.backerNote = backerNote }
-        fun backerName(backerName: String?) = apply { this.backerName = backerName }
-        fun backerUrl(backerUrl: String?) = apply { this.backerUrl = backerUrl }
-        fun backerId(backerId: Long?) = apply { this.backerId = backerId ?: 0L }
-        fun backerCompletedAt(backerCompletedAt: DateTime?) = apply { this.backerCompletedAt = backerCompletedAt }
-        fun backingDetailsPageRoute(backingDetailsPageRoute: String?) = apply { this.backingDetailsPageRoute = backingDetailsPageRoute }
-        fun cancelable(cancelable: Boolean?) = apply { this.cancelable = cancelable ?: false }
-        fun completedAt(completedAt: DateTime?) = apply { this.completedAt = completedAt }
-        fun completedByBacker(completedByBacker: Boolean?) = apply { this.completedByBacker = completedByBacker ?: false }
-        fun id(id: Long?) = apply { this.id = id ?: 0L }
-        fun incremental(incremental: Boolean?) = apply { this.incremental = incremental }
-        fun location(location: Location?) = apply { this.location = location }
-        fun locationId(locationId: Long?) = apply { this.locationId = locationId }
-        fun locationName(locationName: String?) = apply { this.locationName = locationName }
-        fun paymentSource(paymentSource: PaymentSource?) = apply { this.paymentSource = paymentSource }
-        fun paymentIncrements(paymentIncrements: List<PaymentIncrement>?) = apply { this.paymentIncrements = paymentIncrements }
-        fun pledgedAt(pledgedAt: DateTime?) = apply { this.pledgedAt = pledgedAt }
-        fun project(project: Project?) = apply { this.project = project }
-        fun projectId(projectId: Long?) = apply { this.projectId = projectId ?: 0L }
-        fun reward(reward: Reward?) = apply { this.reward = reward }
-        fun rewardId(rewardId: Long?) = apply { this.rewardId = rewardId }
-        fun sequence(sequence: Long) = apply { this.sequence = sequence }
-        fun shippingAmount(shippingAmount: Float?) = apply { this.shippingAmount = shippingAmount ?: 0.0f }
-        fun status(status: String?) = apply { this.status = status ?: "" }
-        fun addOns(addOns: List<Reward>?) = apply { this.addOns = addOns ?: emptyList() }
-        fun bonusAmount(bonusAmount: Double?) = apply { this.bonusAmount = bonusAmount ?: 0.0 }
-        fun isPostCampaign(isPostCampaign: Boolean) = apply { this.isPostCampaign = isPostCampaign }
-        fun order(order: Order?) = apply { this.order = order }
+        fun amount(v: Double?) = apply { this.amount = v ?: 0.0 }
+        fun backer(v: User?) = apply { this.backer = v }
+        fun backerNote(v: String?) = apply { this.backerNote = v }
+        fun backerName(v: String?) = apply { this.backerName = v }
+        fun backerUrl(v: String?) = apply { this.backerUrl = v }
+        fun backerId(v: Long?) = apply { this.backerId = v ?: 0L }
+        fun backerCompletedAt(v: DateTime?) = apply { this.backerCompletedAt = v }
+        fun backingDetailsPageRoute(v: String?) = apply { this.backingDetailsPageRoute = v }
+        fun cancelable(v: Boolean?) = apply { this.cancelable = v ?: false }
+        fun completedAt(v: DateTime?) = apply { this.completedAt = v }
+        fun completedByBacker(v: Boolean?) = apply { this.completedByBacker = v ?: false }
+        fun id(v: Long?) = apply { this.id = v ?: 0L }
+        fun incremental(v: Boolean?) = apply { this.incremental = v }
+        fun location(v: Location?) = apply { this.location = v }
+        fun locationId(v: Long?) = apply { this.locationId = v }
+        fun locationName(v: String?) = apply { this.locationName = v }
+        fun paymentSource(v: PaymentSource?) = apply { this.paymentSource = v }
+        fun paymentIncrements(v: List<PaymentIncrement>?) = apply { this.paymentIncrements = v }
+        fun pledgedAt(v: DateTime?) = apply { this.pledgedAt = v }
+        fun project(v: Project?) = apply { this.project = v }
+        fun projectId(v: Long?) = apply { this.projectId = v ?: 0L }
+        fun reward(v: Reward?) = apply { this.reward = v }
+        fun rewardId(v: Long?) = apply { this.rewardId = v }
+        fun sequence(v: Long) = apply { this.sequence = v }
+        fun shippingAmount(v: Float?) = apply { this.shippingAmount = v ?: 0.0f }
+        fun status(v: String?) = apply { this.status = v ?: "" }
+        fun addOns(v: List<Reward>?) = apply { this.addOns = v ?: emptyList() }
+        fun bonusAmount(v: Double?) = apply { this.bonusAmount = v ?: 0.0 }
+        fun isPostCampaign(v: Boolean) = apply { this.isPostCampaign = v }
+        fun order(v: Order?) = apply { this.order = v }
         fun build() = Backing(
-            amount = amount,
-            backer = backer,
-            backerNote = backerNote,
-            backerName = backerName,
-            backerUrl = backerUrl,
-            backerId = backerId,
-            backerCompletedAt = backerCompletedAt,
-            backingDetailsPageRoute = backingDetailsPageRoute,
-            cancelable = cancelable,
-            completedAt = completedAt,
-            completedByBacker = completedByBacker,
-            id = id,
-            incremental = incremental,
-            location = location,
-            locationId = locationId,
-            locationName = locationName,
-            paymentSource = paymentSource,
-            pledgedAt = pledgedAt,
-            project = project,
-            projectId = projectId,
-            reward = reward,
-            rewardId = rewardId,
-            sequence = sequence,
-            shippingAmount = shippingAmount,
-            status = status,
-            addOns = addOns,
-            bonusAmount = bonusAmount,
-            isPostCampaign = isPostCampaign,
-            paymentIncrements = paymentIncrements,
-            order = order,
+            amount = amount, backer = backer, backerNote = backerNote, backerName = backerName,
+            backerUrl = backerUrl, backerId = backerId, backerCompletedAt = backerCompletedAt,
+            backingDetailsPageRoute = backingDetailsPageRoute, cancelable = cancelable, completedAt = completedAt,
+            completedByBacker = completedByBacker, id = id, incremental = incremental, location = location,
+            locationId = locationId, locationName = locationName, paymentSource = paymentSource, pledgedAt = pledgedAt,
+            project = project, projectId = projectId, reward = reward, rewardId = rewardId, sequence = sequence,
+            shippingAmount = shippingAmount, status = status, addOns = addOns, bonusAmount = bonusAmount,
+            isPostCampaign = isPostCampaign, paymentIncrements = paymentIncrements, order = order
         )
     }
 
     fun toBuilder() = Builder(
-        amount = amount,
-        backer = backer,
-        backerNote = backerNote,
-        backerName = backerName,
-        backerUrl = backerUrl,
-        backerId = backerId,
-        backerCompletedAt = backerCompletedAt,
-        backingDetailsPageRoute = backingDetailsPageRoute,
-        cancelable = cancelable,
-        completedAt = completedAt,
-        completedByBacker = completedByBacker,
-        id = id,
-        incremental = incremental,
-        location = location,
-        locationId = locationId,
-        locationName = locationName,
-        paymentSource = paymentSource,
-        paymentIncrements = paymentIncrements,
-        pledgedAt = pledgedAt,
-        project = project,
-        projectId = projectId,
-        reward = reward,
-        rewardId = rewardId,
-        sequence = sequence,
-        shippingAmount = shippingAmount,
-        status = status,
-        addOns = addOns,
-        bonusAmount = bonusAmount,
-        isPostCampaign = isPostCampaign,
-        order = order,
+        amount = amount, backer = backer, backerNote = backerNote, backerName = backerName,
+        backerUrl = backerUrl, backerId = backerId, backerCompletedAt = backerCompletedAt,
+        backingDetailsPageRoute = backingDetailsPageRoute, cancelable = cancelable, completedAt = completedAt,
+        completedByBacker = completedByBacker, id = id, incremental = incremental, location = location,
+        locationId = locationId, locationName = locationName, paymentSource = paymentSource,
+        paymentIncrements = paymentIncrements, pledgedAt = pledgedAt, project = project, projectId = projectId,
+        reward = reward, rewardId = rewardId, sequence = sequence, shippingAmount = shippingAmount,
+        status = status, addOns = addOns, bonusAmount = bonusAmount, isPostCampaign = isPostCampaign, order = order
     )
 
-    override fun equals(other: Any?): Boolean {
-        var equals = super.equals(other)
-        if (other is Backing) {
-            equals = id() == other.id() &&
-                incremental() == other.incremental() &&
-                amount() == other.amount() &&
-                backer() == other.backer() &&
-                backerNote() == other.backerNote() &&
-                backerName() == other.backerName() &&
-                backerUrl() == other.backerUrl() &&
-                backerId() == other.backerId() &&
-                backerCompletedAt() == other.backerCompletedAt() &&
-                backingDetailsPageRoute() == other.backingDetailsPageRoute() &&
-                cancelable() == other.cancelable() &&
-                completedAt() == other.completedAt() &&
-                completedByBacker() == other.completedByBacker() &&
-                location() == other.location() &&
-                locationId() == other.locationId() &&
-                locationName() == other.locationName() &&
-                paymentSource() == other.paymentSource() &&
-                paymentIncrements() == other.paymentIncrements() &&
-                pledgedAt() == other.pledgedAt() &&
-                project() == other.project() &&
-                projectId() == other.projectId() &&
-                reward() == other.reward() &&
-                rewardId() == other.rewardId() &&
-                sequence() == other.sequence() &&
-                shippingAmount() == other.shippingAmount() &&
-                status() == other.status() &&
-                addOns() == other.addOns() &&
-                bonusAmount() == other.bonusAmount()
-        }
-        return equals
-    }
+    override fun equals(other: Any?): Boolean = BackingEqualityHelper.areEqual(this, other)
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
+    override fun hashCode(): Int = BackingEqualityHelper.hash(this)
 
     @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     @StringDef(

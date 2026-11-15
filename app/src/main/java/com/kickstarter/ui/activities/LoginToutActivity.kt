@@ -154,14 +154,7 @@ class LoginToutActivity : ComponentActivity() {
 
         viewModel.outputs.showFacebookAuthorizationErrorDialog()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                ViewUtils.showDialog(
-                    this,
-                    getString(R.string.general_error_oops),
-                    getString(R.string.login_tout_errors_facebook_authorization_exception_message),
-                    getString(R.string.login_tout_errors_facebook_authorization_exception_button)
-                )
-            }
+            .subscribe { LoginToutDialogHelper.showFacebookAuthorizationError(this) }
             .addToDisposable(disposables)
 
         showErrorMessageToasts()
@@ -171,31 +164,12 @@ class LoginToutActivity : ComponentActivity() {
 
         viewModel.outputs.showUnauthorizedErrorDialog()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                ViewUtils.showDialog(
-                    this,
-                    getString(R.string.login_tout_navbar_title),
-                    it
-                )
-            }
+            .subscribe { LoginToutDialogHelper.showUnauthorizedError(this, it) }
             .addToDisposable(disposables)
 
         viewModel.outputs.showFacebookErrorDialog()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                this.showAlertDialog(
-                    message = getString(R.string.We_can_no_longer_log_you_in_through_Facebook),
-                    positiveActionTitle = getString(R.string.Set_new_password),
-                    negativeActionTitle = getString(R.string.accessibility_discovery_buttons_log_in),
-                    isCancelable = false,
-                    positiveAction = {
-                        viewModel.inputs.onResetPasswordFacebookErrorDialogClicked()
-                    },
-                    negativeAction = {
-                        viewModel.inputs.onLoginFacebookErrorDialogClicked()
-                    }
-                )
-            }
+            .subscribe { LoginToutDialogHelper.showFacebookError(this, viewModel) }
             .addToDisposable(disposables)
 
         viewModel.outputs.showDisclaimerActivity()
@@ -261,25 +235,8 @@ class LoginToutActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * If default Browser is Chrome a CustomChromeTab will be open with give URL
-     * If default Browser is not Chrome Webview will be open with given URL
-     */
     private fun openChromeTabOrWebViewWithUrl(url: String) {
-        val authorizationUri = url.toUri()
-
-        val tabIntent = CustomTabsIntent.Builder().build()
-
-        val packageName = ChromeTabsHelper.getPackageNameToUse(this)
-        if (packageName == "com.android.chrome") {
-            tabIntent.intent.setPackage(packageName)
-            tabIntent.launchUrl(this, authorizationUri)
-        } else {
-            val intent: Intent = Intent(this, OAuthWebViewActivity::class.java)
-                .putExtra(IntentKey.URL, authorizationUri.toString())
-            startForResult.launch(intent)
-            this.overridePendingTransition(R.anim.slide_up, R.anim.fade_out)
-        }
+        LoginToutNavigationHelper.openChromeTabOrWebViewWithUrl(this, url, startForResult)
     }
 
     private fun facebookLoginClick() =
@@ -299,25 +256,23 @@ class LoginToutActivity : ComponentActivity() {
 
     private fun finishWithSuccessfulResult() {
         setResult(RESULT_OK)
-        goToSurveyIfSurveyPresent() // TODO: Remove in MBL-2879
+        LoginToutNavigationHelper.goToSurveyIfSurveyPresent(this, intent)
         finish()
     }
 
     private fun startResetActivity() {
-        val intent = Intent().getResetPasswordIntent(this, isResetPasswordFacebook = true)
-        startActivity(intent)
-        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out_slide_out_left)
+        LoginToutNavigationHelper.startResetActivity(this)
     }
 
     private fun startFacebookConfirmationActivity(
         facebookUser: FacebookUser,
         accessTokenString: String
     ) {
-        val intent = Intent(this, FacebookConfirmationActivity::class.java)
-            .putExtra(IntentKey.FACEBOOK_USER, facebookUser)
-            .putExtra(IntentKey.FACEBOOK_TOKEN, accessTokenString)
-        startActivityForResult(intent, ActivityRequestCodes.LOGIN_FLOW)
-        TransitionUtils.transition(this, TransitionUtils.fadeIn())
+        LoginToutNavigationHelper.startFacebookConfirmationActivity(
+            this,
+            facebookUser,
+            accessTokenString
+        )
     }
 
     @Deprecated("Needs to be replaced with new method, but requires request code usage to go away as well")
@@ -325,27 +280,4 @@ class LoginToutActivity : ComponentActivity() {
         super.onActivityResult(requestCode, resultCode, intent)
         viewModel.provideOnActivityResult(create(requestCode, resultCode, intent))
     }
-
-    private fun goToSurveyIfSurveyPresent() {
-        val surveyResponseDeeplink = IntentCompat.getParcelableExtra(intent, IntentKey.DEEPLINK_SURVEY_RESPONSE, String::class.java)
-
-        surveyResponseDeeplink?.let {
-            startSurveyResponseActivity(surveyResponseDeeplink)
-        }
-    }
-
-    private fun startSurveyResponseActivity(surveyResponseUrl: String) {
-        ApplicationUtils.startNewDiscoveryActivity(this)
-        val intent = Intent(this, SurveyResponseActivity::class.java)
-            .putExtra(IntentKey.DEEPLINK_SURVEY_RESPONSE, surveyResponseUrl)
-        startActivity(intent)
-        finish()
-    }
-}
-
-enum class DisclaimerItems(@StringRes val itemName: Int) {
-    TERMS(R.string.login_tout_help_sheet_terms),
-    COOKIES(R.string.login_tout_help_sheet_cookie),
-    PRIVACY(R.string.login_tout_help_sheet_privacy),
-    HELP(R.string.general_navigation_buttons_help)
 }

@@ -69,21 +69,7 @@ class CommentsActivity :
         val view: View = binding.root
         setContentView(view)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                // Apply the left, right, top, and bottom margins based on the insets
-                leftMargin = insets.left
-                bottomMargin = insets.bottom
-                rightMargin = insets.right
-                topMargin = insets.top
-            }
-
-            val imeInsets = windowInsets.getInsets(WindowInsetsCompat.Type.ime())
-            v.updatePadding(bottom = imeInsets.bottom)
-
-            WindowInsetsCompat.CONSUMED
-        }
+        CommentsActivityViewHelper.setupWindowInsets(binding)
 
         setUpConnectivityStatusCheck(lifecycle)
 
@@ -189,49 +175,23 @@ class CommentsActivity :
             .compose(Transformers.observeForUIV2())
             .subscribe {
                 if (it.first) {
-                    handleBackAction(it.second)
+                    CommentsActivityNavigation.promptUnsavedCommentBack(this, it.second, viewModel) {
+                        binding.commentsSwipeRefreshLayout.isRefreshing = false
+                    }
                 } else {
-                    executeActions(it.second)
+                    CommentsActivityNavigation.executeActions(this, it.second, viewModel)
                 }
             }
             .addToDisposable(disposables)
 
         this.onBackPressedDispatcher.addCallback {
-            handleBackAction()
-        }
-    }
-
-    private fun handleBackAction(isBackAction: Boolean) {
-        this.showAlertDialog(
-            getString(R.string.Your_comment_wasnt_posted),
-            getString(R.string.You_will_lose_the_comment_if_you_leave_this_page),
-            getString(R.string.Cancel),
-            getString(R.string.Leave_page),
-            false,
-            positiveAction = {
-                if (!isBackAction) {
+            if (binding.commentComposer.isCommentComposerEmpty() == true) {
+                viewModel.inputs.checkIfThereAnyPendingComments(true)
+            } else {
+                CommentsActivityNavigation.promptUnsavedCommentBack(this@CommentsActivity, true, viewModel) {
                     binding.commentsSwipeRefreshLayout.isRefreshing = false
                 }
-            },
-            negativeAction = {
-                executeActions(isBackAction)
             }
-        )
-    }
-
-    private fun executeActions(isBackAction: Boolean) {
-        if (!isBackAction) {
-            viewModel.inputs.refresh()
-        } else {
-            finishWithAnimation()
-        }
-    }
-
-    private fun handleBackAction() {
-        if (binding.commentComposer.isCommentComposerEmpty() == true) {
-            viewModel.inputs.checkIfThereAnyPendingComments(true)
-        } else {
-            handleBackAction(true)
         }
     }
     private fun setupPagination() {
@@ -271,17 +231,7 @@ class CommentsActivity :
     }
 
     private fun setEmptyState(visibility: Boolean) {
-        binding.commentsSwipeRefreshLayout.visibility = when (visibility) {
-            true -> View.INVISIBLE
-            else -> View.VISIBLE
-        }
-
-        binding.noComments.visibility = when (visibility) {
-            true -> View.VISIBLE
-            else -> View.GONE
-        }
-        binding.commentsSwipeRefreshLayout.visibility = (!visibility).toVisibility()
-        binding.noComments.visibility = visibility.toVisibility()
+        CommentsActivityViewHelper.setEmptyState(binding, visibility)
     }
 
     override fun retryCallback() {
@@ -318,43 +268,12 @@ class CommentsActivity :
         viewModel.inputs.onReplyClicked(comment, false)
     }
 
-    /**
-     * Start the Thread activity with
-     * @param comment the selected comment to reply
-     * @param openKeyboard
-     *      true: he focus needs to be on the composer view and set the keyboard open when open the activity
-     *      false: in case we just need to open the replies screen
-     *
-     * // TODO: Once the viewReplies UI is completed call this method with openKeyboard = false
-     * // TODO: https://kickstarter.atlassian.net/browse/NT-1955
-     */
     private fun startThreadActivity(commentData: CommentCardData, openKeyboard: Boolean, projectUpdateId: String? = null) {
-        val reducedProject = commentData.project?.reduceProjectPayload()
-        val threadIntent = Intent(this, ThreadActivity::class.java).apply {
-            putExtra(IntentKey.COMMENT_CARD_DATA, commentData.toBuilder().project(reducedProject).build())
-            putExtra(IntentKey.REPLY_EXPAND, openKeyboard)
-            putExtra(IntentKey.UPDATE_POST_ID, projectUpdateId)
-        }
-
-        startActivity(threadIntent)
-        this.let {
-            TransitionUtils.transition(it, TransitionUtils.slideInFromRight())
-        }
+        CommentsActivityNavigation.startThreadActivity(this, commentData, openKeyboard, projectUpdateId)
     }
 
     private fun startThreadActivityFromDeepLink(commentData: CommentCardData, projectUpdateId: String? = null) {
-        val reducedProject = commentData.project?.reduceProjectPayload()
-        val threadIntent = Intent(this, ThreadActivity::class.java).apply {
-            putExtra(IntentKey.COMMENT_CARD_DATA, commentData.toBuilder().project(reducedProject).build())
-            putExtra(IntentKey.REPLY_EXPAND, false)
-            putExtra(IntentKey.REPLY_SCROLL_BOTTOM, true)
-            putExtra(IntentKey.UPDATE_POST_ID, projectUpdateId)
-        }
-
-        startActivity(threadIntent)
-        this.let {
-            TransitionUtils.transition(it, TransitionUtils.slideInFromRight())
-        }
+        CommentsActivityNavigation.startThreadActivityFromDeepLink(this, commentData, projectUpdateId)
     }
 
     override fun onDestroy() {
