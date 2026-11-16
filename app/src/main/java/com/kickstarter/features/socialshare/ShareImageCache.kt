@@ -54,15 +54,43 @@ object ShareImageCache {
      * @param imageUrl Remote URL to download.
      * @return A software-backed [android.graphics.Bitmap] or null if the download fails.
      */
-    suspend fun loadBitmap(context: Context, imageUrl: String): android.graphics.Bitmap? {
-        val request = ImageRequest.Builder(context)
-            .data(imageUrl)
-            // - Hardware-backed bitmaps live on the GPU, setting allowHardware(false) forces a software copy so we can compress it.
-            .allowHardware(false)
-            .build()
-        val result = Coil.imageLoader(context).execute(request)
-        return (result as? SuccessResult)?.drawable?.toBitmap()
-    }
+    suspend fun loadBitmapResult(context: Context, imageUrl: String): DomainResult<android.graphics.Bitmap> =
+        withContext(Dispatchers.IO) {
+            try {
+                val request = ImageRequest.Builder(context)
+                    .data(imageUrl)
+                    .allowHardware(false)
+                    .build()
+                val result = Coil.imageLoader(context).execute(request)
+                val bitmap = (result as? SuccessResult)?.drawable?.toBitmap()
+                if (bitmap != null) {
+                    DomainResult.Success(bitmap)
+                } else {
+                    DomainResult.Failure(
+                        ProblemDetails(
+                            type = ProblemDetails.TYPE_DECODE,
+                            title = "Image Decode Failed",
+                            status = null,
+                            detail = "Coil was unable to load or decode image from $imageUrl.",
+                            suggestedAction = "Verify the image URL is accessible and points to a valid image format.",
+                            isRetriable = true
+                        )
+                    )
+                }
+            } catch (cancellationException: CancellationException) {
+                throw cancellationException
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to load share image bitmap")
+                val problem = ProblemDetailsMapper.fromThrowable(e, "load share image bitmap")
+                DomainResult.Failure(problem)
+            }
+        }
+
+    suspend fun loadBitmap(context: Context, imageUrl: String): android.graphics.Bitmap? =
+        when (val res = loadBitmapResult(context, imageUrl)) {
+            is DomainResult.Success -> res.value
+            is DomainResult.Failure -> null
+        }
 
     /**
      * Persist step: writes a rendered bitmap (the captured [SocialShareProjectCard]) to the app's

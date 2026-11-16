@@ -4,6 +4,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.features.projectstory.data.StoriedProject
@@ -35,6 +36,7 @@ data class ProjectStoryUiState(
     val error: Throwable? = null,
     val storiedProject: StoriedProject? = null,
     val problem: ProblemDetails? = null,
+    val outcome: DomainResult<StoriedProject>? = null
 )
 
 private object StatsigGateException : Exception()
@@ -85,7 +87,12 @@ class ProjectStoryViewModel(
                 suggestedAction = "Enable ANDROID_PRELAUNCH_PROJECT_STORY gate in Statsig.",
                 isRetriable = false
             )
-            _projectStoryUiState.value = ProjectStoryUiState(isLoading = false, error = StatsigGateException, problem = gateProblem)
+            _projectStoryUiState.value = ProjectStoryUiState(
+                isLoading = false,
+                error = StatsigGateException,
+                problem = gateProblem,
+                outcome = DomainResult.Failure(gateProblem)
+            )
             return
         }
 
@@ -109,17 +116,19 @@ class ProjectStoryViewModel(
                         isLoading = false,
                         error = null,
                         problem = null,
-                        storiedProject = it
+                        storiedProject = it,
+                        outcome = DomainResult.Success(it)
                     )
                     Timber.d("storiedProject: ${projectStoryUiState.value.storiedProject}")
                 }
                 .onFailure {
-                    val problem = ProblemDetailsMapper.fromThrowable(it)
+                    val problem = ProblemDetailsMapper.fromThrowable(it, "fetch project story")
                     _projectStoryUiState.value = ProjectStoryUiState(
                         isLoading = false,
                         error = it,
                         problem = problem,
-                        storiedProject = null
+                        storiedProject = null,
+                        outcome = DomainResult.Failure(problem)
                     )
                 }
         }

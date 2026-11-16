@@ -1,6 +1,7 @@
 package com.kickstarter.features.comments.data
 
 import android.util.Pair
+import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.models.Comment
 import com.kickstarter.ui.data.CommentCardData
@@ -66,6 +67,17 @@ sealed interface CommentsUIState {
      * @property throwable Underlying exception cause.
      */
     data class Error(val problem: ProblemDetails, val throwable: Throwable = Exception(problem.detail)) : CommentsUIState
+
+    /**
+     * Maps the UI state into a typed [DomainResult] outcome for agent consumption.
+     */
+    val outcome: DomainResult<List<CommentCardData>>?
+        get() = when (this) {
+            is Loaded -> DomainResult.Success(comments)
+            is Empty -> DomainResult.Success(emptyList())
+            is Error -> DomainResult.Failure(problem)
+            is Loading -> null
+        }
 }
 
 /**
@@ -92,7 +104,8 @@ interface CommentsFeatureInputs {
  * Modern reactive outputs emitted by the Comments feature.
  *
  * Negative Constraints:
- * - Do NOT emit raw throwable without problem details fallback.
+ * - Do NOT emit raw throwables; error channels carry structured [ProblemDetails] so callers and
+ *   agents can act on `suggestedAction` and `isRetriable` without parsing exception messages.
  */
 interface CommentsFeatureOutputs {
     fun closeCommentsPage(): Observable<Unit>
@@ -104,9 +117,9 @@ interface CommentsFeatureOutputs {
     fun scrollToTop(): Observable<Boolean>
     fun setEmptyState(): Observable<Boolean>
     fun showCommentGuideLinesLink(): Observable<Unit>
-    fun initialLoadCommentsError(): Observable<Throwable>
-    fun paginateCommentsError(): Observable<Throwable>
-    fun pullToRefreshError(): Observable<Throwable>
+    fun initialLoadCommentsError(): Observable<ProblemDetails>
+    fun paginateCommentsError(): Observable<ProblemDetails>
+    fun pullToRefreshError(): Observable<ProblemDetails>
     fun startThreadActivity(): Observable<Pair<Pair<CommentCardData, Boolean>, String?>>
     fun startThreadActivityFromDeepLink(): Observable<Pair<CommentCardData, String?>>
     fun hasPendingComments(): Observable<Pair<Boolean, Boolean>>

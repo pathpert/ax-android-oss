@@ -3,6 +3,7 @@ package com.kickstarter.viewmodels
 import android.content.Intent
 import android.util.Pair
 import com.kickstarter.KSRobolectricTestCase
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.libs.MockCurrentUserV2
 import com.kickstarter.libs.utils.EventName
 import com.kickstarter.libs.utils.extensions.addToDisposable
@@ -43,8 +44,8 @@ class CommentsViewModelTest : KSRobolectricTestCase() {
     private val showCommentComposer = TestSubscriber<Boolean>()
     private val showEmptyState = TestSubscriber<Boolean>()
     private val scrollToTop = BehaviorSubject.create<Boolean>()
-    private val initialLoadError = TestSubscriber.create<Throwable>()
-    private val paginationError = TestSubscriber.create<Throwable>()
+    private val initialLoadError = TestSubscriber.create<ProblemDetails>()
+    private val paginationError = TestSubscriber.create<ProblemDetails>()
     private val shouldShowPaginatedCell = TestSubscriber.create<Boolean>()
     private val shouldShowInitialLoadErrorCell = TestSubscriber.create<Boolean>()
     private val openCommentGuideLines = TestSubscriber<Unit>()

@@ -1,5 +1,6 @@
 package com.kickstarter.features.search.data
 
+import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.models.Project
 
@@ -17,11 +18,23 @@ import com.kickstarter.models.Project
  * @property searchList List of projects matching active query and filter criteria.
  * @property hasMore Indicates if additional pages can be fetched.
  * @property problem Structured actionable error details carrying suggestedAction and isRetriable flag, or null if operation succeeded.
+ * @property outcome Typed [DomainResult] representing current search outcome for agent consumption.
  */
 data class SearchUIState(
     val isLoading: Boolean = false,
     val popularProjectsList: List<Project> = emptyList(),
     val searchList: List<Project> = emptyList(),
     val hasMore: Boolean = true,
-    val problem: ProblemDetails? = null
-)
+    val problem: ProblemDetails? = null,
+    val outcome: DomainResult<List<Project>>? = null
+) {
+    /**
+     * Discriminated [DomainResult] reflecting the current active search outcome.
+     */
+    val activeOutcome: DomainResult<List<Project>>?
+        get() = outcome ?: when {
+            problem != null -> DomainResult.Failure(problem)
+            isLoading -> null
+            else -> DomainResult.Success(if (searchList.isNotEmpty()) searchList else popularProjectsList)
+        }
+}

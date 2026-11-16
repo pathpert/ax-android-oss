@@ -8,6 +8,7 @@ import androidx.core.view.isGone
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.databinding.ActivitySettingsPaymentMethodsBinding
 import com.kickstarter.libs.utils.extensions.getEnvironment
 import com.kickstarter.libs.utils.extensions.getPaymentSheetConfiguration
@@ -134,8 +135,11 @@ class PaymentMethodsSettingsActivity : AppCompatActivity() {
             this.viewModel.showError()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    showErrorSnackBar(binding.settingPaymentMethodsActivityToolbar.paymentMethodsToolbar, getString(R.string.general_error_something_wrong))
+                .subscribe { message ->
+                    showErrorSnackBar(
+                        binding.settingPaymentMethodsActivityToolbar.paymentMethodsToolbar,
+                        message.ifBlank { getString(R.string.general_error_something_wrong) }
+                    )
                 }
         )
 
@@ -169,7 +173,9 @@ class PaymentMethodsSettingsActivity : AppCompatActivity() {
         if (success) {
             flowController.presentPaymentOptions()
         } else {
-            showErrorToast(this, binding.paymentMethodsContent, getString(R.string.general_error_something_wrong))
+            val message = ProblemDetailsCopyMapper.displayMessageFor(error, "configure payment sheet")
+                ?: getString(R.string.general_error_something_wrong)
+            showErrorToast(this, binding.paymentMethodsContent, message)
         }
     }
 
@@ -187,7 +193,9 @@ class PaymentMethodsSettingsActivity : AppCompatActivity() {
                 showErrorSnackBar(binding.paymentMethodsContent, getString(R.string.general_error_oops))
             }
             is PaymentSheetResult.Failed -> {
-                showErrorSnackBar(binding.paymentMethodsContent, getString(R.string.general_error_something_wrong))
+                val message = ProblemDetailsCopyMapper.displayMessageFor(paymentSheetResult.error, "present payment sheet")
+                    ?: getString(R.string.general_error_something_wrong)
+                showErrorSnackBar(binding.paymentMethodsContent, message)
             }
             is PaymentSheetResult.Completed -> {
                 this.viewModel.inputs.savePaymentOption()

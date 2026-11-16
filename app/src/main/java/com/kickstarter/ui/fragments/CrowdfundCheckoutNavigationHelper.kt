@@ -4,7 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.view.ViewGroup
 import androidx.core.net.toUri
-import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.UrlUtils
 import com.kickstarter.models.chrome.ChromeTabsHelperActivity
@@ -29,8 +30,13 @@ internal object CrowdfundCheckoutNavigationHelper {
                 act.startDisclaimerChromeTab(disclaimerItem, environment)
             } ?: view?.let { v ->
                 context?.let { ctx ->
+                    val problem = ProblemDetails.forMissingConfiguration(
+                        component = "openDisclaimerScreen",
+                        detail = "Application Environment is null; cannot open disclaimer screen.",
+                        suggestedAction = "Ensure an active Kickstarter Environment is attached before opening disclaimer."
+                    )
                     act.runOnUiThread {
-                        showErrorToast(ctx, v, act.getString(R.string.general_error_something_wrong))
+                        showErrorToast(ctx, v, ProblemDetailsCopyMapper.displayMessage(problem))
                     }
                 }
             }
@@ -55,8 +61,13 @@ internal object CrowdfundCheckoutNavigationHelper {
                         null
                     )
                 } ?: view?.let { v ->
+                    val problem = ProblemDetails.forMissingConfiguration(
+                        component = "showAccountabilityPage",
+                        detail = "Application Environment is null; cannot resolve web endpoint for accountability.",
+                        suggestedAction = "Ensure an active Kickstarter Environment is attached before showing accountability page."
+                    )
                     act.runOnUiThread {
-                        showErrorToast(ctx, v, act.getString(R.string.general_error_something_wrong))
+                        showErrorToast(ctx, v, ProblemDetailsCopyMapper.displayMessage(problem))
                     }
                 }
             }

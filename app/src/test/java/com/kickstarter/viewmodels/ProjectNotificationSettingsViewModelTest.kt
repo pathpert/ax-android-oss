@@ -1,6 +1,7 @@
 package com.kickstarter.viewmodels
 
 import com.kickstarter.KSRobolectricTestCase
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.mock.factories.ProjectNotificationFactory
@@ -18,7 +19,7 @@ class ProjectNotificationSettingsViewModelTest : KSRobolectricTestCase() {
     private lateinit var vm: ProjectNotificationSettingsViewModel.ProjectNotificationSettingsViewModel
 
     private val projectNotifications = TestSubscriber<List<ProjectNotification>>()
-    private val unableToFetchProjectNotificationsError = TestSubscriber<Unit>()
+    private val unableToFetchProjectNotificationsError = TestSubscriber<ProblemDetails>()
     private val disposables = CompositeDisposable()
 
     private fun setUpEnvironment(environment: Environment) {

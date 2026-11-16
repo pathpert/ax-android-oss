@@ -92,12 +92,30 @@ object ProblemDetailsMapper {
                 suggestedAction = "Check network connectivity and retry when online.",
                 isRetriable = true
             )
-            else -> fromDomainMessage(
-                rawMessage = throwable.message,
-                operation = operation
-            )
+            else -> findProblemInCauseChain(throwable)?.problem
+                ?: fromDomainMessage(
+                    rawMessage = throwable.message,
+                    operation = operation
+                )
         }
     }
+
+    /**
+     * Walks the cause chain of a wrapped [Throwable] (e.g., an Apollo JSON parsing or RxJava
+     * wrapper) to recover a carried [ProblemException] so structured details survive the boundary.
+     */
+    private fun findProblemInCauseChain(throwable: Throwable): ProblemException? {
+        var current: Throwable? = throwable
+        var depth = 0
+        while (current != null && depth < MAX_CAUSE_DEPTH) {
+            if (current is ProblemException) return current
+            current = current.cause
+            depth++
+        }
+        return null
+    }
+
+    private const val MAX_CAUSE_DEPTH = 16
 
     /**
      * Maps a domain/GraphQL error message (such as a mutation validation error) into [ProblemDetails].

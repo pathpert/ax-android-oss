@@ -2,6 +2,7 @@ package com.kickstarter.features.socialshare.data
 
 import android.graphics.Bitmap
 import android.net.Uri
+import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.types.NonBlankId
 import com.kickstarter.libs.RefTag
@@ -111,5 +112,6 @@ data class SocialShareUIState(
     val shareImageUri: Uri? = null,
     val isGeneratingImage: Boolean = false,
     val copiedToClipboard: Boolean = false,
-    val problem: ProblemDetails? = null
+    val problem: ProblemDetails? = null,
+    val outcome: DomainResult<Uri>? = null
 )

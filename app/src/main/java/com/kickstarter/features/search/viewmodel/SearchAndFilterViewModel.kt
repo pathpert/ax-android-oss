@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.features.search.data.SearchUIState
 import com.kickstarter.libs.Environment
@@ -203,7 +204,7 @@ class SearchAndFilterViewModel(
             val ex = searchEnvelopeResult.exceptionOrNull()
             val problem = ProblemDetailsMapper.fromThrowable(ex ?: RuntimeException("Search failed"))
             emitCurrentState(isLoading = false, problem = problem)
-            errorAction.invoke(problem.detail)
+            errorAction.invoke(ProblemDetailsCopyMapper.displayMessage(problem))
             return
         }
 

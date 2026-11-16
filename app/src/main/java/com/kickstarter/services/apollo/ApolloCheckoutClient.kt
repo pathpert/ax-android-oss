@@ -63,24 +63,30 @@ class ApolloCheckoutClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create checkout")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "create checkout")))
                     } else {
-                        response.data?.let { data ->
-                            data.createCheckout?.checkout?.let { checkoutObj ->
-                                val backingId = decodeRelayId(checkoutObj.id) ?: 0L
-                                val backing = Backing.builder().id(backingId).build()
-                                decodeRelayId(checkoutObj.id)?.let { id ->
-                                    val checkout = CheckoutPayment(
-                                        id,
-                                        checkoutObj.paymentUrl,
-                                        backing = backing
+                        val checkoutObj = response.data?.createCheckout?.checkout
+                        if (checkoutObj == null) {
+                            ps.onError(ProblemException(boundaryProblem("Missing Checkout", "CreateCheckout returned no checkout object.")))
+                        } else {
+                            val decodedId = decodeRelayId(checkoutObj.id)
+                            if (decodedId == null) {
+                                ps.onError(
+                                    ProblemException(
+                                        boundaryProblem(
+                                            "Checkout ID Decode Failure",
+                                            "CreateCheckout returned a checkout ID that could not be decoded.",
+                                            type = ProblemDetails.TYPE_DECODE
+                                        )
                                     )
-                                    ps.onNext(checkout)
-                                } ?: ps.onError(Exception("CreateCheckout could not decode ID"))
+                                )
+                            } else {
+                                val backing = Backing.builder().id(decodedId).build()
+                                ps.onNext(CheckoutPayment(decodedId, checkoutObj.paymentUrl, backing = backing))
                             }
                         }
                     }
@@ -105,11 +111,11 @@ class ApolloCheckoutClient(
             service.query(query)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "validate checkout")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "validate checkout")))
                     } else {
                         response.data?.let { data ->
                             val validation = PaymentValidationResponse(
@@ -200,18 +206,31 @@ class ApolloCheckoutClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "complete order")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
-                    }
-                    response.data?.completeOrder?.let {
-                        val payload = CompleteOrderPayload(
-                            status = it.status.toString(),
-                            clientSecret = it.clientSecret ?: ""
-                        )
-                        ps.onNext(payload)
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "complete order")))
+                    } else {
+                        val payload = response.data?.completeOrder?.let {
+                            CompleteOrderPayload(
+                                status = it.status.toString(),
+                                clientSecret = it.clientSecret ?: ""
+                            )
+                        }
+                        if (payload == null) {
+                            ps.onError(
+                                ProblemException(
+                                    boundaryProblem(
+                                        "Missing Order Payload",
+                                        "CompleteOrder returned no order payload.",
+                                        "Reload checkout state and retry the order completion."
+                                    )
+                                )
+                            )
+                        } else {
+                            ps.onNext(payload)
+                        }
                     }
                     ps.onComplete()
                 }.addToDisposable(disposables)
@@ -231,17 +250,25 @@ class ApolloCheckoutClient(
                 .rxFlowable()
                 .subscribeOn(Schedulers.io())
                 .doOnError {
-                    ps.onError(it)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(it, "build payment plan")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
-                    }
-                    response.data?.let { data ->
-                        data.project?.paymentPlan?.let {
-                            paymentPlanTransformer(it)
-                        }?.let {
-                            ps.onNext(it)
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "build payment plan")))
+                    } else {
+                        val paymentPlan = response.data?.project?.paymentPlan?.let { paymentPlanTransformer(it) }
+                        if (paymentPlan == null) {
+                            ps.onError(
+                                ProblemException(
+                                    boundaryProblem(
+                                        "Missing Payment Plan",
+                                        "BuildPaymentPlan returned no payment plan for the project.",
+                                        "Reload the project details and retry building the payment plan."
+                                    )
+                                )
+                            )
+                        } else {
+                            ps.onNext(paymentPlan)
                         }
                     }
                     ps.onComplete()
@@ -249,4 +276,18 @@ class ApolloCheckoutClient(
             return@defer ps
         }
     }
+
+    private fun boundaryProblem(
+        title: String,
+        detail: String,
+        suggestedAction: String = "Re-fetch the checkout and retry with a fresh Idempotency-Key.",
+        type: String = ProblemDetails.TYPE_UNEXPECTED
+    ): ProblemDetails = ProblemDetails(
+        type = type,
+        title = title,
+        status = 502,
+        detail = detail,
+        suggestedAction = suggestedAction,
+        isRetriable = true
+    )
 }

@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.databinding.ProjectNotificationSettingsLayoutBinding
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.getEnvironment
@@ -55,10 +55,10 @@ class ProjectNotificationSettingsActivity : ComponentActivity() {
 
         viewModel.outputs.unableToFetchProjectNotificationsError()
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
+            .subscribe { problem ->
                 showSnackbar(
                     binding.projectNotificationSettingsRecyclerView,
-                    getString(R.string.general_error_something_wrong)
+                    ProblemDetailsCopyMapper.displayMessage(problem)
                 )
             }
             .addToDisposable(disposables)

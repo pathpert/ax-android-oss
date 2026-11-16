@@ -2,6 +2,7 @@ package com.kickstarter.features.backing.viewmodel
 
 import android.util.Pair
 import androidx.lifecycle.ViewModel
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.features.backing.data.BackingFeatureOutputs
 import com.kickstarter.features.backing.data.BackingState
 import com.kickstarter.libs.Either
@@ -27,7 +28,7 @@ abstract class BackingOutputsHolder : ViewModel(), BackingFeatureOutputs {
     protected val receivedCheckboxToggled = PublishSubject.create<Boolean>()
     protected val refreshProject = PublishSubject.create<Unit>()
     protected val isExpanded = PublishSubject.create<Boolean>()
-    protected val backingError = BehaviorSubject.create<Throwable>()
+    protected val backingError = BehaviorSubject.create<ProblemDetails>()
 
     protected val backerAvatar = BehaviorSubject.create<String>()
     protected val backerName = BehaviorSubject.create<String>()
@@ -97,6 +98,6 @@ abstract class BackingOutputsHolder : ViewModel(), BackingFeatureOutputs {
     override fun deliveryDisclaimerSectionIsGone(): Observable<Boolean> = this.deliveryDisclaimerSectionIsGone
     override fun paymentIncrements(): Observable<List<PaymentIncrement>> = this.paymentIncrements
     override fun pledgeIsPlot(): Observable<Boolean> = this.pledgeIsPlot
-    override fun backingError(): Observable<Throwable> = this.backingError
+    override fun backingError(): Observable<ProblemDetails> = this.backingError
     override fun backingState(): Observable<BackingState> = this.backingStateSubject
 }

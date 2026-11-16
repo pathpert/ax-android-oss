@@ -52,6 +52,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.features.pledgedprojectsoverview.data.PPOCard
 import com.kickstarter.features.pledgedprojectsoverview.data.PPOCardFactory
 import com.kickstarter.libs.AnalyticEvents
@@ -96,6 +97,7 @@ fun PledgedProjectsOverviewScreen(
     onRewardReceivedChanged: ((String, Boolean) -> Unit),
     isLoading: Boolean = false,
     isErrored: Boolean = false,
+    problem: ProblemDetails? = null,
     showEmptyState: Boolean = false,
     pullRefreshCallback: () -> Unit = {},
     analyticEvents: AnalyticEvents? = null,
@@ -165,7 +167,7 @@ fun PledgedProjectsOverviewScreen(
                 contentAlignment = Alignment.TopCenter
             ) {
                 if (isErrored) {
-                    PPOScreenErrorState()
+                    PPOScreenErrorState(problem)
                 } else if (showEmptyState) {
                     PPOScreenEmptyState(onSeeAllBackedProjectsClick, v2Enabled)
                 } else {

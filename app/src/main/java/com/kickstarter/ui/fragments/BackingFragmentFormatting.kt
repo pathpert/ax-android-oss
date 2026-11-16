@@ -13,6 +13,8 @@ import androidx.core.text.HtmlCompat
 import coil.Coil
 import coil.request.ImageRequest
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.libs.Either
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.ViewUtils
@@ -234,13 +236,18 @@ internal fun BackingFragment.openDisclaimerScreen(disclaimerItem: DisclaimerItem
     environment?.let {
         activity?.startDisclaimerChromeTab(disclaimerItem, it)
     } ?: run {
-        context?.let {
+        context?.let { ctx ->
             activity?.runOnUiThread {
                 binding?.root?.let { rootView ->
+                    val problem = ProblemDetails.forMissingConfiguration(
+                        component = "openDisclaimerScreen",
+                        detail = "Application Environment is null; cannot open disclaimer screen.",
+                        suggestedAction = "Ensure an active Kickstarter Environment is attached before opening disclaimer."
+                    )
                     showErrorToast(
-                        it,
+                        ctx,
                         rootView,
-                        getString(R.string.general_error_something_wrong)
+                        ProblemDetailsCopyMapper.displayMessage(problem)
                     )
                 }
             }

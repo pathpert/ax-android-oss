@@ -25,6 +25,8 @@ import com.kickstarter.services.transformers.flaggingOptionTransformer
 import com.kickstarter.services.transformers.getCreateAttributionEventMutation
 import com.kickstarter.services.transformers.getTriggerThirdPartyEventMutation
 import com.kickstarter.services.transformers.updateTransformer
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.type.FlaggingContent
@@ -62,11 +64,11 @@ class ApolloCreatorSocialClient(
                 service.mutation(mutation)
                     .rxSingle()
                     .doOnError { throwable ->
-                        ps.onError(throwable)
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create flagging")))
                     }
                     .subscribe { response ->
                         if (response.hasErrors()) {
-                            ps.onError(Exception(response.errors?.first()?.message))
+                            ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "create flagging")))
                         }
                         response.data?.let { data ->
                             data.createFlagging?.flagging?.kind?.name?.let { kindString ->
@@ -89,7 +91,7 @@ class ApolloCreatorSocialClient(
                 .subscribe(
                     { response ->
                         if (response.hasErrors()) {
-                            ps.onError(Exception(response.errors?.first()?.message))
+                            ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch flagging options")))
                         } else {
                             ps.onNext(
                                 response.data?.flaggingOptions?.map { flaggingOptionTransformer(it) } ?: emptyList()
@@ -98,7 +100,7 @@ class ApolloCreatorSocialClient(
                         }
                     },
                     { throwable ->
-                        ps.onError(throwable)
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch flagging options")))
                     }
                 ).addToDisposable(disposables)
             return@defer ps
@@ -112,11 +114,11 @@ class ApolloCreatorSocialClient(
             service.query(query)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch creator details")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch creator details")))
                     }
                     response.data?.project?.creator?.let {
                         ps.onNext(
@@ -143,18 +145,18 @@ class ApolloCreatorSocialClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "send message")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "send message")))
                     }
                     response.data?.let {
                         decodeRelayId(
                             response.data?.sendMessage?.conversation?.id
                         )?.let { conversationId ->
                             ps.onNext(conversationId)
-                        } ?: ps.onError(Exception())
+                        } ?: ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage("Failed to decode conversation ID", "send message")))
                     }
                     ps.onComplete()
                 }.addToDisposable(disposables)
@@ -177,11 +179,11 @@ class ApolloCreatorSocialClient(
             service.query(query)
                 .rxFlowable()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch project updates")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch project updates")))
                     } else {
                         response.data?.let { data ->
                             val updates = data.project?.posts?.edges?.map {
@@ -212,11 +214,11 @@ class ApolloCreatorSocialClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "trigger third party event")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "trigger third party event")))
                     } else {
                         val message = response.data?.triggerThirdPartyEvent?.message
                         val isSuccess = response.data?.triggerThirdPartyEvent?.success ?: false
@@ -235,11 +237,11 @@ class ApolloCreatorSocialClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create attribution event")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "create attribution event")))
                     }
                     response.data?.let {
                         val isSuccess = it.createAttributionEvent?.successful ?: false

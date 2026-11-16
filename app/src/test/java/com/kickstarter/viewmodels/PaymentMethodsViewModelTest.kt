@@ -172,6 +172,7 @@ class PaymentMethodsViewModelTest : KSRobolectricTestCase() {
     @Test
     fun testPresentPaymentSheetError() {
         val errorString = "Something went wrong"
+        val structuredError = "Failed to present payment sheet: $errorString. Review the rejected parameters or account state and try again if corrected."
         setUpEnvironment(
             environment().toBuilder().apolloClientV2(object : MockApolloClientV2() {
                 override fun createSetupIntent(project: Project?): Observable<String> {
@@ -184,7 +185,7 @@ class PaymentMethodsViewModelTest : KSRobolectricTestCase() {
 
         this.presentPaymentSheet.assertNoValues()
         this.progressBarIsVisible.assertValues(false, true, false, true, false)
-        this.showError.assertValue(errorString)
+        this.showError.assertValue(structuredError)
     }
 
     @Test
@@ -240,6 +241,7 @@ class PaymentMethodsViewModelTest : KSRobolectricTestCase() {
         val cardsList = listOf(StoredCardFactory.discoverCard())
         var numberOfCalls = 1
         val errorString = "Something went wrong"
+        val structuredError = "Failed to save payment method: $errorString. Review the rejected parameters or account state and try again if corrected."
 
         setUpEnvironment(
             environment().toBuilder().apolloClientV2(object : MockApolloClientV2() {
@@ -274,7 +276,7 @@ class PaymentMethodsViewModelTest : KSRobolectricTestCase() {
         this.cards.assertValueCount(1)
         this.cards.assertValues(cardsList)
         this.progressBarIsVisible.assertValues(false, true, false, true, false, true, false, true, false)
-        this.showError.assertValues(errorString)
+        this.showError.assertValues(structuredError)
         this.successSaving.assertNoValues()
     }
 

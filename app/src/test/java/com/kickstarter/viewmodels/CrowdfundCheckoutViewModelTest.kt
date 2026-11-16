@@ -1528,11 +1528,12 @@ class CrowdfundCheckoutViewModelTest : KSRobolectricTestCase() {
             viewModel.getSetupIntent()
         }
 
+        val suggestedAction = "Review the rejected parameters or account state and try again if corrected."
         assertEquals(errorList.size, 4)
-        assertEquals(errorList.last(), "Oh no, Godzilla!")
-        assertEquals(errorList.first(), "Oh no, we are out of coffee!")
-        assertEquals(errorList[1], "Oh no, no more chocolate!")
-        assertEquals(errorList[2], "Oh no, the team rocket!")
+        assertEquals(errorList.last(), "Failed to create setup intent: Oh no, Godzilla!. $suggestedAction")
+        assertEquals(errorList.first(), "Failed to fetch user privacy: Oh no, we are out of coffee!. $suggestedAction")
+        assertEquals(errorList[1], "Failed to fetch stored cards: Oh no, no more chocolate!. $suggestedAction")
+        assertEquals(errorList[2], "Failed to create backing: Oh no, the team rocket!. $suggestedAction")
     }
 
     @Test

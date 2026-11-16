@@ -113,6 +113,7 @@ class PledgedProjectsOverviewActivity : AppCompatActivity() {
                         },
                         isLoading = isLoading,
                         isErrored = isErrored,
+                        problem = ppoUIState.problem,
                         showEmptyState = showEmptyState,
                         onSeeAllBackedProjectsClick = { startProfileActivity() },
                         pullRefreshCallback = {
@@ -190,10 +191,11 @@ class PledgedProjectsOverviewActivity : AppCompatActivity() {
                         }
                 }
 
-                viewModel.provideSnackbarMessage { stringId, type, duration ->
+                viewModel.provideSnackbarMessage { stringId, type, duration, suggestedAction ->
                     lifecycleScope.launch {
+                        val message = suggestedAction?.let { "${getString(stringId)} $it" } ?: getString(stringId)
                         snackbarHostState.showSnackbar(
-                            message = getString(stringId),
+                            message = message,
                             actionLabel = type,
                             duration = duration
                         )
@@ -236,7 +238,7 @@ class PledgedProjectsOverviewActivity : AppCompatActivity() {
                         lifecycleScope.launch {
                             viewModel.showLoadingState(false)
                         }
-                        viewModel.showErrorSnackbar(R.string.general_error_something_wrong)
+                        viewModel.showPaymentAuthenticationError(e)
                     }
                 }
             )

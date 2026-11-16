@@ -1,5 +1,6 @@
 package com.kickstarter.features.backing.data
 
+import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.libs.Either
 import com.kickstarter.models.Backing
@@ -50,6 +51,16 @@ sealed interface BackingState {
         val problem: ProblemDetails,
         val throwable: Throwable = Exception(problem.detail)
     ) : BackingState
+
+    /**
+     * Maps the backing state into a typed [DomainResult] outcome for agent consumption.
+     */
+    val outcome: DomainResult<Backing>?
+        get() = when (this) {
+            is Success -> DomainResult.Success(backing)
+            is Error -> DomainResult.Failure(problem)
+            is Loading -> null
+        }
 }
 
 /**
@@ -107,6 +118,6 @@ interface BackingFeatureOutputs {
     fun deliveryDisclaimerSectionIsGone(): Observable<Boolean>
     fun paymentIncrements(): Observable<List<PaymentIncrement>>
     fun pledgeIsPlot(): Observable<Boolean>
-    fun backingError(): Observable<Throwable>
+    fun backingError(): Observable<ProblemDetails>
     fun backingState(): Observable<BackingState>
 }

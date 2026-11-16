@@ -1,6 +1,8 @@
 package com.kickstarter.viewmodels
 
 import androidx.lifecycle.ViewModelProvider
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.rx.transformers.Transformers
 import com.kickstarter.libs.utils.extensions.addToDisposable
@@ -24,21 +26,21 @@ import io.reactivex.subjects.BehaviorSubject
 interface ProjectNotificationSettingsViewModel {
     interface Outputs {
         fun projectNotifications(): Observable<List<ProjectNotification>>
-        fun unableToFetchProjectNotificationsError(): Observable<Unit>
+        fun unableToFetchProjectNotificationsError(): Observable<ProblemDetails>
     }
 
     @Deprecated("Legacy monolithic path replaced by features.*.viewmodel.*")
     class ProjectNotificationSettingsViewModel(environment: Environment) : androidx.lifecycle.ViewModel(), Outputs {
         private val client: ApiClientTypeV2 = requireNotNull(environment.apiClientV2())
         private val projectNotifications = BehaviorSubject.create<List<ProjectNotification>>()
-        private val unableToFetchProjectNotificationsError = BehaviorSubject.create<Unit>()
+        private val unableToFetchProjectNotificationsError = BehaviorSubject.create<ProblemDetails>()
         private val disposables = CompositeDisposable()
 
         val outputs: Outputs = this
 
         override fun projectNotifications(): Observable<List<ProjectNotification>> = projectNotifications
 
-        override fun unableToFetchProjectNotificationsError(): Observable<Unit> = unableToFetchProjectNotificationsError
+        override fun unableToFetchProjectNotificationsError(): Observable<ProblemDetails> = unableToFetchProjectNotificationsError
 
         init {
             val projectNotificationsNotification = client
@@ -55,7 +57,14 @@ interface ProjectNotificationSettingsViewModel {
 
             projectNotificationsNotification
                 .compose(Transformers.errorsV2())
-                .subscribe { unableToFetchProjectNotificationsError.onNext(Unit) }
+                .subscribe { throwable ->
+                    unableToFetchProjectNotificationsError.onNext(
+                        ProblemDetailsMapper.fromThrowable(
+                            throwable ?: RuntimeException("Failed to fetch project notifications"),
+                            "fetch project notifications"
+                        )
+                    )
+                }
                 .addToDisposable(disposables)
         }
 

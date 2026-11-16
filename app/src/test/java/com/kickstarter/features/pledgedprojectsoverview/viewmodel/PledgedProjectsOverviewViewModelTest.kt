@@ -79,13 +79,13 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
                     }).build()
             ).create(PledgedProjectsOverviewViewModel::class.java)
 
-            viewModel.provideSnackbarMessage { message, _, _ -> snackbarAction = message }
+            viewModel.provideSnackbarMessage { message, _, _, _ -> snackbarAction = message }
             viewModel.onMessageCreatorClicked("test_project_slug", "projectID", "creatorID", listOf(PPOCardFactory.confirmAddressCard()), 10)
 
             // Should equal error string id
             assertEquals(
                 snackbarAction,
-                R.string.Something_went_wrong_please_try_again
+                R.string.general_error_something_wrong
             )
         }
 
@@ -93,6 +93,7 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
     fun `emits error snackbar when confirms address errored`() =
         runTest {
             var snackbarAction = 0
+            var snackbarSuggestedAction: String? = null
             val viewModel = PledgedProjectsOverviewViewModel.Factory(
                 ioDispatcher = UnconfinedTestDispatcher(testScheduler),
                 environment = environment().toBuilder()
@@ -108,14 +109,18 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
                 viewModel.ppoUIState.toList(uiState)
             }
 
-            viewModel.provideSnackbarMessage { message, _, _ -> snackbarAction = message }
+            viewModel.provideSnackbarMessage { message, _, _, suggestedAction ->
+                snackbarAction = message
+                snackbarSuggestedAction = suggestedAction
+            }
             viewModel.confirmAddress("addressID", "backingID")
 
             assertEquals(
                 snackbarAction,
-                R.string.Something_went_wrong_please_try_again
+                R.string.general_error_something_wrong
             )
 
+            assertTrue(snackbarSuggestedAction?.isNotBlank() == true)
             assertTrue(uiState.last().problem != null)
         }
 
@@ -138,12 +143,12 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
                 viewModel.ppoUIState.toList(uiState)
             }
 
-            viewModel.provideSnackbarMessage { message, _, _ -> snackbarAction = message }
+            viewModel.provideSnackbarMessage { message, _, _, _ -> snackbarAction = message }
             viewModel.confirmAddress("addressID", "backingID")
 
             assertEquals(
                 snackbarAction,
-                R.string.Something_went_wrong_please_try_again
+                R.string.general_error_something_wrong
             )
 
             assertTrue(uiState.last().problem != null)
@@ -166,7 +171,7 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
                 viewModel.ppoUIState.toList(uiState)
             }
-            viewModel.provideSnackbarMessage { message, _, _ -> snackbarAction = message }
+            viewModel.provideSnackbarMessage { message, _, _, _ -> snackbarAction = message }
             viewModel.confirmAddress("addressID", "backingID")
 
             assertEquals(
@@ -263,13 +268,13 @@ class PledgedProjectsOverviewViewModelTest : KSRobolectricTestCase() {
                     }).build()
             ).create(PledgedProjectsOverviewViewModel::class.java)
 
-            viewModel.provideSnackbarMessage { message, _, _ -> snackbarAction = message }
+            viewModel.provideSnackbarMessage { message, _, _, _ -> snackbarAction = message }
             viewModel.onMessageCreatorClicked("test_project_slug", "projectID", "creatorID", listOf(PPOCardFactory.confirmAddressCard()), 10)
 
             // Should equal error string id
             assertEquals(
                 snackbarAction,
-                R.string.Something_went_wrong_please_try_again
+                R.string.general_error_something_wrong
             )
         }
 

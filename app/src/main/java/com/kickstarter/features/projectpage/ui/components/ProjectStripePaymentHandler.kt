@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.R
 import com.kickstarter.ax.errors.DomainResult
-import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.utils.extensions.getPaymentSheetConfiguration
@@ -47,7 +47,7 @@ class ProjectStripePaymentHandler(
             }
 
             is PaymentSheetResult.Failed -> {
-                val errorMessage = paymentSheetResult.error.localizedMessage
+                val errorMessage = ProblemDetailsCopyMapper.displayMessageFor(paymentSheetResult.error, "present payment sheet")
                     ?: activity.getString(R.string.general_error_something_wrong)
                 showToastError(errorMessage)
                 latePledgeCheckoutViewModel.onNewCardFailed()
@@ -70,7 +70,7 @@ class ProjectStripePaymentHandler(
         } catch (exception: Exception) {
             val problem = ProblemDetailsMapper.fromThrowable(exception, "execute Stripe next action")
             FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, exception))
-            showToastError(problem.suggestedAction.ifBlank { problem.detail })
+            showToastError(ProblemDetailsCopyMapper.displayMessage(problem))
             DomainResult.Failure(problem)
         }
     }
@@ -94,7 +94,7 @@ class ProjectStripePaymentHandler(
         if (success) {
             flowController.presentPaymentOptions()
         } else {
-            showToastError(null)
+            showToastError(ProblemDetailsCopyMapper.displayMessageFor(error, "configure payment sheet"))
         }
     }
 
@@ -108,13 +108,17 @@ class ProjectStripePaymentHandler(
                         latePledgeCheckoutViewModel.completeOnSessionCheckoutFor3DS()
                     } else {
                         latePledgeCheckoutViewModel.clear3DSValues()
-                        showToastError(null)
+                        val problem = ProblemDetailsMapper.fromDomainMessage(
+                            "Stripe reported outcome ${result.outcome}",
+                            "confirm 3DS payment"
+                        )
+                        showToastError(ProblemDetailsCopyMapper.displayMessage(problem))
                     }
                 }
 
                 override fun onError(e: Exception) {
                     latePledgeCheckoutViewModel.clear3DSValues()
-                    showToastError(null)
+                    showToastError(ProblemDetailsCopyMapper.displayMessageFor(e, "confirm 3DS payment"))
                 }
             }
         )

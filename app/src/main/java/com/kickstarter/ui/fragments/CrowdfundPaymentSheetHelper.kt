@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.libs.utils.extensions.getPaymentSheetConfiguration
 import com.kickstarter.libs.utils.extensions.isGooglePay
 import com.kickstarter.libs.utils.extensions.isLink
@@ -57,7 +58,7 @@ internal class CrowdfundPaymentSheetHelper(
                     showError(fragment.getString(R.string.general_error_oops))
                 }
                 is PaymentSheetResult.Failed -> {
-                    val errorMessage = paymentSheetResult.error.localizedMessage
+                    val errorMessage = ProblemDetailsCopyMapper.displayMessageFor(paymentSheetResult.error, "present payment sheet")
                         ?: fragment.getString(R.string.general_error_something_wrong)
                     showError(errorMessage)
                 }
@@ -93,7 +94,8 @@ internal class CrowdfundPaymentSheetHelper(
         if (success) {
             flowController.presentPaymentOptions()
         } else {
-            val msg = error?.message ?: fragment.getString(R.string.general_error_something_wrong)
+            val msg = ProblemDetailsCopyMapper.displayMessageFor(error, "configure payment sheet")
+                ?: fragment.getString(R.string.general_error_something_wrong)
             showError(msg)
         }
         viewModel.paymentSheetPresented(success)

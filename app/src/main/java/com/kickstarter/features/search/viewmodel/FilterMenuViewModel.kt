@@ -3,6 +3,7 @@ package com.kickstarter.features.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Environment
@@ -116,7 +117,7 @@ open class FilterMenuViewModel(
             currentUserObservable.observable().asFlow()
                 .catch {
                     val problem = ProblemDetailsMapper.fromThrowable(it, "observe current user")
-                    errorAction.invoke(it.message ?: problem.suggestedAction.ifBlank { problem.detail })
+                    errorAction.invoke(ProblemDetailsCopyMapper.displayMessage(problem))
                 }
                 .collectLatest { user ->
                     user.getValue()?.let {
@@ -135,9 +136,6 @@ open class FilterMenuViewModel(
                     if (query.isNotBlank()) {
                         getLocations(default = false, term = query)
                     }
-                }
-                .runCatching {
-                    errorAction.invoke(null)
                 }
         }
     }
@@ -159,7 +157,7 @@ open class FilterMenuViewModel(
             if (response.isSuccess)
                 categoriesList = response.getOrDefault(emptyList())
             else
-                errorAction.invoke(response.exceptionOrNull()?.message)
+                errorAction.invoke(ProblemDetailsCopyMapper.displayMessageFor(response.exceptionOrNull(), "load categories"))
 
             Timber.d("${this.javaClass} rootCategories: ${categoriesList.map { "${it.name()} id: ${it.id()}"}}")
             emitCurrentState(isLoading = false)
@@ -174,7 +172,7 @@ open class FilterMenuViewModel(
             if (response.isSuccess)
                 tagsList = response.getOrDefault(emptyList())
             else
-                errorAction.invoke(response.exceptionOrNull()?.message)
+                errorAction.invoke(ProblemDetailsCopyMapper.displayMessageFor(response.exceptionOrNull(), "load tags"))
 
             Timber.d("${this.javaClass} tags: ${tagsList.map { "${it.name()} id: ${it.id()}"}}")
             emitCurrentState(isLoading = false)
@@ -190,7 +188,7 @@ open class FilterMenuViewModel(
             if (default) nearbyLocations = response.getOrDefault(emptyList())
             if (!term.isNullOrEmpty()) suggestedLocations = response.getOrDefault(emptyList())
         } else
-            errorAction.invoke(response.exceptionOrNull()?.message)
+            errorAction.invoke(ProblemDetailsCopyMapper.displayMessageFor(response.exceptionOrNull(), "search locations"))
 
         emitLocationsCurrentState(isLoading = false, nearBy = nearbyLocations, searched = suggestedLocations)
     }

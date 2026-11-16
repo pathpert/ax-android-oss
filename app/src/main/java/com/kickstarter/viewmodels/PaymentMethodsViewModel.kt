@@ -4,6 +4,7 @@ import android.util.Pair
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.kickstarter.DeletePaymentSourceMutation
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.featureflag.StatsigGateKey
 import com.kickstarter.libs.rx.transformers.Transformers.combineLatestPair
@@ -177,8 +178,8 @@ class PaymentMethodsViewModel(environment: Environment) : ViewModel(), PaymentMe
         compositeDisposable.add(
             shouldPresentPaymentSheet
                 .compose(errorsV2())
-                .subscribe {
-                    this.showError.onNext(it?.localizedMessage ?: "")
+                .subscribe { throwable ->
+                    this.showError.onNext(ProblemDetailsCopyMapper.displayMessageFor(throwable, "present payment sheet") ?: "")
                 }
         )
 
@@ -209,8 +210,8 @@ class PaymentMethodsViewModel(environment: Environment) : ViewModel(), PaymentMe
         compositeDisposable.add(
             savedPaymentOption
                 .compose(errorsV2())
-                .subscribe {
-                    this.showError.onNext(it?.localizedMessage ?: "")
+                .subscribe { throwable ->
+                    this.showError.onNext(ProblemDetailsCopyMapper.displayMessageFor(throwable, "save payment method") ?: "")
                 }
         )
 

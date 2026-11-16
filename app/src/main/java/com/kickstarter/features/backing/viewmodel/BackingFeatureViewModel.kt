@@ -175,7 +175,7 @@ open class BackingFeatureViewModel(
         backingState.ofType(BackingState.Loading::class.java).map { true }.subscribe(swipeRefresherProgressIsVisible::onNext).addToDisposable(disposables)
         backingState.ofType(BackingState.Error::class.java).map { false }.subscribe(swipeRefresherProgressIsVisible::onNext).addToDisposable(disposables)
         backingState.ofType(BackingState.Success::class.java).map { false }.subscribe(swipeRefresherProgressIsVisible::onNext).addToDisposable(disposables)
-        backingState.ofType(BackingState.Error::class.java).map { it.throwable }.subscribe(backingError::onNext).addToDisposable(disposables)
+        backingState.ofType(BackingState.Error::class.java).map { it.problem }.subscribe(backingError::onNext).addToDisposable(disposables)
 
         val paymentSource = backing.filter { it.paymentSource().isNotNull() }.map { requireNotNull(it.paymentSource()) }.ofType(PaymentSource::class.java)
         val simpleDateFormat = SimpleDateFormat(StoredCard.DATE_FORMAT, Locale.getDefault())

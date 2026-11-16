@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.features.socialshare.SocialShareService
 import com.kickstarter.features.socialshare.data.SocialShareData
@@ -153,11 +154,17 @@ class SocialShareViewModel(
 
         scope.launch {
             val uri = shareService.cacheShareImage(bitmap)
-            if (uri == null) {
-                val problem = ProblemDetailsMapper.fromDomainMessage("Failed to cache share image", "cache share image")
+            val outcome: DomainResult<android.net.Uri>
+            val problem = if (uri == null) {
+                val p = ProblemDetailsMapper.fromDomainMessage("Failed to cache share image", "cache share image")
                 errorAction.invoke("Failed to cache share image")
+                outcome = DomainResult.Failure(p)
+                p
+            } else {
+                outcome = DomainResult.Success(uri)
+                null
             }
-            _uiState.update { it.copy(shareImageUri = uri, isGeneratingImage = false) }
+            _uiState.update { it.copy(shareImageUri = uri, isGeneratingImage = false, problem = problem, outcome = outcome) }
         }
     }
 

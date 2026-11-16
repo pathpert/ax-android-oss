@@ -4,8 +4,8 @@ import com.apollographql.apollo3.api.Adapter
 import com.apollographql.apollo3.api.CustomScalarAdapters
 import com.apollographql.apollo3.api.json.JsonReader
 import com.apollographql.apollo3.api.json.JsonWriter
-import com.apollographql.apollo3.exception.JsonDataException
 import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -16,6 +16,8 @@ import java.util.Locale
  *
  * Negative constraints:
  * - Do not bypass domain validation when utilizing this utility.
+ * - Do not flatten parse failures into plain string exceptions; throw [ProblemException] so
+ *   [ProblemDetails] structure survives the parsing boundary.
  */
 class DateAdapter : Adapter<Date> {
 
@@ -26,7 +28,7 @@ class DateAdapter : Adapter<Date> {
             reader.nextString()?.let { DATE_FORMAT.parse(it) } ?: Date()
         } catch (exception: ParseException) {
             val problem = ProblemDetailsMapper.fromDomainMessage("Failed to parse Date scalar: ${exception.message}", "parse date scalar", status = 422)
-            throw JsonDataException("${problem.title}: ${problem.detail} (${problem.suggestedAction})")
+            throw ProblemException(problem, exception)
         }
     }
 

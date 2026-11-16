@@ -71,7 +71,24 @@ data class ProblemDetails(
         const val TYPE_NETWORK = "urn:kickstarter:error:network"
         const val TYPE_TIMEOUT = "urn:kickstarter:error:timeout"
         const val TYPE_SERVER = "urn:kickstarter:error:server"
+        const val TYPE_DECODE = "urn:kickstarter:error:decode"
         const val TYPE_UNEXPECTED = "urn:kickstarter:error:unexpected"
+        const val TYPE_CONFIGURATION = "urn:kickstarter:error:configuration"
+
+        /**
+         * Convenience factory creating a [ProblemDetails] for missing environment or dependency configuration.
+         */
+        fun forMissingConfiguration(
+            component: String,
+            detail: String? = null,
+            suggestedAction: String? = null
+        ): ProblemDetails = ProblemDetails(
+            type = TYPE_CONFIGURATION,
+            title = "Missing Configuration",
+            detail = detail ?: "Required environment or component configuration is missing for $component.",
+            suggestedAction = suggestedAction ?: "Ensure active application environment is initialized before calling $component.",
+            isRetriable = false
+        )
     }
 }
 

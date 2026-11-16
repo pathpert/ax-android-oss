@@ -2,6 +2,7 @@ package com.kickstarter.features.comments.viewmodel
 
 import android.util.Pair
 import androidx.lifecycle.ViewModel
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.features.comments.data.CommentsFeatureInputs
 import com.kickstarter.features.comments.data.CommentsFeatureOutputs
 import com.kickstarter.models.Comment
@@ -48,10 +49,10 @@ abstract class CommentsOutputsHolder : ViewModel(), CommentsFeatureInputs, Comme
     protected val startThreadActivity = BehaviorSubject.create<Pair<Pair<CommentCardData, Boolean>, String?>>()
     protected val startThreadActivityFromDeepLink = BehaviorSubject.create<Pair<CommentCardData, String?>>()
     protected val hasPendingComments = BehaviorSubject.create<Pair<Boolean, Boolean>>()
-    protected val internalError = BehaviorSubject.create<Throwable>()
-    protected val initialError = BehaviorSubject.create<Throwable>()
-    protected val paginationError = BehaviorSubject.create<Throwable>()
-    protected val pullToRefreshError = BehaviorSubject.create<Throwable>()
+    protected val internalError = BehaviorSubject.create<ProblemDetails>()
+    protected val initialError = BehaviorSubject.create<ProblemDetails>()
+    protected val paginationError = BehaviorSubject.create<ProblemDetails>()
+    protected val pullToRefreshError = BehaviorSubject.create<ProblemDetails>()
     protected val commentableId = BehaviorSubject.create<String>()
     protected val isFetchingComments = BehaviorSubject.create<Boolean>()
 
@@ -82,9 +83,9 @@ abstract class CommentsOutputsHolder : ViewModel(), CommentsFeatureInputs, Comme
     override fun commentsList(): Observable<List<CommentCardData>> = this.outputCommentList
     override fun enableReplyButton(): Observable<Boolean> = disableReplyButton
     override fun showCommentGuideLinesLink(): Observable<Unit> = showGuideLinesLink
-    override fun initialLoadCommentsError(): Observable<Throwable> = this.initialError
-    override fun paginateCommentsError(): Observable<Throwable> = this.paginationError
-    override fun pullToRefreshError(): Observable<Throwable> = this.pullToRefreshError
+    override fun initialLoadCommentsError(): Observable<ProblemDetails> = this.initialError
+    override fun paginateCommentsError(): Observable<ProblemDetails> = this.paginationError
+    override fun pullToRefreshError(): Observable<ProblemDetails> = this.pullToRefreshError
     override fun scrollToTop(): Observable<Boolean> = this.scrollToTop
     override fun shouldShowInitialLoadErrorUI(): Observable<Boolean> = this.displayInitialError
     override fun shouldShowPaginationErrorUI(): Observable<Boolean> = this.displayPaginationError

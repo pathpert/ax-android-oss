@@ -6,6 +6,8 @@ import com.apollographql.apollo3.rx2.rxSingle
 import com.kickstarter.ErroredBackingsQuery
 import com.kickstarter.GetBackingQuery
 import com.kickstarter.GetProjectBackingQuery
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsOverviewEnvelope
 import com.kickstarter.features.pledgedprojectsoverview.data.PledgedProjectsOverviewQueryData
 import com.kickstarter.libs.utils.extensions.addToDisposable
@@ -39,11 +41,11 @@ class ApolloBackingQueryClient(
             service.query(query)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch backing")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch backing")))
                     } else {
                         response.data?.let {
                             it.backing?.let { backingFragments ->
@@ -78,11 +80,11 @@ class ApolloBackingQueryClient(
             service.query(query)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch errored backings")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch errored backings")))
                     } else {
                         val erroredBackings = response.data?.me?.backings?.nodes?.map {
                             val project = ErroredBacking.Project.builder()
@@ -109,11 +111,11 @@ class ApolloBackingQueryClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create or update backing address")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "create or update backing address")))
                     }
                     response.data?.let {
                         val isSuccess = it.createOrUpdateBackingAddress?.success ?: false
@@ -132,11 +134,11 @@ class ApolloBackingQueryClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "update backer completed")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "update backer completed")))
                     }
                     response.data?.let {
                         val backerCompleted = it.updateBackerCompleted?.backing?.backerCompleted ?: false
@@ -154,11 +156,11 @@ class ApolloBackingQueryClient(
             service.query(getPledgedProjectsOverviewQuery(inputData))
                 .rxFlowable()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch pledged projects overview")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message ?: ""))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch pledged projects overview")))
                     }
                     response.data?.let { data ->
                         data.pledgeProjectsOverview?.let {

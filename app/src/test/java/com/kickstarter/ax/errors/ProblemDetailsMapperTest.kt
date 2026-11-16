@@ -104,4 +104,38 @@ class ProblemDetailsMapperTest {
         assertFalse(problem.detail.contains("Something went wrong", ignoreCase = true))
         assertTrue(problem.suggestedAction.isNotBlank())
     }
+
+    @Test
+    fun `fromThrowable restores ProblemDetails from wrapped ProblemException cause chain`() {
+        val original = ProblemDetails(
+            type = ProblemDetails.TYPE_DECODE,
+            title = "Checkout ID Decode Failure",
+            status = 502,
+            detail = "CreateCheckout returned a checkout ID that could not be decoded.",
+            suggestedAction = "Re-fetch the checkout and retry with a fresh Idempotency-Key.",
+            isRetriable = true
+        )
+        val wrapped = RuntimeException(
+            "Apollo failed to parse response",
+            RuntimeException("intermediate wrapper", ProblemException(original))
+        )
+
+        val problem = ProblemDetailsMapper.fromThrowable(wrapped, operation = "create checkout")
+
+        assertEquals(original, problem)
+        assertEquals(ProblemDetails.TYPE_DECODE, problem.type)
+        assertTrue(problem.isRetriable)
+    }
+
+    @Test
+    fun `fromThrowable maps unwrapped unknown throwable to domain message without inventing structure`() {
+        val problem = ProblemDetailsMapper.fromThrowable(
+            RuntimeException("plain failure"),
+            operation = "create checkout"
+        )
+
+        assertEquals(ProblemDetails.TYPE_VALIDATION, problem.type)
+        assertTrue(problem.detail.contains("plain failure"))
+        assertFalse(problem.isRetriable)
+    }
 }

@@ -26,6 +26,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.ui.compose.designsystem.KSAlertDialog
 import com.kickstarter.ui.compose.designsystem.KSPrimaryGreenButton
 import com.kickstarter.ui.compose.designsystem.KSTheme.colors
@@ -76,7 +78,7 @@ fun PPOScreenEmptyState(
 }
 
 @Composable
-fun PPOScreenErrorState() {
+fun PPOScreenErrorState(problem: ProblemDetails? = null) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -100,7 +102,9 @@ fun PPOScreenErrorState() {
 
         Text(
             color = colors.textPrimary,
-            text = (stringResource(id = R.string.Something_went_wrong_pull_to_refresh_no_period)),
+            text = problem?.let {
+                "${stringResource(ProblemDetailsCopyMapper.messageRes(it))} ${it.suggestedAction}"
+            } ?: stringResource(id = R.string.Something_went_wrong_pull_to_refresh_no_period),
             style = typographyV2.body,
             textAlign = TextAlign.Center
         )

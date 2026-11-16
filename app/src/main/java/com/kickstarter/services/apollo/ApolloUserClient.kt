@@ -10,6 +10,8 @@ import com.kickstarter.UpdateUserEmailMutation
 import com.kickstarter.UpdateUserPasswordMutation
 import com.kickstarter.UserPrivacyQuery
 import com.kickstarter.libs.utils.extensions.addToDisposable
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.models.UserPrivacy
@@ -35,7 +37,7 @@ class ApolloUserClient(
             service.query(query = query)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch user privacy")))
                 }
                 .subscribe { response ->
                     response.data?.me?.let {
@@ -62,11 +64,11 @@ class ApolloUserClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "update user password")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "update user password")))
                     }
                     response.data?.let {
                         ps.onNext(it)
@@ -90,11 +92,11 @@ class ApolloUserClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "update user email")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "update user email")))
                     }
                     response.data?.let { data ->
                         ps.onNext(data)
@@ -112,11 +114,11 @@ class ApolloUserClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "send verification email")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "send verification email")))
                     }
                     response.data?.let { data ->
                         ps.onNext(data)
@@ -136,11 +138,11 @@ class ApolloUserClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "update currency preference")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "update currency preference")))
                     }
                     response.data?.let {
                         ps.onNext(it)
@@ -164,11 +166,11 @@ class ApolloUserClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create password")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "create password")))
                     }
                     response.data?.let {
                         ps.onNext(it)
@@ -186,15 +188,15 @@ class ApolloUserClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "clear unseen activity")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "clear unseen activity")))
                     }
                     response.data?.clearUserUnseenActivity?.activityIndicatorCount?.let {
                         ps.onNext(it)
-                    } ?: ps.onError(Exception())
+                    } ?: ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage("Failed to clear unseen activity", "clear unseen activity")))
                     ps.onComplete()
                 }.addToDisposable(disposables)
             return@defer ps

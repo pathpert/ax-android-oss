@@ -6,6 +6,8 @@ import com.apollographql.apollo3.rx2.rxFlowable
 import com.apollographql.apollo3.rx2.rxSingle
 import com.kickstarter.CreateCommentMutation
 import com.kickstarter.ax.errors.DomainResult
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.ax.safety.IdempotencyKey
@@ -44,11 +46,11 @@ class ApolloCommentClient(
             service.query(query)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch comment")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch comment")))
                     } else {
                         response.data?.let { responseData ->
                             val comment = mapGetCommentQueryResponseToComment(responseData)
@@ -81,11 +83,11 @@ class ApolloCommentClient(
             service.query(query)
                 .rxFlowable()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch update comments")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch update comments")))
                     } else {
                         response.data?.let { data ->
                             data.post?.freeformPost?.comments?.let { graphComments ->
@@ -130,11 +132,11 @@ class ApolloCommentClient(
             service.query(query)
                 .rxFlowable()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch project comments")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch project comments")))
                     } else {
                         response.data?.let { data ->
                             data.project?.comments?.let { graphComments ->
@@ -180,11 +182,11 @@ class ApolloCommentClient(
             service.query(query)
                 .rxFlowable()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch comment replies")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch comment replies")))
                     } else {
                         response.data?.let { responseData ->
                             ps.onNext(createCommentEnvelope(responseData))
@@ -224,11 +226,11 @@ class ApolloCommentClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "create comment")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "create comment")))
                     } else {
                         ps.onNext(
                             commentTransformer(

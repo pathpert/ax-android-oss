@@ -13,6 +13,7 @@ import com.kickstarter.R
 import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.errors.ProblemDetails
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import kotlinx.coroutines.CancellationException
 import com.kickstarter.features.pledgedprojectsoverview.data.ApolloPledgedProjectsRepository
@@ -49,25 +50,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.asFlow
 
 /**
- * UI state representation for Pledged Projects Overview screen.
- *
- * Negative constraints:
- * - Do not mutate state directly; emit through ViewModel StateFlow reducers.
- * - Do not pass raw unhandled exceptions; map errors to [ProblemDetails].
- *
- * @property isLoading Whether initial alerts or card data is actively fetching.
- * @property isErrored Flag indicating network or server failure.
- * @property totalAlerts Total count of urgent actionable alerts.
- * @property problem Structured RFC 9457 error details carrying suggestedAction and isRetriable flag.
- */
-data class PledgedProjectsOverviewUIState(
-    val isLoading: Boolean = false,
-    val isErrored: Boolean = false,
-    val totalAlerts: Int? = null,
-    val problem: ProblemDetails? = null
-)
-
-/**
  * Modern ViewModel managing Pledged Projects Overview feed, address confirmations, and actions.
  *
  * Negative constraints:
@@ -81,7 +63,7 @@ class PledgedProjectsOverviewViewModel(
 
     private val mutablePpoCards = MutableStateFlow<PagingData<PPOCard>>(PagingData.empty())
     private var mutableProjectFlow = MutableSharedFlow<Project>()
-    private var snackbarMessage: (stringID: Int, type: String, duration: SnackbarDuration) -> Unit = { _, _, _ -> }
+    private var snackbarMessage: (stringID: Int, type: String, duration: SnackbarDuration, suggestedAction: String?) -> Unit = { _, _, _, _ -> }
     private val apolloClient = requireNotNull(environment.apolloClientV2())
     private val analyticEvents = requireNotNull(environment.analytics())
     private var isV2Enabled = environment.featureFlagClient()?.getBoolean(FlagKey.ANDROID_PLEDGED_PROJECTS_OVERVIEW_V2) ?: false
@@ -194,7 +176,7 @@ class PledgedProjectsOverviewViewModel(
                     emitCurrentState()
                 }
                 is DomainResult.Failure -> {
-                    showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
+                    showProblemErrorSnackbar(result.problem)
                     emitCurrentState(problem = result.problem)
                 }
             }
@@ -209,7 +191,7 @@ class PledgedProjectsOverviewViewModel(
             when (result) {
                 is DomainResult.Success -> emitCurrentState()
                 is DomainResult.Failure -> {
-                    showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
+                    showProblemErrorSnackbar(result.problem)
                     emitCurrentState(problem = result.problem)
                 }
             }
@@ -226,14 +208,14 @@ class PledgedProjectsOverviewViewModel(
                     emitCurrentState()
                 }
                 is DomainResult.Failure -> {
-                    showErrorSnackbar(R.string.Something_went_wrong_please_try_again)
+                    showProblemErrorSnackbar(result.problem)
                     emitCurrentState(problem = result.problem)
                 }
             }
         }
     }
 
-    fun provideSnackbarMessage(snackBarMessage: (Int, String, SnackbarDuration) -> Unit) {
+    fun provideSnackbarMessage(snackBarMessage: (Int, String, SnackbarDuration, String?) -> Unit) {
         this.snackbarMessage = snackBarMessage
     }
 
@@ -260,11 +242,30 @@ class PledgedProjectsOverviewViewModel(
     }
 
     fun showHeadsUpSnackbar(messageId: Int, duration: SnackbarDuration = SnackbarDuration.Short) {
-        snackbarMessage.invoke(messageId, KSSnackbarTypes.KS_HEADS_UP.name, duration)
+        snackbarMessage.invoke(messageId, KSSnackbarTypes.KS_HEADS_UP.name, duration, null)
     }
 
-    fun showErrorSnackbar(messageId: Int, duration: SnackbarDuration = SnackbarDuration.Short) {
-        snackbarMessage.invoke(messageId, KSSnackbarTypes.KS_ERROR.name, duration)
+    fun showErrorSnackbar(messageId: Int, duration: SnackbarDuration = SnackbarDuration.Short, suggestedAction: String? = null) {
+        snackbarMessage.invoke(messageId, KSSnackbarTypes.KS_ERROR.name, duration, suggestedAction)
+    }
+
+    /**
+     * Shows an error snackbar with localized copy selected from the structured [problem] category
+     * and the problem's remediation instruction surfaced alongside for callers and agents.
+     *
+     * Negative constraints:
+     * - Do not render hardcoded generic error copy when a [ProblemDetails] is available.
+     */
+    fun showProblemErrorSnackbar(problem: ProblemDetails, duration: SnackbarDuration = SnackbarDuration.Short) {
+        showErrorSnackbar(ProblemDetailsCopyMapper.messageRes(problem), duration, problem.suggestedAction)
+    }
+
+    /**
+     * Maps a payment authentication failure into structured [ProblemDetails] and surfaces its
+     * remediation copy, replacing hardcoded generic error strings on the Stripe result path.
+     */
+    fun showPaymentAuthenticationError(throwable: Throwable) {
+        showProblemErrorSnackbar(ProblemDetailsMapper.fromThrowable(throwable, "authenticate payment"))
     }
 
     fun sendFinalizePledgeCTAEvent(projectID: String, ppoCards: List<PPOCard?>, totalCount: Int) {

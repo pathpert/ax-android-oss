@@ -1,5 +1,7 @@
 package com.kickstarter.features.backing.data
 
+import com.kickstarter.ax.errors.DomainResult
+import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.safety.IdempotencyGuard
 import com.kickstarter.models.Backing
@@ -19,7 +21,14 @@ import java.util.concurrent.TimeUnit
 interface BackingRepository {
     fun getBackingInfo(projectData: ProjectData): Observable<BackingState>
     fun postBackingReceived(project: Project, backing: Backing, checked: Boolean): Observable<Backing>
-    suspend fun getBackingInfoSuspend(projectData: ProjectData): BackingState = BackingState.Loading
+    suspend fun getBackingInfoSuspend(projectData: ProjectData): DomainResult<Backing> =
+        DomainResult.Failure(
+            ProblemDetails.forMissingConfiguration(
+                "BackingRepository",
+                "Not implemented",
+                "Implement suspend backing fetch in concrete repository."
+            )
+        )
     fun cleanDisposables()
 }
 
@@ -61,24 +70,28 @@ class BackingRepositoryImpl(
         return apiClient.postBacking(project, backing, checked)
     }
 
-    override suspend fun getBackingInfoSuspend(projectData: ProjectData): BackingState {
+    override suspend fun getBackingInfoSuspend(projectData: ProjectData): DomainResult<Backing> {
         val backing = projectData.backing()
         val slug = projectData.project().slug()
 
         return when {
-            backing != null -> BackingState.Success(backing)
+            backing != null -> DomainResult.Success(backing)
             !slug.isNullOrBlank() -> {
                 runCatching {
                     val remoteBacking = apolloClient.getProjectBacking(slug).blockingFirst()
-                    BackingState.Success(remoteBacking)
+                    DomainResult.Success(remoteBacking)
                 }.getOrElse { error ->
-                    val problem = ProblemDetailsMapper.fromThrowable(error)
-                    BackingState.Error(problem = problem, throwable = error)
+                    val problem = ProblemDetailsMapper.fromThrowable(error, "load project backing")
+                    DomainResult.Failure(problem)
                 }
             }
-            else -> BackingState.Error(
-                problem = ProblemDetailsMapper.fromThrowable(
-                    IllegalArgumentException("Missing project slug or backing")
+            else -> DomainResult.Failure(
+                ProblemDetails(
+                    type = ProblemDetails.TYPE_VALIDATION,
+                    title = "Invalid Project Data",
+                    detail = "Missing project slug or backing in ProjectData.",
+                    suggestedAction = "Provide valid ProjectData containing a non-blank project slug or backing.",
+                    isRetriable = false
                 )
             )
         }

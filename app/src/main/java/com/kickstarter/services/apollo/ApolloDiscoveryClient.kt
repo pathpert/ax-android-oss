@@ -11,6 +11,8 @@ import com.kickstarter.GetCreativePromptTagsQuery
 import com.kickstarter.GetLocationsQuery
 import com.kickstarter.GetRootCategoriesQuery
 import com.kickstarter.VideoFeedQuery
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.features.search.data.SearchEnvelope
 import com.kickstarter.features.videofeed.data.VideoFeedEnvelope
 import com.kickstarter.libs.utils.extensions.addToDisposable
@@ -54,11 +56,11 @@ class ApolloDiscoveryClient(
             .rxFlowable()
             .subscribeOn(Schedulers.io())
             .doOnError {
-                ps.onError(it)
+                ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(it, "fetch discovery projects")))
             }
             .subscribe { response ->
                 if (response.hasErrors()) {
-                    ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch discovery projects")))
                 } else {
                     response.data?.let { responseData ->
                         val projects = responseData.projects?.edges?.map {
@@ -107,11 +109,11 @@ class ApolloDiscoveryClient(
             service.query(query)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch category")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch category")))
                     } else {
                         val category = categoryTransformer(response.data?.category?.category)
                         ps.onNext(category)
@@ -129,11 +131,11 @@ class ApolloDiscoveryClient(
             service.query(query)
                 .rxFlowable()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch root categories")))
                 }
                 .subscribe { response: ApolloResponse<GetRootCategoriesQuery.Data> ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch root categories")))
                     } else {
                         response.data?.let { responseData ->
                             val subCategories = responseData.rootCategories

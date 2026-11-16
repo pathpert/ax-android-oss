@@ -9,6 +9,8 @@ import com.kickstarter.FetchShippingCountryLocationsQuery
 import com.kickstarter.GetProjectAddOnsQuery
 import com.kickstarter.GetRewardAllowedAddOnsQuery
 import com.kickstarter.GetShippingRulesForRewardIdQuery
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.features.checkout.data.AddOnsEnvelope
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.mock.factories.RewardFactory
@@ -43,11 +45,11 @@ class ApolloRewardClient(
             service.query(query)
                 .rxFlowable()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch shipping rules")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch shipping rules")))
                     }
                     response.data?.let { data ->
                         val shippingEnvelope = data.node?.onReward?.shippingRulesExpanded?.nodes?.mapNotNull { node ->
@@ -133,11 +135,11 @@ class ApolloRewardClient(
             service.query(query)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch project add-ons")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch project add-ons")))
                     }
                     response.data?.let { data ->
                         val addOns = getAddOnsFromProject(requireNotNull(data.project?.addOns))

@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rxjava2.subscribeAsState
 import androidx.core.view.isGone
 import com.kickstarter.R
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.databinding.FragmentBackingBinding
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.rx.transformers.Transformers
@@ -216,14 +217,12 @@ internal fun BackingFragment.initViewModelSubscriptions(
 
     this.viewModel.outputs.backingError()
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { error ->
+        .subscribe { problem ->
             context?.let {
                 showErrorToast(
                     it,
                     binding.root,
-                    error.localizedMessage ?: getString(
-                        R.string.general_error_something_wrong
-                    )
+                    ProblemDetailsCopyMapper.displayMessage(problem)
                 )
             }
         }

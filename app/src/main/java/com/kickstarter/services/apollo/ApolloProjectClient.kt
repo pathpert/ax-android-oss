@@ -51,11 +51,11 @@ class ApolloProjectClient(
                 .rxSingle()
                 .subscribeOn(Schedulers.io())
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "fetch project")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "fetch project")))
                     } else {
                         val project = projectTransformer(response.data?.project?.fullProject)
                         if (project.hasValidRelayId()) {
@@ -80,11 +80,11 @@ class ApolloProjectClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "watch project")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "watch project")))
                     }
                     ps.onNext(projectTransformer(response.data?.watchProject?.project?.fullProject))
                     ps.onComplete()
@@ -103,11 +103,11 @@ class ApolloProjectClient(
             service.mutation(mutation)
                 .rxSingle()
                 .doOnError { throwable ->
-                    ps.onError(throwable)
+                    ps.onError(ProblemException(ProblemDetailsMapper.fromThrowable(throwable, "unwatch project")))
                 }
                 .subscribe { response ->
                     if (response.hasErrors()) {
-                        ps.onError(java.lang.Exception(response.errors?.first()?.message))
+                        ps.onError(ProblemException(ProblemDetailsMapper.fromDomainMessage(response.errors?.first()?.message, "unwatch project")))
                     }
                     ps.onNext(projectTransformer(response.data?.watchProject?.project?.fullProject))
                     ps.onComplete()

@@ -10,6 +10,7 @@ import com.kickstarter.features.checkout.data.CheckoutAnalyticsTracker
 import com.kickstarter.features.checkout.data.CheckoutBackingDataFactory
 import com.kickstarter.features.checkout.data.ExtractedPledgeInfo
 import com.kickstarter.features.checkout.data.PledgeInfoExtractor
+import com.kickstarter.ax.errors.ProblemDetailsCopyMapper
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.RefTag
@@ -139,7 +140,7 @@ class CrowdfundCheckoutViewModel(val environment: Environment, bundle: Bundle? =
 
     private fun handleCheckoutError(throwable: Throwable, operation: String) {
         val problem = ProblemDetailsMapper.fromThrowable(throwable, operation)
-        errorAction.invoke(throwable.message ?: problem.suggestedAction.ifBlank { problem.detail })
+        errorAction.invoke(ProblemDetailsCopyMapper.displayMessage(problem))
     }
 
     private fun collectUserInformation() {
