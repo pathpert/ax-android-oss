@@ -7,6 +7,8 @@ import com.apollographql.apollo3.exception.ApolloNetworkException
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.errors.ProblemException
+import com.kickstarter.ax.safety.IdempotencyGuard
+import com.kickstarter.ax.types.RateLimitBackoff
 import com.kickstarter.fragment.PageInfo
 import com.kickstarter.models.Project
 import com.kickstarter.services.KSApolloClientV2.KSApolloClientV2Exception
@@ -63,6 +65,15 @@ suspend fun <T> executeForResult(block: suspend () -> T): Result<T> =
     } catch (cancellationException: CancellationException) {
         throw cancellationException
     } catch (apolloException: ApolloException) {
+        if (apolloException is ApolloHttpException) {
+            val pairs = apolloException.headers.map { it.name to it.value }
+            val backoff = RateLimitBackoff.fromHeaders(pairs)
+            if (backoff.retryAfterSeconds != null && backoff.retryAfterSeconds > 0L) {
+                IdempotencyGuard.applyGlobalBackoff(backoff)
+            } else if (apolloException.statusCode == 429 || apolloException.statusCode == 503) {
+                IdempotencyGuard.applyGlobalBackoff(RateLimitBackoff(retryAfterSeconds = 5L))
+            }
+        }
         val exception = apolloException.toClientException()
         val problem = ProblemDetailsMapper.fromThrowable(exception, "execute apollo query")
         FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, exception))

@@ -16,6 +16,7 @@ import com.kickstarter.models.Location
 import com.kickstarter.models.Reward
 import com.kickstarter.models.ShippingCountryLocationsWrapper
 import com.kickstarter.services.apiresponses.ShippingRulesEnvelope
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.services.transformers.complexRewardItemsTransformer
 import com.kickstarter.services.transformers.decodeRelayId
 import com.kickstarter.services.transformers.encodeRelayId
@@ -32,7 +33,8 @@ import io.reactivex.subjects.PublishSubject
  */
 class ApolloRewardClient(
     private val service: ApolloClient,
-    private val disposables: CompositeDisposable
+    private val disposables: CompositeDisposable,
+    val rateLimitInterceptor: RateLimitBackoffInterceptor = RateLimitBackoffInterceptor()
 ) {
     fun getShippingRules(reward: Reward): Observable<ShippingRulesEnvelope> {
         return Observable.defer {

@@ -1,5 +1,6 @@
 package com.kickstarter.viewmodels
 
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.rx.transformers.Transformers
 import com.kickstarter.libs.rx.transformers.Transformers.errorsV2
@@ -69,7 +70,10 @@ interface ProjectNotificationViewModel {
 
             updateNotification
                 .compose(errorsV2())
-                .subscribe { showUnableToSaveProjectNotificationError.onNext(Unit) }
+                .subscribe { throwable ->
+                    val problem = throwable?.let { ProblemDetailsMapper.fromThrowable(it, "update project notification") }
+                    showUnableToSaveProjectNotificationError.onNext(Unit)
+                }
                 .addToDisposable(disposables)
 
             // Update the project name when a project notification emits.

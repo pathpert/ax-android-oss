@@ -3,6 +3,8 @@ package com.kickstarter.features.projectpage.data
 import android.content.Intent
 import android.net.Uri
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.RefTag
 import com.kickstarter.libs.rx.transformers.Transformers.neverErrorV2
@@ -64,8 +66,9 @@ class ProjectPageRepository(
             intent
                 .compose(takeWhenV2(reloadClicked))
                 .doOnError { throwable ->
-                    FirebaseCrashlytics.getInstance().log("mappedProjectNotification")
-                    FirebaseCrashlytics.getInstance().recordException(throwable)
+                    val problem = ProblemDetailsMapper.fromThrowable(throwable, "map project notification")
+                    FirebaseCrashlytics.getInstance().setCustomKey("mappedProjectNotification", "${problem.title}: ${problem.detail}")
+                    FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, throwable))
                 }
         ).switchMap {
             ProjectIntentMapper.project(it, this.apolloClient)
@@ -80,8 +83,9 @@ class ProjectPageRepository(
                     }.getOrDefault(project)
                 }
                 .doOnError { throwable ->
-                    FirebaseCrashlytics.getInstance().log("ProjectIntentMapper.project")
-                    FirebaseCrashlytics.getInstance().recordException(throwable)
+                    val problem = ProblemDetailsMapper.fromThrowable(throwable, "load intent project")
+                    FirebaseCrashlytics.getInstance().setCustomKey("ProjectIntentMapper.project", "${problem.title}: ${problem.detail}")
+                    FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, throwable))
                 }
                 .materialize()
         }.share()
@@ -105,8 +109,9 @@ class ProjectPageRepository(
                             project.updateProjectWith(config, user.getValue())
                         }
                         .doOnError { throwable ->
-                            FirebaseCrashlytics.getInstance().log("refreshedProjectNotification")
-                            FirebaseCrashlytics.getInstance().recordException(throwable)
+                            val problem = ProblemDetailsMapper.fromThrowable(throwable, "refresh project notification")
+                            FirebaseCrashlytics.getInstance().setCustomKey("refreshedProjectNotification", "${problem.title}: ${problem.detail}")
+                            FirebaseCrashlytics.getInstance().recordException(ProblemException(problem, throwable))
                         }
                         .materialize()
                 }

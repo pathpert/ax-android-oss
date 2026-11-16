@@ -7,6 +7,7 @@ import com.apollographql.apollo3.rx2.rxSingle
 import com.kickstarter.CreateCommentMutation
 import com.kickstarter.ax.errors.DomainResult
 import com.kickstarter.ax.safety.IdempotencyGuard
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.ax.safety.IdempotencyKey
 import com.kickstarter.GetCommentQuery
 import com.kickstarter.GetProjectCommentsQuery
@@ -33,7 +34,8 @@ import io.reactivex.subjects.PublishSubject
 class ApolloCommentClient(
     private val service: ApolloClient,
     private val disposables: CompositeDisposable,
-    private val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
+    private val idempotencyGuard: IdempotencyGuard = IdempotencyGuard(),
+    val rateLimitInterceptor: RateLimitBackoffInterceptor = RateLimitBackoffInterceptor()
 ) {
     fun getComment(commentableId: String): Observable<Comment> {
         return Observable.defer {

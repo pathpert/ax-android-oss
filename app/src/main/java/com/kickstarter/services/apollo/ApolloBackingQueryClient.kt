@@ -13,6 +13,7 @@ import com.kickstarter.models.Backing
 import com.kickstarter.models.ErroredBacking
 import com.kickstarter.services.mutations.CreateOrUpdateBackingAddressData
 import com.kickstarter.services.mutations.UpdateBackerCompletedData
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.services.transformers.backingTransformer
 import com.kickstarter.services.transformers.getCreateOrUpdateBackingAddressMutation
 import com.kickstarter.services.transformers.getPledgedProjectsOverviewQuery
@@ -28,7 +29,8 @@ import io.reactivex.subjects.PublishSubject
  */
 class ApolloBackingQueryClient(
     private val service: ApolloClient,
-    private val disposables: CompositeDisposable
+    private val disposables: CompositeDisposable,
+    val rateLimitInterceptor: RateLimitBackoffInterceptor = RateLimitBackoffInterceptor()
 ) {
     fun getBacking(backingId: String): Observable<Backing> {
         return Observable.defer {

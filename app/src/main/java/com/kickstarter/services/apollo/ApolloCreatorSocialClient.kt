@@ -26,6 +26,7 @@ import com.kickstarter.services.transformers.getCreateAttributionEventMutation
 import com.kickstarter.services.transformers.getTriggerThirdPartyEventMutation
 import com.kickstarter.services.transformers.updateTransformer
 import com.kickstarter.ax.safety.IdempotencyGuard
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.type.FlaggingContent
 import com.kickstarter.type.NonDeprecatedFlaggingKind
 import com.kickstarter.viewmodels.usecases.TPEventInputData
@@ -41,7 +42,8 @@ class ApolloCreatorSocialClient(
     private val service: ApolloClient,
     private val gson: Gson,
     private val disposables: CompositeDisposable,
-    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard(),
+    val rateLimitInterceptor: RateLimitBackoffInterceptor = RateLimitBackoffInterceptor()
 ) {
     fun createFlagging(
         project: Project?,

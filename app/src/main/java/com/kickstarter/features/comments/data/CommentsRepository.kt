@@ -1,5 +1,7 @@
 package com.kickstarter.features.comments.data
 
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.rx.transformers.Transformers
 import com.kickstarter.models.Comment
 import com.kickstarter.models.Project
@@ -51,12 +53,18 @@ class CommentsRepositoryImpl(
             .compose(Transformers.neverErrorV2())
     }
 
-    override suspend fun getProjectCommentsSuspend(slug: String, cursor: String): Result<CommentEnvelope> = runCatching {
-        apolloClient.getProjectComments(slug, cursor).blockingFirst()
+    override suspend fun getProjectCommentsSuspend(slug: String, cursor: String): Result<CommentEnvelope> = try {
+        Result.success(apolloClient.getProjectComments(slug, cursor).blockingFirst())
+    } catch (e: Exception) {
+        val problem = ProblemDetailsMapper.fromThrowable(e, "fetch project comments")
+        Result.failure(ProblemException(problem, e))
     }
 
-    override suspend fun getCommentSuspend(commentId: String): Result<Comment> = runCatching {
-        apolloClient.getComment(commentId).blockingFirst()
+    override suspend fun getCommentSuspend(commentId: String): Result<Comment> = try {
+        Result.success(apolloClient.getComment(commentId).blockingFirst())
+    } catch (e: Exception) {
+        val problem = ProblemDetailsMapper.fromThrowable(e, "fetch comment")
+        Result.failure(ProblemException(problem, e))
     }
 
     override fun cleanDisposables() {

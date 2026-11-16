@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.libs.Environment
 import com.kickstarter.libs.utils.RewardUtils
 import com.kickstarter.libs.utils.extensions.isNotNull
@@ -182,7 +183,10 @@ class AddOnsViewModel(
             }
 
             if (envelopeResult.isFailure) {
-                errorAction.invoke(null)
+                val throwable = envelopeResult.exceptionOrNull()
+                val problem = throwable?.let { ProblemDetailsMapper.fromThrowable(it, "fetch project add-ons") }
+                    ?: ProblemDetailsMapper.fromDomainMessage("Unable to load add-ons", "fetch project add-ons")
+                errorAction.invoke(throwable?.message ?: problem.suggestedAction.ifBlank { problem.detail })
             }
         } else {
             emitCurrentState(isLoading = false)

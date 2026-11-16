@@ -25,6 +25,7 @@ import com.kickstarter.models.Category
 import com.kickstarter.models.Location
 import com.kickstarter.models.Tag
 import com.kickstarter.services.DiscoveryParams
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.services.apiresponses.DiscoverEnvelope
 import com.kickstarter.services.transformers.categoryTransformer
 import com.kickstarter.services.transformers.decodeRelayId
@@ -41,7 +42,8 @@ import io.reactivex.subjects.PublishSubject
  */
 class ApolloDiscoveryClient(
     private val service: ApolloClient,
-    private val disposables: CompositeDisposable
+    private val disposables: CompositeDisposable,
+    val rateLimitInterceptor: RateLimitBackoffInterceptor = RateLimitBackoffInterceptor()
 ) {
     fun getProjects(
         discoveryParams: DiscoveryParams,

@@ -11,6 +11,7 @@ import com.kickstarter.UpdateUserPasswordMutation
 import com.kickstarter.UserPrivacyQuery
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.ax.safety.IdempotencyGuard
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.models.UserPrivacy
 import com.kickstarter.services.transformers.userPrivacyTransformer
 import com.kickstarter.type.CurrencyCode
@@ -24,7 +25,8 @@ import io.reactivex.subjects.PublishSubject
 class ApolloUserClient(
     private val service: ApolloClient,
     private val disposables: CompositeDisposable,
-    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard(),
+    val rateLimitInterceptor: RateLimitBackoffInterceptor = RateLimitBackoffInterceptor()
 ) {
     fun userPrivacy(): Observable<UserPrivacy> {
         return Observable.defer {

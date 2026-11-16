@@ -6,6 +6,8 @@ import com.facebook.FacebookCallback
 import com.facebook.FacebookException
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
+import com.kickstarter.ax.errors.ProblemDetailsMapper
+import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.libs.featureflag.FlagKey
 import com.kickstarter.libs.rx.transformers.Transformers
 import com.kickstarter.libs.utils.EventContextValues.ContextPageName
@@ -34,6 +36,7 @@ internal fun LoginToutViewModel.LoginToutViewmodel.registerFacebookCallback() {
             }
 
             override fun onError(error: FacebookException) {
+                val problem = ProblemDetailsMapper.fromThrowable(error, "authenticate with facebook")
                 if (error is FacebookAuthorizationException) {
                     facebookAuthorizationError.onNext(error)
                 }
@@ -69,7 +72,10 @@ internal fun LoginToutViewModel.LoginToutViewmodel.initLoginToutPipelines(dispos
 
     facebookAccessTokenEnvelope
         .compose(Transformers.errorsV2())
-        .map { ErrorEnvelope.fromThrowable(it) }
+        .map { throwable ->
+            val problem = ProblemDetailsMapper.fromThrowable(throwable, "login with facebook")
+            ErrorEnvelope.fromThrowable(ProblemException(problem, throwable))
+        }
         .filter { it.isNotNull() }
         .subscribe { loginError.onNext(it) }
         .addToDisposable(disposables)

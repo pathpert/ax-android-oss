@@ -15,6 +15,7 @@ import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.ax.safety.IdempotencyGuard
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.models.Backing
@@ -42,7 +43,8 @@ class ApolloCheckoutClient(
     private val service: ApolloClient,
     private val disposables: CompositeDisposable,
     private val completeCheckoutGuard: AtomicBoolean,
-    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard(),
+    val rateLimitInterceptor: RateLimitBackoffInterceptor = RateLimitBackoffInterceptor()
 ) {
     fun createCheckout(createCheckoutData: CreateCheckoutData): Observable<CheckoutPayment> {
         return Observable.defer {

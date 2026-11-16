@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.features.socialshare.SocialShareService
 import com.kickstarter.features.socialshare.data.SocialShareData
 import com.kickstarter.features.socialshare.data.SocialSharePlatform
@@ -79,6 +80,7 @@ class SocialShareViewModel(
         if (_uiState.value.isGeneratingImage && platform.requiresImage()) {
             // TODO: review in place just in case for now
             // more work related to the image to share on next ticket DISC-208
+            val problem = ProblemDetailsMapper.fromDomainMessage("Please wait, preparing image...", "prepare share image")
             errorAction.invoke("Please wait, preparing image...")
             return
         }
@@ -91,6 +93,7 @@ class SocialShareViewModel(
         )
 
         if (intent == null) {
+            val problem = ProblemDetailsMapper.fromDomainMessage("Could not open ${platform.name}", "open ${platform.name}")
             errorAction.invoke("Could not open ${platform.name}")
             return
         }
@@ -130,6 +133,7 @@ class SocialShareViewModel(
             _uiState.update { it.copy(isGeneratingImage = true) }
             val bitmap = shareService.loadShareImage(shareData.imageUrl)
             if (bitmap == null) {
+                val problem = ProblemDetailsMapper.fromDomainMessage("Failed to load share image", "load share image")
                 errorAction.invoke("Failed to load share image")
                 _uiState.update { it.copy(isGeneratingImage = false) }
                 return@launch
@@ -150,6 +154,7 @@ class SocialShareViewModel(
         scope.launch {
             val uri = shareService.cacheShareImage(bitmap)
             if (uri == null) {
+                val problem = ProblemDetailsMapper.fromDomainMessage("Failed to cache share image", "cache share image")
                 errorAction.invoke("Failed to cache share image")
             }
             _uiState.update { it.copy(shareImageUri = uri, isGeneratingImage = false) }

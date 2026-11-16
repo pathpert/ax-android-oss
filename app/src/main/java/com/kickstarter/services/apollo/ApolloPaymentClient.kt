@@ -13,6 +13,7 @@ import com.kickstarter.ax.errors.ProblemDetails
 import com.kickstarter.ax.errors.ProblemDetailsMapper
 import com.kickstarter.ax.errors.ProblemException
 import com.kickstarter.ax.safety.IdempotencyGuard
+import com.kickstarter.services.interceptors.RateLimitBackoffInterceptor
 import com.kickstarter.libs.utils.extensions.addToDisposable
 import com.kickstarter.libs.utils.extensions.isNotNull
 import com.kickstarter.models.CreatePaymentIntentInput
@@ -35,7 +36,8 @@ class ApolloPaymentClient(
     private val service: ApolloClient,
     private val disposables: CompositeDisposable,
     private val createPaymentIntentGuard: AtomicBoolean,
-    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard()
+    val idempotencyGuard: IdempotencyGuard = IdempotencyGuard(),
+    val rateLimitInterceptor: RateLimitBackoffInterceptor = RateLimitBackoffInterceptor()
 ) {
     fun createSetupIntent(project: Project? = null): Observable<String> {
         return Observable.defer {
